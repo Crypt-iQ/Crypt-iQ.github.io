@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html><head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0" selected="selected">github.com/lightningnetwork/lnd/watchtower/wtwire/create_session.go (100.0%)</option>
+				
+				<option value="file1">github.com/lightningnetwork/lnd/watchtower/wtwire/create_session_reply.go (100.0%)</option>
+				
+				<option value="file2">github.com/lightningnetwork/lnd/watchtower/wtwire/delete_session.go (100.0%)</option>
+				
+				<option value="file3">github.com/lightningnetwork/lnd/watchtower/wtwire/delete_session_reply.go (100.0%)</option>
+				
+				<option value="file4">github.com/lightningnetwork/lnd/watchtower/wtwire/error.go (80.0%)</option>
+				
+				<option value="file5">github.com/lightningnetwork/lnd/watchtower/wtwire/error_code.go (0.0%)</option>
+				
+				<option value="file6">github.com/lightningnetwork/lnd/watchtower/wtwire/init.go (36.4%)</option>
+				
+				<option value="file7">github.com/lightningnetwork/lnd/watchtower/wtwire/message.go (67.3%)</option>
+				
+				<option value="file8">github.com/lightningnetwork/lnd/watchtower/wtwire/state_update.go (100.0%)</option>
+				
+				<option value="file9">github.com/lightningnetwork/lnd/watchtower/wtwire/state_update_reply.go (100.0%)</option>
+				
+				<option value="file10">github.com/lightningnetwork/lnd/watchtower/wtwire/summary.go (0.0%)</option>
+				
+				<option value="file11">github.com/lightningnetwork/lnd/watchtower/wtwire/wtwire.go (62.4%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">no coverage</span>
+				<span class="cov1">low coverage</span>
+				<span class="cov2">*</span>
+				<span class="cov3">*</span>
+				<span class="cov4">*</span>
+				<span class="cov5">*</span>
+				<span class="cov6">*</span>
+				<span class="cov7">*</span>
+				<span class="cov8">*</span>
+				<span class="cov9">*</span>
+				<span class="cov10">high coverage</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: block;">package wtwire
+
+import (
+        "io"
+
+        "github.com/lightningnetwork/lnd/lnwallet/chainfee"
+        "github.com/lightningnetwork/lnd/watchtower/blob"
+)
+
+// CreateSession is sent from a client to tower when to negotiate a session, which
+// specifies the total number of updates that can be made, as well as fee rates.
+// An update is consumed by uploading an encrypted blob that contains
+// information required to sweep a revoked commitment transaction.
+type CreateSession struct {
+        // BlobType specifies the blob format that must be used by all updates sent
+        // under the session key used to negotiate this session.
+        BlobType blob.Type
+
+        // MaxUpdates is the maximum number of updates the watchtower will honor
+        // for this session.
+        MaxUpdates uint16
+
+        // RewardBase is the fixed amount allocated to the tower when the
+        // policy's blob type specifies a reward for the tower. This is taken
+        // before adding the proportional reward.
+        RewardBase uint32
+
+        // RewardRate is the fraction of the total balance of the revoked
+        // commitment that the watchtower is entitled to. This value is
+        // expressed in millionths of the total balance.
+        RewardRate uint32
+
+        // SweepFeeRate expresses the intended fee rate to be used when
+        // constructing the justice transaction. All sweep transactions created
+        // for this session must use this value during construction, and the
+        // signatures must implicitly commit to the resulting output values.
+        SweepFeeRate chainfee.SatPerKWeight
+}
+
+// A compile time check to ensure CreateSession implements the wtwire.Message
+// interface.
+var _ Message = (*CreateSession)(nil)
+
+// Decode deserializes a serialized CreateSession message stored in the passed
+// io.Reader observing the specified protocol version.
+//
+// This is part of the wtwire.Message interface.
+func (m *CreateSession) Decode(r io.Reader, pver uint32) error <span class="cov10" title="6">{
+        return ReadElements(r,
+                &amp;m.BlobType,
+                &amp;m.MaxUpdates,
+                &amp;m.RewardBase,
+                &amp;m.RewardRate,
+                &amp;m.SweepFeeRate,
+        )
+}</span>
+
+// Encode serializes the target CreateSession into the passed io.Writer
+// observing the protocol version specified.
+//
+// This is part of the wtwire.Message interface.
+func (m *CreateSession) Encode(w io.Writer, pver uint32) error <span class="cov1" title="1">{
+        return WriteElements(w,
+                m.BlobType,
+                m.MaxUpdates,
+                m.RewardBase,
+                m.RewardRate,
+                m.SweepFeeRate,
+        )
+}</span>
+
+// MsgType returns the integer uniquely identifying this message type on the
+// wire.
+//
+// This is part of the wtwire.Message interface.
+func (m *CreateSession) MsgType() MessageType <span class="cov1" title="1">{
+        return MsgCreateSession
+}</span>
+
+// MaxPayloadLength returns the maximum allowed payload size for a CreateSession
+// complete message observing the specified protocol version.
+//
+// This is part of the wtwire.Message interface.
+func (m *CreateSession) MaxPayloadLength(uint32) uint32 <span class="cov10" title="6">{
+        return 2 + 2 + 4 + 4 + 8 // 20
+}</span>
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package wtwire
+
+import "io"
+
+// CreateSessionCode is an error code returned by a watchtower in response to a
+// CreateSession message. The code directs the client in interpreting the payload
+// in the reply.
+type CreateSessionCode = ErrorCode
+
+const (
+        // CreateSessionCodeAlreadyExists is returned when a session is already
+        // active for the public key used to connect to the watchtower. The
+        // response includes the serialized reward address in case the original
+        // reply was never received and/or processed by the client.
+        CreateSessionCodeAlreadyExists CreateSessionCode = 60
+
+        // CreateSessionCodeRejectMaxUpdates the tower rejected the maximum
+        // number of state updates proposed by the client.
+        CreateSessionCodeRejectMaxUpdates CreateSessionCode = 61
+
+        // CreateSessionCodeRejectRewardRate the tower rejected the reward rate
+        // proposed by the client.
+        CreateSessionCodeRejectRewardRate CreateSessionCode = 62
+
+        // CreateSessionCodeRejectSweepFeeRate the tower rejected the sweep fee
+        // rate proposed by the client.
+        CreateSessionCodeRejectSweepFeeRate CreateSessionCode = 63
+
+        // CreateSessionCodeRejectBlobType is returned when the tower does not
+        // support the proposed blob type.
+        CreateSessionCodeRejectBlobType CreateSessionCode = 64
+)
+
+// MaxCreateSessionReplyDataLength is the maximum size of the Data payload
+// returned in a CreateSessionReply message. This does not include the length of
+// the Data field, which is a varint up to 3 bytes in size.
+const MaxCreateSessionReplyDataLength = 1024
+
+// CreateSessionReply is a message sent from watchtower to client in response to a
+// CreateSession message, and signals either an acceptance or rejection of the
+// proposed session parameters.
+type CreateSessionReply struct {
+        // Code will be non-zero if the watchtower rejected the session init.
+        Code CreateSessionCode
+
+        // LastApplied is the tower's last accepted sequence number for the
+        // session. This is useful when the session already exists but the
+        // client doesn't realize it's already used the session, such as after a
+        // restoration.
+        LastApplied uint16
+
+        // Data is a byte slice returned the caller of the message, and is to be
+        // interpreted according to the error Code. When the response is
+        // CreateSessionCodeOK, data encodes the reward address to be included in
+        // any sweep transactions if the reward is not dusty. Otherwise, it may
+        // encode the watchtowers configured parameters for any policy
+        // rejections.
+        Data []byte
+}
+
+// A compile time check to ensure CreateSessionReply implements the wtwire.Message
+// interface.
+var _ Message = (*CreateSessionReply)(nil)
+
+// Decode deserializes a serialized CreateSessionReply message stored in the passed
+// io.Reader observing the specified protocol version.
+//
+// This is part of the wtwire.Message interface.
+func (m *CreateSessionReply) Decode(r io.Reader, pver uint32) error <span class="cov10" title="28">{
+        return ReadElements(r,
+                &amp;m.Code,
+                &amp;m.LastApplied,
+                &amp;m.Data,
+        )
+}</span>
+
+// Encode serializes the target CreateSessionReply into the passed io.Writer
+// observing the protocol version specified.
+//
+// This is part of the wtwire.Message interface.
+func (m *CreateSessionReply) Encode(w io.Writer, pver uint32) error <span class="cov6" title="7">{
+        return WriteElements(w,
+                m.Code,
+                m.LastApplied,
+                m.Data,
+        )
+}</span>
+
+// MsgType returns the integer uniquely identifying this message type on the
+// wire.
+//
+// This is part of the wtwire.Message interface.
+func (m *CreateSessionReply) MsgType() MessageType <span class="cov6" title="7">{
+        return MsgCreateSessionReply
+}</span>
+
+// MaxPayloadLength returns the maximum allowed payload size for a CreateSessionReply
+// complete message observing the specified protocol version.
+//
+// This is part of the wtwire.Message interface.
+func (m *CreateSessionReply) MaxPayloadLength(uint32) uint32 <span class="cov10" title="28">{
+        return 2 + 3 + MaxCreateSessionReplyDataLength
+}</span>
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package wtwire
+
+import "io"
+
+// DeleteSession is sent from the client to the tower to signal that the tower
+// can delete all session state for the session key used to authenticate the
+// brontide connection. This should be done by the client once all channels that
+// have state updates in the session have been resolved on-chain.
+type DeleteSession struct{}
+
+// Compile-time constraint to ensure DeleteSession implements the wtwire.Message
+// interface.
+var _ Message = (*DeleteSession)(nil)
+
+// Decode deserializes a serialized DeleteSession message stored in the passed
+// io.Reader observing the specified protocol version.
+//
+// This is part of the wtwire.Message interface.
+func (m *DeleteSession) Decode(r io.Reader, pver uint32) error <span class="cov10" title="2">{
+        return nil
+}</span>
+
+// Encode serializes the target DeleteSession message into the passed io.Writer
+// observing the specified protocol version.
+//
+// This is part of the wtwire.Message interface.
+func (m *DeleteSession) Encode(w io.Writer, pver uint32) error <span class="cov1" title="1">{
+        return nil
+}</span>
+
+// MsgType returns the integer uniquely identifying this message type on the
+// wire.
+//
+// This is part of the wtwire.Message interface.
+func (m *DeleteSession) MsgType() MessageType <span class="cov1" title="1">{
+        return MsgDeleteSession
+}</span>
+
+// MaxPayloadLength returns the maximum allowed payload size for a DeleteSession
+// message observing the specified protocol version.
+//
+// This is part of the wtwire.Message interface.
+func (m *DeleteSession) MaxPayloadLength(uint32) uint32 <span class="cov10" title="2">{
+        return 0
+}</span>
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package wtwire
+
+import "io"
+
+// DeleteSessionCode is an error code returned by a watchtower in response to a
+// DeleteSession message.
+type DeleteSessionCode = ErrorCode
+
+const (
+        // DeleteSessionCodeNotFound is returned when the watchtower does not
+        // know of the requested session. This may indicate an error on the
+        // client side, or that the tower had already deleted the session in a
+        // prior request that the client may not have received.
+        DeleteSessionCodeNotFound DeleteSessionCode = 80
+)
+
+// DeleteSessionReply is a message sent in response to a client's DeleteSession
+// request. The message indicates whether or not the deletion was a success or
+// failure.
+type DeleteSessionReply struct {
+        // Code will be non-zero if the watchtower was not able to delete the
+        // requested session.
+        Code DeleteSessionCode
+}
+
+// A compile time check to ensure DeleteSessionReply implements the
+// wtwire.Message interface.
+var _ Message = (*DeleteSessionReply)(nil)
+
+// Decode deserializes a serialized DeleteSessionReply message stored in the
+// passed io.Reader observing the specified protocol version.
+//
+// This is part of the wtwire.Message interface.
+func (m *DeleteSessionReply) Decode(r io.Reader, pver uint32) error <span class="cov10" title="4">{
+        return ReadElements(r,
+                &amp;m.Code,
+        )
+}</span>
+
+// Encode serializes the target DeleteSessionReply into the passed io.Writer
+// observing the protocol version specified.
+//
+// This is part of the wtwire.Message interface.
+func (m *DeleteSessionReply) Encode(w io.Writer, pver uint32) error <span class="cov1" title="1">{
+        return WriteElements(w,
+                m.Code,
+        )
+}</span>
+
+// MsgType returns the integer uniquely identifying this message type on the
+// wire.
+//
+// This is part of the wtwire.Message interface.
+func (m *DeleteSessionReply) MsgType() MessageType <span class="cov1" title="1">{
+        return MsgDeleteSessionReply
+}</span>
+
+// MaxPayloadLength returns the maximum allowed payload size for a
+// DeleteSessionReply complete message observing the specified protocol version.
+//
+// This is part of the wtwire.Message interface.
+func (m *DeleteSessionReply) MaxPayloadLength(uint32) uint32 <span class="cov10" title="4">{
+        return 2
+}</span>
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package wtwire
+
+import "io"
+
+// Error is a generic error message that can be sent to a client if a request
+// fails outside of prescribed protocol errors. Typically this would be followed
+// by the server disconnecting the client, and so can be useful to transferring
+// the exact reason.
+type Error struct {
+        // Code specifies the error code encountered by the server.
+        Code ErrorCode
+
+        // Data encodes a payload whose contents can be interpreted by the
+        // client in response to the error code.
+        Data []byte
+}
+
+// NewError returns an freshly-initialized Error message.
+func NewError() *Error <span class="cov0" title="0">{
+        return &amp;Error{}
+}</span>
+
+// A compile time check to ensure Error implements the wtwire.Message interface.
+var _ Message = (*Error)(nil)
+
+// Decode deserializes a serialized Error message stored in the passed io.Reader
+// observing the specified protocol version.
+//
+// This is part of the wtwire.Message interface.
+func (e *Error) Decode(r io.Reader, pver uint32) error <span class="cov10" title="24">{
+        return ReadElements(r,
+                &amp;e.Code,
+                &amp;e.Data,
+        )
+}</span>
+
+// Encode serializes the target Error into the passed io.Writer observing the
+// protocol version specified.
+//
+// This is part of the wtwire.Message interface.
+func (e *Error) Encode(w io.Writer, prver uint32) error <span class="cov6" title="6">{
+        return WriteElements(w,
+                e.Code,
+                e.Data,
+        )
+}</span>
+
+// MsgType returns the integer uniquely identifying this message type on the
+// wire.
+//
+// This is part of the wtwire.Message interface.
+func (e *Error) MsgType() MessageType <span class="cov6" title="6">{
+        return MsgError
+}</span>
+
+// MaxPayloadLength returns the maximum allowed payload size for a Error
+// complete message observing the specified protocol version.
+//
+// This is part of the wtwire.Message interface.
+func (e *Error) MaxPayloadLength(uint32) uint32 <span class="cov10" title="24">{
+        return MaxMessagePayload
+}</span>
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package wtwire
+
+import "fmt"
+
+// ErrorCode represents a generic error code used when replying to watchtower
+// clients. Specific reply messages may extend the ErrorCode primitive and add
+// custom codes, so long as they don't collide with the generic error codes..
+type ErrorCode uint16
+
+const (
+        // CodeOK signals that the request was successfully processed by the
+        // watchtower.
+        CodeOK ErrorCode = 0
+
+        // CodeTemporaryFailure alerts the client that the watchtower is
+        // temporarily unavailable, but that it may try again at a later time.
+        CodeTemporaryFailure ErrorCode = 40
+
+        // CodePermanentFailure alerts the client that the watchtower has
+        // permanently failed, and further communication should be avoided.
+        CodePermanentFailure ErrorCode = 50
+)
+
+// String returns a human-readable description of an ErrorCode.
+func (c ErrorCode) String() string <span class="cov0" title="0">{
+        switch c </span>{
+        case CodeOK:<span class="cov0" title="0">
+                return "CodeOK"</span>
+        case CodeTemporaryFailure:<span class="cov0" title="0">
+                return "CodeTemporaryFailure"</span>
+        case CodePermanentFailure:<span class="cov0" title="0">
+                return "CodePermanentFailure"</span>
+        case CreateSessionCodeAlreadyExists:<span class="cov0" title="0">
+                return "CreateSessionCodeAlreadyExists"</span>
+        case CreateSessionCodeRejectMaxUpdates:<span class="cov0" title="0">
+                return "CreateSessionCodeRejectMaxUpdates"</span>
+        case CreateSessionCodeRejectRewardRate:<span class="cov0" title="0">
+                return "CreateSessionCodeRejectRewardRate"</span>
+        case CreateSessionCodeRejectSweepFeeRate:<span class="cov0" title="0">
+                return "CreateSessionCodeRejectSweepFeeRate"</span>
+        case CreateSessionCodeRejectBlobType:<span class="cov0" title="0">
+                return "CreateSessionCodeRejectBlobType"</span>
+        case StateUpdateCodeClientBehind:<span class="cov0" title="0">
+                return "StateUpdateCodeClientBehind"</span>
+        case StateUpdateCodeMaxUpdatesExceeded:<span class="cov0" title="0">
+                return "StateUpdateCodeMaxUpdatesExceeded"</span>
+        case StateUpdateCodeSeqNumOutOfOrder:<span class="cov0" title="0">
+                return "StateUpdateCodeSeqNumOutOfOrder"</span>
+        case DeleteSessionCodeNotFound:<span class="cov0" title="0">
+                return "DeleteSessionCodeNotFound"</span>
+        default:<span class="cov0" title="0">
+                return fmt.Sprintf("UnknownErrorCode: %d", c)</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package wtwire
+
+import (
+        "fmt"
+        "io"
+
+        "github.com/btcsuite/btcd/chaincfg/chainhash"
+        "github.com/lightningnetwork/lnd/feature"
+        "github.com/lightningnetwork/lnd/lnwire"
+)
+
+// Init is the first message sent over the watchtower wire protocol, and
+// specifies connection features bits and level of requiredness maintained by
+// the sending node. The Init message also sends the chain hash identifying the
+// network that the sender is on.
+type Init struct {
+        // ConnFeatures are the feature bits being advertised for the duration
+        // of a single connection with a peer.
+        ConnFeatures *lnwire.RawFeatureVector
+
+        // ChainHash is the genesis hash of the chain that the advertiser claims
+        // to be on.
+        ChainHash chainhash.Hash
+}
+
+// NewInitMessage generates a new Init message from a raw connection feature
+// vector and chain hash.
+func NewInitMessage(connFeatures *lnwire.RawFeatureVector,
+        chainHash chainhash.Hash) *Init <span class="cov0" title="0">{
+
+        return &amp;Init{
+                ConnFeatures: connFeatures,
+                ChainHash:    chainHash,
+        }
+}</span>
+
+// Encode serializes the target Init into the passed io.Writer observing the
+// protocol version specified.
+//
+// This is part of the wtwire.Message interface.
+func (msg *Init) Encode(w io.Writer, pver uint32) error <span class="cov6" title="7">{
+        return WriteElements(w,
+                msg.ConnFeatures,
+                msg.ChainHash,
+        )
+}</span>
+
+// Decode deserializes a serialized Init message stored in the passed io.Reader
+// observing the specified protocol version.
+//
+// This is part of the wtwire.Message interface.
+func (msg *Init) Decode(r io.Reader, pver uint32) error <span class="cov10" title="22">{
+        return ReadElements(r,
+                &amp;msg.ConnFeatures,
+                &amp;msg.ChainHash,
+        )
+}</span>
+
+// MsgType returns the integer uniquely identifying this message type on the
+// wire.
+//
+// This is part of the wtwire.Message interface.
+func (msg *Init) MsgType() MessageType <span class="cov6" title="7">{
+        return MsgInit
+}</span>
+
+// MaxPayloadLength returns the maximum allowed payload size for an Init
+// complete message observing the specified protocol version.
+//
+// This is part of the wtwire.Message interface.
+func (msg *Init) MaxPayloadLength(uint32) uint32 <span class="cov10" title="22">{
+        return MaxMessagePayload
+}</span>
+
+// A compile-time constraint to ensure Init implements the Message interface.
+var _ Message = (*Init)(nil)
+
+// CheckRemoteInit performs basic validation of the remote party's Init message.
+// This method checks that the remote Init's chain hash matches our advertised
+// chain hash and that the remote Init does not contain any required feature
+// bits that we don't understand.
+func (msg *Init) CheckRemoteInit(remoteInit *Init,
+        featureNames map[lnwire.FeatureBit]string) error <span class="cov0" title="0">{
+
+        // Check that the remote peer is on the same chain.
+        if msg.ChainHash != remoteInit.ChainHash </span><span class="cov0" title="0">{
+                return NewErrUnknownChainHash(remoteInit.ChainHash)
+        }</span>
+
+        <span class="cov0" title="0">remoteConnFeatures := lnwire.NewFeatureVector(
+                remoteInit.ConnFeatures, featureNames,
+        )
+
+        // Check that the remote peer doesn't have any required connection
+        // feature bits that we ourselves are unaware of.
+        return feature.ValidateRequired(remoteConnFeatures)</span>
+}
+
+// ErrUnknownChainHash signals that the remote Init has a different chain hash
+// from the one we advertised.
+type ErrUnknownChainHash struct {
+        hash chainhash.Hash
+}
+
+// NewErrUnknownChainHash creates an ErrUnknownChainHash using the remote Init's
+// chain hash.
+func NewErrUnknownChainHash(hash chainhash.Hash) *ErrUnknownChainHash <span class="cov0" title="0">{
+        return &amp;ErrUnknownChainHash{hash}
+}</span>
+
+// Error returns a human-readable error displaying the unknown chain hash.
+func (e *ErrUnknownChainHash) Error() string <span class="cov0" title="0">{
+        return fmt.Sprintf("remote init has unknown chain hash: %s", e.hash)
+}</span>
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package wtwire
+
+import (
+        "bytes"
+        "encoding/binary"
+        "fmt"
+        "io"
+
+        "github.com/lightningnetwork/lnd/lnwire"
+)
+
+// MaxMessagePayload is the maximum bytes a message can be regardless of other
+// individual limits imposed by messages themselves.
+const MaxMessagePayload = 65535 // 65KB
+
+// MessageType is the unique 2 byte big-endian integer that indicates the type
+// of message on the wire. All messages have a very simple header which
+// consists simply of 2-byte message type. We omit a length field, and checksum
+// as the Watchtower Protocol is intended to be encapsulated within a
+// confidential+authenticated cryptographic messaging protocol.
+type MessageType uint16
+
+// The currently defined message types within this current version of the
+// Watchtower protocol.
+const (
+        // MsgInit identifies an encoded Init message.
+        MsgInit MessageType = 600
+
+        // MsgError identifies an encoded Error message.
+        MsgError MessageType = 601
+
+        // MsgCreateSession identifies an encoded CreateSession message.
+        MsgCreateSession MessageType = 602
+
+        // MsgCreateSessionReply identifies an encoded CreateSessionReply message.
+        MsgCreateSessionReply MessageType = 603
+
+        // MsgStateUpdate identifies an encoded StateUpdate message.
+        MsgStateUpdate MessageType = 604
+
+        // MsgStateUpdateReply identifies an encoded StateUpdateReply message.
+        MsgStateUpdateReply MessageType = 605
+
+        // MsgDeleteSession identifies an encoded DeleteSession message.
+        MsgDeleteSession MessageType = 606
+
+        // MsgDeleteSessionReply identifies an encoded DeleteSessionReply
+        // message.
+        MsgDeleteSessionReply MessageType = 607
+)
+
+// String returns a human readable description of the message type.
+func (m MessageType) String() string <span class="cov0" title="0">{
+        switch m </span>{
+        case MsgInit:<span class="cov0" title="0">
+                return "Init"</span>
+        case MsgCreateSession:<span class="cov0" title="0">
+                return "MsgCreateSession"</span>
+        case MsgCreateSessionReply:<span class="cov0" title="0">
+                return "MsgCreateSessionReply"</span>
+        case MsgStateUpdate:<span class="cov0" title="0">
+                return "MsgStateUpdate"</span>
+        case MsgStateUpdateReply:<span class="cov0" title="0">
+                return "MsgStateUpdateReply"</span>
+        case MsgDeleteSession:<span class="cov0" title="0">
+                return "MsgDeleteSession"</span>
+        case MsgDeleteSessionReply:<span class="cov0" title="0">
+                return "MsgDeleteSessionReply"</span>
+        case MsgError:<span class="cov0" title="0">
+                return "Error"</span>
+        default:<span class="cov0" title="0">
+                return "&lt;unknown&gt;"</span>
+        }
+}
+
+// Serializable is an interface which defines a lightning wire serializable
+// object.
+type Serializable = lnwire.Serializable
+
+// Message is an interface that defines a lightning wire protocol message. The
+// interface is general in order to allow implementing types full control over
+// the representation of its data.
+type Message interface {
+        Serializable
+
+        // MsgType returns a MessageType that uniquely identifies the message to
+        // be encoded.
+        MsgType() MessageType
+
+        // MaxMessagePayload is the maximum serialized length that a particular
+        // message type can take.
+        MaxPayloadLength(uint32) uint32
+}
+
+// makeEmptyMessage creates a new empty message of the proper concrete type
+// based on the passed message type.
+func makeEmptyMessage(msgType MessageType) (Message, error) <span class="cov10" title="115">{
+        var msg Message
+
+        switch msgType </span>{
+        case MsgInit:<span class="cov6" title="22">
+                msg = &amp;Init{}</span>
+        case MsgCreateSession:<span class="cov4" title="6">
+                msg = &amp;CreateSession{}</span>
+        case MsgCreateSessionReply:<span class="cov7" title="28">
+                msg = &amp;CreateSessionReply{}</span>
+        case MsgStateUpdate:<span class="cov7" title="25">
+                msg = &amp;StateUpdate{}</span>
+        case MsgStateUpdateReply:<span class="cov3" title="4">
+                msg = &amp;StateUpdateReply{}</span>
+        case MsgDeleteSession:<span class="cov2" title="2">
+                msg = &amp;DeleteSession{}</span>
+        case MsgDeleteSessionReply:<span class="cov3" title="4">
+                msg = &amp;DeleteSessionReply{}</span>
+        case MsgError:<span class="cov7" title="24">
+                msg = &amp;Error{}</span>
+        default:<span class="cov0" title="0">
+                return nil, fmt.Errorf("unknown message type [%d]", msgType)</span>
+        }
+
+        <span class="cov10" title="115">return msg, nil</span>
+}
+
+// WriteMessage writes a lightning Message to w including the necessary header
+// information and returns the number of bytes written.
+func WriteMessage(w io.Writer, msg Message, pver uint32) (int, error) <span class="cov7" title="29">{
+        totalBytes := 0
+
+        // Encode the message payload itself into a temporary buffer.
+        // TODO(roasbeef): create buffer pool
+        var bw bytes.Buffer
+        if err := msg.Encode(&amp;bw, pver); err != nil </span><span class="cov0" title="0">{
+                return totalBytes, err
+        }</span>
+        <span class="cov7" title="29">payload := bw.Bytes()
+        lenp := len(payload)
+
+        // Enforce maximum overall message payload.
+        if lenp &gt; MaxMessagePayload </span><span class="cov0" title="0">{
+                return totalBytes, fmt.Errorf("message payload is too large - "+
+                        "encoded %d bytes, but maximum message payload is %d bytes",
+                        lenp, MaxMessagePayload)
+        }</span>
+
+        // Enforce maximum message payload on the message type.
+        <span class="cov7" title="29">mpl := msg.MaxPayloadLength(pver)
+        if uint32(lenp) &gt; mpl </span><span class="cov0" title="0">{
+                return totalBytes, fmt.Errorf("message payload is too large - "+
+                        "encoded %d bytes, but maximum message payload of "+
+                        "type %v is %d bytes", lenp, msg.MsgType(), mpl)
+        }</span>
+
+        // With the initial sanity checks complete, we'll now write out the
+        // message type itself.
+        <span class="cov7" title="29">var mType [2]byte
+        binary.BigEndian.PutUint16(mType[:], uint16(msg.MsgType()))
+        n, err := w.Write(mType[:])
+        totalBytes += n
+        if err != nil </span><span class="cov0" title="0">{
+                return totalBytes, err
+        }</span>
+
+        // With the message type written, we'll now write out the raw payload
+        // itself.
+        <span class="cov7" title="29">n, err = w.Write(payload)
+        totalBytes += n
+
+        return totalBytes, err</span>
+}
+
+// ReadMessage reads, validates, and parses the next Watchtower message from r
+// for the provided protocol version.
+func ReadMessage(r io.Reader, pver uint32) (Message, error) <span class="cov10" title="115">{
+        // First, we'll read out the first two bytes of the message so we can
+        // create the proper empty message.
+        var mType [2]byte
+        if _, err := io.ReadFull(r, mType[:]); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov10" title="115">msgType := MessageType(binary.BigEndian.Uint16(mType[:]))
+
+        // Now that we know the target message type, we can create the proper
+        // empty message type and decode the message into it.
+        msg, err := makeEmptyMessage(msgType)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov10" title="115">if err := msg.Decode(r, pver); err != nil </span><span class="cov8" title="57">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="58">return msg, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package wtwire
+
+import "io"
+
+// StateUpdate transmits an encrypted state update from the client to the
+// watchtower. Each state update is tied to particular session, identified by
+// the client's brontine key used to make the request.
+type StateUpdate struct {
+        // SeqNum is a 1-indexed, monotonically incrementing sequence number.
+        // This number represents to the client's expected sequence number when
+        // sending updates sent to the watchtower. This value must always be
+        // less or equal than the negotiated MaxUpdates for the session, and
+        // greater than the LastApplied sent in the same message.
+        SeqNum uint16
+
+        // LastApplied echos the LastApplied value returned from watchtower,
+        // allowing the tower to detect faulty clients. This allow provides a
+        // feedback mechanism for the tower if updates are allowed to stream in
+        // an async fashion.
+        LastApplied uint16
+
+        // IsComplete is 1 if the watchtower should close the connection after
+        // responding, and 0 otherwise.
+        IsComplete uint8
+
+        // Hint is the 16-byte prefix of the revoked commitment transaction ID
+        // for which the encrypted blob can exact justice.
+        Hint [16]byte
+
+        // EncryptedBlob is the serialized ciphertext containing all necessary
+        // information to sweep the commitment transaction corresponding to the
+        // Hint. The ciphertext is to be encrypted using the full transaction ID
+        // of the revoked commitment transaction.
+        //
+        // The plaintext MUST be encoded using the negotiated Version for
+        // this session. In addition, the signatures must be computed over a
+        // sweep transaction honoring the decided SweepFeeRate, RewardRate, and
+        // (possibly) reward address returned in the SessionInitReply.
+        EncryptedBlob []byte
+}
+
+// A compile time check to ensure StateUpdate implements the wtwire.Message
+// interface.
+var _ Message = (*StateUpdate)(nil)
+
+// Decode deserializes a serialized StateUpdate message stored in the passed
+// io.Reader observing the specified protocol version.
+//
+// This is part of the wtwire.Message interface.
+func (m *StateUpdate) Decode(r io.Reader, pver uint32) error <span class="cov10" title="25">{
+        return ReadElements(r,
+                &amp;m.SeqNum,
+                &amp;m.LastApplied,
+                &amp;m.IsComplete,
+                &amp;m.Hint,
+                &amp;m.EncryptedBlob,
+        )
+}</span>
+
+// Encode serializes the target StateUpdate into the passed io.Writer
+// observing the protocol version specified.
+//
+// This is part of the wtwire.Message interface.
+func (m *StateUpdate) Encode(w io.Writer, pver uint32) error <span class="cov5" title="5">{
+        return WriteElements(w,
+                m.SeqNum,
+                m.LastApplied,
+                m.IsComplete,
+                m.Hint,
+                m.EncryptedBlob,
+        )
+}</span>
+
+// MsgType returns the integer uniquely identifying this message type on the
+// wire.
+//
+// This is part of the wtwire.Message interface.
+func (m *StateUpdate) MsgType() MessageType <span class="cov5" title="5">{
+        return MsgStateUpdate
+}</span>
+
+// MaxPayloadLength returns the maximum allowed payload size for a StateUpdate
+// complete message observing the specified protocol version.
+//
+// This is part of the wtwire.Message interface.
+func (m *StateUpdate) MaxPayloadLength(uint32) uint32 <span class="cov10" title="25">{
+        return MaxMessagePayload
+}</span>
+</pre>
+		
+		<pre class="file" id="file9" style="display: none">package wtwire
+
+import "io"
+
+// StateUpdateCode is an error code returned by a watchtower in response to a
+// StateUpdate message.
+type StateUpdateCode = ErrorCode
+
+const (
+        // StateUpdateCodeClientBehind signals that the client's sequence number
+        // is behind what the watchtower expects based on its LastApplied. This
+        // error should cause the client to record the LastApplied field in the
+        // response, and initiate another attempt with the proper sequence
+        // number.
+        //
+        // NOTE: Repeated occurrences of this could be interpreted as an attempt
+        // to siphon state updates from the client. If the client believes it
+        // is not violating the protocol, this could be grounds to blacklist
+        // this tower from future session negotiation.
+        StateUpdateCodeClientBehind StateUpdateCode = 70
+
+        // StateUpdateCodeMaxUpdatesExceeded signals that the client tried to
+        // send a sequence number beyond the negotiated MaxUpdates of the
+        // session.
+        StateUpdateCodeMaxUpdatesExceeded StateUpdateCode = 71
+
+        // StateUpdateCodeSeqNumOutOfOrder signals the client sent an update
+        // that does not follow the required incremental monotonicity required
+        // by the tower.
+        StateUpdateCodeSeqNumOutOfOrder StateUpdateCode = 72
+)
+
+// StateUpdateReply is a message sent from watchtower to client in response to a
+// StateUpdate message, and signals either an acceptance or rejection of the
+// proposed state update.
+type StateUpdateReply struct {
+        // Code will be non-zero if the watchtower rejected the state update.
+        Code StateUpdateCode
+
+        // LastApplied returns the sequence number of the last accepted update
+        // known to the watchtower. If the update was successful, this value
+        // should be the sequence number of the last update sent.
+        LastApplied uint16
+}
+
+// A compile time check to ensure StateUpdateReply implements the wtwire.Message
+// interface.
+var _ Message = (*StateUpdateReply)(nil)
+
+// Decode deserializes a serialized StateUpdateReply message stored in the passed
+// io.Reader observing the specified protocol version.
+//
+// This is part of the wtwire.Message interface.
+func (t *StateUpdateReply) Decode(r io.Reader, pver uint32) error <span class="cov10" title="4">{
+        return ReadElements(r,
+                &amp;t.Code,
+                &amp;t.LastApplied,
+        )
+}</span>
+
+// Encode serializes the target StateUpdateReply into the passed io.Writer
+// observing the protocol version specified.
+//
+// This is part of the wtwire.Message interface.
+func (t *StateUpdateReply) Encode(w io.Writer, pver uint32) error <span class="cov1" title="1">{
+        return WriteElements(w,
+                t.Code,
+                t.LastApplied,
+        )
+}</span>
+
+// MsgType returns the integer uniquely identifying this message type on the
+// wire.
+//
+// This is part of the wtwire.Message interface.
+func (t *StateUpdateReply) MsgType() MessageType <span class="cov1" title="1">{
+        return MsgStateUpdateReply
+}</span>
+
+// MaxPayloadLength returns the maximum allowed payload size for a
+// StateUpdateReply complete message observing the specified protocol version.
+//
+// This is part of the wtwire.Message interface.
+func (t *StateUpdateReply) MaxPayloadLength(uint32) uint32 <span class="cov10" title="4">{
+        return 4
+}</span>
+</pre>
+		
+		<pre class="file" id="file10" style="display: none">package wtwire
+
+import "fmt"
+
+// MessageSummary creates a human-readable description of a given Message. If
+// the type is unknown, an empty string is returned.
+func MessageSummary(msg Message) string <span class="cov0" title="0">{
+        switch msg := msg.(type) </span>{
+        case *Init:<span class="cov0" title="0">
+                return ""</span>
+
+        case *CreateSession:<span class="cov0" title="0">
+                return fmt.Sprintf("blob_type=%s, max_updates=%d "+
+                        "reward_base=%d reward_rate=%d sweep_fee_rate=%d",
+                        msg.BlobType, msg.MaxUpdates, msg.RewardBase,
+                        msg.RewardRate, msg.SweepFeeRate)</span>
+
+        case *CreateSessionReply:<span class="cov0" title="0">
+                return fmt.Sprintf("code=%d", msg.Code)</span>
+
+        case *StateUpdate:<span class="cov0" title="0">
+                return fmt.Sprintf("seqnum=%d last_applied=%d is_complete=%d "+
+                        "hint=%x", msg.SeqNum, msg.LastApplied, msg.IsComplete,
+                        msg.Hint)</span>
+
+        case *StateUpdateReply:<span class="cov0" title="0">
+                return fmt.Sprintf("code=%d last_applied=%d", msg.Code,
+                        msg.LastApplied)</span>
+
+        case *Error:<span class="cov0" title="0">
+                return fmt.Sprintf("code=%d", msg.Code)</span>
+
+        default:<span class="cov0" title="0">
+                return ""</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file11" style="display: none">package wtwire
+
+import (
+        "encoding/binary"
+        "fmt"
+        "io"
+
+        "github.com/btcsuite/btcd/btcec"
+        "github.com/btcsuite/btcd/chaincfg/chainhash"
+        "github.com/btcsuite/btcd/wire"
+        "github.com/lightningnetwork/lnd/lnwallet/chainfee"
+        "github.com/lightningnetwork/lnd/lnwire"
+        "github.com/lightningnetwork/lnd/watchtower/blob"
+)
+
+// WriteElement is a one-stop shop to write the big endian representation of
+// any element which is to be serialized for the wire protocol. The passed
+// io.Writer should be backed by an appropriately sized byte slice, or be able
+// to dynamically expand to accommodate additional data.
+func WriteElement(w io.Writer, element interface{}) error <span class="cov7" title="80">{
+        switch e := element.(type) </span>{
+        case uint8:<span class="cov3" title="5">
+                var b [1]byte
+                b[0] = e
+                if _, err := w.Write(b[:]); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+
+        case uint16:<span class="cov5" title="19">
+                var b [2]byte
+                binary.BigEndian.PutUint16(b[:], e)
+                if _, err := w.Write(b[:]); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+
+        case blob.Type:<span class="cov1" title="1">
+                var b [2]byte
+                binary.BigEndian.PutUint16(b[:], uint16(e))
+                if _, err := w.Write(b[:]); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+
+        case uint32:<span class="cov2" title="2">
+                var b [4]byte
+                binary.BigEndian.PutUint32(b[:], e)
+                if _, err := w.Write(b[:]); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+
+        case uint64:<span class="cov0" title="0">
+                var b [8]byte
+                binary.BigEndian.PutUint64(b[:], e)
+                if _, err := w.Write(b[:]); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+
+        case [16]byte:<span class="cov3" title="5">
+                if _, err := w.Write(e[:]); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+
+        case [32]byte:<span class="cov0" title="0">
+                if _, err := w.Write(e[:]); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+
+        case [33]byte:<span class="cov0" title="0">
+                if _, err := w.Write(e[:]); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+
+        case []byte:<span class="cov5" title="18">
+                if err := wire.WriteVarBytes(w, 0, e); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+
+        case chainfee.SatPerKWeight:<span class="cov1" title="1">
+                var b [8]byte
+                binary.BigEndian.PutUint64(b[:], uint64(e))
+                if _, err := w.Write(b[:]); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+
+        case ErrorCode:<span class="cov5" title="15">
+                var b [2]byte
+                binary.BigEndian.PutUint16(b[:], uint16(e))
+                if _, err := w.Write(b[:]); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+
+        case chainhash.Hash:<span class="cov4" title="7">
+                if _, err := w.Write(e[:]); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+
+        case *lnwire.RawFeatureVector:<span class="cov4" title="7">
+                if e == nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("cannot write nil feature vector")
+                }</span>
+
+                <span class="cov4" title="7">if err := e.Encode(w); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+
+        case *btcec.PublicKey:<span class="cov0" title="0">
+                if e == nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("cannot write nil pubkey")
+                }</span>
+
+                <span class="cov0" title="0">var b [33]byte
+                serializedPubkey := e.SerializeCompressed()
+                copy(b[:], serializedPubkey)
+                if _, err := w.Write(b[:]); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+
+        default:<span class="cov0" title="0">
+                return fmt.Errorf("Unknown type in WriteElement: %T", e)</span>
+        }
+
+        <span class="cov7" title="80">return nil</span>
+}
+
+// WriteElements is writes each element in the elements slice to the passed
+// io.Writer using WriteElement.
+func WriteElements(w io.Writer, elements ...interface{}) error <span class="cov6" title="28">{
+        for _, element := range elements </span><span class="cov7" title="80">{
+                err := WriteElement(w, element)
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+        }
+        <span class="cov6" title="28">return nil</span>
+}
+
+// ReadElement is a one-stop utility function to deserialize any datastructure
+// encoded using the serialization format of lnwire.
+func ReadElement(r io.Reader, element interface{}) error <span class="cov10" title="320">{
+        switch e := element.(type) </span>{
+        case *uint8:<span class="cov5" title="24">
+                var b [1]uint8
+                if _, err := r.Read(b[:]); err != nil </span><span class="cov1" title="1">{
+                        return err
+                }</span>
+                <span class="cov5" title="23">*e = b[0]</span>
+
+        case *uint16:<span class="cov7" title="84">
+                var b [2]byte
+                if _, err := io.ReadFull(r, b[:]); err != nil </span><span class="cov3" title="4">{
+                        return err
+                }</span>
+                <span class="cov7" title="80">*e = binary.BigEndian.Uint16(b[:])</span>
+
+        case *blob.Type:<span class="cov3" title="6">
+                var b [2]byte
+                if _, err := io.ReadFull(r, b[:]); err != nil </span><span class="cov1" title="1">{
+                        return err
+                }</span>
+                <span class="cov3" title="5">*e = blob.Type(binary.BigEndian.Uint16(b[:]))</span>
+
+        case *uint32:<span class="cov4" title="8">
+                var b [4]byte
+                if _, err := io.ReadFull(r, b[:]); err != nil </span><span class="cov1" title="1">{
+                        return err
+                }</span>
+                <span class="cov4" title="7">*e = binary.BigEndian.Uint32(b[:])</span>
+
+        case *uint64:<span class="cov0" title="0">
+                var b [8]byte
+                if _, err := io.ReadFull(r, b[:]); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov0" title="0">*e = binary.BigEndian.Uint64(b[:])</span>
+
+        case *[16]byte:<span class="cov5" title="23">
+                if _, err := io.ReadFull(r, e[:]); err != nil </span><span class="cov2" title="2">{
+                        return err
+                }</span>
+
+        case *[32]byte:<span class="cov0" title="0">
+                if _, err := io.ReadFull(r, e[:]); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+
+        case *[33]byte:<span class="cov0" title="0">
+                if _, err := io.ReadFull(r, e[:]); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+
+        case *[]byte:<span class="cov7" title="70">
+                bytes, err := wire.ReadVarBytes(r, 0, 66000, "[]byte")
+                if err != nil </span><span class="cov6" title="34">{
+                        return err
+                }</span>
+                <span class="cov6" title="36">*e = bytes</span>
+
+        case *chainfee.SatPerKWeight:<span class="cov2" title="3">
+                var b [8]byte
+                if _, err := io.ReadFull(r, b[:]); err != nil </span><span class="cov1" title="1">{
+                        return err
+                }</span>
+                <span class="cov2" title="2">*e = chainfee.SatPerKWeight(binary.BigEndian.Uint64(b[:]))</span>
+
+        case *ErrorCode:<span class="cov7" title="60">
+                var b [2]byte
+                if _, err := io.ReadFull(r, b[:]); err != nil </span><span class="cov3" title="5">{
+                        return err
+                }</span>
+                <span class="cov7" title="55">*e = ErrorCode(binary.BigEndian.Uint16(b[:]))</span>
+
+        case *chainhash.Hash:<span class="cov5" title="20">
+                if _, err := io.ReadFull(r, e[:]); err != nil </span><span class="cov3" title="6">{
+                        return err
+                }</span>
+
+        case **lnwire.RawFeatureVector:<span class="cov5" title="22">
+                f := lnwire.NewRawFeatureVector()
+                err := f.Decode(r)
+                if err != nil </span><span class="cov2" title="2">{
+                        return err
+                }</span>
+
+                <span class="cov5" title="20">*e = f</span>
+
+        case **btcec.PublicKey:<span class="cov0" title="0">
+                var b [btcec.PubKeyBytesLenCompressed]byte
+                if _, err := io.ReadFull(r, b[:]); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+
+                <span class="cov0" title="0">pubKey, err := btcec.ParsePubKey(b[:], btcec.S256())
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov0" title="0">*e = pubKey</span>
+
+        default:<span class="cov0" title="0">
+                return fmt.Errorf("Unknown type in ReadElement: %T", e)</span>
+        }
+
+        <span class="cov9" title="263">return nil</span>
+}
+
+// ReadElements deserializes a variable number of elements into the passed
+// io.Reader, with each element being deserialized according to the ReadElement
+// function.
+func ReadElements(r io.Reader, elements ...interface{}) error <span class="cov8" title="113">{
+        for _, element := range elements </span><span class="cov10" title="320">{
+                err := ReadElement(r, element)
+                if err != nil </span><span class="cov7" title="57">{
+                        return err
+                }</span>
+        }
+        <span class="cov7" title="56">return nil</span>
+}
+</pre>
+		
+		</div>
+	
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+
+</body></html>
