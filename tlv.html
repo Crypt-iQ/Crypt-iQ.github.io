@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html><head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0" selected="selected">github.com/lightningnetwork/lnd/tlv/primitive.go (70.4%)</option>
+				
+				<option value="file1">github.com/lightningnetwork/lnd/tlv/record.go (50.8%)</option>
+				
+				<option value="file2">github.com/lightningnetwork/lnd/tlv/stream.go (71.4%)</option>
+				
+				<option value="file3">github.com/lightningnetwork/lnd/tlv/truncated.go (0.0%)</option>
+				
+				<option value="file4">github.com/lightningnetwork/lnd/tlv/varint.go (77.1%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: block;">package tlv
+
+import (
+        "encoding/binary"
+        "fmt"
+        "io"
+
+        "github.com/btcsuite/btcd/btcec"
+)
+
+// ErrTypeForEncoding signals that an incorrect type was passed to an Encoder.
+type ErrTypeForEncoding struct {
+        val     interface{}
+        expType string
+}
+
+// NewTypeForEncodingErr creates a new ErrTypeForEncoding given the incorrect
+// val and the expected type.
+func NewTypeForEncodingErr(val interface{}, expType string) ErrTypeForEncoding <span class="cov8" title="1">{
+        return ErrTypeForEncoding{
+                val:     val,
+                expType: expType,
+        }
+}</span>
+
+// Error returns a human-readable description of the type mismatch.
+func (e ErrTypeForEncoding) Error() string <span class="cov0" title="0">{
+        return fmt.Sprintf("ErrTypeForEncoding want (type: *%s), "+
+                "got (type: %T)", e.expType, e.val)
+}</span>
+
+// ErrTypeForDecoding signals that an incorrect type was passed to a Decoder or
+// that the expected length of the encoding is different from that required by
+// the expected type.
+type ErrTypeForDecoding struct {
+        val       interface{}
+        expType   string
+        valLength uint64
+        expLength uint64
+}
+
+// NewTypeForDecodingErr creates a new ErrTypeForDecoding given the incorrect
+// val and expected type, or the mismatch in their expected lengths.
+func NewTypeForDecodingErr(val interface{}, expType string,
+        valLength, expLength uint64) ErrTypeForDecoding <span class="cov8" title="1">{
+
+        return ErrTypeForDecoding{
+                val:       val,
+                expType:   expType,
+                valLength: valLength,
+                expLength: expLength,
+        }
+}</span>
+
+// Error returns a human-readable description of the type mismatch.
+func (e ErrTypeForDecoding) Error() string <span class="cov0" title="0">{
+        return fmt.Sprintf("ErrTypeForDecoding want (type: *%s, length: %v), "+
+                "got (type: %T, length: %v)", e.expType, e.expLength, e.val,
+                e.valLength)
+}</span>
+
+var (
+        byteOrder = binary.BigEndian
+)
+
+// EUint8 is an Encoder for uint8 values. An error is returned if val is not a
+// *uint8.
+func EUint8(w io.Writer, val interface{}, buf *[8]byte) error <span class="cov8" title="1">{
+        if i, ok := val.(*uint8); ok </span><span class="cov8" title="1">{
+                buf[0] = *i
+                _, err := w.Write(buf[:1])
+                return err
+        }</span>
+        <span class="cov0" title="0">return NewTypeForEncodingErr(val, "uint8")</span>
+}
+
+// EUint8T encodes a uint8 val to the provided io.Writer. This method is exposed
+// so that encodings for custom uint8-like types can be created without
+// incurring an extra heap allocation.
+func EUint8T(w io.Writer, val uint8, buf *[8]byte) error <span class="cov0" title="0">{
+        buf[0] = val
+        _, err := w.Write(buf[:1])
+        return err
+}</span>
+
+// EUint16 is an Encoder for uint16 values. An error is returned if val is not a
+// *uint16.
+func EUint16(w io.Writer, val interface{}, buf *[8]byte) error <span class="cov8" title="1">{
+        if i, ok := val.(*uint16); ok </span><span class="cov8" title="1">{
+                byteOrder.PutUint16(buf[:2], *i)
+                _, err := w.Write(buf[:2])
+                return err
+        }</span>
+        <span class="cov0" title="0">return NewTypeForEncodingErr(val, "uint16")</span>
+}
+
+// EUint16T encodes a uint16 val to the provided io.Writer. This method is
+// exposed so that encodings for custom uint16-like types can be created without
+// incurring an extra heap allocation.
+func EUint16T(w io.Writer, val uint16, buf *[8]byte) error <span class="cov0" title="0">{
+        byteOrder.PutUint16(buf[:2], val)
+        _, err := w.Write(buf[:2])
+        return err
+}</span>
+
+// EUint32 is an Encoder for uint32 values. An error is returned if val is not a
+// *uint32.
+func EUint32(w io.Writer, val interface{}, buf *[8]byte) error <span class="cov8" title="1">{
+        if i, ok := val.(*uint32); ok </span><span class="cov8" title="1">{
+                byteOrder.PutUint32(buf[:4], *i)
+                _, err := w.Write(buf[:4])
+                return err
+        }</span>
+        <span class="cov0" title="0">return NewTypeForEncodingErr(val, "uint32")</span>
+}
+
+// EUint32T encodes a uint32 val to the provided io.Writer. This method is
+// exposed so that encodings for custom uint32-like types can be created without
+// incurring an extra heap allocation.
+func EUint32T(w io.Writer, val uint32, buf *[8]byte) error <span class="cov0" title="0">{
+        byteOrder.PutUint32(buf[:4], val)
+        _, err := w.Write(buf[:4])
+        return err
+}</span>
+
+// EUint64 is an Encoder for uint64 values. An error is returned if val is not a
+// *uint64.
+func EUint64(w io.Writer, val interface{}, buf *[8]byte) error <span class="cov8" title="1">{
+        if i, ok := val.(*uint64); ok </span><span class="cov8" title="1">{
+                byteOrder.PutUint64(buf[:], *i)
+                _, err := w.Write(buf[:])
+                return err
+        }</span>
+        <span class="cov0" title="0">return NewTypeForEncodingErr(val, "uint64")</span>
+}
+
+// EUint64T encodes a uint64 val to the provided io.Writer. This method is
+// exposed so that encodings for custom uint64-like types can be created without
+// incurring an extra heap allocation.
+func EUint64T(w io.Writer, val uint64, buf *[8]byte) error <span class="cov0" title="0">{
+        byteOrder.PutUint64(buf[:], val)
+        _, err := w.Write(buf[:])
+        return err
+}</span>
+
+// DUint8 is a Decoder for uint8 values. An error is returned if val is not a
+// *uint8.
+func DUint8(r io.Reader, val interface{}, buf *[8]byte, l uint64) error <span class="cov8" title="1">{
+        if i, ok := val.(*uint8); ok &amp;&amp; l == 1 </span><span class="cov8" title="1">{
+                if _, err := io.ReadFull(r, buf[:1]); err != nil </span><span class="cov8" title="1">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">*i = buf[0]
+                return nil</span>
+        }
+        <span class="cov0" title="0">return NewTypeForDecodingErr(val, "uint8", l, 1)</span>
+}
+
+// DUint16 is a Decoder for uint16 values. An error is returned if val is not a
+// *uint16.
+func DUint16(r io.Reader, val interface{}, buf *[8]byte, l uint64) error <span class="cov8" title="1">{
+        if i, ok := val.(*uint16); ok &amp;&amp; l == 2 </span><span class="cov8" title="1">{
+                if _, err := io.ReadFull(r, buf[:2]); err != nil </span><span class="cov8" title="1">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">*i = byteOrder.Uint16(buf[:2])
+                return nil</span>
+        }
+        <span class="cov0" title="0">return NewTypeForDecodingErr(val, "uint16", l, 2)</span>
+}
+
+// DUint32 is a Decoder for uint32 values. An error is returned if val is not a
+// *uint32.
+func DUint32(r io.Reader, val interface{}, buf *[8]byte, l uint64) error <span class="cov8" title="1">{
+        if i, ok := val.(*uint32); ok &amp;&amp; l == 4 </span><span class="cov8" title="1">{
+                if _, err := io.ReadFull(r, buf[:4]); err != nil </span><span class="cov8" title="1">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">*i = byteOrder.Uint32(buf[:4])
+                return nil</span>
+        }
+        <span class="cov0" title="0">return NewTypeForDecodingErr(val, "uint32", l, 4)</span>
+}
+
+// DUint64 is a Decoder for uint64 values. An error is returned if val is not a
+// *uint64.
+func DUint64(r io.Reader, val interface{}, buf *[8]byte, l uint64) error <span class="cov8" title="1">{
+        if i, ok := val.(*uint64); ok &amp;&amp; l == 8 </span><span class="cov8" title="1">{
+                if _, err := io.ReadFull(r, buf[:]); err != nil </span><span class="cov8" title="1">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">*i = byteOrder.Uint64(buf[:])
+                return nil</span>
+        }
+        <span class="cov0" title="0">return NewTypeForDecodingErr(val, "uint64", l, 8)</span>
+}
+
+// EBytes32 is an Encoder for 32-byte arrays. An error is returned if val is not
+// a *[32]byte.
+func EBytes32(w io.Writer, val interface{}, _ *[8]byte) error <span class="cov8" title="1">{
+        if b, ok := val.(*[32]byte); ok </span><span class="cov8" title="1">{
+                _, err := w.Write(b[:])
+                return err
+        }</span>
+        <span class="cov0" title="0">return NewTypeForEncodingErr(val, "[32]byte")</span>
+}
+
+// DBytes32 is a Decoder for 32-byte arrays. An error is returned if val is not
+// a *[32]byte.
+func DBytes32(r io.Reader, val interface{}, _ *[8]byte, l uint64) error <span class="cov8" title="1">{
+        if b, ok := val.(*[32]byte); ok &amp;&amp; l == 32 </span><span class="cov8" title="1">{
+                _, err := io.ReadFull(r, b[:])
+                return err
+        }</span>
+        <span class="cov0" title="0">return NewTypeForDecodingErr(val, "[32]byte", l, 32)</span>
+}
+
+// EBytes33 is an Encoder for 33-byte arrays. An error is returned if val is not
+// a *[33]byte.
+func EBytes33(w io.Writer, val interface{}, _ *[8]byte) error <span class="cov8" title="1">{
+        if b, ok := val.(*[33]byte); ok </span><span class="cov8" title="1">{
+                _, err := w.Write(b[:])
+                return err
+        }</span>
+        <span class="cov0" title="0">return NewTypeForEncodingErr(val, "[33]byte")</span>
+}
+
+// DBytes33 is a Decoder for 33-byte arrays. An error is returned if val is not
+// a *[33]byte.
+func DBytes33(r io.Reader, val interface{}, _ *[8]byte, l uint64) error <span class="cov8" title="1">{
+        if b, ok := val.(*[33]byte); ok </span><span class="cov8" title="1">{
+                _, err := io.ReadFull(r, b[:])
+                return err
+        }</span>
+        <span class="cov0" title="0">return NewTypeForDecodingErr(val, "[33]byte", l, 33)</span>
+}
+
+// EBytes64 is an Encoder for 64-byte arrays. An error is returned if val is not
+// a *[64]byte.
+func EBytes64(w io.Writer, val interface{}, _ *[8]byte) error <span class="cov8" title="1">{
+        if b, ok := val.(*[64]byte); ok </span><span class="cov8" title="1">{
+                _, err := w.Write(b[:])
+                return err
+        }</span>
+        <span class="cov0" title="0">return NewTypeForEncodingErr(val, "[64]byte")</span>
+}
+
+// DBytes64 is an Decoder for 64-byte arrays. An error is returned if val is not
+// a *[64]byte.
+func DBytes64(r io.Reader, val interface{}, _ *[8]byte, l uint64) error <span class="cov8" title="1">{
+        if b, ok := val.(*[64]byte); ok &amp;&amp; l == 64 </span><span class="cov8" title="1">{
+                _, err := io.ReadFull(r, b[:])
+                return err
+        }</span>
+        <span class="cov0" title="0">return NewTypeForDecodingErr(val, "[64]byte", l, 64)</span>
+}
+
+// EPubKey is an Encoder for *btcec.PublicKey values. An error is returned if
+// val is not a **btcec.PublicKey.
+func EPubKey(w io.Writer, val interface{}, _ *[8]byte) error <span class="cov8" title="1">{
+        if pk, ok := val.(**btcec.PublicKey); ok &amp;&amp; *pk != nil </span><span class="cov8" title="1">{
+                _, err := w.Write((*pk).SerializeCompressed())
+                return err
+        }</span>
+        <span class="cov8" title="1">return NewTypeForEncodingErr(val, "*btcec.PublicKey")</span>
+}
+
+// DPubKey is a Decoder for *btcec.PublicKey values. An error is returned if val
+// is not a **btcec.PublicKey.
+func DPubKey(r io.Reader, val interface{}, _ *[8]byte, l uint64) error <span class="cov8" title="1">{
+        if pk, ok := val.(**btcec.PublicKey); ok &amp;&amp; l == 33 </span><span class="cov8" title="1">{
+                var b [33]byte
+                _, err := io.ReadFull(r, b[:])
+                if err != nil </span><span class="cov8" title="1">{
+                        return err
+                }</span>
+
+                <span class="cov8" title="1">p, err := btcec.ParsePubKey(b[:], btcec.S256())
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+
+                <span class="cov8" title="1">*pk = p
+
+                return nil</span>
+        }
+        <span class="cov0" title="0">return NewTypeForDecodingErr(val, "*btcec.PublicKey", l, 33)</span>
+}
+
+// EVarBytes is an Encoder for variable byte slices. An error is returned if val
+// is not *[]byte.
+func EVarBytes(w io.Writer, val interface{}, _ *[8]byte) error <span class="cov8" title="1">{
+        if b, ok := val.(*[]byte); ok </span><span class="cov8" title="1">{
+                _, err := w.Write(*b)
+                return err
+        }</span>
+        <span class="cov0" title="0">return NewTypeForEncodingErr(val, "[]byte")</span>
+}
+
+// DVarBytes is a Decoder for variable byte slices. An error is returned if val
+// is not *[]byte.
+func DVarBytes(r io.Reader, val interface{}, _ *[8]byte, l uint64) error <span class="cov8" title="1">{
+        if b, ok := val.(*[]byte); ok </span><span class="cov8" title="1">{
+                *b = make([]byte, l)
+                _, err := io.ReadFull(r, *b)
+                return err
+        }</span>
+        <span class="cov0" title="0">return NewTypeForDecodingErr(val, "[]byte", l, l)</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package tlv
+
+import (
+        "bytes"
+        "fmt"
+        "io"
+        "sort"
+
+        "github.com/btcsuite/btcd/btcec"
+)
+
+// Type is an 64-bit identifier for a TLV Record.
+type Type uint64
+
+// TypeMap is a map of parsed Types. The map values are byte slices. If the byte
+// slice is nil, the type was successfully parsed. Otherwise the value is byte
+// slice containing the encoded data.
+type TypeMap map[Type][]byte
+
+// Encoder is a signature for methods that can encode TLV values. An error
+// should be returned if the Encoder cannot support the underlying type of val.
+// The provided scratch buffer must be non-nil.
+type Encoder func(w io.Writer, val interface{}, buf *[8]byte) error
+
+// Decoder is a signature for methods that can decode TLV values. An error
+// should be returned if the Decoder cannot support the underlying type of val.
+// The provided scratch buffer must be non-nil.
+type Decoder func(r io.Reader, val interface{}, buf *[8]byte, l uint64) error
+
+// ENOP is an encoder that doesn't modify the io.Writer and never fails.
+func ENOP(io.Writer, interface{}, *[8]byte) error <span class="cov0" title="0">{ return nil }</span>
+
+// DNOP is an encoder that doesn't modify the io.Reader and never fails.
+func DNOP(io.Reader, interface{}, *[8]byte, uint64) error <span class="cov0" title="0">{ return nil }</span>
+
+// SizeFunc is a function that can compute the length of a given field. Since
+// the size of the underlying field can change, this allows the size of the
+// field to be evaluated at the time of encoding.
+type SizeFunc func() uint64
+
+// SizeVarBytes returns a SizeFunc that can compute the length of a byte slice.
+func SizeVarBytes(e *[]byte) SizeFunc <span class="cov8" title="1">{
+        return func() uint64 </span><span class="cov0" title="0">{
+                return uint64(len(*e))
+        }</span>
+}
+
+// RecorderProducer is an interface for objects that can produce a Record object
+// capable of encoding and/or decoding the RecordProducer as a Record.
+type RecordProducer interface {
+        // Record returns a Record that can be used to encode or decode the
+        // backing object.
+        Record() Record
+}
+
+// Record holds the required information to encode or decode a TLV record.
+type Record struct {
+        value      interface{}
+        typ        Type
+        staticSize uint64
+        sizeFunc   SizeFunc
+        encoder    Encoder
+        decoder    Decoder
+}
+
+// Size returns the size of the Record's value. If no static size is known, the
+// dynamic size will be evaluated.
+func (f *Record) Size() uint64 <span class="cov8" title="1">{
+        if f.sizeFunc == nil </span><span class="cov8" title="1">{
+                return f.staticSize
+        }</span>
+
+        <span class="cov0" title="0">return f.sizeFunc()</span>
+}
+
+// Type returns the type of the underlying TLV record.
+func (f *Record) Type() Type <span class="cov0" title="0">{
+        return f.typ
+}</span>
+
+// Encode writes out the TLV record to the passed writer. This is useful when a
+// caller wants to obtain the raw encoding of a *single* TLV record, outside
+// the context of the Stream struct.
+func (f *Record) Encode(w io.Writer) error <span class="cov0" title="0">{
+        var b [8]byte
+
+        return f.encoder(w, f.value, &amp;b)
+}</span>
+
+// Decode read in the TLV record from the passed reader. This is useful when a
+// caller wants decode a *single* TLV record, outside the context of the Stream
+// struct.
+func (f *Record) Decode(r io.Reader, l uint64) error <span class="cov0" title="0">{
+        var b [8]byte
+        return f.decoder(r, f.value, &amp;b, l)
+}</span>
+
+// MakePrimitiveRecord creates a record for common types.
+func MakePrimitiveRecord(typ Type, val interface{}) Record <span class="cov8" title="1">{
+        var (
+                staticSize uint64
+                sizeFunc   SizeFunc
+                encoder    Encoder
+                decoder    Decoder
+        )
+        switch e := val.(type) </span>{
+        case *uint8:<span class="cov8" title="1">
+                staticSize = 1
+                encoder = EUint8
+                decoder = DUint8</span>
+
+        case *uint16:<span class="cov8" title="1">
+                staticSize = 2
+                encoder = EUint16
+                decoder = DUint16</span>
+
+        case *uint32:<span class="cov8" title="1">
+                staticSize = 4
+                encoder = EUint32
+                decoder = DUint32</span>
+
+        case *uint64:<span class="cov8" title="1">
+                staticSize = 8
+                encoder = EUint64
+                decoder = DUint64</span>
+
+        case *[32]byte:<span class="cov8" title="1">
+                staticSize = 32
+                encoder = EBytes32
+                decoder = DBytes32</span>
+
+        case *[33]byte:<span class="cov8" title="1">
+                staticSize = 33
+                encoder = EBytes33
+                decoder = DBytes33</span>
+
+        case **btcec.PublicKey:<span class="cov8" title="1">
+                staticSize = 33
+                encoder = EPubKey
+                decoder = DPubKey</span>
+
+        case *[64]byte:<span class="cov8" title="1">
+                staticSize = 64
+                encoder = EBytes64
+                decoder = DBytes64</span>
+
+        case *[]byte:<span class="cov8" title="1">
+                sizeFunc = SizeVarBytes(e)
+                encoder = EVarBytes
+                decoder = DVarBytes</span>
+
+        default:<span class="cov0" title="0">
+                panic(fmt.Sprintf("unknown primitive type: %T", val))</span>
+        }
+
+        <span class="cov8" title="1">return Record{
+                value:      val,
+                typ:        typ,
+                staticSize: staticSize,
+                sizeFunc:   sizeFunc,
+                encoder:    encoder,
+                decoder:    decoder,
+        }</span>
+}
+
+// MakeStaticRecord creates a record for a field of fixed-size
+func MakeStaticRecord(typ Type, val interface{}, size uint64, encoder Encoder,
+        decoder Decoder) Record <span class="cov0" title="0">{
+
+        return Record{
+                value:      val,
+                typ:        typ,
+                staticSize: size,
+                encoder:    encoder,
+                decoder:    decoder,
+        }
+}</span>
+
+// MakeDynamicRecord creates a record whose size may vary, and will be
+// determined at the time of encoding via sizeFunc.
+func MakeDynamicRecord(typ Type, val interface{}, sizeFunc SizeFunc,
+        encoder Encoder, decoder Decoder) Record <span class="cov0" title="0">{
+
+        return Record{
+                value:    val,
+                typ:      typ,
+                sizeFunc: sizeFunc,
+                encoder:  encoder,
+                decoder:  decoder,
+        }
+}</span>
+
+// RecordsToMap encodes a series of TLV records as raw key-value pairs in the
+// form of a map.
+func RecordsToMap(records []Record) (map[uint64][]byte, error) <span class="cov0" title="0">{
+        tlvMap := make(map[uint64][]byte, len(records))
+
+        for _, record := range records </span><span class="cov0" title="0">{
+                var b bytes.Buffer
+                if err := record.Encode(&amp;b); err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+
+                <span class="cov0" title="0">tlvMap[uint64(record.Type())] = b.Bytes()</span>
+        }
+
+        <span class="cov0" title="0">return tlvMap, nil</span>
+}
+
+// StubEncoder is a factory function that makes a stub tlv.Encoder out of a raw
+// value. We can use this to make a record that can be encoded when we don't
+// actually know it's true underlying value, and only it serialization.
+func StubEncoder(v []byte) Encoder <span class="cov0" title="0">{
+        return func(w io.Writer, val interface{}, buf *[8]byte) error </span><span class="cov0" title="0">{
+                _, err := w.Write(v)
+                return err
+        }</span>
+}
+
+// MapToRecords encodes the passed TLV map as a series of regular tlv.Record
+// instances. The resulting set of records will be returned in sorted order by
+// their type.
+func MapToRecords(tlvMap map[uint64][]byte) []Record <span class="cov0" title="0">{
+        records := make([]Record, 0, len(tlvMap))
+        for k, v := range tlvMap </span><span class="cov0" title="0">{
+                // We don't pass in a decoder here since we don't actually know
+                // the type, and only expect this Record to be used for display
+                // and encoding purposes.
+                record := MakeStaticRecord(
+                        Type(k), nil, uint64(len(v)), StubEncoder(v), nil,
+                )
+
+                records = append(records, record)
+        }</span>
+
+        <span class="cov0" title="0">SortRecords(records)
+
+        return records</span>
+}
+
+// SortRecords is a helper function that will sort a slice of records in place
+// according to their type.
+func SortRecords(records []Record) <span class="cov0" title="0">{
+        if len(records) == 0 </span><span class="cov0" title="0">{
+                return
+        }</span>
+
+        <span class="cov0" title="0">sort.Slice(records, func(i, j int) bool </span><span class="cov0" title="0">{
+                return records[i].Type() &lt; records[j].Type()
+        }</span>)
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package tlv
+
+import (
+        "bytes"
+        "errors"
+        "io"
+        "io/ioutil"
+        "math"
+)
+
+// MaxRecordSize is the maximum size of a particular record that will be parsed
+// by a stream decoder. This value is currently chosen to the be equal to the
+// maximum message size permitted by BOLT 1, as no record should be bigger than
+// an entire message.
+const MaxRecordSize = 65535 // 65KB
+
+// ErrStreamNotCanonical signals that a decoded stream does not contain records
+// sorting by monotonically-increasing type.
+var ErrStreamNotCanonical = errors.New("tlv stream is not canonical")
+
+// ErrRecordTooLarge signals that a decoded record has a length that is too
+// long to parse.
+var ErrRecordTooLarge = errors.New("record is too large")
+
+// Stream defines a TLV stream that can be used for encoding or decoding a set
+// of TLV Records.
+type Stream struct {
+        records []Record
+        buf     [8]byte
+}
+
+// NewStream creates a new TLV Stream given an encoding codec, a decoding codec,
+// and a set of known records.
+func NewStream(records ...Record) (*Stream, error) <span class="cov8" title="1">{
+        // Assert that the ordering of the Records is canonical and appear in
+        // ascending order of type.
+        var (
+                min      Type
+                overflow bool
+        )
+        for _, record := range records </span><span class="cov8" title="1">{
+                if overflow || record.typ &lt; min </span><span class="cov0" title="0">{
+                        return nil, ErrStreamNotCanonical
+                }</span>
+                <span class="cov8" title="1">if record.encoder == nil </span><span class="cov0" title="0">{
+                        record.encoder = ENOP
+                }</span>
+                <span class="cov8" title="1">if record.decoder == nil </span><span class="cov0" title="0">{
+                        record.decoder = DNOP
+                }</span>
+                <span class="cov8" title="1">if record.typ == math.MaxUint64 </span><span class="cov0" title="0">{
+                        overflow = true
+                }</span>
+                <span class="cov8" title="1">min = record.typ + 1</span>
+        }
+
+        <span class="cov8" title="1">return &amp;Stream{
+                records: records,
+        }, nil</span>
+}
+
+// MustNewStream creates a new TLV Stream given an encoding codec, a decoding
+// codec, and a set of known records. If an error is encountered in creating the
+// stream, this method will panic instead of returning the error.
+func MustNewStream(records ...Record) *Stream <span class="cov8" title="1">{
+        stream, err := NewStream(records...)
+        if err != nil </span><span class="cov0" title="0">{
+                panic(err.Error())</span>
+        }
+        <span class="cov8" title="1">return stream</span>
+}
+
+// Encode writes a Stream to the passed io.Writer. Each of the Records known to
+// the Stream is written in ascending order of their type so as to be canonical.
+//
+// The stream is constructed by concatenating the individual, serialized Records
+// where each record has the following format:
+//    [varint: type]
+//    [varint: length]
+//    [length: value]
+//
+// An error is returned if the io.Writer fails to accept bytes from the
+// encoding, and nothing else. The ordering of the Records is asserted upon the
+// creation of a Stream, and thus the output will be by definition canonical.
+func (s *Stream) Encode(w io.Writer) error <span class="cov8" title="1">{
+        // Iterate through all known records, if any, serializing each record's
+        // type, length and value.
+        for i := range s.records </span><span class="cov8" title="1">{
+                rec := &amp;s.records[i]
+
+                // Write the record's type as a varint.
+                err := WriteVarInt(w, uint64(rec.typ), &amp;s.buf)
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+
+                // Write the record's length as a varint.
+                <span class="cov8" title="1">err = WriteVarInt(w, rec.Size(), &amp;s.buf)
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+
+                // Encode the current record's value using the stream's codec.
+                <span class="cov8" title="1">err = rec.encoder(w, rec.value, &amp;s.buf)
+                if err != nil </span><span class="cov8" title="1">{
+                        return err
+                }</span>
+        }
+
+        <span class="cov0" title="0">return nil</span>
+}
+
+// Decode deserializes TLV Stream from the passed io.Reader. The Stream will
+// inspect each record that is parsed and check to see if it has a corresponding
+// Record to facilitate deserialization of that field. If the record is unknown,
+// the Stream will discard the record's bytes and proceed to the subsequent
+// record.
+//
+// Each record has the following format:
+//    [varint: type]
+//    [varint: length]
+//    [length: value]
+//
+// A series of (possibly zero) records are concatenated into a stream, this
+// example contains two records:
+//
+//    (t: 0x01, l: 0x04, v: 0xff, 0xff, 0xff, 0xff)
+//    (t: 0x02, l: 0x01, v: 0x01)
+//
+// This method asserts that the byte stream is canonical, namely that each
+// record is unique and that all records are sorted in ascending order. An
+// ErrNotCanonicalStream error is returned if the encoded TLV stream is not.
+//
+// We permit an io.EOF error only when reading the type byte which signals that
+// the last record was read cleanly and we should stop parsing. All other io.EOF
+// or io.ErrUnexpectedEOF errors are returned.
+func (s *Stream) Decode(r io.Reader) error <span class="cov8" title="1">{
+        _, err := s.decode(r, nil)
+        return err
+}</span>
+
+// DecodeWithParsedTypes is identical to Decode, but if successful, returns a
+// TypeMap containing the types of all records that were decoded or ignored from
+// the stream.
+func (s *Stream) DecodeWithParsedTypes(r io.Reader) (TypeMap, error) <span class="cov0" title="0">{
+        return s.decode(r, make(TypeMap))
+}</span>
+
+// decode is a helper function that performs the basis of stream decoding. If
+// the caller needs the set of parsed types, it must provide an initialized
+// parsedTypes, otherwise the returned TypeMap will be nil.
+func (s *Stream) decode(r io.Reader, parsedTypes TypeMap) (TypeMap, error) <span class="cov8" title="1">{
+        var (
+                typ       Type
+                min       Type
+                recordIdx int
+                overflow  bool
+        )
+
+        // Iterate through all possible type identifiers. As types are read from
+        // the io.Reader, min will skip forward to the last read type.
+        for </span><span class="cov8" title="1">{
+                // Read the next varint type.
+                t, err := ReadVarInt(r, &amp;s.buf)
+                switch </span>{
+
+                // We'll silence an EOF when zero bytes remain, meaning the
+                // stream was cleanly encoded.
+                case err == io.EOF:<span class="cov8" title="1">
+                        return parsedTypes, nil</span>
+
+                // Other unexpected errors.
+                case err != nil:<span class="cov0" title="0">
+                        return nil, err</span>
+                }
+
+                <span class="cov8" title="1">typ = Type(t)
+
+                // Assert that this type is greater than any previously read.
+                // If we've already overflowed and we parsed another type, the
+                // stream is not canonical. This check prevents us from accepts
+                // encodings that have duplicate records or from accepting an
+                // unsorted series.
+                if overflow || typ &lt; min </span><span class="cov0" title="0">{
+                        return nil, ErrStreamNotCanonical
+                }</span>
+
+                // Read the varint length.
+                <span class="cov8" title="1">length, err := ReadVarInt(r, &amp;s.buf)
+                switch </span>{
+
+                // We'll convert any EOFs to ErrUnexpectedEOF, since this
+                // results in an invalid record.
+                case err == io.EOF:<span class="cov0" title="0">
+                        return nil, io.ErrUnexpectedEOF</span>
+
+                // Other unexpected errors.
+                case err != nil:<span class="cov0" title="0">
+                        return nil, err</span>
+                }
+
+                // Place a soft limit on the size of a sane record, which
+                // prevents malicious encoders from causing us to allocate an
+                // unbounded amount of memory when decoding variable-sized
+                // fields.
+                <span class="cov8" title="1">if length &gt; MaxRecordSize </span><span class="cov0" title="0">{
+                        return nil, ErrRecordTooLarge
+                }</span>
+
+                // Search the records known to the stream for this type. We'll
+                // begin the search and recordIdx and walk forward until we find
+                // it or the next record's type is larger.
+                <span class="cov8" title="1">rec, newIdx, ok := s.getRecord(typ, recordIdx)
+                switch </span>{
+
+                // We know of this record type, proceed to decode the value.
+                // This method asserts that length bytes are read in the
+                // process, and returns an error if the number of bytes is not
+                // exactly length.
+                case ok:<span class="cov8" title="1">
+                        err := rec.decoder(r, rec.value, &amp;s.buf, length)
+                        switch </span>{
+
+                        // We'll convert any EOFs to ErrUnexpectedEOF, since this
+                        // results in an invalid record.
+                        case err == io.EOF:<span class="cov0" title="0">
+                                return nil, io.ErrUnexpectedEOF</span>
+
+                        // Other unexpected errors.
+                        case err != nil:<span class="cov0" title="0">
+                                return nil, err</span>
+                        }
+
+                        // Record the successfully decoded type if the caller
+                        // provided an initialized TypeMap.
+                        <span class="cov8" title="1">if parsedTypes != nil </span><span class="cov0" title="0">{
+                                parsedTypes[typ] = nil
+                        }</span>
+
+                // Otherwise, the record type is unknown and is odd, discard the
+                // number of bytes specified by length.
+                default:<span class="cov8" title="1">
+                        // If the caller provided an initialized TypeMap, record
+                        // the encoded bytes.
+                        var b *bytes.Buffer
+                        writer := ioutil.Discard
+                        if parsedTypes != nil </span><span class="cov0" title="0">{
+                                b = bytes.NewBuffer(make([]byte, 0, length))
+                                writer = b
+                        }</span>
+
+                        <span class="cov8" title="1">_, err := io.CopyN(writer, r, int64(length))
+                        switch </span>{
+
+                        // We'll convert any EOFs to ErrUnexpectedEOF, since this
+                        // results in an invalid record.
+                        case err == io.EOF:<span class="cov0" title="0">
+                                return nil, io.ErrUnexpectedEOF</span>
+
+                        // Other unexpected errors.
+                        case err != nil:<span class="cov0" title="0">
+                                return nil, err</span>
+                        }
+
+                        <span class="cov8" title="1">if parsedTypes != nil </span><span class="cov0" title="0">{
+                                parsedTypes[typ] = b.Bytes()
+                        }</span>
+                }
+
+                // Update our record index so that we can begin our next search
+                // from where we left off.
+                <span class="cov8" title="1">recordIdx = newIdx
+
+                // If we've parsed the largest possible type, the next loop will
+                // overflow back to zero. However, we need to attempt parsing
+                // the next type to ensure that the stream is empty.
+                if typ == math.MaxUint64 </span><span class="cov8" title="1">{
+                        overflow = true
+                }</span>
+
+                // Finally, set our lower bound on the next accepted type.
+                <span class="cov8" title="1">min = typ + 1</span>
+        }
+}
+
+// getRecord searches for a record matching typ known to the stream. The boolean
+// return value indicates whether the record is known to the stream. The integer
+// return value carries the index from where getRecord should be invoked on the
+// subsequent call. The first call to getRecord should always use an idx of 0.
+func (s *Stream) getRecord(typ Type, idx int) (Record, int, bool) <span class="cov8" title="1">{
+        for idx &lt; len(s.records) </span><span class="cov8" title="1">{
+                record := s.records[idx]
+                switch </span>{
+
+                // Found target record, return it to the caller. The next index
+                // returned points to the immediately following record.
+                case record.typ == typ:<span class="cov8" title="1">
+                        return record, idx + 1, true</span>
+
+                // This record's type is lower than the target. Advance our
+                // index and continue to the next record which will have a
+                // strictly higher type.
+                case record.typ &lt; typ:<span class="cov8" title="1">
+                        idx++
+                        continue</span>
+
+                // This record's type is larger than the target, hence we have
+                // no record matching the current type. Return the current index
+                // so that we can start our search from here when processing the
+                // next tlv record.
+                default:<span class="cov8" title="1">
+                        return Record{}, idx, false</span>
+                }
+        }
+
+        // All known records are exhausted.
+        <span class="cov8" title="1">return Record{}, idx, false</span>
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package tlv
+
+import (
+        "encoding/binary"
+        "errors"
+        "io"
+)
+
+// ErrTUintNotMinimal signals that decoding a truncated uint failed because the
+// value was not minimally encoded.
+var ErrTUintNotMinimal = errors.New("truncated uint not minimally encoded")
+
+// numLeadingZeroBytes16 computes the number of leading zeros for a uint16.
+func numLeadingZeroBytes16(v uint16) uint64 <span class="cov0" title="0">{
+        switch </span>{
+        case v == 0:<span class="cov0" title="0">
+                return 2</span>
+        case v&amp;0xff00 == 0:<span class="cov0" title="0">
+                return 1</span>
+        default:<span class="cov0" title="0">
+                return 0</span>
+        }
+}
+
+// SizeTUint16 returns the number of bytes remaining in a uint16 after
+// truncating the leading zeros.
+func SizeTUint16(v uint16) uint64 <span class="cov0" title="0">{
+        return 2 - numLeadingZeroBytes16(v)
+}</span>
+
+// ETUint16 is an Encoder for truncated uint16 values, where leading zeros will
+// be omitted. An error is returned if val is not a *uint16.
+func ETUint16(w io.Writer, val interface{}, buf *[8]byte) error <span class="cov0" title="0">{
+        if t, ok := val.(*uint16); ok </span><span class="cov0" title="0">{
+                binary.BigEndian.PutUint16(buf[:2], *t)
+                numZeros := numLeadingZeroBytes16(*t)
+                _, err := w.Write(buf[numZeros:2])
+                return err
+        }</span>
+        <span class="cov0" title="0">return NewTypeForEncodingErr(val, "uint16")</span>
+}
+
+// ETUint16T is an Encoder for truncated uint16 values, where leading zeros will
+// be omitted. An error is returned if val is not a *uint16.
+func ETUint16T(w io.Writer, val uint16, buf *[8]byte) error <span class="cov0" title="0">{
+        binary.BigEndian.PutUint16(buf[:2], val)
+        numZeros := numLeadingZeroBytes16(val)
+        _, err := w.Write(buf[numZeros:2])
+        return err
+}</span>
+
+// DTUint16 is an Decoder for truncated uint16 values, where leading zeros will
+// be resurrected. An error is returned if val is not a *uint16.
+func DTUint16(r io.Reader, val interface{}, buf *[8]byte, l uint64) error <span class="cov0" title="0">{
+        if t, ok := val.(*uint16); ok &amp;&amp; l &lt;= 2 </span><span class="cov0" title="0">{
+                _, err := io.ReadFull(r, buf[2-l:2])
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov0" title="0">zero(buf[:2-l])
+                *t = binary.BigEndian.Uint16(buf[:2])
+                if 2-numLeadingZeroBytes16(*t) != l </span><span class="cov0" title="0">{
+                        return ErrTUintNotMinimal
+                }</span>
+                <span class="cov0" title="0">return nil</span>
+        }
+        <span class="cov0" title="0">return NewTypeForDecodingErr(val, "uint16", l, 2)</span>
+}
+
+// numLeadingZeroBytes16 computes the number of leading zeros for a uint32.
+func numLeadingZeroBytes32(v uint32) uint64 <span class="cov0" title="0">{
+        switch </span>{
+        case v == 0:<span class="cov0" title="0">
+                return 4</span>
+        case v&amp;0xffffff00 == 0:<span class="cov0" title="0">
+                return 3</span>
+        case v&amp;0xffff0000 == 0:<span class="cov0" title="0">
+                return 2</span>
+        case v&amp;0xff000000 == 0:<span class="cov0" title="0">
+                return 1</span>
+        default:<span class="cov0" title="0">
+                return 0</span>
+        }
+}
+
+// SizeTUint32 returns the number of bytes remaining in a uint32 after
+// truncating the leading zeros.
+func SizeTUint32(v uint32) uint64 <span class="cov0" title="0">{
+        return 4 - numLeadingZeroBytes32(v)
+}</span>
+
+// ETUint32 is an Encoder for truncated uint32 values, where leading zeros will
+// be omitted. An error is returned if val is not a *uint32.
+func ETUint32(w io.Writer, val interface{}, buf *[8]byte) error <span class="cov0" title="0">{
+        if t, ok := val.(*uint32); ok </span><span class="cov0" title="0">{
+                binary.BigEndian.PutUint32(buf[:4], *t)
+                numZeros := numLeadingZeroBytes32(*t)
+                _, err := w.Write(buf[numZeros:4])
+                return err
+        }</span>
+        <span class="cov0" title="0">return NewTypeForEncodingErr(val, "uint32")</span>
+}
+
+// ETUint32T is an Encoder for truncated uint32 values, where leading zeros will
+// be omitted. An error is returned if val is not a *uint32.
+func ETUint32T(w io.Writer, val uint32, buf *[8]byte) error <span class="cov0" title="0">{
+        binary.BigEndian.PutUint32(buf[:4], val)
+        numZeros := numLeadingZeroBytes32(val)
+        _, err := w.Write(buf[numZeros:4])
+        return err
+}</span>
+
+// DTUint32 is an Decoder for truncated uint32 values, where leading zeros will
+// be resurrected. An error is returned if val is not a *uint32.
+func DTUint32(r io.Reader, val interface{}, buf *[8]byte, l uint64) error <span class="cov0" title="0">{
+        if t, ok := val.(*uint32); ok &amp;&amp; l &lt;= 4 </span><span class="cov0" title="0">{
+                _, err := io.ReadFull(r, buf[4-l:4])
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov0" title="0">zero(buf[:4-l])
+                *t = binary.BigEndian.Uint32(buf[:4])
+                if 4-numLeadingZeroBytes32(*t) != l </span><span class="cov0" title="0">{
+                        return ErrTUintNotMinimal
+                }</span>
+                <span class="cov0" title="0">return nil</span>
+        }
+        <span class="cov0" title="0">return NewTypeForDecodingErr(val, "uint32", l, 4)</span>
+}
+
+// numLeadingZeroBytes64 computes the number of leading zeros for a uint32.
+//
+// TODO(conner): optimize using unrolled binary search
+func numLeadingZeroBytes64(v uint64) uint64 <span class="cov0" title="0">{
+        switch </span>{
+        case v == 0:<span class="cov0" title="0">
+                return 8</span>
+        case v&amp;0xffffffffffffff00 == 0:<span class="cov0" title="0">
+                return 7</span>
+        case v&amp;0xffffffffffff0000 == 0:<span class="cov0" title="0">
+                return 6</span>
+        case v&amp;0xffffffffff000000 == 0:<span class="cov0" title="0">
+                return 5</span>
+        case v&amp;0xffffffff00000000 == 0:<span class="cov0" title="0">
+                return 4</span>
+        case v&amp;0xffffff0000000000 == 0:<span class="cov0" title="0">
+                return 3</span>
+        case v&amp;0xffff000000000000 == 0:<span class="cov0" title="0">
+                return 2</span>
+        case v&amp;0xff00000000000000 == 0:<span class="cov0" title="0">
+                return 1</span>
+        default:<span class="cov0" title="0">
+                return 0</span>
+        }
+}
+
+// SizeTUint64 returns the number of bytes remaining in a uint64 after
+// truncating the leading zeros.
+func SizeTUint64(v uint64) uint64 <span class="cov0" title="0">{
+        return 8 - numLeadingZeroBytes64(v)
+}</span>
+
+// ETUint64 is an Encoder for truncated uint64 values, where leading zeros will
+// be omitted. An error is returned if val is not a *uint64.
+func ETUint64(w io.Writer, val interface{}, buf *[8]byte) error <span class="cov0" title="0">{
+        if t, ok := val.(*uint64); ok </span><span class="cov0" title="0">{
+                binary.BigEndian.PutUint64(buf[:], *t)
+                numZeros := numLeadingZeroBytes64(*t)
+                _, err := w.Write(buf[numZeros:])
+                return err
+        }</span>
+        <span class="cov0" title="0">return NewTypeForEncodingErr(val, "uint64")</span>
+}
+
+// ETUint64T is an Encoder for truncated uint64 values, where leading zeros will
+// be omitted. An error is returned if val is not a *uint64.
+func ETUint64T(w io.Writer, val uint64, buf *[8]byte) error <span class="cov0" title="0">{
+        binary.BigEndian.PutUint64(buf[:], val)
+        numZeros := numLeadingZeroBytes64(val)
+        _, err := w.Write(buf[numZeros:])
+        return err
+}</span>
+
+// DTUint64 is an Decoder for truncated uint64 values, where leading zeros will
+// be resurrected. An error is returned if val is not a *uint64.
+func DTUint64(r io.Reader, val interface{}, buf *[8]byte, l uint64) error <span class="cov0" title="0">{
+        if t, ok := val.(*uint64); ok &amp;&amp; l &lt;= 8 </span><span class="cov0" title="0">{
+                _, err := io.ReadFull(r, buf[8-l:])
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov0" title="0">zero(buf[:8-l])
+                *t = binary.BigEndian.Uint64(buf[:])
+                if 8-numLeadingZeroBytes64(*t) != l </span><span class="cov0" title="0">{
+                        return ErrTUintNotMinimal
+                }</span>
+                <span class="cov0" title="0">return nil</span>
+        }
+        <span class="cov0" title="0">return NewTypeForDecodingErr(val, "uint64", l, 8)</span>
+}
+
+// zero clears the passed byte slice.
+func zero(b []byte) <span class="cov0" title="0">{
+        for i := range b </span><span class="cov0" title="0">{
+                b[i] = 0x00
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package tlv
+
+import (
+        "encoding/binary"
+        "errors"
+        "io"
+
+        "github.com/btcsuite/btcd/wire"
+)
+
+// ErrVarIntNotCanonical signals that the decoded varint was not minimally encoded.
+var ErrVarIntNotCanonical = errors.New("decoded varint is not canonical")
+
+// ReadVarInt reads a variable length integer from r and returns it as a uint64.
+func ReadVarInt(r io.Reader, buf *[8]byte) (uint64, error) <span class="cov8" title="1">{
+        _, err := io.ReadFull(r, buf[:1])
+        if err != nil </span><span class="cov8" title="1">{
+                return 0, err
+        }</span>
+        <span class="cov8" title="1">discriminant := buf[0]
+
+        var rv uint64
+        switch </span>{
+        case discriminant &lt; 0xfd:<span class="cov8" title="1">
+                rv = uint64(discriminant)</span>
+
+        case discriminant == 0xfd:<span class="cov8" title="1">
+                _, err := io.ReadFull(r, buf[:2])
+                switch </span>{
+                case err == io.EOF:<span class="cov0" title="0">
+                        return 0, io.ErrUnexpectedEOF</span>
+                case err != nil:<span class="cov0" title="0">
+                        return 0, err</span>
+                }
+                <span class="cov8" title="1">rv = uint64(binary.BigEndian.Uint16(buf[:2]))
+
+                // The encoding is not canonical if the value could have been
+                // encoded using fewer bytes.
+                if rv &lt; 0xfd </span><span class="cov0" title="0">{
+                        return 0, ErrVarIntNotCanonical
+                }</span>
+
+        case discriminant == 0xfe:<span class="cov8" title="1">
+                _, err := io.ReadFull(r, buf[:4])
+                switch </span>{
+                case err == io.EOF:<span class="cov0" title="0">
+                        return 0, io.ErrUnexpectedEOF</span>
+                case err != nil:<span class="cov0" title="0">
+                        return 0, err</span>
+                }
+                <span class="cov8" title="1">rv = uint64(binary.BigEndian.Uint32(buf[:4]))
+
+                // The encoding is not canonical if the value could have been
+                // encoded using fewer bytes.
+                if rv &lt;= 0xffff </span><span class="cov0" title="0">{
+                        return 0, ErrVarIntNotCanonical
+                }</span>
+
+        default:<span class="cov8" title="1">
+                _, err := io.ReadFull(r, buf[:])
+                switch </span>{
+                case err == io.EOF:<span class="cov0" title="0">
+                        return 0, io.ErrUnexpectedEOF</span>
+                case err != nil:<span class="cov0" title="0">
+                        return 0, err</span>
+                }
+                <span class="cov8" title="1">rv = binary.BigEndian.Uint64(buf[:])
+
+                // The encoding is not canonical if the value could have been
+                // encoded using fewer bytes.
+                if rv &lt;= 0xffffffff </span><span class="cov0" title="0">{
+                        return 0, ErrVarIntNotCanonical
+                }</span>
+        }
+
+        <span class="cov8" title="1">return rv, nil</span>
+}
+
+// WriteVarInt serializes val to w using a variable number of bytes depending
+// on its value.
+func WriteVarInt(w io.Writer, val uint64, buf *[8]byte) error <span class="cov8" title="1">{
+        var length int
+        switch </span>{
+        case val &lt; 0xfd:<span class="cov8" title="1">
+                buf[0] = uint8(val)
+                length = 1</span>
+
+        case val &lt;= 0xffff:<span class="cov8" title="1">
+                buf[0] = uint8(0xfd)
+                binary.BigEndian.PutUint16(buf[1:3], uint16(val))
+                length = 3</span>
+
+        case val &lt;= 0xffffffff:<span class="cov8" title="1">
+                buf[0] = uint8(0xfe)
+                binary.BigEndian.PutUint32(buf[1:5], uint32(val))
+                length = 5</span>
+
+        default:<span class="cov8" title="1">
+                buf[0] = uint8(0xff)
+                _, err := w.Write(buf[:1])
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+
+                <span class="cov8" title="1">binary.BigEndian.PutUint64(buf[:], uint64(val))
+                length = 8</span>
+        }
+
+        <span class="cov8" title="1">_, err := w.Write(buf[:length])
+        return err</span>
+}
+
+// VarIntSize returns the required number of bytes to encode a var int.
+func VarIntSize(val uint64) uint64 <span class="cov0" title="0">{
+        return uint64(wire.VarIntSerializeSize(val))
+}</span>
+</pre>
+		
+		</div>
+	
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+
+</body></html>
