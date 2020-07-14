@@ -1,0 +1,152 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - policy_estimator_cov.info - /usr/include/boost/utility/compare_pointees.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">usr/include/boost/utility</a> - compare_pointees.hpp<span style="font-size: 80%;"> (source / <a href="compare_pointees.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">policy_estimator_cov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-14 19:53:35</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryHi">-</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (C) 2003, Fernando Luis Cacciola Carballal.</a>
+<span class="lineNum">       2 </span>            : //
+<span class="lineNum">       3 </span>            : // Use, modification, and distribution is subject to the Boost Software
+<span class="lineNum">       4 </span>            : // License, Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+<span class="lineNum">       5 </span>            : // http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       6 </span>            : //
+<span class="lineNum">       7 </span>            : // See http://www.boost.org/libs/optional for documentation.
+<span class="lineNum">       8 </span>            : //
+<span class="lineNum">       9 </span>            : // You are welcome to contact the author at:
+<span class="lineNum">      10 </span>            : //  fernando_cacciola@hotmail.com
+<span class="lineNum">      11 </span>            : //
+<span class="lineNum">      12 </span>            : #ifndef BOOST_UTILITY_COMPARE_POINTEES_25AGO2003_HPP
+<span class="lineNum">      13 </span>            : #define BOOST_UTILITY_COMPARE_POINTEES_25AGO2003_HPP
+<span class="lineNum">      14 </span>            : 
+<span class="lineNum">      15 </span>            : #include&lt;functional&gt;
+<span class="lineNum">      16 </span>            : 
+<span class="lineNum">      17 </span>            : namespace boost {
+<span class="lineNum">      18 </span>            : 
+<span class="lineNum">      19 </span>            : // template&lt;class OP&gt; bool equal_pointees(OP const&amp; x, OP const&amp; y);
+<span class="lineNum">      20 </span>            : // template&lt;class OP&gt; struct equal_pointees_t;
+<span class="lineNum">      21 </span>            : //
+<span class="lineNum">      22 </span>            : // Being OP a model of OptionalPointee (either a pointer or an optional):
+<span class="lineNum">      23 </span>            : //
+<span class="lineNum">      24 </span>            : // If both x and y have valid pointees, returns the result of (*x == *y)
+<span class="lineNum">      25 </span>            : // If only one has a valid pointee, returns false.
+<span class="lineNum">      26 </span>            : // If none have valid pointees, returns true.
+<span class="lineNum">      27 </span>            : // No-throw
+<span class="lineNum">      28 </span>            : template&lt;class OptionalPointee&gt;
+<span class="lineNum">      29 </span>            : inline
+<span class="lineNum">      30 </span>            : bool equal_pointees ( OptionalPointee const&amp; x, OptionalPointee const&amp; y )
+<span class="lineNum">      31 </span>            : {
+<span class="lineNum">      32 </span><span class="lineNoCov">          0 :   return (!x) != (!y) ? false : ( !x ? true : (*x) == (*y) ) ;</span>
+<span class="lineNum">      33 </span>            : }
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : template&lt;class OptionalPointee&gt;
+<span class="lineNum">      36 </span>            : struct equal_pointees_t
+<span class="lineNum">      37 </span>            : {
+<span class="lineNum">      38 </span>            :   typedef bool result_type;
+<span class="lineNum">      39 </span>            :   typedef OptionalPointee first_argument_type;
+<span class="lineNum">      40 </span>            :   typedef OptionalPointee second_argument_type;
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span>            :   bool operator() ( OptionalPointee const&amp; x, OptionalPointee const&amp; y ) const
+<span class="lineNum">      43 </span>            :     { return equal_pointees(x,y) ; }
+<span class="lineNum">      44 </span>            : } ;
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span>            : // template&lt;class OP&gt; bool less_pointees(OP const&amp; x, OP const&amp; y);
+<span class="lineNum">      47 </span>            : // template&lt;class OP&gt; struct less_pointees_t;
+<span class="lineNum">      48 </span>            : //
+<span class="lineNum">      49 </span>            : // Being OP a model of OptionalPointee (either a pointer or an optional):
+<span class="lineNum">      50 </span>            : //
+<span class="lineNum">      51 </span>            : // If y has not a valid pointee, returns false.
+<span class="lineNum">      52 </span>            : // ElseIf x has not a valid pointee, returns true.
+<span class="lineNum">      53 </span>            : // ElseIf both x and y have valid pointees, returns the result of (*x &lt; *y)
+<span class="lineNum">      54 </span>            : // No-throw
+<span class="lineNum">      55 </span>            : template&lt;class OptionalPointee&gt;
+<span class="lineNum">      56 </span>            : inline
+<span class="lineNum">      57 </span>            : bool less_pointees ( OptionalPointee const&amp; x, OptionalPointee const&amp; y )
+<span class="lineNum">      58 </span>            : {
+<span class="lineNum">      59 </span>            :   return !y ? false : ( !x ? true : (*x) &lt; (*y) ) ;
+<span class="lineNum">      60 </span>            : }
+<span class="lineNum">      61 </span>            : 
+<span class="lineNum">      62 </span>            : template&lt;class OptionalPointee&gt;
+<span class="lineNum">      63 </span>            : struct less_pointees_t
+<span class="lineNum">      64 </span>            : {
+<span class="lineNum">      65 </span>            :   typedef bool result_type;
+<span class="lineNum">      66 </span>            :   typedef OptionalPointee first_argument_type;
+<span class="lineNum">      67 </span>            :   typedef OptionalPointee second_argument_type;
+<span class="lineNum">      68 </span>            : 
+<span class="lineNum">      69 </span>            :   bool operator() ( OptionalPointee const&amp; x, OptionalPointee const&amp; y ) const
+<span class="lineNum">      70 </span>            :     { return less_pointees(x,y) ; }
+<span class="lineNum">      71 </span>            : } ;
+<span class="lineNum">      72 </span>            : 
+<span class="lineNum">      73 </span>            : } // namespace boost
+<span class="lineNum">      74 </span>            : 
+<span class="lineNum">      75 </span>            : #endif
+<span class="lineNum">      76 </span>            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - policy_estimator_cov.info - src/leveldb/util/logging.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">src/leveldb/util</a> - logging.cc<span style="font-size: 80%;"> (source / <a href="logging.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">policy_estimator_cov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">17</td>
+            <td class="headerCovTableEntry">38</td>
+            <td class="headerCovTableEntryLo">44.7 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-14 19:53:35</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntryLo">20.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2011 The LevelDB Authors. All rights reserved.</a>
+<span class="lineNum">       2 </span>            : // Use of this source code is governed by a BSD-style license that can be
+<span class="lineNum">       3 </span>            : // found in the LICENSE file. See the AUTHORS file for names of contributors.
+<span class="lineNum">       4 </span>            : 
+<span class="lineNum">       5 </span>            : #include &quot;util/logging.h&quot;
+<span class="lineNum">       6 </span>            : 
+<span class="lineNum">       7 </span>            : #include &lt;errno.h&gt;
+<span class="lineNum">       8 </span>            : #include &lt;stdarg.h&gt;
+<span class="lineNum">       9 </span>            : #include &lt;stdio.h&gt;
+<span class="lineNum">      10 </span>            : #include &lt;stdlib.h&gt;
+<span class="lineNum">      11 </span>            : 
+<span class="lineNum">      12 </span>            : #include &lt;limits&gt;
+<span class="lineNum">      13 </span>            : 
+<span class="lineNum">      14 </span>            : #include &quot;leveldb/env.h&quot;
+<span class="lineNum">      15 </span>            : #include &quot;leveldb/slice.h&quot;
+<span class="lineNum">      16 </span>            : 
+<a name="17"><span class="lineNum">      17 </span>            : namespace leveldb {</a>
+<span class="lineNum">      18 </span>            : 
+<span class="lineNum">      19 </span><span class="lineNoCov">          0 : void AppendNumberTo(std::string* str, uint64_t num) {</span>
+<span class="lineNum">      20 </span>            :   char buf[30];
+<span class="lineNum">      21 </span><span class="lineNoCov">          0 :   snprintf(buf, sizeof(buf), &quot;%llu&quot;, (unsigned long long)num);</span>
+<span class="lineNum">      22 </span><span class="lineNoCov">          0 :   str-&gt;append(buf);</span>
+<a name="23"><span class="lineNum">      23 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      24 </span>            : 
+<span class="lineNum">      25 </span><span class="lineNoCov">          0 : void AppendEscapedStringTo(std::string* str, const Slice&amp; value) {</span>
+<span class="lineNum">      26 </span><span class="lineNoCov">          0 :   for (size_t i = 0; i &lt; value.size(); i++) {</span>
+<span class="lineNum">      27 </span><span class="lineNoCov">          0 :     char c = value[i];</span>
+<span class="lineNum">      28 </span><span class="lineNoCov">          0 :     if (c &gt;= ' ' &amp;&amp; c &lt;= '~') {</span>
+<span class="lineNum">      29 </span><span class="lineNoCov">          0 :       str-&gt;push_back(c);</span>
+<span class="lineNum">      30 </span>            :     } else {
+<span class="lineNum">      31 </span>            :       char buf[10];
+<span class="lineNum">      32 </span><span class="lineNoCov">          0 :       snprintf(buf, sizeof(buf), &quot;\\x%02x&quot;,</span>
+<span class="lineNum">      33 </span><span class="lineNoCov">          0 :                static_cast&lt;unsigned int&gt;(c) &amp; 0xff);</span>
+<span class="lineNum">      34 </span><span class="lineNoCov">          0 :       str-&gt;append(buf);</span>
+<span class="lineNum">      35 </span>            :     }
+<span class="lineNum">      36 </span>            :   }
+<span class="lineNum">      37 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span><span class="lineNoCov">          0 : std::string NumberToString(uint64_t num) {</span>
+<span class="lineNum">      40 </span><span class="lineNoCov">          0 :   std::string r;</span>
+<span class="lineNum">      41 </span><span class="lineNoCov">          0 :   AppendNumberTo(&amp;r, num);</span>
+<span class="lineNum">      42 </span><span class="lineNoCov">          0 :   return r;</span>
+<span class="lineNum">      43 </span>            : }
+<span class="lineNum">      44 </span>            : 
+<span class="lineNum">      45 </span><span class="lineNoCov">          0 : std::string EscapeString(const Slice&amp; value) {</span>
+<span class="lineNum">      46 </span><span class="lineNoCov">          0 :   std::string r;</span>
+<span class="lineNum">      47 </span><span class="lineNoCov">          0 :   AppendEscapedStringTo(&amp;r, value);</span>
+<span class="lineNum">      48 </span><span class="lineNoCov">          0 :   return r;</span>
+<a name="49"><span class="lineNum">      49 </span>            : }</a>
+<span class="lineNum">      50 </span>            : 
+<span class="lineNum">      51 </span><span class="lineCov">      94160 : bool ConsumeDecimalNumber(Slice* in, uint64_t* val) {</span>
+<span class="lineNum">      52 </span>            :   // Constants that will be optimized away.
+<span class="lineNum">      53 </span><span class="lineCov">      94160 :   constexpr const uint64_t kMaxUint64 = std::numeric_limits&lt;uint64_t&gt;::max();</span>
+<span class="lineNum">      54 </span><span class="lineCov">      94160 :   constexpr const char kLastDigitOfMaxUint64 =</span>
+<span class="lineNum">      55 </span>            :       '0' + static_cast&lt;char&gt;(kMaxUint64 % 10);
+<span class="lineNum">      56 </span>            : 
+<span class="lineNum">      57 </span><span class="lineCov">      94160 :   uint64_t value = 0;</span>
+<span class="lineNum">      58 </span>            : 
+<span class="lineNum">      59 </span>            :   // reinterpret_cast-ing from char* to uint8_t* to avoid signedness.
+<span class="lineNum">      60 </span><span class="lineCov">      94160 :   const uint8_t* start = reinterpret_cast&lt;const uint8_t*&gt;(in-&gt;data());</span>
+<span class="lineNum">      61 </span>            : 
+<span class="lineNum">      62 </span><span class="lineCov">      94160 :   const uint8_t* end = start + in-&gt;size();</span>
+<span class="lineNum">      63 </span><span class="lineCov">      94160 :   const uint8_t* current = start;</span>
+<span class="lineNum">      64 </span><span class="lineCov">    1224080 :   for (; current != end; ++current) {</span>
+<span class="lineNum">      65 </span><span class="lineCov">     588500 :     const uint8_t ch = *current;</span>
+<span class="lineNum">      66 </span><span class="lineCov">     588500 :     if (ch &lt; '0' || ch &gt; '9') break;</span>
+<span class="lineNum">      67 </span>            : 
+<span class="lineNum">      68 </span>            :     // Overflow check.
+<span class="lineNum">      69 </span>            :     // kMaxUint64 / 10 is also constant and will be optimized away.
+<span class="lineNum">      70 </span><span class="lineCov">    1129920 :     if (value &gt; kMaxUint64 / 10 ||</span>
+<span class="lineNum">      71 </span><span class="lineCov">     564960 :         (value == kMaxUint64 / 10 &amp;&amp; ch &gt; kLastDigitOfMaxUint64)) {</span>
+<span class="lineNum">      72 </span>            :       return false;
+<span class="lineNum">      73 </span>            :     }
+<span class="lineNum">      74 </span>            : 
+<span class="lineNum">      75 </span><span class="lineCov">     564960 :     value = (value * 10) + (ch - '0');</span>
+<span class="lineNum">      76 </span>            :   }
+<span class="lineNum">      77 </span>            : 
+<span class="lineNum">      78 </span><span class="lineCov">      94160 :   *val = value;</span>
+<span class="lineNum">      79 </span><span class="lineCov">      94160 :   const size_t digits_consumed = current - start;</span>
+<span class="lineNum">      80 </span><span class="lineCov">      94160 :   in-&gt;remove_prefix(digits_consumed);</span>
+<span class="lineNum">      81 </span><span class="lineCov">      94160 :   return digits_consumed != 0;</span>
+<span class="lineNum">      82 </span>            : }
+<span class="lineNum">      83 </span>            : 
+<span class="lineNum">      84 </span>            : }  // namespace leveldb
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

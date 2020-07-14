@@ -1,0 +1,334 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - policy_estimator_cov.info - src/crc32c/src/crc32c_sse42.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">src/crc32c/src</a> - crc32c_sse42.cc<span style="font-size: 80%;"> (source / <a href="crc32c_sse42.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">policy_estimator_cov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">19</td>
+            <td class="headerCovTableEntry">50</td>
+            <td class="headerCovTableEntryLo">38.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-14 19:53:35</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright 2008 The CRC32C Authors. All rights reserved.</a>
+<span class="lineNum">       2 </span>            : // Use of this source code is governed by a BSD-style license that can be
+<span class="lineNum">       3 </span>            : // found in the LICENSE file. See the AUTHORS file for names of contributors.
+<span class="lineNum">       4 </span>            : 
+<span class="lineNum">       5 </span>            : #include &quot;./crc32c_sse42.h&quot;
+<span class="lineNum">       6 </span>            : 
+<span class="lineNum">       7 </span>            : // In a separate source file to allow this accelerated CRC32C function to be
+<span class="lineNum">       8 </span>            : // compiled with the appropriate compiler flags to enable SSE4.2 instructions.
+<span class="lineNum">       9 </span>            : 
+<span class="lineNum">      10 </span>            : // This implementation is loosely based on Intel Pub 323405 from April 2011,
+<span class="lineNum">      11 </span>            : // &quot;Fast CRC Computation for iSCSI Polynomial Using CRC32 Instruction&quot;.
+<span class="lineNum">      12 </span>            : 
+<span class="lineNum">      13 </span>            : #include &lt;cstddef&gt;
+<span class="lineNum">      14 </span>            : #include &lt;cstdint&gt;
+<span class="lineNum">      15 </span>            : 
+<span class="lineNum">      16 </span>            : #include &quot;./crc32c_internal.h&quot;
+<span class="lineNum">      17 </span>            : #include &quot;./crc32c_prefetch.h&quot;
+<span class="lineNum">      18 </span>            : #include &quot;./crc32c_read_le.h&quot;
+<span class="lineNum">      19 </span>            : #include &quot;./crc32c_round_up.h&quot;
+<span class="lineNum">      20 </span>            : #ifdef CRC32C_HAVE_CONFIG_H
+<span class="lineNum">      21 </span>            : #include &quot;crc32c/crc32c_config.h&quot;
+<span class="lineNum">      22 </span>            : #endif
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span>            : #if HAVE_SSE42 &amp;&amp; (defined(_M_X64) || defined(__x86_64__))
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #if defined(_MSC_VER)
+<span class="lineNum">      27 </span>            : #include &lt;intrin.h&gt;
+<span class="lineNum">      28 </span>            : #else  // !defined(_MSC_VER)
+<span class="lineNum">      29 </span>            : #include &lt;nmmintrin.h&gt;
+<span class="lineNum">      30 </span>            : #endif  // defined(_MSC_VER)
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : namespace crc32c {
+<span class="lineNum">      33 </span>            : 
+<span class="lineNum">      34 </span>            : namespace {
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span>            : constexpr const ptrdiff_t kGroups = 3;
+<span class="lineNum">      37 </span>            : constexpr const ptrdiff_t kBlock0Size = 16 * 1024 / kGroups / 64 * 64;
+<span class="lineNum">      38 </span>            : constexpr const ptrdiff_t kBlock1Size = 4 * 1024 / kGroups / 8 * 8;
+<span class="lineNum">      39 </span>            : constexpr const ptrdiff_t kBlock2Size = 1024 / kGroups / 8 * 8;
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span>            : const uint32_t kBlock0SkipTable[8][16] = {
+<span class="lineNum">      42 </span>            :     {0x00000000, 0xff770459, 0xfb027e43, 0x04757a1a, 0xf3e88a77, 0x0c9f8e2e,
+<span class="lineNum">      43 </span>            :      0x08eaf434, 0xf79df06d, 0xe23d621f, 0x1d4a6646, 0x193f1c5c, 0xe6481805,
+<span class="lineNum">      44 </span>            :      0x11d5e868, 0xeea2ec31, 0xead7962b, 0x15a09272},
+<span class="lineNum">      45 </span>            :     {0x00000000, 0xc196b2cf, 0x86c1136f, 0x4757a1a0, 0x086e502f, 0xc9f8e2e0,
+<span class="lineNum">      46 </span>            :      0x8eaf4340, 0x4f39f18f, 0x10dca05e, 0xd14a1291, 0x961db331, 0x578b01fe,
+<span class="lineNum">      47 </span>            :      0x18b2f071, 0xd92442be, 0x9e73e31e, 0x5fe551d1},
+<span class="lineNum">      48 </span>            :     {0x00000000, 0x21b940bc, 0x43728178, 0x62cbc1c4, 0x86e502f0, 0xa75c424c,
+<span class="lineNum">      49 </span>            :      0xc5978388, 0xe42ec334, 0x08267311, 0x299f33ad, 0x4b54f269, 0x6aedb2d5,
+<span class="lineNum">      50 </span>            :      0x8ec371e1, 0xaf7a315d, 0xcdb1f099, 0xec08b025},
+<span class="lineNum">      51 </span>            :     {0x00000000, 0x104ce622, 0x2099cc44, 0x30d52a66, 0x41339888, 0x517f7eaa,
+<span class="lineNum">      52 </span>            :      0x61aa54cc, 0x71e6b2ee, 0x82673110, 0x922bd732, 0xa2fefd54, 0xb2b21b76,
+<span class="lineNum">      53 </span>            :      0xc354a998, 0xd3184fba, 0xe3cd65dc, 0xf38183fe},
+<span class="lineNum">      54 </span>            :     {0x00000000, 0x012214d1, 0x024429a2, 0x03663d73, 0x04885344, 0x05aa4795,
+<span class="lineNum">      55 </span>            :      0x06cc7ae6, 0x07ee6e37, 0x0910a688, 0x0832b259, 0x0b548f2a, 0x0a769bfb,
+<span class="lineNum">      56 </span>            :      0x0d98f5cc, 0x0cbae11d, 0x0fdcdc6e, 0x0efec8bf},
+<span class="lineNum">      57 </span>            :     {0x00000000, 0x12214d10, 0x24429a20, 0x3663d730, 0x48853440, 0x5aa47950,
+<span class="lineNum">      58 </span>            :      0x6cc7ae60, 0x7ee6e370, 0x910a6880, 0x832b2590, 0xb548f2a0, 0xa769bfb0,
+<span class="lineNum">      59 </span>            :      0xd98f5cc0, 0xcbae11d0, 0xfdcdc6e0, 0xefec8bf0},
+<span class="lineNum">      60 </span>            :     {0x00000000, 0x27f8a7f1, 0x4ff14fe2, 0x6809e813, 0x9fe29fc4, 0xb81a3835,
+<span class="lineNum">      61 </span>            :      0xd013d026, 0xf7eb77d7, 0x3a294979, 0x1dd1ee88, 0x75d8069b, 0x5220a16a,
+<span class="lineNum">      62 </span>            :      0xa5cbd6bd, 0x8233714c, 0xea3a995f, 0xcdc23eae},
+<span class="lineNum">      63 </span>            :     {0x00000000, 0x745292f2, 0xe8a525e4, 0x9cf7b716, 0xd4a63d39, 0xa0f4afcb,
+<span class="lineNum">      64 </span>            :      0x3c0318dd, 0x48518a2f, 0xaca00c83, 0xd8f29e71, 0x44052967, 0x3057bb95,
+<span class="lineNum">      65 </span>            :      0x780631ba, 0x0c54a348, 0x90a3145e, 0xe4f186ac},
+<span class="lineNum">      66 </span>            : };
+<span class="lineNum">      67 </span>            : const uint32_t kBlock1SkipTable[8][16] = {
+<span class="lineNum">      68 </span>            :     {0x00000000, 0x79113270, 0xf22264e0, 0x8b335690, 0xe1a8bf31, 0x98b98d41,
+<span class="lineNum">      69 </span>            :      0x138adbd1, 0x6a9be9a1, 0xc6bd0893, 0xbfac3ae3, 0x349f6c73, 0x4d8e5e03,
+<span class="lineNum">      70 </span>            :      0x2715b7a2, 0x5e0485d2, 0xd537d342, 0xac26e132},
+<span class="lineNum">      71 </span>            :     {0x00000000, 0x889667d7, 0x14c0b95f, 0x9c56de88, 0x298172be, 0xa1171569,
+<span class="lineNum">      72 </span>            :      0x3d41cbe1, 0xb5d7ac36, 0x5302e57c, 0xdb9482ab, 0x47c25c23, 0xcf543bf4,
+<span class="lineNum">      73 </span>            :      0x7a8397c2, 0xf215f015, 0x6e432e9d, 0xe6d5494a},
+<span class="lineNum">      74 </span>            :     {0x00000000, 0xa605caf8, 0x49e7e301, 0xefe229f9, 0x93cfc602, 0x35ca0cfa,
+<span class="lineNum">      75 </span>            :      0xda282503, 0x7c2deffb, 0x2273faf5, 0x8476300d, 0x6b9419f4, 0xcd91d30c,
+<span class="lineNum">      76 </span>            :      0xb1bc3cf7, 0x17b9f60f, 0xf85bdff6, 0x5e5e150e},
+<span class="lineNum">      77 </span>            :     {0x00000000, 0x44e7f5ea, 0x89cfebd4, 0xcd281e3e, 0x1673a159, 0x529454b3,
+<span class="lineNum">      78 </span>            :      0x9fbc4a8d, 0xdb5bbf67, 0x2ce742b2, 0x6800b758, 0xa528a966, 0xe1cf5c8c,
+<span class="lineNum">      79 </span>            :      0x3a94e3eb, 0x7e731601, 0xb35b083f, 0xf7bcfdd5},
+<span class="lineNum">      80 </span>            :     {0x00000000, 0x59ce8564, 0xb39d0ac8, 0xea538fac, 0x62d66361, 0x3b18e605,
+<span class="lineNum">      81 </span>            :      0xd14b69a9, 0x8885eccd, 0xc5acc6c2, 0x9c6243a6, 0x7631cc0a, 0x2fff496e,
+<span class="lineNum">      82 </span>            :      0xa77aa5a3, 0xfeb420c7, 0x14e7af6b, 0x4d292a0f},
+<span class="lineNum">      83 </span>            :     {0x00000000, 0x8eb5fb75, 0x1887801b, 0x96327b6e, 0x310f0036, 0xbfbafb43,
+<span class="lineNum">      84 </span>            :      0x2988802d, 0xa73d7b58, 0x621e006c, 0xecabfb19, 0x7a998077, 0xf42c7b02,
+<span class="lineNum">      85 </span>            :      0x5311005a, 0xdda4fb2f, 0x4b968041, 0xc5237b34},
+<span class="lineNum">      86 </span>            :     {0x00000000, 0xc43c00d8, 0x8d947741, 0x49a87799, 0x1ec49873, 0xdaf898ab,
+<span class="lineNum">      87 </span>            :      0x9350ef32, 0x576cefea, 0x3d8930e6, 0xf9b5303e, 0xb01d47a7, 0x7421477f,
+<span class="lineNum">      88 </span>            :      0x234da895, 0xe771a84d, 0xaed9dfd4, 0x6ae5df0c},
+<span class="lineNum">      89 </span>            :     {0x00000000, 0x7b1261cc, 0xf624c398, 0x8d36a254, 0xe9a5f1c1, 0x92b7900d,
+<span class="lineNum">      90 </span>            :      0x1f813259, 0x64935395, 0xd6a79573, 0xadb5f4bf, 0x208356eb, 0x5b913727,
+<span class="lineNum">      91 </span>            :      0x3f0264b2, 0x4410057e, 0xc926a72a, 0xb234c6e6},
+<span class="lineNum">      92 </span>            : };
+<span class="lineNum">      93 </span>            : const uint32_t kBlock2SkipTable[8][16] = {
+<span class="lineNum">      94 </span>            :     {0x00000000, 0x8f158014, 0x1bc776d9, 0x94d2f6cd, 0x378eedb2, 0xb89b6da6,
+<span class="lineNum">      95 </span>            :      0x2c499b6b, 0xa35c1b7f, 0x6f1ddb64, 0xe0085b70, 0x74daadbd, 0xfbcf2da9,
+<span class="lineNum">      96 </span>            :      0x589336d6, 0xd786b6c2, 0x4354400f, 0xcc41c01b},
+<span class="lineNum">      97 </span>            :     {0x00000000, 0xde3bb6c8, 0xb99b1b61, 0x67a0ada9, 0x76da4033, 0xa8e1f6fb,
+<span class="lineNum">      98 </span>            :      0xcf415b52, 0x117aed9a, 0xedb48066, 0x338f36ae, 0x542f9b07, 0x8a142dcf,
+<span class="lineNum">      99 </span>            :      0x9b6ec055, 0x4555769d, 0x22f5db34, 0xfcce6dfc},
+<span class="lineNum">     100 </span>            :     {0x00000000, 0xde85763d, 0xb8e69a8b, 0x6663ecb6, 0x742143e7, 0xaaa435da,
+<span class="lineNum">     101 </span>            :      0xccc7d96c, 0x1242af51, 0xe84287ce, 0x36c7f1f3, 0x50a41d45, 0x8e216b78,
+<span class="lineNum">     102 </span>            :      0x9c63c429, 0x42e6b214, 0x24855ea2, 0xfa00289f},
+<span class="lineNum">     103 </span>            :     {0x00000000, 0xd569796d, 0xaf3e842b, 0x7a57fd46, 0x5b917ea7, 0x8ef807ca,
+<span class="lineNum">     104 </span>            :      0xf4affa8c, 0x21c683e1, 0xb722fd4e, 0x624b8423, 0x181c7965, 0xcd750008,
+<span class="lineNum">     105 </span>            :      0xecb383e9, 0x39dafa84, 0x438d07c2, 0x96e47eaf},
+<span class="lineNum">     106 </span>            :     {0x00000000, 0x6ba98c6d, 0xd75318da, 0xbcfa94b7, 0xab4a4745, 0xc0e3cb28,
+<span class="lineNum">     107 </span>            :      0x7c195f9f, 0x17b0d3f2, 0x5378f87b, 0x38d17416, 0x842be0a1, 0xef826ccc,
+<span class="lineNum">     108 </span>            :      0xf832bf3e, 0x939b3353, 0x2f61a7e4, 0x44c82b89},
+<span class="lineNum">     109 </span>            :     {0x00000000, 0xa6f1f0f6, 0x480f971d, 0xeefe67eb, 0x901f2e3a, 0x36eedecc,
+<span class="lineNum">     110 </span>            :      0xd810b927, 0x7ee149d1, 0x25d22a85, 0x8323da73, 0x6dddbd98, 0xcb2c4d6e,
+<span class="lineNum">     111 </span>            :      0xb5cd04bf, 0x133cf449, 0xfdc293a2, 0x5b336354},
+<span class="lineNum">     112 </span>            :     {0x00000000, 0x4ba4550a, 0x9748aa14, 0xdcecff1e, 0x2b7d22d9, 0x60d977d3,
+<span class="lineNum">     113 </span>            :      0xbc3588cd, 0xf791ddc7, 0x56fa45b2, 0x1d5e10b8, 0xc1b2efa6, 0x8a16baac,
+<span class="lineNum">     114 </span>            :      0x7d87676b, 0x36233261, 0xeacfcd7f, 0xa16b9875},
+<span class="lineNum">     115 </span>            :     {0x00000000, 0xadf48b64, 0x5e056039, 0xf3f1eb5d, 0xbc0ac072, 0x11fe4b16,
+<span class="lineNum">     116 </span>            :      0xe20fa04b, 0x4ffb2b2f, 0x7df9f615, 0xd00d7d71, 0x23fc962c, 0x8e081d48,
+<span class="lineNum">     117 </span>            :      0xc1f33667, 0x6c07bd03, 0x9ff6565e, 0x3202dd3a},
+<span class="lineNum">     118 </span>            : };
+<span class="lineNum">     119 </span>            : 
+<span class="lineNum">     120 </span>            : constexpr const ptrdiff_t kPrefetchHorizon = 256;
+<span class="lineNum">     121 </span>            : 
+<a name="122"><span class="lineNum">     122 </span>            : }  // namespace</a>
+<span class="lineNum">     123 </span>            : 
+<span class="lineNum">     124 </span><span class="lineCov">     470800 : uint32_t ExtendSse42(uint32_t crc, const uint8_t* data, size_t size) {</span>
+<span class="lineNum">     125 </span><span class="lineCov">     470800 :   const uint8_t* p = data;</span>
+<span class="lineNum">     126 </span><span class="lineCov">     470800 :   const uint8_t* e = data + size;</span>
+<span class="lineNum">     127 </span><span class="lineCov">     470800 :   uint32_t l = crc ^ kCRC32Xor;</span>
+<span class="lineNum">     128 </span>            : 
+<span class="lineNum">     129 </span>            : #define STEP1                  \
+<span class="lineNum">     130 </span>            :   do {                         \
+<span class="lineNum">     131 </span>            :     l = _mm_crc32_u8(l, *p++); \
+<span class="lineNum">     132 </span>            :   } while (0)
+<span class="lineNum">     133 </span>            : 
+<span class="lineNum">     134 </span>            : #define STEP4(crc)                             \
+<span class="lineNum">     135 </span>            :   do {                                         \
+<span class="lineNum">     136 </span>            :     crc = _mm_crc32_u32(crc, ReadUint32LE(p)); \
+<span class="lineNum">     137 </span>            :     p += 4;                                    \
+<span class="lineNum">     138 </span>            :   } while (0)
+<span class="lineNum">     139 </span>            : 
+<span class="lineNum">     140 </span>            : #define STEP8(crc, data)                          \
+<span class="lineNum">     141 </span>            :   do {                                            \
+<span class="lineNum">     142 </span>            :     crc = _mm_crc32_u64(crc, ReadUint64LE(data)); \
+<span class="lineNum">     143 </span>            :     data += 8;                                    \
+<span class="lineNum">     144 </span>            :   } while (0)
+<span class="lineNum">     145 </span>            : 
+<span class="lineNum">     146 </span>            : #define STEP8BY3(crc0, crc1, crc2, p0, p1, p2) \
+<span class="lineNum">     147 </span>            :   do {                                         \
+<span class="lineNum">     148 </span>            :     STEP8(crc0, p0);                           \
+<span class="lineNum">     149 </span>            :     STEP8(crc1, p1);                           \
+<span class="lineNum">     150 </span>            :     STEP8(crc2, p2);                           \
+<span class="lineNum">     151 </span>            :   } while (0)
+<span class="lineNum">     152 </span>            : 
+<span class="lineNum">     153 </span>            : #define STEP8X3(crc0, crc1, crc2, bs)                     \
+<span class="lineNum">     154 </span>            :   do {                                                    \
+<span class="lineNum">     155 </span>            :     crc0 = _mm_crc32_u64(crc0, ReadUint64LE(p));          \
+<span class="lineNum">     156 </span>            :     crc1 = _mm_crc32_u64(crc1, ReadUint64LE(p + bs));     \
+<span class="lineNum">     157 </span>            :     crc2 = _mm_crc32_u64(crc2, ReadUint64LE(p + 2 * bs)); \
+<span class="lineNum">     158 </span>            :     p += 8;                                               \
+<span class="lineNum">     159 </span>            :   } while (0)
+<span class="lineNum">     160 </span>            : 
+<span class="lineNum">     161 </span>            : #define SKIP_BLOCK(crc, tab)                                      \
+<span class="lineNum">     162 </span>            :   do {                                                            \
+<span class="lineNum">     163 </span>            :     crc = tab[0][crc &amp; 0xf] ^ tab[1][(crc &gt;&gt; 4) &amp; 0xf] ^          \
+<span class="lineNum">     164 </span>            :           tab[2][(crc &gt;&gt; 8) &amp; 0xf] ^ tab[3][(crc &gt;&gt; 12) &amp; 0xf] ^  \
+<span class="lineNum">     165 </span>            :           tab[4][(crc &gt;&gt; 16) &amp; 0xf] ^ tab[5][(crc &gt;&gt; 20) &amp; 0xf] ^ \
+<span class="lineNum">     166 </span>            :           tab[6][(crc &gt;&gt; 24) &amp; 0xf] ^ tab[7][(crc &gt;&gt; 28) &amp; 0xf];  \
+<span class="lineNum">     167 </span>            :   } while (0)
+<span class="lineNum">     168 </span>            : 
+<span class="lineNum">     169 </span>            :   // Point x at first 8-byte aligned byte in the buffer. This might be past the
+<span class="lineNum">     170 </span>            :   // end of the buffer.
+<span class="lineNum">     171 </span><span class="lineCov">     470800 :   const uint8_t* x = RoundUp&lt;8&gt;(p);</span>
+<span class="lineNum">     172 </span><span class="lineCov">     470800 :   if (x &lt;= e) {</span>
+<span class="lineNum">     173 </span>            :     // Process bytes p is 8-byte aligned.
+<span class="lineNum">     174 </span><span class="lineCov">    1271160 :     while (p != x) {</span>
+<span class="lineNum">     175 </span><span class="lineCov">     800360 :       STEP1;</span>
+<span class="lineNum">     176 </span>            :     }
+<span class="lineNum">     177 </span>            :   }
+<span class="lineNum">     178 </span>            : 
+<span class="lineNum">     179 </span>            :   // Proccess the data in predetermined block sizes with tables for quickly
+<span class="lineNum">     180 </span>            :   // combining the checksum. Experimentally it's better to use larger block
+<span class="lineNum">     181 </span>            :   // sizes where possible so use a hierarchy of decreasing block sizes.
+<span class="lineNum">     182 </span><span class="lineCov">     470800 :   uint64_t l64 = l;</span>
+<span class="lineNum">     183 </span><span class="lineCov">     470800 :   while ((e - p) &gt;= kGroups * kBlock0Size) {</span>
+<span class="lineNum">     184 </span>            :     uint64_t l641 = 0;
+<span class="lineNum">     185 </span>            :     uint64_t l642 = 0;
+<span class="lineNum">     186 </span><span class="lineNoCov">          0 :     for (int i = 0; i &lt; kBlock0Size; i += 8 * 8) {</span>
+<span class="lineNum">     187 </span>            :       // Prefetch ahead to hide latency.
+<span class="lineNum">     188 </span><span class="lineNoCov">          0 :       RequestPrefetch(p + kPrefetchHorizon);</span>
+<span class="lineNum">     189 </span><span class="lineNoCov">          0 :       RequestPrefetch(p + kBlock0Size + kPrefetchHorizon);</span>
+<span class="lineNum">     190 </span><span class="lineNoCov">          0 :       RequestPrefetch(p + 2 * kBlock0Size + kPrefetchHorizon);</span>
+<span class="lineNum">     191 </span>            : 
+<span class="lineNum">     192 </span>            :       // Process 64 bytes at a time.
+<span class="lineNum">     193 </span><span class="lineNoCov">          0 :       STEP8X3(l64, l641, l642, kBlock0Size);</span>
+<span class="lineNum">     194 </span><span class="lineNoCov">          0 :       STEP8X3(l64, l641, l642, kBlock0Size);</span>
+<span class="lineNum">     195 </span><span class="lineNoCov">          0 :       STEP8X3(l64, l641, l642, kBlock0Size);</span>
+<span class="lineNum">     196 </span><span class="lineNoCov">          0 :       STEP8X3(l64, l641, l642, kBlock0Size);</span>
+<span class="lineNum">     197 </span><span class="lineNoCov">          0 :       STEP8X3(l64, l641, l642, kBlock0Size);</span>
+<span class="lineNum">     198 </span><span class="lineNoCov">          0 :       STEP8X3(l64, l641, l642, kBlock0Size);</span>
+<span class="lineNum">     199 </span><span class="lineNoCov">          0 :       STEP8X3(l64, l641, l642, kBlock0Size);</span>
+<span class="lineNum">     200 </span><span class="lineNoCov">          0 :       STEP8X3(l64, l641, l642, kBlock0Size);</span>
+<span class="lineNum">     201 </span>            :     }
+<span class="lineNum">     202 </span>            : 
+<span class="lineNum">     203 </span>            :     // Combine results.
+<span class="lineNum">     204 </span><span class="lineNoCov">          0 :     SKIP_BLOCK(l64, kBlock0SkipTable);</span>
+<span class="lineNum">     205 </span><span class="lineNoCov">          0 :     l64 ^= l641;</span>
+<span class="lineNum">     206 </span><span class="lineNoCov">          0 :     SKIP_BLOCK(l64, kBlock0SkipTable);</span>
+<span class="lineNum">     207 </span><span class="lineNoCov">          0 :     l64 ^= l642;</span>
+<span class="lineNum">     208 </span><span class="lineNoCov">          0 :     p += (kGroups - 1) * kBlock0Size;</span>
+<span class="lineNum">     209 </span>            :   }
+<span class="lineNum">     210 </span><span class="lineCov">     470800 :   while ((e - p) &gt;= kGroups * kBlock1Size) {</span>
+<span class="lineNum">     211 </span>            :     uint64_t l641 = 0;
+<span class="lineNum">     212 </span>            :     uint64_t l642 = 0;
+<span class="lineNum">     213 </span><span class="lineNoCov">          0 :     for (int i = 0; i &lt; kBlock1Size; i += 8) {</span>
+<span class="lineNum">     214 </span><span class="lineNoCov">          0 :       STEP8X3(l64, l641, l642, kBlock1Size);</span>
+<span class="lineNum">     215 </span>            :     }
+<span class="lineNum">     216 </span><span class="lineNoCov">          0 :     SKIP_BLOCK(l64, kBlock1SkipTable);</span>
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :     l64 ^= l641;</span>
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 :     SKIP_BLOCK(l64, kBlock1SkipTable);</span>
+<span class="lineNum">     219 </span><span class="lineNoCov">          0 :     l64 ^= l642;</span>
+<span class="lineNum">     220 </span><span class="lineNoCov">          0 :     p += (kGroups - 1) * kBlock1Size;</span>
+<span class="lineNum">     221 </span>            :   }
+<span class="lineNum">     222 </span><span class="lineCov">     470800 :   while ((e - p) &gt;= kGroups * kBlock2Size) {</span>
+<span class="lineNum">     223 </span>            :     uint64_t l641 = 0;
+<span class="lineNum">     224 </span>            :     uint64_t l642 = 0;
+<span class="lineNum">     225 </span><span class="lineNoCov">          0 :     for (int i = 0; i &lt; kBlock2Size; i += 8) {</span>
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 :       STEP8X3(l64, l641, l642, kBlock2Size);</span>
+<span class="lineNum">     227 </span>            :     }
+<span class="lineNum">     228 </span><span class="lineNoCov">          0 :     SKIP_BLOCK(l64, kBlock2SkipTable);</span>
+<span class="lineNum">     229 </span><span class="lineNoCov">          0 :     l64 ^= l641;</span>
+<span class="lineNum">     230 </span><span class="lineNoCov">          0 :     SKIP_BLOCK(l64, kBlock2SkipTable);</span>
+<span class="lineNum">     231 </span><span class="lineNoCov">          0 :     l64 ^= l642;</span>
+<span class="lineNum">     232 </span><span class="lineNoCov">          0 :     p += (kGroups - 1) * kBlock2Size;</span>
+<span class="lineNum">     233 </span>            :   }
+<span class="lineNum">     234 </span>            : 
+<span class="lineNum">     235 </span>            :   // Process bytes 16 at a time
+<span class="lineNum">     236 </span><span class="lineCov">     753280 :   while ((e - p) &gt;= 16) {</span>
+<span class="lineNum">     237 </span><span class="lineCov">     282480 :     STEP8(l64, p);</span>
+<span class="lineNum">     238 </span><span class="lineCov">     282480 :     STEP8(l64, p);</span>
+<span class="lineNum">     239 </span>            :   }
+<span class="lineNum">     240 </span>            : 
+<span class="lineNum">     241 </span><span class="lineCov">     470800 :   l = static_cast&lt;uint32_t&gt;(l64);</span>
+<span class="lineNum">     242 </span>            :   // Process the last few bytes.
+<span class="lineNum">     243 </span><span class="lineCov">    2024440 :   while (p != e) {</span>
+<span class="lineNum">     244 </span><span class="lineCov">    1553640 :     STEP1;</span>
+<span class="lineNum">     245 </span>            :   }
+<span class="lineNum">     246 </span>            : #undef SKIP_BLOCK
+<span class="lineNum">     247 </span>            : #undef STEP8X3
+<span class="lineNum">     248 </span>            : #undef STEP8BY3
+<span class="lineNum">     249 </span>            : #undef STEP8
+<span class="lineNum">     250 </span>            : #undef STEP4
+<span class="lineNum">     251 </span>            : #undef STEP1
+<span class="lineNum">     252 </span>            : 
+<span class="lineNum">     253 </span><span class="lineCov">     470800 :   return l ^ kCRC32Xor;</span>
+<span class="lineNum">     254 </span>            : }
+<span class="lineNum">     255 </span>            : 
+<span class="lineNum">     256 </span>            : }  // namespace crc32c
+<span class="lineNum">     257 </span>            : 
+<span class="lineNum">     258 </span>            : #endif  // HAVE_SSE42 &amp;&amp; (defined(_M_X64) || defined(__x86_64__))
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

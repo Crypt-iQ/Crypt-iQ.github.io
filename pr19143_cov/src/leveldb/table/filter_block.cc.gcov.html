@@ -1,0 +1,182 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - policy_estimator_cov.info - src/leveldb/table/filter_block.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">src/leveldb/table</a> - filter_block.cc<span style="font-size: 80%;"> (source / <a href="filter_block.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">policy_estimator_cov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">57</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-14 19:53:35</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2012 The LevelDB Authors. All rights reserved.</a>
+<span class="lineNum">       2 </span>            : // Use of this source code is governed by a BSD-style license that can be
+<span class="lineNum">       3 </span>            : // found in the LICENSE file. See the AUTHORS file for names of contributors.
+<span class="lineNum">       4 </span>            : 
+<span class="lineNum">       5 </span>            : #include &quot;table/filter_block.h&quot;
+<span class="lineNum">       6 </span>            : 
+<span class="lineNum">       7 </span>            : #include &quot;leveldb/filter_policy.h&quot;
+<span class="lineNum">       8 </span>            : #include &quot;util/coding.h&quot;
+<span class="lineNum">       9 </span>            : 
+<span class="lineNum">      10 </span>            : namespace leveldb {
+<span class="lineNum">      11 </span>            : 
+<span class="lineNum">      12 </span>            : // See doc/table_format.md for an explanation of the filter block format.
+<span class="lineNum">      13 </span>            : 
+<span class="lineNum">      14 </span>            : // Generate new filter every 2KB of data
+<span class="lineNum">      15 </span>            : static const size_t kFilterBaseLg = 11;
+<span class="lineNum">      16 </span>            : static const size_t kFilterBase = 1 &lt;&lt; kFilterBaseLg;
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span><span class="lineNoCov">          0 : FilterBlockBuilder::FilterBlockBuilder(const FilterPolicy* policy)</span>
+<span class="lineNum">      19 </span><span class="lineNoCov">          0 :     : policy_(policy) {}</span>
+<span class="lineNum">      20 </span>            : 
+<span class="lineNum">      21 </span><span class="lineNoCov">          0 : void FilterBlockBuilder::StartBlock(uint64_t block_offset) {</span>
+<span class="lineNum">      22 </span><span class="lineNoCov">          0 :   uint64_t filter_index = (block_offset / kFilterBase);</span>
+<span class="lineNum">      23 </span><span class="lineNoCov">          0 :   assert(filter_index &gt;= filter_offsets_.size());</span>
+<span class="lineNum">      24 </span><span class="lineNoCov">          0 :   while (filter_index &gt; filter_offsets_.size()) {</span>
+<span class="lineNum">      25 </span><span class="lineNoCov">          0 :     GenerateFilter();</span>
+<span class="lineNum">      26 </span>            :   }
+<span class="lineNum">      27 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">      28 </span>            : 
+<span class="lineNum">      29 </span><span class="lineNoCov">          0 : void FilterBlockBuilder::AddKey(const Slice&amp; key) {</span>
+<span class="lineNum">      30 </span><span class="lineNoCov">          0 :   Slice k = key;</span>
+<span class="lineNum">      31 </span><span class="lineNoCov">          0 :   start_.push_back(keys_.size());</span>
+<span class="lineNum">      32 </span><span class="lineNoCov">          0 :   keys_.append(k.data(), k.size());</span>
+<span class="lineNum">      33 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span><span class="lineNoCov">          0 : Slice FilterBlockBuilder::Finish() {</span>
+<span class="lineNum">      36 </span><span class="lineNoCov">          0 :   if (!start_.empty()) {</span>
+<span class="lineNum">      37 </span><span class="lineNoCov">          0 :     GenerateFilter();</span>
+<span class="lineNum">      38 </span>            :   }
+<span class="lineNum">      39 </span>            : 
+<span class="lineNum">      40 </span>            :   // Append array of per-filter offsets
+<span class="lineNum">      41 </span><span class="lineNoCov">          0 :   const uint32_t array_offset = result_.size();</span>
+<span class="lineNum">      42 </span><span class="lineNoCov">          0 :   for (size_t i = 0; i &lt; filter_offsets_.size(); i++) {</span>
+<span class="lineNum">      43 </span><span class="lineNoCov">          0 :     PutFixed32(&amp;result_, filter_offsets_[i]);</span>
+<span class="lineNum">      44 </span>            :   }
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span><span class="lineNoCov">          0 :   PutFixed32(&amp;result_, array_offset);</span>
+<span class="lineNum">      47 </span><span class="lineNoCov">          0 :   result_.push_back(kFilterBaseLg);  // Save encoding parameter in result</span>
+<span class="lineNum">      48 </span><span class="lineNoCov">          0 :   return Slice(result_);</span>
+<span class="lineNum">      49 </span>            : }
+<span class="lineNum">      50 </span>            : 
+<span class="lineNum">      51 </span><span class="lineNoCov">          0 : void FilterBlockBuilder::GenerateFilter() {</span>
+<span class="lineNum">      52 </span><span class="lineNoCov">          0 :   const size_t num_keys = start_.size();</span>
+<span class="lineNum">      53 </span><span class="lineNoCov">          0 :   if (num_keys == 0) {</span>
+<span class="lineNum">      54 </span>            :     // Fast path if there are no keys for this filter
+<span class="lineNum">      55 </span><span class="lineNoCov">          0 :     filter_offsets_.push_back(result_.size());</span>
+<span class="lineNum">      56 </span>            :     return;
+<span class="lineNum">      57 </span>            :   }
+<span class="lineNum">      58 </span>            : 
+<span class="lineNum">      59 </span>            :   // Make list of keys from flattened key structure
+<span class="lineNum">      60 </span><span class="lineNoCov">          0 :   start_.push_back(keys_.size());  // Simplify length computation</span>
+<span class="lineNum">      61 </span><span class="lineNoCov">          0 :   tmp_keys_.resize(num_keys);</span>
+<span class="lineNum">      62 </span><span class="lineNoCov">          0 :   for (size_t i = 0; i &lt; num_keys; i++) {</span>
+<span class="lineNum">      63 </span><span class="lineNoCov">          0 :     const char* base = keys_.data() + start_[i];</span>
+<span class="lineNum">      64 </span><span class="lineNoCov">          0 :     size_t length = start_[i + 1] - start_[i];</span>
+<span class="lineNum">      65 </span><span class="lineNoCov">          0 :     tmp_keys_[i] = Slice(base, length);</span>
+<span class="lineNum">      66 </span>            :   }
+<span class="lineNum">      67 </span>            : 
+<span class="lineNum">      68 </span>            :   // Generate filter for current set of keys and append to result_.
+<span class="lineNum">      69 </span><span class="lineNoCov">          0 :   filter_offsets_.push_back(result_.size());</span>
+<span class="lineNum">      70 </span><span class="lineNoCov">          0 :   policy_-&gt;CreateFilter(&amp;tmp_keys_[0], static_cast&lt;int&gt;(num_keys), &amp;result_);</span>
+<span class="lineNum">      71 </span>            : 
+<span class="lineNum">      72 </span><span class="lineNoCov">          0 :   tmp_keys_.clear();</span>
+<span class="lineNum">      73 </span><span class="lineNoCov">          0 :   keys_.clear();</span>
+<span class="lineNum">      74 </span><span class="lineNoCov">          0 :   start_.clear();</span>
+<a name="75"><span class="lineNum">      75 </span>            : }</a>
+<span class="lineNum">      76 </span>            : 
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 : FilterBlockReader::FilterBlockReader(const FilterPolicy* policy,</span>
+<span class="lineNum">      78 </span><span class="lineNoCov">          0 :                                      const Slice&amp; contents)</span>
+<span class="lineNum">      79 </span><span class="lineNoCov">          0 :     : policy_(policy), data_(nullptr), offset_(nullptr), num_(0), base_lg_(0) {</span>
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 :   size_t n = contents.size();</span>
+<span class="lineNum">      81 </span><span class="lineNoCov">          0 :   if (n &lt; 5) return;  // 1 byte for base_lg_ and 4 for start of offset array</span>
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 :   base_lg_ = contents[n - 1];</span>
+<span class="lineNum">      83 </span><span class="lineNoCov">          0 :   uint32_t last_word = DecodeFixed32(contents.data() + n - 5);</span>
+<span class="lineNum">      84 </span><span class="lineNoCov">          0 :   if (last_word &gt; n - 5) return;</span>
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 :   data_ = contents.data();</span>
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 :   offset_ = data_ + last_word;</span>
+<span class="lineNum">      87 </span><span class="lineNoCov">          0 :   num_ = (n - 5 - last_word) / 4;</span>
+<a name="88"><span class="lineNum">      88 </span>            : }</a>
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span><span class="lineNoCov">          0 : bool FilterBlockReader::KeyMayMatch(uint64_t block_offset, const Slice&amp; key) {</span>
+<span class="lineNum">      91 </span><span class="lineNoCov">          0 :   uint64_t index = block_offset &gt;&gt; base_lg_;</span>
+<span class="lineNum">      92 </span><span class="lineNoCov">          0 :   if (index &lt; num_) {</span>
+<span class="lineNum">      93 </span><span class="lineNoCov">          0 :     uint32_t start = DecodeFixed32(offset_ + index * 4);</span>
+<span class="lineNum">      94 </span><span class="lineNoCov">          0 :     uint32_t limit = DecodeFixed32(offset_ + index * 4 + 4);</span>
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 :     if (start &lt;= limit &amp;&amp; limit &lt;= static_cast&lt;size_t&gt;(offset_ - data_)) {</span>
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :       Slice filter = Slice(data_ + start, limit - start);</span>
+<span class="lineNum">      97 </span><span class="lineNoCov">          0 :       return policy_-&gt;KeyMayMatch(key, filter);</span>
+<span class="lineNum">      98 </span><span class="lineNoCov">          0 :     } else if (start == limit) {</span>
+<span class="lineNum">      99 </span>            :       // Empty filters do not match any keys
+<span class="lineNum">     100 </span>            :       return false;
+<span class="lineNum">     101 </span>            :     }
+<span class="lineNum">     102 </span>            :   }
+<span class="lineNum">     103 </span>            :   return true;  // Errors are treated as potential matches
+<span class="lineNum">     104 </span>            : }
+<span class="lineNum">     105 </span>            : 
+<span class="lineNum">     106 </span>            : }  // namespace leveldb
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

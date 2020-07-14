@@ -1,0 +1,254 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - policy_estimator_cov.info - src/util/settings.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">src/util</a> - settings.cpp<span style="font-size: 80%;"> (source / <a href="settings.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">policy_estimator_cov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">57</td>
+            <td class="headerCovTableEntry">66</td>
+            <td class="headerCovTableEntryMed">86.4 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-14 19:53:35</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntryLo">71.4 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2019 The Bitcoin Core developers</a>
+<span class="lineNum">       2 </span>            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       3 </span>            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       4 </span>            : 
+<span class="lineNum">       5 </span>            : #include &lt;util/settings.h&gt;
+<span class="lineNum">       6 </span>            : 
+<span class="lineNum">       7 </span>            : #include &lt;univalue.h&gt;
+<span class="lineNum">       8 </span>            : 
+<span class="lineNum">       9 </span>            : namespace util {
+<span class="lineNum">      10 </span>            : namespace {
+<span class="lineNum">      11 </span>            : 
+<span class="lineNum">      12 </span>            : enum class Source {
+<span class="lineNum">      13 </span>            :    FORCED,
+<span class="lineNum">      14 </span>            :    COMMAND_LINE,
+<span class="lineNum">      15 </span>            :    CONFIG_FILE_NETWORK_SECTION,
+<span class="lineNum">      16 </span>            :    CONFIG_FILE_DEFAULT_SECTION
+<span class="lineNum">      17 </span>            : };
+<span class="lineNum">      18 </span>            : 
+<span class="lineNum">      19 </span>            : //! Merge settings from multiple sources in precedence order:
+<span class="lineNum">      20 </span>            : //! Forced config &gt; command line &gt; config file network-specific section &gt; config file default section
+<span class="lineNum">      21 </span>            : //!
+<span class="lineNum">      22 </span>            : //! This function is provided with a callback function fn that contains
+<a name="23"><span class="lineNum">      23 </span>            : //! specific logic for how to merge the sources.</a>
+<span class="lineNum">      24 </span>            : template &lt;typename Fn&gt;
+<span class="lineNum">      25 </span><span class="lineCov">     765050 : static void MergeSettings(const Settings&amp; settings, const std::string&amp; section, const std::string&amp; name, Fn&amp;&amp; fn)</span>
+<span class="lineNum">      26 </span>            : {
+<span class="lineNum">      27 </span>            :     // Merge in the forced settings
+<span class="lineNum">      28 </span><span class="lineCov">     788590 :     if (auto* value = FindKey(settings.forced_settings, name)) {</span>
+<span class="lineNum">      29 </span><span class="lineCov">      23540 :         fn(SettingsSpan(*value), Source::FORCED);</span>
+<span class="lineNum">      30 </span>            :     }
+<span class="lineNum">      31 </span>            :     // Merge in the command-line options
+<span class="lineNum">      32 </span><span class="lineCov">     859210 :     if (auto* values = FindKey(settings.command_line_options, name)) {</span>
+<span class="lineNum">      33 </span><span class="lineCov">      94160 :         fn(SettingsSpan(*values), Source::COMMAND_LINE);</span>
+<span class="lineNum">      34 </span>            :     }
+<span class="lineNum">      35 </span>            :     // Merge in the network-specific section of the config file
+<span class="lineNum">      36 </span><span class="lineCov">     765050 :     if (!section.empty()) {</span>
+<span class="lineNum">      37 </span><span class="lineCov">     717970 :         if (auto* map = FindKey(settings.ro_config, section)) {</span>
+<span class="lineNum">      38 </span><span class="lineNoCov">          0 :             if (auto* values = FindKey(*map, name)) {</span>
+<span class="lineNum">      39 </span><span class="lineNoCov">          0 :                 fn(SettingsSpan(*values), Source::CONFIG_FILE_NETWORK_SECTION);</span>
+<span class="lineNum">      40 </span>            :             }
+<span class="lineNum">      41 </span>            :         }
+<span class="lineNum">      42 </span>            :     }
+<span class="lineNum">      43 </span>            :     // Merge in the default section of the config file
+<span class="lineNum">      44 </span><span class="lineCov">     765050 :     if (auto* map = FindKey(settings.ro_config, &quot;&quot;)) {</span>
+<span class="lineNum">      45 </span><span class="lineNoCov">          0 :         if (auto* values = FindKey(*map, name)) {</span>
+<span class="lineNum">      46 </span><span class="lineNoCov">          0 :             fn(SettingsSpan(*values), Source::CONFIG_FILE_DEFAULT_SECTION);</span>
+<span class="lineNum">      47 </span>            :         }
+<span class="lineNum">      48 </span>            :     }
+<span class="lineNum">      49 </span><span class="lineCov">     765050 : }</span>
+<a name="50"><span class="lineNum">      50 </span>            : } // namespace</a>
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span><span class="lineCov">     647350 : SettingsValue GetSetting(const Settings&amp; settings,</span>
+<span class="lineNum">      53 </span>            :     const std::string&amp; section,
+<span class="lineNum">      54 </span>            :     const std::string&amp; name,
+<span class="lineNum">      55 </span>            :     bool ignore_default_section_config,
+<span class="lineNum">      56 </span>            :     bool get_chain_name)
+<span class="lineNum">      57 </span>            : {
+<a name="58"><span class="lineNum">      58 </span><span class="lineCov">     647350 :     SettingsValue result;</span></a>
+<span class="lineNum">      59 </span><span class="lineCov">     647350 :     bool done = false; // Done merging any more settings sources.</span>
+<span class="lineNum">      60 </span><span class="lineCov">     741510 :     MergeSettings(settings, section, name, [&amp;](SettingsSpan span, Source source) {</span>
+<span class="lineNum">      61 </span>            :         // Weird behavior preserved for backwards compatibility: Apply negated
+<span class="lineNum">      62 </span>            :         // setting even if non-negated setting would be ignored. A negated
+<span class="lineNum">      63 </span>            :         // value in the default section is applied to network specific options,
+<span class="lineNum">      64 </span>            :         // even though normal non-negated values there would be ignored.
+<span class="lineNum">      65 </span><span class="lineCov">      94160 :         const bool never_ignore_negated_setting = span.last_negated();</span>
+<span class="lineNum">      66 </span>            : 
+<span class="lineNum">      67 </span>            :         // Weird behavior preserved for backwards compatibility: Take first
+<span class="lineNum">      68 </span>            :         // assigned value instead of last. In general, later settings take
+<span class="lineNum">      69 </span>            :         // precedence over early settings, but for backwards compatibility in
+<span class="lineNum">      70 </span>            :         // the config file the precedence is reversed for all settings except
+<span class="lineNum">      71 </span>            :         // chain name settings.
+<span class="lineNum">      72 </span><span class="lineCov">      94160 :         const bool reverse_precedence =</span>
+<span class="lineNum">      73 </span><span class="lineCov">      94160 :             (source == Source::CONFIG_FILE_NETWORK_SECTION || source == Source::CONFIG_FILE_DEFAULT_SECTION) &amp;&amp;</span>
+<span class="lineNum">      74 </span><span class="lineCov">      94160 :             !get_chain_name;</span>
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span>            :         // Weird behavior preserved for backwards compatibility: Negated
+<span class="lineNum">      77 </span>            :         // -regtest and -testnet arguments which you would expect to override
+<span class="lineNum">      78 </span>            :         // values set in the configuration file are currently accepted but
+<span class="lineNum">      79 </span>            :         // silently ignored. It would be better to apply these just like other
+<span class="lineNum">      80 </span>            :         // negated values, or at least warn they are ignored.
+<span class="lineNum">      81 </span><span class="lineCov">      94160 :         const bool skip_negated_command_line = get_chain_name;</span>
+<span class="lineNum">      82 </span>            : 
+<span class="lineNum">      83 </span><span class="lineCov">     188320 :         if (done) return;</span>
+<span class="lineNum">      84 </span>            : 
+<span class="lineNum">      85 </span>            :         // Ignore settings in default config section if requested.
+<span class="lineNum">      86 </span><span class="lineCov">      94160 :         if (ignore_default_section_config &amp;&amp; source == Source::CONFIG_FILE_DEFAULT_SECTION &amp;&amp;</span>
+<span class="lineNum">      87 </span><span class="lineNoCov">          0 :             !never_ignore_negated_setting) {</span>
+<span class="lineNum">      88 </span>            :             return;
+<span class="lineNum">      89 </span>            :         }
+<span class="lineNum">      90 </span>            : 
+<span class="lineNum">      91 </span>            :         // Skip negated command line settings.
+<span class="lineNum">      92 </span><span class="lineCov">      94160 :         if (skip_negated_command_line &amp;&amp; span.last_negated()) return;</span>
+<span class="lineNum">      93 </span>            : 
+<span class="lineNum">      94 </span><span class="lineCov">      70620 :         if (!span.empty()) {</span>
+<span class="lineNum">      95 </span><span class="lineCov">     164780 :             result = reverse_precedence ? span.begin()[0] : span.end()[-1];</span>
+<span class="lineNum">      96 </span><span class="lineCov">      70620 :             done = true;</span>
+<span class="lineNum">      97 </span><span class="lineCov">      23540 :         } else if (span.last_negated()) {</span>
+<span class="lineNum">      98 </span><span class="lineCov">      47080 :             result = false;</span>
+<span class="lineNum">      99 </span><span class="lineCov">      23540 :             done = true;</span>
+<span class="lineNum">     100 </span>            :         }
+<span class="lineNum">     101 </span>            :     });
+<span class="lineNum">     102 </span><span class="lineCov">     647350 :     return result;</span>
+<a name="103"><span class="lineNum">     103 </span>            : }</a>
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span><span class="lineCov">      47080 : std::vector&lt;SettingsValue&gt; GetSettingsList(const Settings&amp; settings,</span>
+<span class="lineNum">     106 </span>            :     const std::string&amp; section,
+<span class="lineNum">     107 </span>            :     const std::string&amp; name,
+<span class="lineNum">     108 </span>            :     bool ignore_default_section_config)
+<span class="lineNum">     109 </span>            : {
+<span class="lineNum">     110 </span><span class="lineCov">      47080 :     std::vector&lt;SettingsValue&gt; result;</span>
+<a name="111"><span class="lineNum">     111 </span><span class="lineCov">      47080 :     bool done = false; // Done merging any more settings sources.</span></a>
+<span class="lineNum">     112 </span><span class="lineCov">      47080 :     bool prev_negated_empty = false;</span>
+<span class="lineNum">     113 </span><span class="lineCov">      70620 :     MergeSettings(settings, section, name, [&amp;](SettingsSpan span, Source source) {</span>
+<span class="lineNum">     114 </span>            :         // Weird behavior preserved for backwards compatibility: Apply config
+<span class="lineNum">     115 </span>            :         // file settings even if negated on command line. Negating a setting on
+<span class="lineNum">     116 </span>            :         // command line will ignore earlier settings on the command line and
+<span class="lineNum">     117 </span>            :         // ignore settings in the config file, unless the negated command line
+<span class="lineNum">     118 </span>            :         // value is followed by non-negated value, in which case config file
+<span class="lineNum">     119 </span>            :         // settings will be brought back from the dead (but earlier command
+<span class="lineNum">     120 </span>            :         // line settings will still be ignored).
+<span class="lineNum">     121 </span><span class="lineCov">      23540 :         const bool add_zombie_config_values =</span>
+<span class="lineNum">     122 </span><span class="lineCov">      23540 :             (source == Source::CONFIG_FILE_NETWORK_SECTION || source == Source::CONFIG_FILE_DEFAULT_SECTION) &amp;&amp;</span>
+<span class="lineNum">     123 </span><span class="lineCov">      23540 :             !prev_negated_empty;</span>
+<span class="lineNum">     124 </span>            : 
+<span class="lineNum">     125 </span>            :         // Ignore settings in default config section if requested.
+<span class="lineNum">     126 </span><span class="lineCov">      23540 :         if (ignore_default_section_config &amp;&amp; source == Source::CONFIG_FILE_DEFAULT_SECTION) return;</span>
+<span class="lineNum">     127 </span>            : 
+<span class="lineNum">     128 </span>            :         // Add new settings to the result if isn't already complete, or if the
+<span class="lineNum">     129 </span>            :         // values are zombies.
+<span class="lineNum">     130 </span><span class="lineCov">      47080 :         if (!done || add_zombie_config_values) {</span>
+<span class="lineNum">     131 </span><span class="lineCov">     105930 :             for (const auto&amp; value : span) {</span>
+<span class="lineNum">     132 </span><span class="lineCov">      35310 :                 if (value.isArray()) {</span>
+<span class="lineNum">     133 </span><span class="lineNoCov">          0 :                     result.insert(result.end(), value.getValues().begin(), value.getValues().end());</span>
+<span class="lineNum">     134 </span>            :                 } else {
+<span class="lineNum">     135 </span><span class="lineCov">      35310 :                     result.push_back(value);</span>
+<span class="lineNum">     136 </span>            :                 }
+<span class="lineNum">     137 </span>            :             }
+<span class="lineNum">     138 </span>            :         }
+<span class="lineNum">     139 </span>            : 
+<span class="lineNum">     140 </span>            :         // If a setting was negated, or if a setting was forced, set
+<span class="lineNum">     141 </span>            :         // done to true to ignore any later lower priority settings.
+<span class="lineNum">     142 </span><span class="lineCov">      47080 :         done |= span.negated() &gt; 0 || source == Source::FORCED;</span>
+<span class="lineNum">     143 </span>            : 
+<span class="lineNum">     144 </span>            :         // Update the negated and empty state used for the zombie values check.
+<span class="lineNum">     145 </span><span class="lineCov">      47080 :         prev_negated_empty |= span.last_negated() &amp;&amp; result.empty();</span>
+<span class="lineNum">     146 </span>            :     });
+<span class="lineNum">     147 </span><span class="lineCov">      47080 :     return result;</span>
+<a name="148"><span class="lineNum">     148 </span>            : }</a>
+<span class="lineNum">     149 </span>            : 
+<span class="lineNum">     150 </span><span class="lineCov">      70620 : bool OnlyHasDefaultSectionSetting(const Settings&amp; settings, const std::string&amp; section, const std::string&amp; name)</span>
+<span class="lineNum">     151 </span>            : {
+<span class="lineNum">     152 </span><span class="lineCov">      70620 :     bool has_default_section_setting = false;</span>
+<span class="lineNum">     153 </span><span class="lineCov">      70620 :     bool has_other_setting = false;</span>
+<span class="lineNum">     154 </span><span class="lineCov">      70620 :     MergeSettings(settings, section, name, [&amp;](SettingsSpan span, Source source) {</span>
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :         if (span.empty()) return;</span>
+<span class="lineNum">     156 </span><span class="lineNoCov">          0 :         else if (source == Source::CONFIG_FILE_DEFAULT_SECTION) has_default_section_setting = true;</span>
+<span class="lineNum">     157 </span><span class="lineNoCov">          0 :         else has_other_setting = true;</span>
+<span class="lineNum">     158 </span>            :     });
+<span class="lineNum">     159 </span>            :     // If a value is set in the default section and not explicitly overwritten by the
+<span class="lineNum">     160 </span>            :     // user on the command line or in a different section, then we want to enable
+<span class="lineNum">     161 </span>            :     // warnings about the value being ignored.
+<span class="lineNum">     162 </span><span class="lineCov">      70620 :     return has_default_section_setting &amp;&amp; !has_other_setting;</span>
+<a name="163"><span class="lineNum">     163 </span>            : }</a>
+<a name="164"><span class="lineNum">     164 </span>            : </a>
+<a name="165"><span class="lineNum">     165 </span><span class="lineCov">     376640 : SettingsSpan::SettingsSpan(const std::vector&lt;SettingsValue&gt;&amp; vec) noexcept : SettingsSpan(vec.data(), vec.size()) {}</span></a>
+<a name="166"><span class="lineNum">     166 </span><span class="lineCov">      23540 : const SettingsValue* SettingsSpan::begin() const { return data + negated(); }</span></a>
+<a name="167"><span class="lineNum">     167 </span><span class="lineCov">      94160 : const SettingsValue* SettingsSpan::end() const { return data + size; }</span></a>
+<a name="168"><span class="lineNum">     168 </span><span class="lineCov">      94160 : bool SettingsSpan::empty() const { return size == 0 || last_negated(); }</span></a>
+<span class="lineNum">     169 </span><span class="lineCov">     235400 : bool SettingsSpan::last_negated() const { return size &gt; 0 &amp;&amp; data[size - 1].isFalse(); }</span>
+<span class="lineNum">     170 </span><span class="lineCov">      47080 : size_t SettingsSpan::negated() const</span>
+<span class="lineNum">     171 </span>            : {
+<span class="lineNum">     172 </span><span class="lineCov">     117700 :     for (size_t i = size; i &gt; 0; --i) {</span>
+<span class="lineNum">     173 </span><span class="lineCov">      70620 :         if (data[i - 1].isFalse()) return i; // Return number of negated values (position of last false value)</span>
+<span class="lineNum">     174 </span>            :     }
+<span class="lineNum">     175 </span>            :     return 0;
+<span class="lineNum">     176 </span>            : }
+<span class="lineNum">     177 </span>            : 
+<span class="lineNum">     178 </span>            : } // namespace util
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

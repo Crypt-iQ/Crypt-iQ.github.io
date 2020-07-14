@@ -1,0 +1,406 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - policy_estimator_cov.info - /usr/include/boost/date_time/date_generator_parser.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">usr/include/boost/date_time</a> - date_generator_parser.hpp<span style="font-size: 80%;"> (source / <a href="date_generator_parser.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">policy_estimator_cov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-14 19:53:35</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : </a>
+<span class="lineNum">       2 </span>            : #ifndef DATE_TIME_DATE_GENERATOR_PARSER_HPP__
+<span class="lineNum">       3 </span>            : #define DATE_TIME_DATE_GENERATOR_PARSER_HPP__
+<span class="lineNum">       4 </span>            : 
+<span class="lineNum">       5 </span>            : /* Copyright (c) 2005 CrystalClear Software, Inc.
+<span class="lineNum">       6 </span>            :  * Use, modification and distribution is subject to the 
+<span class="lineNum">       7 </span>            :  * Boost Software License, Version 1.0. (See accompanying
+<span class="lineNum">       8 </span>            :  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       9 </span>            :  * Author: Jeff Garland, Bart Garst
+<span class="lineNum">      10 </span>            :  * $Date$
+<span class="lineNum">      11 </span>            :  */
+<span class="lineNum">      12 </span>            : 
+<span class="lineNum">      13 </span>            : #include &lt;string&gt;
+<span class="lineNum">      14 </span>            : #include &lt;vector&gt;
+<span class="lineNum">      15 </span>            : #include &lt;iterator&gt; // istreambuf_iterator
+<span class="lineNum">      16 </span>            : #include &lt;boost/throw_exception.hpp&gt;
+<span class="lineNum">      17 </span>            : #include &lt;boost/date_time/compiler_config.hpp&gt;
+<span class="lineNum">      18 </span>            : #include &lt;boost/date_time/string_parse_tree.hpp&gt;
+<span class="lineNum">      19 </span>            : #include &lt;boost/date_time/date_generators.hpp&gt;
+<span class="lineNum">      20 </span>            : #include &lt;boost/date_time/format_date_parser.hpp&gt;
+<span class="lineNum">      21 </span>            : 
+<span class="lineNum">      22 </span>            : namespace boost { namespace date_time {
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span>            :   //! Class for date_generator parsing 
+<span class="lineNum">      25 </span>            :   /*! The elements of a date_generator &quot;phrase&quot; are parsed from the input stream in a 
+<span class="lineNum">      26 </span>            :    *  particular order. All elements are required and the order in which they appear 
+<span class="lineNum">      27 </span>            :    *  cannot change, however, the elements themselves can be changed. The default 
+<span class="lineNum">      28 </span>            :    *  elements and their order are as follows:
+<span class="lineNum">      29 </span>            :    *
+<span class="lineNum">      30 </span>            :    * - partial_date                     =&gt; &quot;dd Month&quot;
+<span class="lineNum">      31 </span>            :    * - nth_day_of_the_week_in_month     =&gt; &quot;nth weekday of month&quot;
+<span class="lineNum">      32 </span>            :    * - first_day_of_the_week_in_month   =&gt; &quot;first weekday of month&quot;
+<span class="lineNum">      33 </span>            :    * - last_day_of_the_week_in_month    =&gt; &quot;last weekday of month&quot;
+<span class="lineNum">      34 </span>            :    * - first_day_of_the_week_after      =&gt; &quot;weekday after&quot;
+<span class="lineNum">      35 </span>            :    * - first_day_of_the_week_before     =&gt; &quot;weekday before&quot;
+<span class="lineNum">      36 </span>            :    *
+<span class="lineNum">      37 </span>            :    * Weekday and Month names and formats are handled via the date_input_facet. 
+<span class="lineNum">      38 </span>            :    *
+<span class="lineNum">      39 </span>            :    */
+<span class="lineNum">      40 </span>            :   template&lt;class date_type, typename charT&gt;
+<span class="lineNum">      41 </span><span class="lineNoCov">          0 :   class date_generator_parser</span>
+<span class="lineNum">      42 </span>            :   {
+<span class="lineNum">      43 </span>            :    public:
+<span class="lineNum">      44 </span>            :     typedef std::basic_string&lt;charT&gt;        string_type;
+<span class="lineNum">      45 </span>            :     typedef std::istreambuf_iterator&lt;charT&gt; stream_itr_type;
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span>            :     typedef typename date_type::month_type       month_type;
+<span class="lineNum">      48 </span>            :     typedef typename date_type::day_of_week_type day_of_week_type;
+<span class="lineNum">      49 </span>            :     typedef typename date_type::day_type         day_type;
+<span class="lineNum">      50 </span>            : 
+<span class="lineNum">      51 </span>            :     typedef string_parse_tree&lt;charT&gt;                          parse_tree_type;
+<span class="lineNum">      52 </span>            :     typedef typename parse_tree_type::parse_match_result_type match_results;
+<span class="lineNum">      53 </span>            :     typedef std::vector&lt;std::basic_string&lt;charT&gt; &gt;            collection_type;
+<span class="lineNum">      54 </span>            : 
+<span class="lineNum">      55 </span>            :     typedef partial_date&lt;date_type&gt;          partial_date_type;
+<span class="lineNum">      56 </span>            :     typedef nth_kday_of_month&lt;date_type&gt;     nth_kday_type;
+<span class="lineNum">      57 </span>            :     typedef first_kday_of_month&lt;date_type&gt;   first_kday_type;
+<span class="lineNum">      58 </span>            :     typedef last_kday_of_month&lt;date_type&gt;    last_kday_type;
+<span class="lineNum">      59 </span>            :     typedef first_kday_after&lt;date_type&gt;      kday_after_type;
+<span class="lineNum">      60 </span>            :     typedef first_kday_before&lt;date_type&gt;     kday_before_type;
+<span class="lineNum">      61 </span>            : 
+<span class="lineNum">      62 </span>            :     typedef charT char_type;
+<span class="lineNum">      63 </span>            :     static const char_type first_string[6];
+<span class="lineNum">      64 </span>            :     static const char_type second_string[7];
+<span class="lineNum">      65 </span>            :     static const char_type third_string[6];
+<span class="lineNum">      66 </span>            :     static const char_type fourth_string[7];
+<span class="lineNum">      67 </span>            :     static const char_type fifth_string[6];
+<span class="lineNum">      68 </span>            :     static const char_type last_string[5];
+<span class="lineNum">      69 </span>            :     static const char_type before_string[8];
+<span class="lineNum">      70 </span>            :     static const char_type after_string[6];
+<span class="lineNum">      71 </span>            :     static const char_type of_string[3];
+<span class="lineNum">      72 </span>            : 
+<span class="lineNum">      73 </span>            :     enum phrase_elements {first=0, second, third, fourth, fifth, last,
+<span class="lineNum">      74 </span>            :                           before, after, of, number_of_phrase_elements};
+<a name="75"><span class="lineNum">      75 </span>            : </a>
+<span class="lineNum">      76 </span>            :     //! Creates a date_generator_parser with the default set of &quot;element_strings&quot;
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 :     date_generator_parser()</span>
+<span class="lineNum">      78 </span><span class="lineNoCov">          0 :     {</span>
+<span class="lineNum">      79 </span><span class="lineNoCov">          0 :       element_strings(string_type(first_string),</span>
+<span class="lineNum">      80 </span>            :                       string_type(second_string),
+<span class="lineNum">      81 </span>            :                       string_type(third_string),
+<span class="lineNum">      82 </span>            :                       string_type(fourth_string),
+<span class="lineNum">      83 </span>            :                       string_type(fifth_string),
+<span class="lineNum">      84 </span>            :                       string_type(last_string),
+<span class="lineNum">      85 </span>            :                       string_type(before_string),
+<span class="lineNum">      86 </span>            :                       string_type(after_string),
+<span class="lineNum">      87 </span>            :                       string_type(of_string));
+<span class="lineNum">      88 </span><span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span>            :     //! Creates a date_generator_parser using a user defined set of element strings
+<span class="lineNum">      91 </span>            :     date_generator_parser(const string_type&amp; first_str,
+<span class="lineNum">      92 </span>            :                           const string_type&amp; second_str,
+<span class="lineNum">      93 </span>            :                           const string_type&amp; third_str,
+<span class="lineNum">      94 </span>            :                           const string_type&amp; fourth_str,
+<span class="lineNum">      95 </span>            :                           const string_type&amp; fifth_str,
+<span class="lineNum">      96 </span>            :                           const string_type&amp; last_str,
+<span class="lineNum">      97 </span>            :                           const string_type&amp; before_str,
+<span class="lineNum">      98 </span>            :                           const string_type&amp; after_str,
+<span class="lineNum">      99 </span>            :                           const string_type&amp; of_str)
+<span class="lineNum">     100 </span>            :     {
+<span class="lineNum">     101 </span>            :       element_strings(first_str, second_str, third_str, fourth_str, fifth_str,
+<span class="lineNum">     102 </span>            :                       last_str, before_str, after_str, of_str);
+<span class="lineNum">     103 </span>            :     }
+<a name="104"><span class="lineNum">     104 </span>            : </a>
+<span class="lineNum">     105 </span>            :     //! Replace strings that determine nth week for generator
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 :     void element_strings(const string_type&amp; first_str,</span>
+<span class="lineNum">     107 </span>            :                          const string_type&amp; second_str,
+<span class="lineNum">     108 </span>            :                          const string_type&amp; third_str,
+<span class="lineNum">     109 </span>            :                          const string_type&amp; fourth_str,
+<span class="lineNum">     110 </span>            :                          const string_type&amp; fifth_str,
+<span class="lineNum">     111 </span>            :                          const string_type&amp; last_str,
+<span class="lineNum">     112 </span>            :                          const string_type&amp; before_str,
+<span class="lineNum">     113 </span>            :                          const string_type&amp; after_str,
+<span class="lineNum">     114 </span>            :                          const string_type&amp; of_str)
+<span class="lineNum">     115 </span>            :     {
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 :       collection_type phrases;</span>
+<span class="lineNum">     117 </span><span class="lineNoCov">          0 :       phrases.push_back(first_str);</span>
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :       phrases.push_back(second_str);</span>
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 :       phrases.push_back(third_str);</span>
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :       phrases.push_back(fourth_str);</span>
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 :       phrases.push_back(fifth_str);</span>
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :       phrases.push_back(last_str);</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :       phrases.push_back(before_str);</span>
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :       phrases.push_back(after_str);</span>
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :       phrases.push_back(of_str);</span>
+<span class="lineNum">     126 </span><span class="lineNoCov">          0 :       m_element_strings = parse_tree_type(phrases, this-&gt;first); // enum first</span>
+<span class="lineNum">     127 </span><span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     128 </span>            : 
+<span class="lineNum">     129 </span>            :     void element_strings(const collection_type&amp; col)
+<span class="lineNum">     130 </span>            :     {
+<span class="lineNum">     131 </span>            :       m_element_strings = parse_tree_type(col, this-&gt;first); // enum first
+<span class="lineNum">     132 </span>            :     }
+<span class="lineNum">     133 </span>            : 
+<span class="lineNum">     134 </span>            :     //! returns partial_date parsed from stream
+<span class="lineNum">     135 </span>            :     template&lt;class facet_type&gt;
+<span class="lineNum">     136 </span>            :     partial_date_type
+<span class="lineNum">     137 </span>            :     get_partial_date_type(stream_itr_type&amp; sitr,
+<span class="lineNum">     138 </span>            :                           stream_itr_type&amp; stream_end,
+<span class="lineNum">     139 </span>            :                           std::ios_base&amp; a_ios,
+<span class="lineNum">     140 </span>            :                           const facet_type&amp; facet) const
+<span class="lineNum">     141 </span>            :     {
+<span class="lineNum">     142 </span>            :       // skip leading whitespace
+<span class="lineNum">     143 </span>            :       while(std::isspace(*sitr) &amp;&amp; sitr != stream_end) { ++sitr; }
+<span class="lineNum">     144 </span>            : 
+<span class="lineNum">     145 </span>            :       day_type d(1);
+<span class="lineNum">     146 </span>            :       month_type m(1);
+<span class="lineNum">     147 </span>            :       facet.get(sitr, stream_end, a_ios, d);
+<span class="lineNum">     148 </span>            :       facet.get(sitr, stream_end, a_ios, m);
+<span class="lineNum">     149 </span>            : 
+<span class="lineNum">     150 </span>            :       return partial_date_type(d,m);
+<span class="lineNum">     151 </span>            :     }
+<span class="lineNum">     152 </span>            : 
+<span class="lineNum">     153 </span>            :     //! returns nth_kday_of_week parsed from stream
+<span class="lineNum">     154 </span>            :     template&lt;class facet_type&gt;
+<span class="lineNum">     155 </span>            :     nth_kday_type
+<span class="lineNum">     156 </span>            :     get_nth_kday_type(stream_itr_type&amp; sitr,
+<span class="lineNum">     157 </span>            :                       stream_itr_type&amp; stream_end,
+<span class="lineNum">     158 </span>            :                       std::ios_base&amp; a_ios,
+<span class="lineNum">     159 </span>            :                       const facet_type&amp; facet) const
+<span class="lineNum">     160 </span>            :     {
+<span class="lineNum">     161 </span>            :       // skip leading whitespace
+<span class="lineNum">     162 </span>            :       while(std::isspace(*sitr) &amp;&amp; sitr != stream_end) { ++sitr; }
+<span class="lineNum">     163 </span>            :  
+<span class="lineNum">     164 </span>            :       typename nth_kday_type::week_num wn;
+<span class="lineNum">     165 </span>            :       day_of_week_type wd(0); // no default constructor
+<span class="lineNum">     166 </span>            :       month_type m(1);        // no default constructor
+<span class="lineNum">     167 </span>            : 
+<span class="lineNum">     168 </span>            :       match_results mr = m_element_strings.match(sitr, stream_end);
+<span class="lineNum">     169 </span>            :       switch(mr.current_match) {
+<span class="lineNum">     170 </span>            :         case first  : { wn = nth_kday_type::first; break; }
+<span class="lineNum">     171 </span>            :         case second : { wn = nth_kday_type::second; break; }
+<span class="lineNum">     172 </span>            :         case third  : { wn = nth_kday_type::third; break; }
+<span class="lineNum">     173 </span>            :         case fourth : { wn = nth_kday_type::fourth; break; }
+<span class="lineNum">     174 </span>            :         case fifth  : { wn = nth_kday_type::fifth; break; }
+<span class="lineNum">     175 </span>            :         default:
+<span class="lineNum">     176 </span>            :         {
+<span class="lineNum">     177 </span>            :           boost::throw_exception(std::ios_base::failure(&quot;Parse failed. No match found for '&quot; + mr.cache + &quot;'&quot;));
+<span class="lineNum">     178 </span>            :           BOOST_DATE_TIME_UNREACHABLE_EXPRESSION(wn = nth_kday_type::first);
+<span class="lineNum">     179 </span>            :         }
+<span class="lineNum">     180 </span>            :       }                                         // week num
+<span class="lineNum">     181 </span>            :       facet.get(sitr, stream_end, a_ios, wd);   // day_of_week
+<span class="lineNum">     182 </span>            :       extract_element(sitr, stream_end, of);    // &quot;of&quot; element
+<span class="lineNum">     183 </span>            :       facet.get(sitr, stream_end, a_ios, m);    // month
+<span class="lineNum">     184 </span>            : 
+<span class="lineNum">     185 </span>            :       return nth_kday_type(wn, wd, m);
+<span class="lineNum">     186 </span>            :     }
+<span class="lineNum">     187 </span>            : 
+<span class="lineNum">     188 </span>            :     //! returns first_kday_of_week parsed from stream
+<span class="lineNum">     189 </span>            :     template&lt;class facet_type&gt;
+<span class="lineNum">     190 </span>            :     first_kday_type
+<span class="lineNum">     191 </span>            :     get_first_kday_type(stream_itr_type&amp; sitr,
+<span class="lineNum">     192 </span>            :                         stream_itr_type&amp; stream_end,
+<span class="lineNum">     193 </span>            :                         std::ios_base&amp; a_ios,
+<span class="lineNum">     194 </span>            :                         const facet_type&amp; facet) const
+<span class="lineNum">     195 </span>            :     {
+<span class="lineNum">     196 </span>            :       // skip leading whitespace
+<span class="lineNum">     197 </span>            :       while(std::isspace(*sitr) &amp;&amp; sitr != stream_end) { ++sitr; }
+<span class="lineNum">     198 </span>            : 
+<span class="lineNum">     199 </span>            :       day_of_week_type wd(0); // no default constructor
+<span class="lineNum">     200 </span>            :       month_type m(1);        // no default constructor
+<span class="lineNum">     201 </span>            : 
+<span class="lineNum">     202 </span>            :       extract_element(sitr, stream_end, first); // &quot;first&quot; element
+<span class="lineNum">     203 </span>            :       facet.get(sitr, stream_end, a_ios, wd);   // day_of_week
+<span class="lineNum">     204 </span>            :       extract_element(sitr, stream_end, of);    // &quot;of&quot; element
+<span class="lineNum">     205 </span>            :       facet.get(sitr, stream_end, a_ios, m);    // month
+<span class="lineNum">     206 </span>            : 
+<span class="lineNum">     207 </span>            : 
+<span class="lineNum">     208 </span>            :       return first_kday_type(wd, m);
+<span class="lineNum">     209 </span>            :     }
+<span class="lineNum">     210 </span>            : 
+<span class="lineNum">     211 </span>            :     //! returns last_kday_of_week parsed from stream
+<span class="lineNum">     212 </span>            :     template&lt;class facet_type&gt;
+<span class="lineNum">     213 </span>            :     last_kday_type
+<span class="lineNum">     214 </span>            :     get_last_kday_type(stream_itr_type&amp; sitr,
+<span class="lineNum">     215 </span>            :                        stream_itr_type&amp; stream_end,
+<span class="lineNum">     216 </span>            :                        std::ios_base&amp; a_ios,
+<span class="lineNum">     217 </span>            :                        const facet_type&amp; facet) const
+<span class="lineNum">     218 </span>            :     {
+<span class="lineNum">     219 </span>            :       // skip leading whitespace
+<span class="lineNum">     220 </span>            :       while(std::isspace(*sitr) &amp;&amp; sitr != stream_end) { ++sitr; }
+<span class="lineNum">     221 </span>            : 
+<span class="lineNum">     222 </span>            :       day_of_week_type wd(0); // no default constructor
+<span class="lineNum">     223 </span>            :       month_type m(1);        // no default constructor
+<span class="lineNum">     224 </span>            :  
+<span class="lineNum">     225 </span>            :       extract_element(sitr, stream_end, last); // &quot;last&quot; element
+<span class="lineNum">     226 </span>            :       facet.get(sitr, stream_end, a_ios, wd);  // day_of_week
+<span class="lineNum">     227 </span>            :       extract_element(sitr, stream_end, of);   // &quot;of&quot; element
+<span class="lineNum">     228 </span>            :       facet.get(sitr, stream_end, a_ios, m);   // month
+<span class="lineNum">     229 </span>            : 
+<span class="lineNum">     230 </span>            : 
+<span class="lineNum">     231 </span>            :       return last_kday_type(wd, m);
+<span class="lineNum">     232 </span>            :     }
+<span class="lineNum">     233 </span>            : 
+<span class="lineNum">     234 </span>            :     //! returns first_kday_of_week parsed from stream
+<span class="lineNum">     235 </span>            :     template&lt;class facet_type&gt;
+<span class="lineNum">     236 </span>            :     kday_before_type
+<span class="lineNum">     237 </span>            :     get_kday_before_type(stream_itr_type&amp; sitr,
+<span class="lineNum">     238 </span>            :                          stream_itr_type&amp; stream_end,
+<span class="lineNum">     239 </span>            :                          std::ios_base&amp; a_ios,
+<span class="lineNum">     240 </span>            :                          const facet_type&amp; facet) const
+<span class="lineNum">     241 </span>            :     {
+<span class="lineNum">     242 </span>            :       // skip leading whitespace
+<span class="lineNum">     243 </span>            :       while(std::isspace(*sitr) &amp;&amp; sitr != stream_end) { ++sitr; }
+<span class="lineNum">     244 </span>            : 
+<span class="lineNum">     245 </span>            :       day_of_week_type wd(0); // no default constructor
+<span class="lineNum">     246 </span>            : 
+<span class="lineNum">     247 </span>            :       facet.get(sitr, stream_end, a_ios, wd);   // day_of_week
+<span class="lineNum">     248 </span>            :       extract_element(sitr, stream_end, before);// &quot;before&quot; element
+<span class="lineNum">     249 </span>            : 
+<span class="lineNum">     250 </span>            :       return kday_before_type(wd);
+<span class="lineNum">     251 </span>            :     }
+<span class="lineNum">     252 </span>            : 
+<span class="lineNum">     253 </span>            :     //! returns first_kday_of_week parsed from stream
+<span class="lineNum">     254 </span>            :     template&lt;class facet_type&gt;
+<span class="lineNum">     255 </span>            :     kday_after_type
+<span class="lineNum">     256 </span>            :     get_kday_after_type(stream_itr_type&amp; sitr,
+<span class="lineNum">     257 </span>            :                         stream_itr_type&amp; stream_end,
+<span class="lineNum">     258 </span>            :                         std::ios_base&amp; a_ios,
+<span class="lineNum">     259 </span>            :                         const facet_type&amp; facet) const
+<span class="lineNum">     260 </span>            :     {
+<span class="lineNum">     261 </span>            :       // skip leading whitespace
+<span class="lineNum">     262 </span>            :       while(std::isspace(*sitr) &amp;&amp; sitr != stream_end) { ++sitr; }
+<span class="lineNum">     263 </span>            : 
+<span class="lineNum">     264 </span>            :       day_of_week_type wd(0); // no default constructor
+<span class="lineNum">     265 </span>            : 
+<span class="lineNum">     266 </span>            :       facet.get(sitr, stream_end, a_ios, wd);   // day_of_week
+<span class="lineNum">     267 </span>            :       extract_element(sitr, stream_end, after); // &quot;after&quot; element
+<span class="lineNum">     268 </span>            : 
+<span class="lineNum">     269 </span>            :       return kday_after_type(wd);
+<span class="lineNum">     270 </span>            :     }
+<span class="lineNum">     271 </span>            : 
+<span class="lineNum">     272 </span>            :    private:
+<span class="lineNum">     273 </span>            :     parse_tree_type m_element_strings;
+<span class="lineNum">     274 </span>            : 
+<span class="lineNum">     275 </span>            :     //! Extracts phrase element from input. Throws ios_base::failure on error.
+<span class="lineNum">     276 </span>            :     void extract_element(stream_itr_type&amp; sitr,
+<span class="lineNum">     277 </span>            :                          stream_itr_type&amp; stream_end,
+<span class="lineNum">     278 </span>            :                          typename date_generator_parser::phrase_elements ele) const
+<span class="lineNum">     279 </span>            :     {
+<span class="lineNum">     280 </span>            :       // skip leading whitespace
+<span class="lineNum">     281 </span>            :       while(std::isspace(*sitr) &amp;&amp; sitr != stream_end) { ++sitr; }
+<span class="lineNum">     282 </span>            :       match_results mr = m_element_strings.match(sitr, stream_end);
+<span class="lineNum">     283 </span>            :       if(mr.current_match != ele) {
+<span class="lineNum">     284 </span>            :         boost::throw_exception(std::ios_base::failure(&quot;Parse failed. No match found for '&quot; + mr.cache + &quot;'&quot;));
+<span class="lineNum">     285 </span>            :       }
+<span class="lineNum">     286 </span>            :     }
+<span class="lineNum">     287 </span>            : 
+<span class="lineNum">     288 </span>            :   };
+<span class="lineNum">     289 </span>            : 
+<span class="lineNum">     290 </span>            :   template&lt;class date_type, class CharT&gt;
+<span class="lineNum">     291 </span>            :   const typename date_generator_parser&lt;date_type, CharT&gt;::char_type
+<span class="lineNum">     292 </span>            :   date_generator_parser&lt;date_type, CharT&gt;::first_string[6] =
+<span class="lineNum">     293 </span>            :     {'f','i','r','s','t'};
+<span class="lineNum">     294 </span>            :   template&lt;class date_type, class CharT&gt;
+<span class="lineNum">     295 </span>            :   const typename date_generator_parser&lt;date_type, CharT&gt;::char_type
+<span class="lineNum">     296 </span>            :   date_generator_parser&lt;date_type, CharT&gt;::second_string[7] =
+<span class="lineNum">     297 </span>            :     {'s','e','c','o','n','d'};
+<span class="lineNum">     298 </span>            :   template&lt;class date_type, class CharT&gt;
+<span class="lineNum">     299 </span>            :   const typename date_generator_parser&lt;date_type, CharT&gt;::char_type
+<span class="lineNum">     300 </span>            :   date_generator_parser&lt;date_type, CharT&gt;::third_string[6] =
+<span class="lineNum">     301 </span>            :     {'t','h','i','r','d'};
+<span class="lineNum">     302 </span>            :   template&lt;class date_type, class CharT&gt;
+<span class="lineNum">     303 </span>            :   const typename date_generator_parser&lt;date_type, CharT&gt;::char_type
+<span class="lineNum">     304 </span>            :   date_generator_parser&lt;date_type, CharT&gt;::fourth_string[7] =
+<span class="lineNum">     305 </span>            :     {'f','o','u','r','t','h'};
+<span class="lineNum">     306 </span>            :   template&lt;class date_type, class CharT&gt;
+<span class="lineNum">     307 </span>            :   const typename date_generator_parser&lt;date_type, CharT&gt;::char_type
+<span class="lineNum">     308 </span>            :   date_generator_parser&lt;date_type, CharT&gt;::fifth_string[6] =
+<span class="lineNum">     309 </span>            :     {'f','i','f','t','h'};
+<span class="lineNum">     310 </span>            :   template&lt;class date_type, class CharT&gt;
+<span class="lineNum">     311 </span>            :   const typename date_generator_parser&lt;date_type, CharT&gt;::char_type
+<span class="lineNum">     312 </span>            :   date_generator_parser&lt;date_type, CharT&gt;::last_string[5] =
+<span class="lineNum">     313 </span>            :     {'l','a','s','t'};
+<span class="lineNum">     314 </span>            :   template&lt;class date_type, class CharT&gt;
+<span class="lineNum">     315 </span>            :   const typename date_generator_parser&lt;date_type, CharT&gt;::char_type
+<span class="lineNum">     316 </span>            :   date_generator_parser&lt;date_type, CharT&gt;::before_string[8] =
+<span class="lineNum">     317 </span>            :     {'b','e','f','o','r','e'};
+<span class="lineNum">     318 </span>            :   template&lt;class date_type, class CharT&gt;
+<span class="lineNum">     319 </span>            :   const typename date_generator_parser&lt;date_type, CharT&gt;::char_type
+<span class="lineNum">     320 </span>            :   date_generator_parser&lt;date_type, CharT&gt;::after_string[6] =
+<span class="lineNum">     321 </span>            :     {'a','f','t','e','r'};
+<span class="lineNum">     322 </span>            :   template&lt;class date_type, class CharT&gt;
+<span class="lineNum">     323 </span>            :   const typename date_generator_parser&lt;date_type, CharT&gt;::char_type
+<span class="lineNum">     324 </span>            :   date_generator_parser&lt;date_type, CharT&gt;::of_string[3] =
+<span class="lineNum">     325 </span>            :     {'o','f'};
+<span class="lineNum">     326 </span>            : 
+<span class="lineNum">     327 </span>            : } } //namespace
+<span class="lineNum">     328 </span>            : 
+<span class="lineNum">     329 </span>            : #endif // DATE_TIME_DATE_GENERATOR_PARSER_HPP__
+<span class="lineNum">     330 </span>            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
