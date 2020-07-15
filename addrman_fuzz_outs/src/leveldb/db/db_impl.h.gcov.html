@@ -1,0 +1,293 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - addrman_cov.info - src/leveldb/db/db_impl.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">src/leveldb/db</a> - db_impl.h<span style="font-size: 80%;"> (source / <a href="db_impl.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">addrman_cov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-15 12:38:37</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryHi">-</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2011 The LevelDB Authors. All rights reserved.</a>
+<span class="lineNum">       2 </span>            : // Use of this source code is governed by a BSD-style license that can be
+<span class="lineNum">       3 </span>            : // found in the LICENSE file. See the AUTHORS file for names of contributors.
+<span class="lineNum">       4 </span>            : 
+<span class="lineNum">       5 </span>            : #ifndef STORAGE_LEVELDB_DB_DB_IMPL_H_
+<span class="lineNum">       6 </span>            : #define STORAGE_LEVELDB_DB_DB_IMPL_H_
+<span class="lineNum">       7 </span>            : 
+<span class="lineNum">       8 </span>            : #include &lt;atomic&gt;
+<span class="lineNum">       9 </span>            : #include &lt;deque&gt;
+<span class="lineNum">      10 </span>            : #include &lt;set&gt;
+<span class="lineNum">      11 </span>            : #include &lt;string&gt;
+<span class="lineNum">      12 </span>            : 
+<span class="lineNum">      13 </span>            : #include &quot;db/dbformat.h&quot;
+<span class="lineNum">      14 </span>            : #include &quot;db/log_writer.h&quot;
+<span class="lineNum">      15 </span>            : #include &quot;db/snapshot.h&quot;
+<span class="lineNum">      16 </span>            : #include &quot;leveldb/db.h&quot;
+<span class="lineNum">      17 </span>            : #include &quot;leveldb/env.h&quot;
+<span class="lineNum">      18 </span>            : #include &quot;port/port.h&quot;
+<span class="lineNum">      19 </span>            : #include &quot;port/thread_annotations.h&quot;
+<span class="lineNum">      20 </span>            : 
+<span class="lineNum">      21 </span>            : namespace leveldb {
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            : class MemTable;
+<span class="lineNum">      24 </span>            : class TableCache;
+<span class="lineNum">      25 </span>            : class Version;
+<span class="lineNum">      26 </span>            : class VersionEdit;
+<span class="lineNum">      27 </span>            : class VersionSet;
+<span class="lineNum">      28 </span>            : 
+<span class="lineNum">      29 </span>            : class DBImpl : public DB {
+<span class="lineNum">      30 </span>            :  public:
+<span class="lineNum">      31 </span>            :   DBImpl(const Options&amp; options, const std::string&amp; dbname);
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            :   DBImpl(const DBImpl&amp;) = delete;
+<span class="lineNum">      34 </span>            :   DBImpl&amp; operator=(const DBImpl&amp;) = delete;
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span>            :   ~DBImpl() override;
+<span class="lineNum">      37 </span>            : 
+<span class="lineNum">      38 </span>            :   // Implementations of the DB interface
+<span class="lineNum">      39 </span>            :   Status Put(const WriteOptions&amp;, const Slice&amp; key,
+<span class="lineNum">      40 </span>            :              const Slice&amp; value) override;
+<span class="lineNum">      41 </span>            :   Status Delete(const WriteOptions&amp;, const Slice&amp; key) override;
+<span class="lineNum">      42 </span>            :   Status Write(const WriteOptions&amp; options, WriteBatch* updates) override;
+<span class="lineNum">      43 </span>            :   Status Get(const ReadOptions&amp; options, const Slice&amp; key,
+<span class="lineNum">      44 </span>            :              std::string* value) override;
+<span class="lineNum">      45 </span>            :   Iterator* NewIterator(const ReadOptions&amp;) override;
+<span class="lineNum">      46 </span>            :   const Snapshot* GetSnapshot() override;
+<span class="lineNum">      47 </span>            :   void ReleaseSnapshot(const Snapshot* snapshot) override;
+<span class="lineNum">      48 </span>            :   bool GetProperty(const Slice&amp; property, std::string* value) override;
+<span class="lineNum">      49 </span>            :   void GetApproximateSizes(const Range* range, int n, uint64_t* sizes) override;
+<span class="lineNum">      50 </span>            :   void CompactRange(const Slice* begin, const Slice* end) override;
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span>            :   // Extra methods (for testing) that are not in the public DB interface
+<span class="lineNum">      53 </span>            : 
+<span class="lineNum">      54 </span>            :   // Compact any files in the named level that overlap [*begin,*end]
+<span class="lineNum">      55 </span>            :   void TEST_CompactRange(int level, const Slice* begin, const Slice* end);
+<span class="lineNum">      56 </span>            : 
+<span class="lineNum">      57 </span>            :   // Force current memtable contents to be compacted.
+<span class="lineNum">      58 </span>            :   Status TEST_CompactMemTable();
+<span class="lineNum">      59 </span>            : 
+<span class="lineNum">      60 </span>            :   // Return an internal iterator over the current state of the database.
+<span class="lineNum">      61 </span>            :   // The keys of this iterator are internal keys (see format.h).
+<span class="lineNum">      62 </span>            :   // The returned iterator should be deleted when no longer needed.
+<span class="lineNum">      63 </span>            :   Iterator* TEST_NewInternalIterator();
+<span class="lineNum">      64 </span>            : 
+<span class="lineNum">      65 </span>            :   // Return the maximum overlapping data (in bytes) at next level for any
+<span class="lineNum">      66 </span>            :   // file at a level &gt;= 1.
+<span class="lineNum">      67 </span>            :   int64_t TEST_MaxNextLevelOverlappingBytes();
+<span class="lineNum">      68 </span>            : 
+<span class="lineNum">      69 </span>            :   // Record a sample of bytes read at the specified internal key.
+<span class="lineNum">      70 </span>            :   // Samples are taken approximately once every config::kReadBytesPeriod
+<span class="lineNum">      71 </span>            :   // bytes.
+<span class="lineNum">      72 </span>            :   void RecordReadSample(Slice key);
+<span class="lineNum">      73 </span>            : 
+<span class="lineNum">      74 </span>            :  private:
+<span class="lineNum">      75 </span>            :   friend class DB;
+<span class="lineNum">      76 </span>            :   struct CompactionState;
+<span class="lineNum">      77 </span>            :   struct Writer;
+<span class="lineNum">      78 </span>            : 
+<span class="lineNum">      79 </span>            :   // Information for a manual compaction
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 :   struct ManualCompaction {</span>
+<span class="lineNum">      81 </span>            :     int level;
+<span class="lineNum">      82 </span>            :     bool done;
+<span class="lineNum">      83 </span>            :     const InternalKey* begin;  // null means beginning of key range
+<span class="lineNum">      84 </span>            :     const InternalKey* end;    // null means end of key range
+<span class="lineNum">      85 </span>            :     InternalKey tmp_storage;   // Used to keep track of compaction progress
+<span class="lineNum">      86 </span>            :   };
+<span class="lineNum">      87 </span>            : 
+<span class="lineNum">      88 </span>            :   // Per level compaction stats.  stats_[level] stores the stats for
+<span class="lineNum">      89 </span>            :   // compactions that produced data for the specified &quot;level&quot;.
+<span class="lineNum">      90 </span>            :   struct CompactionStats {
+<span class="lineNum">      91 </span><span class="lineNoCov">          0 :     CompactionStats() : micros(0), bytes_read(0), bytes_written(0) {}</span>
+<span class="lineNum">      92 </span>            : 
+<span class="lineNum">      93 </span>            :     void Add(const CompactionStats&amp; c) {
+<span class="lineNum">      94 </span><span class="lineNoCov">          0 :       this-&gt;micros += c.micros;</span>
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 :       this-&gt;bytes_read += c.bytes_read;</span>
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :       this-&gt;bytes_written += c.bytes_written;</span>
+<span class="lineNum">      97 </span>            :     }
+<span class="lineNum">      98 </span>            : 
+<span class="lineNum">      99 </span>            :     int64_t micros;
+<span class="lineNum">     100 </span>            :     int64_t bytes_read;
+<span class="lineNum">     101 </span>            :     int64_t bytes_written;
+<span class="lineNum">     102 </span>            :   };
+<span class="lineNum">     103 </span>            : 
+<span class="lineNum">     104 </span>            :   Iterator* NewInternalIterator(const ReadOptions&amp;,
+<span class="lineNum">     105 </span>            :                                 SequenceNumber* latest_snapshot,
+<span class="lineNum">     106 </span>            :                                 uint32_t* seed);
+<span class="lineNum">     107 </span>            : 
+<span class="lineNum">     108 </span>            :   Status NewDB();
+<span class="lineNum">     109 </span>            : 
+<span class="lineNum">     110 </span>            :   // Recover the descriptor from persistent storage.  May do a significant
+<span class="lineNum">     111 </span>            :   // amount of work to recover recently logged updates.  Any changes to
+<span class="lineNum">     112 </span>            :   // be made to the descriptor are added to *edit.
+<span class="lineNum">     113 </span>            :   Status Recover(VersionEdit* edit, bool* save_manifest)
+<span class="lineNum">     114 </span>            :       EXCLUSIVE_LOCKS_REQUIRED(mutex_);
+<span class="lineNum">     115 </span>            : 
+<span class="lineNum">     116 </span>            :   void MaybeIgnoreError(Status* s) const;
+<span class="lineNum">     117 </span>            : 
+<span class="lineNum">     118 </span>            :   // Delete any unneeded files and stale in-memory entries.
+<span class="lineNum">     119 </span>            :   void DeleteObsoleteFiles() EXCLUSIVE_LOCKS_REQUIRED(mutex_);
+<span class="lineNum">     120 </span>            : 
+<span class="lineNum">     121 </span>            :   // Compact the in-memory write buffer to disk.  Switches to a new
+<span class="lineNum">     122 </span>            :   // log-file/memtable and writes a new descriptor iff successful.
+<span class="lineNum">     123 </span>            :   // Errors are recorded in bg_error_.
+<span class="lineNum">     124 </span>            :   void CompactMemTable() EXCLUSIVE_LOCKS_REQUIRED(mutex_);
+<span class="lineNum">     125 </span>            : 
+<span class="lineNum">     126 </span>            :   Status RecoverLogFile(uint64_t log_number, bool last_log, bool* save_manifest,
+<span class="lineNum">     127 </span>            :                         VersionEdit* edit, SequenceNumber* max_sequence)
+<span class="lineNum">     128 </span>            :       EXCLUSIVE_LOCKS_REQUIRED(mutex_);
+<span class="lineNum">     129 </span>            : 
+<span class="lineNum">     130 </span>            :   Status WriteLevel0Table(MemTable* mem, VersionEdit* edit, Version* base)
+<span class="lineNum">     131 </span>            :       EXCLUSIVE_LOCKS_REQUIRED(mutex_);
+<span class="lineNum">     132 </span>            : 
+<span class="lineNum">     133 </span>            :   Status MakeRoomForWrite(bool force /* compact even if there is room? */)
+<span class="lineNum">     134 </span>            :       EXCLUSIVE_LOCKS_REQUIRED(mutex_);
+<span class="lineNum">     135 </span>            :   WriteBatch* BuildBatchGroup(Writer** last_writer)
+<span class="lineNum">     136 </span>            :       EXCLUSIVE_LOCKS_REQUIRED(mutex_);
+<span class="lineNum">     137 </span>            : 
+<span class="lineNum">     138 </span>            :   void RecordBackgroundError(const Status&amp; s);
+<span class="lineNum">     139 </span>            : 
+<span class="lineNum">     140 </span>            :   void MaybeScheduleCompaction() EXCLUSIVE_LOCKS_REQUIRED(mutex_);
+<span class="lineNum">     141 </span>            :   static void BGWork(void* db);
+<span class="lineNum">     142 </span>            :   void BackgroundCall();
+<span class="lineNum">     143 </span>            :   void BackgroundCompaction() EXCLUSIVE_LOCKS_REQUIRED(mutex_);
+<span class="lineNum">     144 </span>            :   void CleanupCompaction(CompactionState* compact)
+<span class="lineNum">     145 </span>            :       EXCLUSIVE_LOCKS_REQUIRED(mutex_);
+<span class="lineNum">     146 </span>            :   Status DoCompactionWork(CompactionState* compact)
+<span class="lineNum">     147 </span>            :       EXCLUSIVE_LOCKS_REQUIRED(mutex_);
+<span class="lineNum">     148 </span>            : 
+<span class="lineNum">     149 </span>            :   Status OpenCompactionOutputFile(CompactionState* compact);
+<span class="lineNum">     150 </span>            :   Status FinishCompactionOutputFile(CompactionState* compact, Iterator* input);
+<span class="lineNum">     151 </span>            :   Status InstallCompactionResults(CompactionState* compact)
+<span class="lineNum">     152 </span>            :       EXCLUSIVE_LOCKS_REQUIRED(mutex_);
+<span class="lineNum">     153 </span>            : 
+<span class="lineNum">     154 </span>            :   const Comparator* user_comparator() const {
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :     return internal_comparator_.user_comparator();</span>
+<span class="lineNum">     156 </span>            :   }
+<span class="lineNum">     157 </span>            : 
+<span class="lineNum">     158 </span>            :   // Constant after construction
+<span class="lineNum">     159 </span>            :   Env* const env_;
+<span class="lineNum">     160 </span>            :   const InternalKeyComparator internal_comparator_;
+<span class="lineNum">     161 </span>            :   const InternalFilterPolicy internal_filter_policy_;
+<span class="lineNum">     162 </span>            :   const Options options_;  // options_.comparator == &amp;internal_comparator_
+<span class="lineNum">     163 </span>            :   const bool owns_info_log_;
+<span class="lineNum">     164 </span>            :   const bool owns_cache_;
+<span class="lineNum">     165 </span>            :   const std::string dbname_;
+<span class="lineNum">     166 </span>            : 
+<span class="lineNum">     167 </span>            :   // table_cache_ provides its own synchronization
+<span class="lineNum">     168 </span>            :   TableCache* const table_cache_;
+<span class="lineNum">     169 </span>            : 
+<span class="lineNum">     170 </span>            :   // Lock over the persistent DB state.  Non-null iff successfully acquired.
+<span class="lineNum">     171 </span>            :   FileLock* db_lock_;
+<span class="lineNum">     172 </span>            : 
+<span class="lineNum">     173 </span>            :   // State below is protected by mutex_
+<span class="lineNum">     174 </span>            :   port::Mutex mutex_;
+<span class="lineNum">     175 </span>            :   std::atomic&lt;bool&gt; shutting_down_;
+<span class="lineNum">     176 </span>            :   port::CondVar background_work_finished_signal_ GUARDED_BY(mutex_);
+<span class="lineNum">     177 </span>            :   MemTable* mem_;
+<span class="lineNum">     178 </span>            :   MemTable* imm_ GUARDED_BY(mutex_);  // Memtable being compacted
+<span class="lineNum">     179 </span>            :   std::atomic&lt;bool&gt; has_imm_;         // So bg thread can detect non-null imm_
+<span class="lineNum">     180 </span>            :   WritableFile* logfile_;
+<span class="lineNum">     181 </span>            :   uint64_t logfile_number_ GUARDED_BY(mutex_);
+<span class="lineNum">     182 </span>            :   log::Writer* log_;
+<span class="lineNum">     183 </span>            :   uint32_t seed_ GUARDED_BY(mutex_);  // For sampling.
+<span class="lineNum">     184 </span>            : 
+<span class="lineNum">     185 </span>            :   // Queue of writers.
+<span class="lineNum">     186 </span>            :   std::deque&lt;Writer*&gt; writers_ GUARDED_BY(mutex_);
+<span class="lineNum">     187 </span>            :   WriteBatch* tmp_batch_ GUARDED_BY(mutex_);
+<span class="lineNum">     188 </span>            : 
+<span class="lineNum">     189 </span>            :   SnapshotList snapshots_ GUARDED_BY(mutex_);
+<span class="lineNum">     190 </span>            : 
+<span class="lineNum">     191 </span>            :   // Set of table files to protect from deletion because they are
+<span class="lineNum">     192 </span>            :   // part of ongoing compactions.
+<span class="lineNum">     193 </span>            :   std::set&lt;uint64_t&gt; pending_outputs_ GUARDED_BY(mutex_);
+<span class="lineNum">     194 </span>            : 
+<span class="lineNum">     195 </span>            :   // Has a background compaction been scheduled or is running?
+<span class="lineNum">     196 </span>            :   bool background_compaction_scheduled_ GUARDED_BY(mutex_);
+<span class="lineNum">     197 </span>            : 
+<span class="lineNum">     198 </span>            :   ManualCompaction* manual_compaction_ GUARDED_BY(mutex_);
+<span class="lineNum">     199 </span>            : 
+<span class="lineNum">     200 </span>            :   VersionSet* const versions_ GUARDED_BY(mutex_);
+<span class="lineNum">     201 </span>            : 
+<span class="lineNum">     202 </span>            :   // Have we encountered a background error in paranoid mode?
+<span class="lineNum">     203 </span>            :   Status bg_error_ GUARDED_BY(mutex_);
+<span class="lineNum">     204 </span>            : 
+<span class="lineNum">     205 </span>            :   CompactionStats stats_[config::kNumLevels] GUARDED_BY(mutex_);
+<span class="lineNum">     206 </span>            : };
+<span class="lineNum">     207 </span>            : 
+<span class="lineNum">     208 </span>            : // Sanitize db options.  The caller should delete result.info_log if
+<span class="lineNum">     209 </span>            : // it is not equal to src.info_log.
+<span class="lineNum">     210 </span>            : Options SanitizeOptions(const std::string&amp; db,
+<span class="lineNum">     211 </span>            :                         const InternalKeyComparator* icmp,
+<span class="lineNum">     212 </span>            :                         const InternalFilterPolicy* ipolicy,
+<span class="lineNum">     213 </span>            :                         const Options&amp; src);
+<span class="lineNum">     214 </span>            : 
+<span class="lineNum">     215 </span>            : }  // namespace leveldb
+<span class="lineNum">     216 </span>            : 
+<span class="lineNum">     217 </span>            : #endif  // STORAGE_LEVELDB_DB_DB_IMPL_H_
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

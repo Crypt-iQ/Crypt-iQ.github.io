@@ -1,0 +1,854 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - addrman_cov.info - /usr/include/boost/multi_index/detail/hash_index_node.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">usr/include/boost/multi_index/detail</a> - hash_index_node.hpp<span style="font-size: 80%;"> (source / <a href="hash_index_node.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">addrman_cov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">51</td>
+            <td class="headerCovTableEntryLo">2.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-15 12:38:37</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* Copyright 2003-2015 Joaquin M Lopez Munoz.</a>
+<span class="lineNum">       2 </span>            :  * Distributed under the Boost Software License, Version 1.0.
+<span class="lineNum">       3 </span>            :  * (See accompanying file LICENSE_1_0.txt or copy at
+<span class="lineNum">       4 </span>            :  * http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       5 </span>            :  *
+<span class="lineNum">       6 </span>            :  * See http://www.boost.org/libs/multi_index for library home page.
+<span class="lineNum">       7 </span>            :  */
+<span class="lineNum">       8 </span>            : 
+<span class="lineNum">       9 </span>            : #ifndef BOOST_MULTI_INDEX_DETAIL_HASH_INDEX_NODE_HPP
+<span class="lineNum">      10 </span>            : #define BOOST_MULTI_INDEX_DETAIL_HASH_INDEX_NODE_HPP
+<span class="lineNum">      11 </span>            : 
+<span class="lineNum">      12 </span>            : #if defined(_MSC_VER)
+<span class="lineNum">      13 </span>            : #pragma once
+<span class="lineNum">      14 </span>            : #endif
+<span class="lineNum">      15 </span>            : 
+<span class="lineNum">      16 </span>            : #include &lt;boost/config.hpp&gt; /* keep it first to prevent nasty warns in MSVC */
+<span class="lineNum">      17 </span>            : #include &lt;boost/detail/allocator_utilities.hpp&gt;
+<span class="lineNum">      18 </span>            : #include &lt;boost/multi_index/detail/raw_ptr.hpp&gt;
+<span class="lineNum">      19 </span>            : #include &lt;utility&gt;
+<span class="lineNum">      20 </span>            : 
+<span class="lineNum">      21 </span>            : namespace boost{
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            : namespace multi_index{
+<span class="lineNum">      24 </span>            : 
+<span class="lineNum">      25 </span>            : namespace detail{
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span>            : /* Certain C++ requirements on unordered associative containers (see LWG issue
+<span class="lineNum">      28 </span>            :  * #579) imply a data structure where nodes are linked in a single list, which
+<span class="lineNum">      29 </span>            :  * in its turn forces implementors to add additional overhed per node to
+<span class="lineNum">      30 </span>            :  * associate each with its corresponding bucket. Others resort to storing hash
+<span class="lineNum">      31 </span>            :  * values, we use an alternative structure providing unconditional O(1)
+<span class="lineNum">      32 </span>            :  * manipulation, even in situations of unfair hash distribution, plus some
+<span class="lineNum">      33 </span>            :  * lookup speedups. For unique indices we maintain a doubly linked list of
+<span class="lineNum">      34 </span>            :  * nodes except that if N is the first node of a bucket its associated
+<span class="lineNum">      35 </span>            :  * bucket node is embedded between N and the preceding node in the following
+<span class="lineNum">      36 </span>            :  * manner:
+<span class="lineNum">      37 </span>            :  *
+<span class="lineNum">      38 </span>            :  *        +---+   +---+       +---+   +---+
+<span class="lineNum">      39 </span>            :  *     &lt;--+   |&lt;--+   |    &lt;--+   |&lt;--+   |
+<span class="lineNum">      40 </span>            :  *   ...  | B0|   | B1|  ...  | B1|   | B2|  ...
+<span class="lineNum">      41 </span>            :  *        |   |-+ |   +--&gt;    |   |-+ |   +--&gt;
+<span class="lineNum">      42 </span>            :  *        +-+-+ | +---+       +-+-+ | +---+
+<span class="lineNum">      43 </span>            :  *              |   ^               |   ^
+<span class="lineNum">      44 </span>            :  *              |   |               |   |
+<span class="lineNum">      45 </span>            :  *              | +-+               | +-+
+<span class="lineNum">      46 </span>            :  *              | |                 | |
+<span class="lineNum">      47 </span>            :  *              v |                 v |  
+<span class="lineNum">      48 </span>            :  *       --+---+---+---+--   --+---+---+---+--
+<span class="lineNum">      49 </span>            :  *     ... |   | B1|   |  ...  |   | B2|   | ...
+<span class="lineNum">      50 </span>            :  *       --+---+---+---+--   --+---+---+---+--
+<span class="lineNum">      51 </span>            :  *
+<span class="lineNum">      52 </span>            :  *
+<span class="lineNum">      53 </span>            :  * The fist and last nodes of buckets can be checked with
+<span class="lineNum">      54 </span>            :  *
+<span class="lineNum">      55 </span>            :  *   first node of a bucket: Npn != N
+<span class="lineNum">      56 </span>            :  *   last node of a bucket:  Nnp != N
+<span class="lineNum">      57 </span>            :  *
+<span class="lineNum">      58 </span>            :  * (n and p short for -&gt;next(), -&gt;prior(), bucket nodes have prior pointers
+<span class="lineNum">      59 </span>            :  * only). Pure insert and erase (without lookup) can be unconditionally done
+<span class="lineNum">      60 </span>            :  * in O(1).
+<span class="lineNum">      61 </span>            :  * For non-unique indices we add the following additional complexity: when
+<span class="lineNum">      62 </span>            :  * there is a group of 3 or more equivalent elements, they are linked as
+<span class="lineNum">      63 </span>            :  * follows:
+<span class="lineNum">      64 </span>            :  *
+<span class="lineNum">      65 </span>            :  *         +-----------------------+
+<span class="lineNum">      66 </span>            :  *         |                       v
+<span class="lineNum">      67 </span>            :  *   +---+ | +---+       +---+   +---+
+<span class="lineNum">      68 </span>            :  *   |   | +-+   |       |   |&lt;--+   |
+<span class="lineNum">      69 </span>            :  *   | F |   | S |  ...  | P |   | L |
+<span class="lineNum">      70 </span>            :  *   |   +--&gt;|   |       |   +-+ |   |
+<span class="lineNum">      71 </span>            :  *   +---+   +---+       +---+ | +---+
+<span class="lineNum">      72 </span>            :  *     ^                       |
+<span class="lineNum">      73 </span>            :  *     +-----------------------+
+<span class="lineNum">      74 </span>            :  * 
+<span class="lineNum">      75 </span>            :  * F, S, P and L are the first, second, penultimate and last node in the
+<span class="lineNum">      76 </span>            :  * group, respectively (S and P can coincide if the group has size 3.) This
+<span class="lineNum">      77 </span>            :  * arrangement is used to skip equivalent elements in O(1) when doing lookup,
+<span class="lineNum">      78 </span>            :  * while preserving O(1) insert/erase. The following invariants identify
+<span class="lineNum">      79 </span>            :  * special positions (some of the operations have to be carefully implemented
+<span class="lineNum">      80 </span>            :  * as Xnn is not valid if Xn points to a bucket):
+<span class="lineNum">      81 </span>            :  *
+<span class="lineNum">      82 </span>            :  *   first node of a bucket: Npnp  == N
+<span class="lineNum">      83 </span>            :  *   last node of a bucket:  Nnpp  == N
+<span class="lineNum">      84 </span>            :  *   first node of a group:  Nnp != N &amp;&amp; Nnppn == N
+<span class="lineNum">      85 </span>            :  *   second node of a group: Npn != N &amp;&amp; Nppnn == N
+<span class="lineNum">      86 </span>            :  *   n-1 node of a group:    Nnp != N &amp;&amp; Nnnpp == N
+<span class="lineNum">      87 </span>            :  *   last node of a group:   Npn != N &amp;&amp; Npnnp == N
+<span class="lineNum">      88 </span>            :  * 
+<span class="lineNum">      89 </span>            :  * The memory overhead is one pointer per bucket plus two pointers per node,
+<span class="lineNum">      90 </span>            :  * probably unbeatable. The resulting structure is bidirectonally traversable,
+<span class="lineNum">      91 </span>            :  * though currently we are just providing forward iteration.
+<span class="lineNum">      92 </span>            :  */
+<span class="lineNum">      93 </span>            : 
+<span class="lineNum">      94 </span>            : template&lt;typename Allocator&gt;
+<span class="lineNum">      95 </span>            : struct hashed_index_node_impl;
+<span class="lineNum">      96 </span>            : 
+<span class="lineNum">      97 </span>            : /* half-header (only prior() pointer) to use for the bucket array */
+<span class="lineNum">      98 </span>            : 
+<span class="lineNum">      99 </span>            : template&lt;typename Allocator&gt;
+<span class="lineNum">     100 </span>            : struct hashed_index_base_node_impl
+<span class="lineNum">     101 </span>            : {
+<span class="lineNum">     102 </span>            :   typedef typename
+<span class="lineNum">     103 </span>            :   boost::detail::allocator::rebind_to&lt;
+<span class="lineNum">     104 </span>            :       Allocator,hashed_index_base_node_impl
+<span class="lineNum">     105 </span>            :   &gt;::type::pointer                          base_pointer;
+<span class="lineNum">     106 </span>            :   typedef typename
+<span class="lineNum">     107 </span>            :   boost::detail::allocator::rebind_to&lt;
+<span class="lineNum">     108 </span>            :     Allocator,hashed_index_base_node_impl
+<span class="lineNum">     109 </span>            :   &gt;::type::const_pointer                    const_base_pointer;
+<span class="lineNum">     110 </span>            :   typedef typename
+<span class="lineNum">     111 </span>            :   boost::detail::allocator::rebind_to&lt;
+<span class="lineNum">     112 </span>            :     Allocator,
+<span class="lineNum">     113 </span>            :     hashed_index_node_impl&lt;Allocator&gt;
+<span class="lineNum">     114 </span>            :   &gt;::type::pointer                          pointer;
+<span class="lineNum">     115 </span>            :   typedef typename
+<span class="lineNum">     116 </span>            :   boost::detail::allocator::rebind_to&lt;
+<span class="lineNum">     117 </span>            :     Allocator,
+<span class="lineNum">     118 </span>            :     hashed_index_node_impl&lt;Allocator&gt;
+<span class="lineNum">     119 </span>            :   &gt;::type::const_pointer                    const_pointer;
+<span class="lineNum">     120 </span>            : 
+<span class="lineNum">     121 </span>            :   pointer&amp; prior(){return prior_;}
+<span class="lineNum">     122 </span>            :   pointer  prior()const{return prior_;}
+<span class="lineNum">     123 </span>            : 
+<span class="lineNum">     124 </span>            : private:
+<span class="lineNum">     125 </span>            :   pointer prior_;
+<span class="lineNum">     126 </span>            : };
+<span class="lineNum">     127 </span>            : 
+<span class="lineNum">     128 </span>            : /* full header (prior() and next()) for the nodes */
+<span class="lineNum">     129 </span>            : 
+<span class="lineNum">     130 </span>            : template&lt;typename Allocator&gt;
+<span class="lineNum">     131 </span>            : struct hashed_index_node_impl:hashed_index_base_node_impl&lt;Allocator&gt;
+<span class="lineNum">     132 </span>            : {
+<span class="lineNum">     133 </span>            : private:
+<span class="lineNum">     134 </span>            :   typedef hashed_index_base_node_impl&lt;Allocator&gt; super;
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span>            : public:  
+<span class="lineNum">     137 </span>            :   typedef typename super::base_pointer           base_pointer;
+<span class="lineNum">     138 </span>            :   typedef typename super::const_base_pointer     const_base_pointer;
+<span class="lineNum">     139 </span>            :   typedef typename super::pointer                pointer;
+<span class="lineNum">     140 </span>            :   typedef typename super::const_pointer          const_pointer;
+<span class="lineNum">     141 </span>            : 
+<span class="lineNum">     142 </span>            :   base_pointer&amp; next(){return next_;}
+<span class="lineNum">     143 </span>            :   base_pointer  next()const{return next_;}
+<span class="lineNum">     144 </span>            : 
+<span class="lineNum">     145 </span>            :   static pointer pointer_from(base_pointer x)
+<span class="lineNum">     146 </span>            :   {
+<span class="lineNum">     147 </span>            :     return static_cast&lt;pointer&gt;(
+<span class="lineNum">     148 </span>            :       static_cast&lt;hashed_index_node_impl*&gt;(
+<span class="lineNum">     149 </span><span class="lineNoCov">          0 :         raw_ptr&lt;super*&gt;(x)));</span>
+<span class="lineNum">     150 </span>            :   }
+<span class="lineNum">     151 </span>            : 
+<span class="lineNum">     152 </span>            :   static base_pointer base_pointer_from(pointer x)
+<span class="lineNum">     153 </span>            :   {
+<span class="lineNum">     154 </span>            :     return static_cast&lt;base_pointer&gt;(
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :       raw_ptr&lt;hashed_index_node_impl*&gt;(x));</span>
+<span class="lineNum">     156 </span>            :   }
+<span class="lineNum">     157 </span>            : 
+<span class="lineNum">     158 </span>            : private:
+<span class="lineNum">     159 </span>            :   base_pointer next_;
+<span class="lineNum">     160 </span>            : };
+<span class="lineNum">     161 </span>            : 
+<span class="lineNum">     162 </span>            : /* Boost.MultiIndex requires machinery to reverse unlink operations. A simple
+<span class="lineNum">     163 </span>            :  * way to make a pointer-manipulation function undoable is to templatize
+<span class="lineNum">     164 </span>            :  * its internal pointer assignments with a functor that, besides doing the
+<span class="lineNum">     165 </span>            :  * assignment, keeps track of the original pointer values and can later undo
+<span class="lineNum">     166 </span>            :  * the operations in reverse order.
+<span class="lineNum">     167 </span>            :  */
+<span class="lineNum">     168 </span>            : 
+<span class="lineNum">     169 </span>            : struct default_assigner
+<span class="lineNum">     170 </span>            : {
+<span class="lineNum">     171 </span><span class="lineNoCov">          0 :   template&lt;typename T&gt; void operator()(T&amp; x,const T&amp; val){x=val;}</span>
+<span class="lineNum">     172 </span>            : };
+<span class="lineNum">     173 </span>            : 
+<span class="lineNum">     174 </span>            : template&lt;typename Node&gt;
+<span class="lineNum">     175 </span>            : struct unlink_undo_assigner
+<span class="lineNum">     176 </span>            : {
+<span class="lineNum">     177 </span>            :   typedef typename Node::base_pointer base_pointer;
+<span class="lineNum">     178 </span>            :   typedef typename Node::pointer      pointer;
+<span class="lineNum">     179 </span>            : 
+<span class="lineNum">     180 </span>            :   unlink_undo_assigner():pointer_track_count(0),base_pointer_track_count(0){}
+<span class="lineNum">     181 </span>            : 
+<span class="lineNum">     182 </span>            :   void operator()(pointer&amp; x,pointer val)
+<span class="lineNum">     183 </span>            :   {
+<span class="lineNum">     184 </span>            :     pointer_tracks[pointer_track_count].x=&amp;x;
+<span class="lineNum">     185 </span>            :     pointer_tracks[pointer_track_count++].val=x;
+<span class="lineNum">     186 </span>            :     x=val;
+<span class="lineNum">     187 </span>            :   }
+<span class="lineNum">     188 </span>            : 
+<span class="lineNum">     189 </span>            :   void operator()(base_pointer&amp; x,base_pointer val)
+<span class="lineNum">     190 </span>            :   {
+<span class="lineNum">     191 </span>            :     base_pointer_tracks[base_pointer_track_count].x=&amp;x;
+<span class="lineNum">     192 </span>            :     base_pointer_tracks[base_pointer_track_count++].val=x;
+<span class="lineNum">     193 </span>            :     x=val;
+<span class="lineNum">     194 </span>            :   }
+<span class="lineNum">     195 </span>            : 
+<span class="lineNum">     196 </span>            :   void operator()() /* undo op */
+<span class="lineNum">     197 </span>            :   {
+<span class="lineNum">     198 </span>            :     /* in the absence of aliasing, restitution order is immaterial */
+<span class="lineNum">     199 </span>            : 
+<span class="lineNum">     200 </span>            :     while(pointer_track_count--){
+<span class="lineNum">     201 </span>            :       *(pointer_tracks[pointer_track_count].x)=
+<span class="lineNum">     202 </span>            :         pointer_tracks[pointer_track_count].val;
+<span class="lineNum">     203 </span>            :     }
+<span class="lineNum">     204 </span>            :     while(base_pointer_track_count--){
+<span class="lineNum">     205 </span>            :       *(base_pointer_tracks[base_pointer_track_count].x)=
+<span class="lineNum">     206 </span>            :         base_pointer_tracks[base_pointer_track_count].val;
+<span class="lineNum">     207 </span>            :     }
+<span class="lineNum">     208 </span>            :   }
+<span class="lineNum">     209 </span>            : 
+<span class="lineNum">     210 </span>            :   struct pointer_track     {pointer*      x; pointer      val;};
+<span class="lineNum">     211 </span>            :   struct base_pointer_track{base_pointer* x; base_pointer val;};
+<span class="lineNum">     212 </span>            : 
+<span class="lineNum">     213 </span>            :   /* We know the maximum number of pointer and base pointer assignments that
+<span class="lineNum">     214 </span>            :    * the two unlink versions do, so we can statically reserve the needed
+<span class="lineNum">     215 </span>            :    * storage.
+<span class="lineNum">     216 </span>            :    */
+<span class="lineNum">     217 </span>            : 
+<span class="lineNum">     218 </span>            :   pointer_track      pointer_tracks[3];
+<span class="lineNum">     219 </span>            :   int                pointer_track_count;
+<span class="lineNum">     220 </span>            :   base_pointer_track base_pointer_tracks[2];
+<span class="lineNum">     221 </span>            :   int                base_pointer_track_count;
+<span class="lineNum">     222 </span>            : };
+<span class="lineNum">     223 </span>            : 
+<span class="lineNum">     224 </span>            : /* algorithmic stuff for unique and non-unique variants */
+<span class="lineNum">     225 </span>            : 
+<span class="lineNum">     226 </span>            : struct hashed_unique_tag{};
+<span class="lineNum">     227 </span>            : struct hashed_non_unique_tag{};
+<span class="lineNum">     228 </span>            : 
+<span class="lineNum">     229 </span>            : template&lt;typename Node,typename Category&gt;
+<span class="lineNum">     230 </span>            : struct hashed_index_node_alg;
+<span class="lineNum">     231 </span>            : 
+<span class="lineNum">     232 </span>            : template&lt;typename Node&gt;
+<span class="lineNum">     233 </span>            : struct hashed_index_node_alg&lt;Node,hashed_unique_tag&gt;
+<span class="lineNum">     234 </span>            : {
+<span class="lineNum">     235 </span>            :   typedef typename Node::base_pointer       base_pointer;
+<span class="lineNum">     236 </span>            :   typedef typename Node::const_base_pointer const_base_pointer;
+<span class="lineNum">     237 </span>            :   typedef typename Node::pointer            pointer;
+<span class="lineNum">     238 </span>            :   typedef typename Node::const_pointer      const_pointer;
+<span class="lineNum">     239 </span>            : 
+<span class="lineNum">     240 </span>            :   static bool is_first_of_bucket(pointer x)
+<span class="lineNum">     241 </span>            :   {
+<span class="lineNum">     242 </span><span class="lineNoCov">          0 :     return x-&gt;prior()-&gt;next()!=base_pointer_from(x);</span>
+<span class="lineNum">     243 </span>            :   }
+<span class="lineNum">     244 </span>            : 
+<span class="lineNum">     245 </span>            :   static pointer after(pointer x)
+<span class="lineNum">     246 </span>            :   {
+<span class="lineNum">     247 </span><span class="lineNoCov">          0 :     return is_last_of_bucket(x)?x-&gt;next()-&gt;prior():pointer_from(x-&gt;next());</span>
+<span class="lineNum">     248 </span>            :   }
+<span class="lineNum">     249 </span>            : 
+<span class="lineNum">     250 </span>            :   static pointer after_local(pointer x)
+<span class="lineNum">     251 </span>            :   {
+<span class="lineNum">     252 </span><span class="lineNoCov">          0 :     return is_last_of_bucket(x)?pointer(0):pointer_from(x-&gt;next());</span>
+<span class="lineNum">     253 </span>            :   }
+<span class="lineNum">     254 </span>            : 
+<span class="lineNum">     255 </span>            :   static pointer next_to_inspect(pointer x)
+<span class="lineNum">     256 </span>            :   {
+<span class="lineNum">     257 </span><span class="lineNoCov">          0 :     return is_last_of_bucket(x)?pointer(0):pointer_from(x-&gt;next());</span>
+<span class="lineNum">     258 </span>            :   }
+<span class="lineNum">     259 </span>            : 
+<span class="lineNum">     260 </span>            :   static void link(pointer x,base_pointer buc,pointer end)
+<span class="lineNum">     261 </span>            :   {
+<span class="lineNum">     262 </span><span class="lineNoCov">          0 :     if(buc-&gt;prior()==pointer(0)){ /* empty bucket */</span>
+<span class="lineNum">     263 </span><span class="lineNoCov">          0 :       x-&gt;prior()=end-&gt;prior();</span>
+<span class="lineNum">     264 </span><span class="lineNoCov">          0 :       x-&gt;next()=end-&gt;prior()-&gt;next();</span>
+<span class="lineNum">     265 </span><span class="lineNoCov">          0 :       x-&gt;prior()-&gt;next()=buc;</span>
+<span class="lineNum">     266 </span><span class="lineNoCov">          0 :       buc-&gt;prior()=x;</span>
+<span class="lineNum">     267 </span><span class="lineNoCov">          0 :       end-&gt;prior()=x;</span>
+<span class="lineNum">     268 </span>            :     }
+<span class="lineNum">     269 </span>            :     else{
+<span class="lineNum">     270 </span><span class="lineNoCov">          0 :       x-&gt;prior()=buc-&gt;prior()-&gt;prior();</span>
+<span class="lineNum">     271 </span><span class="lineNoCov">          0 :       x-&gt;next()=base_pointer_from(buc-&gt;prior());</span>
+<span class="lineNum">     272 </span><span class="lineNoCov">          0 :       buc-&gt;prior()=x;</span>
+<span class="lineNum">     273 </span><span class="lineNoCov">          0 :       x-&gt;next()-&gt;prior()=x;</span>
+<span class="lineNum">     274 </span>            :     }
+<span class="lineNum">     275 </span>            :   }
+<span class="lineNum">     276 </span>            : 
+<span class="lineNum">     277 </span>            :   static void unlink(pointer x)
+<span class="lineNum">     278 </span>            :   {
+<span class="lineNum">     279 </span>            :     default_assigner assign;
+<span class="lineNum">     280 </span><span class="lineNoCov">          0 :     unlink(x,assign);</span>
+<span class="lineNum">     281 </span>            :   }
+<span class="lineNum">     282 </span>            : 
+<span class="lineNum">     283 </span>            :   typedef unlink_undo_assigner&lt;Node&gt; unlink_undo;
+<a name="284"><span class="lineNum">     284 </span>            : </a>
+<span class="lineNum">     285 </span>            :   template&lt;typename Assigner&gt;
+<span class="lineNum">     286 </span><span class="lineNoCov">          0 :   static void unlink(pointer x,Assigner&amp; assign)</span>
+<span class="lineNum">     287 </span>            :   {
+<span class="lineNum">     288 </span><span class="lineNoCov">          0 :     if(is_first_of_bucket(x)){</span>
+<span class="lineNum">     289 </span><span class="lineNoCov">          0 :       if(is_last_of_bucket(x)){</span>
+<span class="lineNum">     290 </span><span class="lineNoCov">          0 :         assign(x-&gt;prior()-&gt;next()-&gt;prior(),pointer(0));</span>
+<span class="lineNum">     291 </span><span class="lineNoCov">          0 :         assign(x-&gt;prior()-&gt;next(),x-&gt;next());</span>
+<span class="lineNum">     292 </span><span class="lineNoCov">          0 :         assign(x-&gt;next()-&gt;prior()-&gt;prior(),x-&gt;prior());</span>
+<span class="lineNum">     293 </span>            :       }
+<span class="lineNum">     294 </span>            :       else{
+<span class="lineNum">     295 </span><span class="lineNoCov">          0 :         assign(x-&gt;prior()-&gt;next()-&gt;prior(),pointer_from(x-&gt;next()));</span>
+<span class="lineNum">     296 </span><span class="lineNoCov">          0 :         assign(x-&gt;next()-&gt;prior(),x-&gt;prior());</span>
+<span class="lineNum">     297 </span>            :       }
+<span class="lineNum">     298 </span>            :     }
+<span class="lineNum">     299 </span><span class="lineNoCov">          0 :     else if(is_last_of_bucket(x)){</span>
+<span class="lineNum">     300 </span><span class="lineNoCov">          0 :       assign(x-&gt;prior()-&gt;next(),x-&gt;next());</span>
+<span class="lineNum">     301 </span><span class="lineNoCov">          0 :       assign(x-&gt;next()-&gt;prior()-&gt;prior(),x-&gt;prior());</span>
+<span class="lineNum">     302 </span>            :     }
+<span class="lineNum">     303 </span>            :     else{
+<span class="lineNum">     304 </span><span class="lineNoCov">          0 :       assign(x-&gt;prior()-&gt;next(),x-&gt;next());</span>
+<span class="lineNum">     305 </span><span class="lineNoCov">          0 :       assign(x-&gt;next()-&gt;prior(),x-&gt;prior());</span>
+<span class="lineNum">     306 </span>            :     }
+<span class="lineNum">     307 </span><span class="lineNoCov">          0 :   }</span>
+<span class="lineNum">     308 </span>            : 
+<span class="lineNum">     309 </span>            :   /* used only at rehashing */
+<span class="lineNum">     310 </span>            : 
+<span class="lineNum">     311 </span>            :   static void append(pointer x,pointer end)
+<span class="lineNum">     312 </span>            :   {
+<span class="lineNum">     313 </span><span class="lineNoCov">          0 :     x-&gt;prior()=end-&gt;prior();</span>
+<span class="lineNum">     314 </span><span class="lineNoCov">          0 :     x-&gt;next()=end-&gt;prior()-&gt;next();</span>
+<span class="lineNum">     315 </span><span class="lineNoCov">          0 :     x-&gt;prior()-&gt;next()=base_pointer_from(x);</span>
+<span class="lineNum">     316 </span><span class="lineNoCov">          0 :     end-&gt;prior()=x;</span>
+<span class="lineNum">     317 </span>            :   }
+<span class="lineNum">     318 </span>            : 
+<span class="lineNum">     319 </span>            :   static bool unlink_last(pointer end)
+<span class="lineNum">     320 </span>            :   {
+<span class="lineNum">     321 </span>            :     /* returns true iff bucket is emptied */
+<span class="lineNum">     322 </span>            : 
+<span class="lineNum">     323 </span><span class="lineNoCov">          0 :     pointer x=end-&gt;prior();</span>
+<span class="lineNum">     324 </span><span class="lineNoCov">          0 :     if(x-&gt;prior()-&gt;next()==base_pointer_from(x)){</span>
+<span class="lineNum">     325 </span><span class="lineNoCov">          0 :       x-&gt;prior()-&gt;next()=x-&gt;next();</span>
+<span class="lineNum">     326 </span><span class="lineNoCov">          0 :       end-&gt;prior()=x-&gt;prior();</span>
+<span class="lineNum">     327 </span>            :       return false;
+<span class="lineNum">     328 </span>            :     }
+<span class="lineNum">     329 </span>            :     else{
+<span class="lineNum">     330 </span><span class="lineNoCov">          0 :       x-&gt;prior()-&gt;next()-&gt;prior()=pointer(0);</span>
+<span class="lineNum">     331 </span><span class="lineNoCov">          0 :       x-&gt;prior()-&gt;next()=x-&gt;next();</span>
+<span class="lineNum">     332 </span><span class="lineNoCov">          0 :       end-&gt;prior()=x-&gt;prior();</span>
+<span class="lineNum">     333 </span>            :       return true;
+<span class="lineNum">     334 </span>            :     }
+<span class="lineNum">     335 </span>            :   }
+<span class="lineNum">     336 </span>            : 
+<span class="lineNum">     337 </span>            : private:
+<span class="lineNum">     338 </span>            :   static pointer pointer_from(base_pointer x)
+<span class="lineNum">     339 </span>            :   {
+<span class="lineNum">     340 </span><span class="lineNoCov">          0 :     return Node::pointer_from(x);</span>
+<span class="lineNum">     341 </span>            :   }
+<span class="lineNum">     342 </span>            : 
+<span class="lineNum">     343 </span>            :   static base_pointer base_pointer_from(pointer x)
+<span class="lineNum">     344 </span>            :   {
+<span class="lineNum">     345 </span><span class="lineNoCov">          0 :     return Node::base_pointer_from(x);</span>
+<span class="lineNum">     346 </span>            :   }
+<span class="lineNum">     347 </span>            : 
+<span class="lineNum">     348 </span>            :   static bool is_last_of_bucket(pointer x)
+<span class="lineNum">     349 </span>            :   {
+<span class="lineNum">     350 </span><span class="lineNoCov">          0 :     return x-&gt;next()-&gt;prior()!=x;</span>
+<span class="lineNum">     351 </span>            :   }
+<span class="lineNum">     352 </span>            : };
+<span class="lineNum">     353 </span>            : 
+<span class="lineNum">     354 </span>            : template&lt;typename Node&gt;
+<span class="lineNum">     355 </span>            : struct hashed_index_node_alg&lt;Node,hashed_non_unique_tag&gt;
+<span class="lineNum">     356 </span>            : {
+<span class="lineNum">     357 </span>            :   typedef typename Node::base_pointer       base_pointer;
+<span class="lineNum">     358 </span>            :   typedef typename Node::const_base_pointer const_base_pointer;
+<span class="lineNum">     359 </span>            :   typedef typename Node::pointer            pointer;
+<span class="lineNum">     360 </span>            :   typedef typename Node::const_pointer      const_pointer;
+<span class="lineNum">     361 </span>            : 
+<span class="lineNum">     362 </span>            :   static bool is_first_of_bucket(pointer x)
+<span class="lineNum">     363 </span>            :   {
+<span class="lineNum">     364 </span>            :     return x-&gt;prior()-&gt;next()-&gt;prior()==x;
+<span class="lineNum">     365 </span>            :   }
+<span class="lineNum">     366 </span>            : 
+<span class="lineNum">     367 </span>            :   static bool is_first_of_group(pointer x)
+<span class="lineNum">     368 </span>            :   {
+<span class="lineNum">     369 </span>            :     return
+<span class="lineNum">     370 </span>            :       x-&gt;next()-&gt;prior()!=x&amp;&amp;
+<span class="lineNum">     371 </span>            :       x-&gt;next()-&gt;prior()-&gt;prior()-&gt;next()==base_pointer_from(x);
+<span class="lineNum">     372 </span>            :   }
+<span class="lineNum">     373 </span>            : 
+<span class="lineNum">     374 </span>            :   static pointer after(pointer x)
+<span class="lineNum">     375 </span>            :   {
+<span class="lineNum">     376 </span>            :     if(x-&gt;next()-&gt;prior()==x)return pointer_from(x-&gt;next());
+<span class="lineNum">     377 </span>            :     if(x-&gt;next()-&gt;prior()-&gt;prior()==x)return x-&gt;next()-&gt;prior();
+<span class="lineNum">     378 </span>            :     if(x-&gt;next()-&gt;prior()-&gt;prior()-&gt;next()==base_pointer_from(x))
+<span class="lineNum">     379 </span>            :       return pointer_from(x-&gt;next());
+<span class="lineNum">     380 </span>            :     return pointer_from(x-&gt;next())-&gt;next()-&gt;prior();
+<span class="lineNum">     381 </span>            :   }
+<span class="lineNum">     382 </span>            : 
+<span class="lineNum">     383 </span>            :   static pointer after_local(pointer x)
+<span class="lineNum">     384 </span>            :   {
+<span class="lineNum">     385 </span>            :     if(x-&gt;next()-&gt;prior()==x)return pointer_from(x-&gt;next());
+<span class="lineNum">     386 </span>            :     if(x-&gt;next()-&gt;prior()-&gt;prior()==x)return pointer(0);
+<span class="lineNum">     387 </span>            :     if(x-&gt;next()-&gt;prior()-&gt;prior()-&gt;next()==base_pointer_from(x))
+<span class="lineNum">     388 </span>            :       return pointer_from(x-&gt;next());
+<span class="lineNum">     389 </span>            :     return pointer_from(x-&gt;next())-&gt;next()-&gt;prior();
+<span class="lineNum">     390 </span>            :   }
+<span class="lineNum">     391 </span>            : 
+<span class="lineNum">     392 </span>            :   static pointer next_to_inspect(pointer x)
+<span class="lineNum">     393 </span>            :   {
+<span class="lineNum">     394 </span>            :     if(x-&gt;next()-&gt;prior()==x)return pointer_from(x-&gt;next());
+<span class="lineNum">     395 </span>            :     if(x-&gt;next()-&gt;prior()-&gt;prior()==x)return pointer(0);
+<span class="lineNum">     396 </span>            :     if(x-&gt;next()-&gt;prior()-&gt;next()-&gt;prior()!=x-&gt;next()-&gt;prior())
+<span class="lineNum">     397 </span>            :       return pointer(0);
+<span class="lineNum">     398 </span>            :     return pointer_from(x-&gt;next()-&gt;prior()-&gt;next());
+<span class="lineNum">     399 </span>            :   }
+<span class="lineNum">     400 </span>            : 
+<span class="lineNum">     401 </span>            :   static void link(pointer x,base_pointer buc,pointer end)
+<span class="lineNum">     402 </span>            :   {
+<span class="lineNum">     403 </span>            :     if(buc-&gt;prior()==pointer(0)){ /* empty bucket */
+<span class="lineNum">     404 </span>            :       x-&gt;prior()=end-&gt;prior();
+<span class="lineNum">     405 </span>            :       x-&gt;next()=end-&gt;prior()-&gt;next();
+<span class="lineNum">     406 </span>            :       x-&gt;prior()-&gt;next()=buc;
+<span class="lineNum">     407 </span>            :       buc-&gt;prior()=x;
+<span class="lineNum">     408 </span>            :       end-&gt;prior()=x;
+<span class="lineNum">     409 </span>            :     }
+<span class="lineNum">     410 </span>            :     else{
+<span class="lineNum">     411 </span>            :       x-&gt;prior()=buc-&gt;prior()-&gt;prior();
+<span class="lineNum">     412 </span>            :       x-&gt;next()=base_pointer_from(buc-&gt;prior());
+<span class="lineNum">     413 </span>            :       buc-&gt;prior()=x;
+<span class="lineNum">     414 </span>            :       x-&gt;next()-&gt;prior()=x;
+<span class="lineNum">     415 </span>            :     }
+<span class="lineNum">     416 </span>            :   };
+<span class="lineNum">     417 </span>            : 
+<span class="lineNum">     418 </span>            :   static void link(pointer x,pointer first,pointer last)
+<span class="lineNum">     419 </span>            :   {
+<span class="lineNum">     420 </span>            :     x-&gt;prior()=first-&gt;prior();
+<span class="lineNum">     421 </span>            :     x-&gt;next()=base_pointer_from(first);
+<span class="lineNum">     422 </span>            :     if(is_first_of_bucket(first)){
+<span class="lineNum">     423 </span>            :       x-&gt;prior()-&gt;next()-&gt;prior()=x;
+<span class="lineNum">     424 </span>            :     }
+<span class="lineNum">     425 </span>            :     else{
+<span class="lineNum">     426 </span>            :       x-&gt;prior()-&gt;next()=base_pointer_from(x);
+<span class="lineNum">     427 </span>            :     }
+<span class="lineNum">     428 </span>            : 
+<span class="lineNum">     429 </span>            :     if(first==last){
+<span class="lineNum">     430 </span>            :       last-&gt;prior()=x;
+<span class="lineNum">     431 </span>            :     }
+<span class="lineNum">     432 </span>            :     else if(first-&gt;next()==base_pointer_from(last)){
+<span class="lineNum">     433 </span>            :       first-&gt;prior()=last;
+<span class="lineNum">     434 </span>            :       first-&gt;next()=base_pointer_from(x);
+<span class="lineNum">     435 </span>            :     }
+<span class="lineNum">     436 </span>            :     else{
+<span class="lineNum">     437 </span>            :       pointer second=pointer_from(first-&gt;next()),
+<span class="lineNum">     438 </span>            :               lastbutone=last-&gt;prior();
+<span class="lineNum">     439 </span>            :       second-&gt;prior()=first;
+<span class="lineNum">     440 </span>            :       first-&gt;prior()=last;
+<span class="lineNum">     441 </span>            :       lastbutone-&gt;next()=base_pointer_from(x);
+<span class="lineNum">     442 </span>            :     }
+<span class="lineNum">     443 </span>            :   }
+<span class="lineNum">     444 </span>            : 
+<span class="lineNum">     445 </span>            :   static void unlink(pointer x)
+<span class="lineNum">     446 </span>            :   {
+<span class="lineNum">     447 </span>            :     default_assigner assign;
+<span class="lineNum">     448 </span>            :     unlink(x,assign);
+<span class="lineNum">     449 </span>            :   }
+<span class="lineNum">     450 </span>            : 
+<span class="lineNum">     451 </span>            :   typedef unlink_undo_assigner&lt;Node&gt; unlink_undo;
+<span class="lineNum">     452 </span>            : 
+<span class="lineNum">     453 </span>            :   template&lt;typename Assigner&gt;
+<span class="lineNum">     454 </span>            :   static void unlink(pointer x,Assigner&amp; assign)
+<span class="lineNum">     455 </span>            :   {
+<span class="lineNum">     456 </span>            :     if(x-&gt;prior()-&gt;next()==base_pointer_from(x)){
+<span class="lineNum">     457 </span>            :       if(x-&gt;next()-&gt;prior()==x){
+<span class="lineNum">     458 </span>            :         left_unlink(x,assign);
+<span class="lineNum">     459 </span>            :         right_unlink(x,assign);
+<span class="lineNum">     460 </span>            :       }
+<span class="lineNum">     461 </span>            :       else if(x-&gt;next()-&gt;prior()-&gt;prior()==x){           /* last of bucket */
+<span class="lineNum">     462 </span>            :         left_unlink(x,assign);
+<span class="lineNum">     463 </span>            :         right_unlink_last_of_bucket(x,assign);
+<span class="lineNum">     464 </span>            :       }
+<span class="lineNum">     465 </span>            :       else if(x-&gt;next()-&gt;prior()-&gt;prior()-&gt;next()==
+<span class="lineNum">     466 </span>            :               base_pointer_from(x)){                /* first of group size */
+<span class="lineNum">     467 </span>            :         left_unlink(x,assign);
+<span class="lineNum">     468 </span>            :         right_unlink_first_of_group(x,assign);
+<span class="lineNum">     469 </span>            :       }
+<span class="lineNum">     470 </span>            :       else{                                                /* n-1 of group */
+<span class="lineNum">     471 </span>            :         unlink_last_but_one_of_group(x,assign);
+<span class="lineNum">     472 </span>            :       }
+<span class="lineNum">     473 </span>            :     }
+<span class="lineNum">     474 </span>            :     else if(x-&gt;prior()-&gt;next()-&gt;prior()==x){            /* first of bucket */
+<span class="lineNum">     475 </span>            :       if(x-&gt;next()-&gt;prior()==x){
+<span class="lineNum">     476 </span>            :         left_unlink_first_of_bucket(x,assign);
+<span class="lineNum">     477 </span>            :         right_unlink(x,assign);
+<span class="lineNum">     478 </span>            :       }
+<span class="lineNum">     479 </span>            :       else if(x-&gt;next()-&gt;prior()-&gt;prior()==x){           /* last of bucket */
+<span class="lineNum">     480 </span>            :         assign(x-&gt;prior()-&gt;next()-&gt;prior(),pointer(0));
+<span class="lineNum">     481 </span>            :         assign(x-&gt;prior()-&gt;next(),x-&gt;next());
+<span class="lineNum">     482 </span>            :         assign(x-&gt;next()-&gt;prior()-&gt;prior(),x-&gt;prior());
+<span class="lineNum">     483 </span>            :       }
+<span class="lineNum">     484 </span>            :       else{                                              /* first of group */
+<span class="lineNum">     485 </span>            :         left_unlink_first_of_bucket(x,assign);
+<span class="lineNum">     486 </span>            :         right_unlink_first_of_group(x,assign);
+<span class="lineNum">     487 </span>            :       }
+<span class="lineNum">     488 </span>            :     }
+<span class="lineNum">     489 </span>            :     else if(x-&gt;next()-&gt;prior()-&gt;prior()==x){   /* last of group and bucket */
+<span class="lineNum">     490 </span>            :       left_unlink_last_of_group(x,assign);
+<span class="lineNum">     491 </span>            :       right_unlink_last_of_bucket(x,assign);
+<span class="lineNum">     492 </span>            :     }
+<span class="lineNum">     493 </span>            :     else if(pointer_from(x-&gt;prior()-&gt;prior()-&gt;next())
+<span class="lineNum">     494 </span>            :             -&gt;next()==base_pointer_from(x)){            /* second of group */
+<span class="lineNum">     495 </span>            :       unlink_second_of_group(x,assign);
+<span class="lineNum">     496 </span>            :     }
+<span class="lineNum">     497 </span>            :     else{                              /* last of group, ~(last of bucket) */
+<span class="lineNum">     498 </span>            :       left_unlink_last_of_group(x,assign);
+<span class="lineNum">     499 </span>            :       right_unlink(x,assign);
+<span class="lineNum">     500 </span>            :     }
+<span class="lineNum">     501 </span>            :   }
+<span class="lineNum">     502 </span>            : 
+<span class="lineNum">     503 </span>            :   /* used only at rehashing */
+<span class="lineNum">     504 </span>            : 
+<span class="lineNum">     505 </span>            :   static void link_range(
+<span class="lineNum">     506 </span>            :     pointer first,pointer last,base_pointer buc,pointer cend)
+<span class="lineNum">     507 </span>            :   {
+<span class="lineNum">     508 </span>            :     if(buc-&gt;prior()==pointer(0)){ /* empty bucket */
+<span class="lineNum">     509 </span>            :       first-&gt;prior()=cend-&gt;prior();
+<span class="lineNum">     510 </span>            :       last-&gt;next()=cend-&gt;prior()-&gt;next();
+<span class="lineNum">     511 </span>            :       first-&gt;prior()-&gt;next()=buc;
+<span class="lineNum">     512 </span>            :       buc-&gt;prior()=first;
+<span class="lineNum">     513 </span>            :       cend-&gt;prior()=last;
+<span class="lineNum">     514 </span>            :     }
+<span class="lineNum">     515 </span>            :     else{
+<span class="lineNum">     516 </span>            :       first-&gt;prior()=buc-&gt;prior()-&gt;prior();
+<span class="lineNum">     517 </span>            :       last-&gt;next()=base_pointer_from(buc-&gt;prior());
+<span class="lineNum">     518 </span>            :       buc-&gt;prior()=first;
+<span class="lineNum">     519 </span>            :       last-&gt;next()-&gt;prior()=last;
+<span class="lineNum">     520 </span>            :     }
+<span class="lineNum">     521 </span>            :   }
+<span class="lineNum">     522 </span>            : 
+<span class="lineNum">     523 </span>            :   static void append_range(pointer first,pointer last,pointer cend)
+<span class="lineNum">     524 </span>            :   {
+<span class="lineNum">     525 </span>            :     first-&gt;prior()=cend-&gt;prior();
+<span class="lineNum">     526 </span>            :     last-&gt;next()=cend-&gt;prior()-&gt;next();
+<span class="lineNum">     527 </span>            :     first-&gt;prior()-&gt;next()=base_pointer_from(first);
+<span class="lineNum">     528 </span>            :     cend-&gt;prior()=last;
+<span class="lineNum">     529 </span>            :   }
+<span class="lineNum">     530 </span>            : 
+<span class="lineNum">     531 </span>            :   static std::pair&lt;pointer,bool&gt; unlink_last_group(pointer end)
+<span class="lineNum">     532 </span>            :   {
+<span class="lineNum">     533 </span>            :     /* returns first of group true iff bucket is emptied */
+<span class="lineNum">     534 </span>            : 
+<span class="lineNum">     535 </span>            :     pointer x=end-&gt;prior();
+<span class="lineNum">     536 </span>            :     if(x-&gt;prior()-&gt;next()==base_pointer_from(x)){
+<span class="lineNum">     537 </span>            :       x-&gt;prior()-&gt;next()=x-&gt;next();
+<span class="lineNum">     538 </span>            :       end-&gt;prior()=x-&gt;prior();
+<span class="lineNum">     539 </span>            :       return std::make_pair(x,false);
+<span class="lineNum">     540 </span>            :     }
+<span class="lineNum">     541 </span>            :     else if(x-&gt;prior()-&gt;next()-&gt;prior()==x){
+<span class="lineNum">     542 </span>            :       x-&gt;prior()-&gt;next()-&gt;prior()=pointer(0);
+<span class="lineNum">     543 </span>            :       x-&gt;prior()-&gt;next()=x-&gt;next();
+<span class="lineNum">     544 </span>            :       end-&gt;prior()=x-&gt;prior();
+<span class="lineNum">     545 </span>            :       return std::make_pair(x,true);
+<span class="lineNum">     546 </span>            :     }
+<span class="lineNum">     547 </span>            :     else{
+<span class="lineNum">     548 </span>            :       pointer y=pointer_from(x-&gt;prior()-&gt;next());
+<span class="lineNum">     549 </span>            : 
+<span class="lineNum">     550 </span>            :       if(y-&gt;prior()-&gt;next()==base_pointer_from(y)){
+<span class="lineNum">     551 </span>            :         y-&gt;prior()-&gt;next()=x-&gt;next();
+<span class="lineNum">     552 </span>            :         end-&gt;prior()=y-&gt;prior();
+<span class="lineNum">     553 </span>            :         return std::make_pair(y,false);
+<span class="lineNum">     554 </span>            :       }
+<span class="lineNum">     555 </span>            :       else{
+<span class="lineNum">     556 </span>            :         y-&gt;prior()-&gt;next()-&gt;prior()=pointer(0);
+<span class="lineNum">     557 </span>            :         y-&gt;prior()-&gt;next()=x-&gt;next();
+<span class="lineNum">     558 </span>            :         end-&gt;prior()=y-&gt;prior();
+<span class="lineNum">     559 </span>            :         return std::make_pair(y,true);
+<span class="lineNum">     560 </span>            :       }
+<span class="lineNum">     561 </span>            :     }
+<span class="lineNum">     562 </span>            :   }
+<span class="lineNum">     563 </span>            : 
+<span class="lineNum">     564 </span>            :   static void unlink_range(pointer first,pointer last)
+<span class="lineNum">     565 </span>            :   {
+<span class="lineNum">     566 </span>            :     if(is_first_of_bucket(first)){
+<span class="lineNum">     567 </span>            :       if(is_last_of_bucket(last)){
+<span class="lineNum">     568 </span>            :         first-&gt;prior()-&gt;next()-&gt;prior()=pointer(0);
+<span class="lineNum">     569 </span>            :         first-&gt;prior()-&gt;next()=last-&gt;next();
+<span class="lineNum">     570 </span>            :         last-&gt;next()-&gt;prior()-&gt;prior()=first-&gt;prior();
+<span class="lineNum">     571 </span>            :       }
+<span class="lineNum">     572 </span>            :       else{
+<span class="lineNum">     573 </span>            :         first-&gt;prior()-&gt;next()-&gt;prior()=pointer_from(last-&gt;next());
+<span class="lineNum">     574 </span>            :         last-&gt;next()-&gt;prior()=first-&gt;prior();
+<span class="lineNum">     575 </span>            :       }
+<span class="lineNum">     576 </span>            :     }
+<span class="lineNum">     577 </span>            :     else if(is_last_of_bucket(last)){
+<span class="lineNum">     578 </span>            :       first-&gt;prior()-&gt;next()=last-&gt;next();
+<span class="lineNum">     579 </span>            :       last-&gt;next()-&gt;prior()-&gt;prior()=first-&gt;prior();
+<span class="lineNum">     580 </span>            :     }
+<span class="lineNum">     581 </span>            :     else{
+<span class="lineNum">     582 </span>            :       first-&gt;prior()-&gt;next()=last-&gt;next();
+<span class="lineNum">     583 </span>            :       last-&gt;next()-&gt;prior()=first-&gt;prior();
+<span class="lineNum">     584 </span>            :     }
+<span class="lineNum">     585 </span>            :   }
+<span class="lineNum">     586 </span>            : 
+<span class="lineNum">     587 </span>            : private:
+<span class="lineNum">     588 </span>            :   static pointer pointer_from(base_pointer x)
+<span class="lineNum">     589 </span>            :   {
+<span class="lineNum">     590 </span>            :     return Node::pointer_from(x);
+<span class="lineNum">     591 </span>            :   }
+<span class="lineNum">     592 </span>            : 
+<span class="lineNum">     593 </span>            :   static base_pointer base_pointer_from(pointer x)
+<span class="lineNum">     594 </span>            :   {
+<span class="lineNum">     595 </span>            :     return Node::base_pointer_from(x);
+<span class="lineNum">     596 </span>            :   }
+<span class="lineNum">     597 </span>            : 
+<span class="lineNum">     598 </span>            :   static bool is_last_of_bucket(pointer x)
+<span class="lineNum">     599 </span>            :   {
+<span class="lineNum">     600 </span>            :     return x-&gt;next()-&gt;prior()-&gt;prior()==x;
+<span class="lineNum">     601 </span>            :   }
+<span class="lineNum">     602 </span>            : 
+<span class="lineNum">     603 </span>            :   template&lt;typename Assigner&gt;
+<span class="lineNum">     604 </span>            :   static void left_unlink(pointer x,Assigner&amp; assign)
+<span class="lineNum">     605 </span>            :   {
+<span class="lineNum">     606 </span>            :     assign(x-&gt;prior()-&gt;next(),x-&gt;next());
+<span class="lineNum">     607 </span>            :   }
+<span class="lineNum">     608 </span>            :   
+<span class="lineNum">     609 </span>            :   template&lt;typename Assigner&gt;
+<span class="lineNum">     610 </span>            :   static void right_unlink(pointer x,Assigner&amp; assign)
+<span class="lineNum">     611 </span>            :   {
+<span class="lineNum">     612 </span>            :     assign(x-&gt;next()-&gt;prior(),x-&gt;prior());
+<span class="lineNum">     613 </span>            :   }
+<span class="lineNum">     614 </span>            : 
+<span class="lineNum">     615 </span>            :   template&lt;typename Assigner&gt;
+<span class="lineNum">     616 </span>            :   static void left_unlink_first_of_bucket(pointer x,Assigner&amp; assign)
+<span class="lineNum">     617 </span>            :   {
+<span class="lineNum">     618 </span>            :     assign(x-&gt;prior()-&gt;next()-&gt;prior(),pointer_from(x-&gt;next()));
+<span class="lineNum">     619 </span>            :   }
+<span class="lineNum">     620 </span>            : 
+<span class="lineNum">     621 </span>            :   template&lt;typename Assigner&gt;
+<span class="lineNum">     622 </span>            :   static void right_unlink_last_of_bucket(pointer x,Assigner&amp; assign)
+<span class="lineNum">     623 </span>            :   {
+<span class="lineNum">     624 </span>            :     assign(x-&gt;next()-&gt;prior()-&gt;prior(),x-&gt;prior());
+<span class="lineNum">     625 </span>            :   }
+<span class="lineNum">     626 </span>            : 
+<span class="lineNum">     627 </span>            :   template&lt;typename Assigner&gt;
+<span class="lineNum">     628 </span>            :   static void right_unlink_first_of_group(pointer x,Assigner&amp; assign)
+<span class="lineNum">     629 </span>            :   {
+<span class="lineNum">     630 </span>            :     pointer second=pointer_from(x-&gt;next()),
+<span class="lineNum">     631 </span>            :             last=second-&gt;prior(),
+<span class="lineNum">     632 </span>            :             lastbutone=last-&gt;prior();
+<span class="lineNum">     633 </span>            :     if(second==lastbutone){
+<span class="lineNum">     634 </span>            :       assign(second-&gt;next(),base_pointer_from(last));
+<span class="lineNum">     635 </span>            :       assign(second-&gt;prior(),x-&gt;prior());
+<span class="lineNum">     636 </span>            :     }
+<span class="lineNum">     637 </span>            :     else{
+<span class="lineNum">     638 </span>            :       assign(lastbutone-&gt;next(),base_pointer_from(second));
+<span class="lineNum">     639 </span>            :       assign(second-&gt;next()-&gt;prior(),last);
+<span class="lineNum">     640 </span>            :       assign(second-&gt;prior(),x-&gt;prior());
+<span class="lineNum">     641 </span>            :     }
+<span class="lineNum">     642 </span>            :   }
+<span class="lineNum">     643 </span>            : 
+<span class="lineNum">     644 </span>            :   template&lt;typename Assigner&gt;
+<span class="lineNum">     645 </span>            :   static void left_unlink_last_of_group(pointer x,Assigner&amp; assign)
+<span class="lineNum">     646 </span>            :   {
+<span class="lineNum">     647 </span>            :     pointer lastbutone=x-&gt;prior(),
+<span class="lineNum">     648 </span>            :             first=pointer_from(lastbutone-&gt;next()),
+<span class="lineNum">     649 </span>            :             second=pointer_from(first-&gt;next());
+<span class="lineNum">     650 </span>            :     if(lastbutone==second){
+<span class="lineNum">     651 </span>            :       assign(lastbutone-&gt;prior(),first);
+<span class="lineNum">     652 </span>            :       assign(lastbutone-&gt;next(),x-&gt;next());
+<span class="lineNum">     653 </span>            :     }
+<span class="lineNum">     654 </span>            :     else{
+<span class="lineNum">     655 </span>            :       assign(second-&gt;prior(),lastbutone);
+<span class="lineNum">     656 </span>            :       assign(lastbutone-&gt;prior()-&gt;next(),base_pointer_from(first));
+<span class="lineNum">     657 </span>            :       assign(lastbutone-&gt;next(),x-&gt;next());
+<span class="lineNum">     658 </span>            :     }
+<span class="lineNum">     659 </span>            :   }
+<span class="lineNum">     660 </span>            : 
+<span class="lineNum">     661 </span>            :   template&lt;typename Assigner&gt;
+<span class="lineNum">     662 </span>            :   static void unlink_last_but_one_of_group(pointer x,Assigner&amp; assign)
+<span class="lineNum">     663 </span>            :   {
+<span class="lineNum">     664 </span>            :     pointer first=pointer_from(x-&gt;next()),
+<span class="lineNum">     665 </span>            :             second=pointer_from(first-&gt;next()),
+<span class="lineNum">     666 </span>            :             last=second-&gt;prior();
+<span class="lineNum">     667 </span>            :     if(second==x){
+<span class="lineNum">     668 </span>            :       assign(last-&gt;prior(),first);
+<span class="lineNum">     669 </span>            :       assign(first-&gt;next(),base_pointer_from(last));
+<span class="lineNum">     670 </span>            :     }
+<span class="lineNum">     671 </span>            :     else{
+<span class="lineNum">     672 </span>            :       assign(last-&gt;prior(),x-&gt;prior());
+<span class="lineNum">     673 </span>            :       assign(x-&gt;prior()-&gt;next(),base_pointer_from(first));
+<span class="lineNum">     674 </span>            :     }
+<span class="lineNum">     675 </span>            :   }
+<span class="lineNum">     676 </span>            : 
+<span class="lineNum">     677 </span>            :   template&lt;typename Assigner&gt;
+<span class="lineNum">     678 </span>            :   static void unlink_second_of_group(pointer x,Assigner&amp; assign)
+<span class="lineNum">     679 </span>            :   {
+<span class="lineNum">     680 </span>            :     pointer last=x-&gt;prior(),
+<span class="lineNum">     681 </span>            :             lastbutone=last-&gt;prior(),
+<span class="lineNum">     682 </span>            :             first=pointer_from(lastbutone-&gt;next());
+<span class="lineNum">     683 </span>            :     if(lastbutone==x){
+<span class="lineNum">     684 </span>            :       assign(first-&gt;next(),base_pointer_from(last));
+<span class="lineNum">     685 </span>            :       assign(last-&gt;prior(),first);
+<span class="lineNum">     686 </span>            :     }
+<span class="lineNum">     687 </span>            :     else{
+<span class="lineNum">     688 </span>            :       assign(first-&gt;next(),x-&gt;next());
+<span class="lineNum">     689 </span>            :       assign(x-&gt;next()-&gt;prior(),last);
+<span class="lineNum">     690 </span>            :     }
+<span class="lineNum">     691 </span>            :   }
+<span class="lineNum">     692 </span>            : };
+<span class="lineNum">     693 </span>            : 
+<span class="lineNum">     694 </span>            : template&lt;typename Super&gt;
+<span class="lineNum">     695 </span>            : struct hashed_index_node_trampoline:
+<span class="lineNum">     696 </span>            :   hashed_index_node_impl&lt;
+<span class="lineNum">     697 </span>            :     typename boost::detail::allocator::rebind_to&lt;
+<span class="lineNum">     698 </span>            :       typename Super::allocator_type,
+<span class="lineNum">     699 </span>            :       char
+<span class="lineNum">     700 </span>            :     &gt;::type
+<span class="lineNum">     701 </span>            :   &gt;
+<span class="lineNum">     702 </span>            : {
+<span class="lineNum">     703 </span>            :   typedef typename boost::detail::allocator::rebind_to&lt;
+<span class="lineNum">     704 </span>            :     typename Super::allocator_type,
+<span class="lineNum">     705 </span>            :     char
+<span class="lineNum">     706 </span>            :   &gt;::type                                               impl_allocator_type;
+<span class="lineNum">     707 </span>            :   typedef hashed_index_node_impl&lt;impl_allocator_type&gt;   impl_type;
+<span class="lineNum">     708 </span>            : };
+<span class="lineNum">     709 </span>            : 
+<span class="lineNum">     710 </span>            : template&lt;typename Super,typename Category&gt;
+<span class="lineNum">     711 </span>            : struct hashed_index_node:
+<span class="lineNum">     712 </span>            :   Super,hashed_index_node_trampoline&lt;Super&gt;
+<span class="lineNum">     713 </span>            : {
+<span class="lineNum">     714 </span>            : private:
+<span class="lineNum">     715 </span>            :   typedef hashed_index_node_trampoline&lt;Super&gt; trampoline;
+<span class="lineNum">     716 </span>            : 
+<span class="lineNum">     717 </span>            : public:
+<span class="lineNum">     718 </span>            :   typedef typename trampoline::impl_type          impl_type;
+<span class="lineNum">     719 </span>            :   typedef hashed_index_node_alg&lt;
+<span class="lineNum">     720 </span>            :     impl_type,Category&gt;                           node_alg;
+<span class="lineNum">     721 </span>            :   typedef typename trampoline::base_pointer       impl_base_pointer;
+<span class="lineNum">     722 </span>            :   typedef typename trampoline::const_base_pointer const_impl_base_pointer;
+<span class="lineNum">     723 </span>            :   typedef typename trampoline::pointer            impl_pointer;
+<span class="lineNum">     724 </span>            :   typedef typename trampoline::const_pointer      const_impl_pointer;
+<span class="lineNum">     725 </span>            : 
+<span class="lineNum">     726 </span>            :   impl_pointer&amp;      prior(){return trampoline::prior();}
+<span class="lineNum">     727 </span>            :   impl_pointer       prior()const{return trampoline::prior();}
+<span class="lineNum">     728 </span><span class="lineNoCov">          0 :   impl_base_pointer&amp; next(){return trampoline::next();}</span>
+<span class="lineNum">     729 </span>            :   impl_base_pointer  next()const{return trampoline::next();}
+<span class="lineNum">     730 </span>            : 
+<span class="lineNum">     731 </span>            :   impl_pointer impl()
+<span class="lineNum">     732 </span>            :   {
+<span class="lineNum">     733 </span>            :     return static_cast&lt;impl_pointer&gt;(
+<span class="lineNum">     734 </span><span class="lineCov">      36408 :       static_cast&lt;impl_type*&gt;(static_cast&lt;trampoline*&gt;(this)));</span>
+<span class="lineNum">     735 </span>            :   }
+<span class="lineNum">     736 </span>            : 
+<span class="lineNum">     737 </span>            :   const_impl_pointer impl()const
+<span class="lineNum">     738 </span>            :   {
+<span class="lineNum">     739 </span>            :     return static_cast&lt;const_impl_pointer&gt;(
+<span class="lineNum">     740 </span>            :       static_cast&lt;const impl_type*&gt;(static_cast&lt;const trampoline*&gt;(this)));
+<span class="lineNum">     741 </span>            :   }
+<span class="lineNum">     742 </span>            : 
+<span class="lineNum">     743 </span>            :   static hashed_index_node* from_impl(impl_pointer x)
+<span class="lineNum">     744 </span>            :   {
+<span class="lineNum">     745 </span>            :     return
+<span class="lineNum">     746 </span><span class="lineNoCov">          0 :       static_cast&lt;hashed_index_node*&gt;(</span>
+<span class="lineNum">     747 </span>            :         static_cast&lt;trampoline*&gt;(
+<span class="lineNum">     748 </span><span class="lineNoCov">          0 :           raw_ptr&lt;impl_type*&gt;(x)));</span>
+<span class="lineNum">     749 </span>            :   }
+<span class="lineNum">     750 </span>            : 
+<span class="lineNum">     751 </span>            :   static const hashed_index_node* from_impl(const_impl_pointer x)
+<span class="lineNum">     752 </span>            :   {
+<span class="lineNum">     753 </span>            :     return 
+<span class="lineNum">     754 </span>            :       static_cast&lt;const hashed_index_node*&gt;(
+<span class="lineNum">     755 </span>            :         static_cast&lt;const trampoline*&gt;(
+<span class="lineNum">     756 </span>            :           raw_ptr&lt;const impl_type*&gt;(x)));
+<span class="lineNum">     757 </span>            :   }
+<span class="lineNum">     758 </span>            : 
+<span class="lineNum">     759 </span>            :   /* interoperability with hashed_index_iterator */
+<span class="lineNum">     760 </span>            : 
+<span class="lineNum">     761 </span>            :   static void increment(hashed_index_node*&amp; x)
+<span class="lineNum">     762 </span>            :   {
+<span class="lineNum">     763 </span><span class="lineNoCov">          0 :     x=from_impl(node_alg::after(x-&gt;impl()));</span>
+<span class="lineNum">     764 </span>            :   }
+<span class="lineNum">     765 </span>            : 
+<span class="lineNum">     766 </span>            :   static void increment_local(hashed_index_node*&amp; x)
+<span class="lineNum">     767 </span>            :   {
+<span class="lineNum">     768 </span>            :     x=from_impl(node_alg::after_local(x-&gt;impl()));
+<span class="lineNum">     769 </span>            :   }
+<span class="lineNum">     770 </span>            : };
+<span class="lineNum">     771 </span>            : 
+<span class="lineNum">     772 </span>            : } /* namespace multi_index::detail */
+<span class="lineNum">     773 </span>            : 
+<span class="lineNum">     774 </span>            : } /* namespace multi_index */
+<span class="lineNum">     775 </span>            : 
+<span class="lineNum">     776 </span>            : } /* namespace boost */
+<span class="lineNum">     777 </span>            : 
+<span class="lineNum">     778 </span>            : #endif
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

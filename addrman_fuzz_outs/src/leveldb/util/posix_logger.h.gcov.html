@@ -1,0 +1,206 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - addrman_cov.info - src/leveldb/util/posix_logger.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">src/leveldb/util</a> - posix_logger.h<span style="font-size: 80%;"> (source / <a href="posix_logger.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">addrman_cov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">38</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-15 12:38:37</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2011 The LevelDB Authors. All rights reserved.</a>
+<span class="lineNum">       2 </span>            : // Use of this source code is governed by a BSD-style license that can be
+<span class="lineNum">       3 </span>            : // found in the LICENSE file. See the AUTHORS file for names of contributors.
+<span class="lineNum">       4 </span>            : //
+<span class="lineNum">       5 </span>            : // Logger implementation that can be shared by all environments
+<span class="lineNum">       6 </span>            : // where enough posix functionality is available.
+<span class="lineNum">       7 </span>            : 
+<span class="lineNum">       8 </span>            : #ifndef STORAGE_LEVELDB_UTIL_POSIX_LOGGER_H_
+<span class="lineNum">       9 </span>            : #define STORAGE_LEVELDB_UTIL_POSIX_LOGGER_H_
+<span class="lineNum">      10 </span>            : 
+<span class="lineNum">      11 </span>            : #include &lt;sys/time.h&gt;
+<span class="lineNum">      12 </span>            : 
+<span class="lineNum">      13 </span>            : #include &lt;cassert&gt;
+<span class="lineNum">      14 </span>            : #include &lt;cstdarg&gt;
+<span class="lineNum">      15 </span>            : #include &lt;cstdio&gt;
+<span class="lineNum">      16 </span>            : #include &lt;ctime&gt;
+<span class="lineNum">      17 </span>            : #include &lt;sstream&gt;
+<span class="lineNum">      18 </span>            : #include &lt;thread&gt;
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : #include &quot;leveldb/env.h&quot;
+<span class="lineNum">      21 </span>            : 
+<span class="lineNum">      22 </span>            : namespace leveldb {
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span>            : class PosixLogger final : public Logger {
+<span class="lineNum">      25 </span>            :  public:
+<span class="lineNum">      26 </span>            :   // Creates a logger that writes to the given file.
+<span class="lineNum">      27 </span>            :   //
+<span class="lineNum">      28 </span>            :   // The PosixLogger instance takes ownership of the file handle.
+<a name="29"><span class="lineNum">      29 </span><span class="lineNoCov">          0 :   explicit PosixLogger(std::FILE* fp) : fp_(fp) { assert(fp != nullptr); }</span></a>
+<span class="lineNum">      30 </span>            : 
+<a name="31"><span class="lineNum">      31 </span><span class="lineNoCov">          0 :   ~PosixLogger() override { std::fclose(fp_); }</span></a>
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span><span class="lineNoCov">          0 :   void Logv(const char* format, va_list arguments) override {</span>
+<span class="lineNum">      34 </span>            :     // Record the time as close to the Logv() call as possible.
+<span class="lineNum">      35 </span>            :     struct ::timeval now_timeval;
+<span class="lineNum">      36 </span><span class="lineNoCov">          0 :     ::gettimeofday(&amp;now_timeval, nullptr);</span>
+<span class="lineNum">      37 </span><span class="lineNoCov">          0 :     const std::time_t now_seconds = now_timeval.tv_sec;</span>
+<span class="lineNum">      38 </span>            :     struct std::tm now_components;
+<span class="lineNum">      39 </span><span class="lineNoCov">          0 :     ::localtime_r(&amp;now_seconds, &amp;now_components);</span>
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span>            :     // Record the thread ID.
+<span class="lineNum">      42 </span><span class="lineNoCov">          0 :     constexpr const int kMaxThreadIdSize = 32;</span>
+<span class="lineNum">      43 </span><span class="lineNoCov">          0 :     std::ostringstream thread_stream;</span>
+<span class="lineNum">      44 </span><span class="lineNoCov">          0 :     thread_stream &lt;&lt; std::this_thread::get_id();</span>
+<span class="lineNum">      45 </span><span class="lineNoCov">          0 :     std::string thread_id = thread_stream.str();</span>
+<span class="lineNum">      46 </span><span class="lineNoCov">          0 :     if (thread_id.size() &gt; kMaxThreadIdSize) {</span>
+<span class="lineNum">      47 </span>            :       thread_id.resize(kMaxThreadIdSize);
+<span class="lineNum">      48 </span>            :     }
+<span class="lineNum">      49 </span>            : 
+<span class="lineNum">      50 </span>            :     // We first attempt to print into a stack-allocated buffer. If this attempt
+<span class="lineNum">      51 </span>            :     // fails, we make a second attempt with a dynamically allocated buffer.
+<span class="lineNum">      52 </span>            :     constexpr const int kStackBufferSize = 512;
+<span class="lineNum">      53 </span>            :     char stack_buffer[kStackBufferSize];
+<span class="lineNum">      54 </span>            :     static_assert(sizeof(stack_buffer) == static_cast&lt;size_t&gt;(kStackBufferSize),
+<span class="lineNum">      55 </span>            :                   &quot;sizeof(char) is expected to be 1 in C++&quot;);
+<span class="lineNum">      56 </span>            : 
+<span class="lineNum">      57 </span>            :     int dynamic_buffer_size = 0;  // Computed in the first iteration.
+<span class="lineNum">      58 </span><span class="lineNoCov">          0 :     for (int iteration = 0; iteration &lt; 2; ++iteration) {</span>
+<span class="lineNum">      59 </span><span class="lineNoCov">          0 :       const int buffer_size =</span>
+<span class="lineNum">      60 </span><span class="lineNoCov">          0 :           (iteration == 0) ? kStackBufferSize : dynamic_buffer_size;</span>
+<span class="lineNum">      61 </span>            :       char* const buffer =
+<span class="lineNum">      62 </span><span class="lineNoCov">          0 :           (iteration == 0) ? stack_buffer : new char[dynamic_buffer_size];</span>
+<span class="lineNum">      63 </span>            : 
+<span class="lineNum">      64 </span>            :       // Print the header into the buffer.
+<span class="lineNum">      65 </span><span class="lineNoCov">          0 :       int buffer_offset = snprintf(</span>
+<span class="lineNum">      66 </span>            :           buffer, buffer_size, &quot;%04d/%02d/%02d-%02d:%02d:%02d.%06d %s &quot;,
+<span class="lineNum">      67 </span><span class="lineNoCov">          0 :           now_components.tm_year + 1900, now_components.tm_mon + 1,</span>
+<span class="lineNum">      68 </span>            :           now_components.tm_mday, now_components.tm_hour, now_components.tm_min,
+<span class="lineNum">      69 </span><span class="lineNoCov">          0 :           now_components.tm_sec, static_cast&lt;int&gt;(now_timeval.tv_usec),</span>
+<span class="lineNum">      70 </span><span class="lineNoCov">          0 :           thread_id.c_str());</span>
+<span class="lineNum">      71 </span>            : 
+<span class="lineNum">      72 </span>            :       // The header can be at most 28 characters (10 date + 15 time +
+<span class="lineNum">      73 </span>            :       // 3 delimiters) plus the thread ID, which should fit comfortably into the
+<span class="lineNum">      74 </span>            :       // static buffer.
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 :       assert(buffer_offset &lt;= 28 + kMaxThreadIdSize);</span>
+<span class="lineNum">      76 </span>            :       static_assert(28 + kMaxThreadIdSize &lt; kStackBufferSize,
+<span class="lineNum">      77 </span>            :                     &quot;stack-allocated buffer may not fit the message header&quot;);
+<span class="lineNum">      78 </span><span class="lineNoCov">          0 :       assert(buffer_offset &lt; buffer_size);</span>
+<span class="lineNum">      79 </span>            : 
+<span class="lineNum">      80 </span>            :       // Print the message into the buffer.
+<span class="lineNum">      81 </span>            :       std::va_list arguments_copy;
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 :       va_copy(arguments_copy, arguments);</span>
+<span class="lineNum">      83 </span><span class="lineNoCov">          0 :       buffer_offset +=</span>
+<span class="lineNum">      84 </span><span class="lineNoCov">          0 :           std::vsnprintf(buffer + buffer_offset, buffer_size - buffer_offset,</span>
+<span class="lineNum">      85 </span>            :                          format, arguments_copy);
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 :       va_end(arguments_copy);</span>
+<span class="lineNum">      87 </span>            : 
+<span class="lineNum">      88 </span>            :       // The code below may append a newline at the end of the buffer, which
+<span class="lineNum">      89 </span>            :       // requires an extra character.
+<span class="lineNum">      90 </span><span class="lineNoCov">          0 :       if (buffer_offset &gt;= buffer_size - 1) {</span>
+<span class="lineNum">      91 </span>            :         // The message did not fit into the buffer.
+<span class="lineNum">      92 </span><span class="lineNoCov">          0 :         if (iteration == 0) {</span>
+<span class="lineNum">      93 </span>            :           // Re-run the loop and use a dynamically-allocated buffer. The buffer
+<span class="lineNum">      94 </span>            :           // will be large enough for the log message, an extra newline and a
+<span class="lineNum">      95 </span>            :           // null terminator.
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :           dynamic_buffer_size = buffer_offset + 2;</span>
+<span class="lineNum">      97 </span>            :           continue;
+<span class="lineNum">      98 </span>            :         }
+<span class="lineNum">      99 </span>            : 
+<span class="lineNum">     100 </span>            :         // The dynamically-allocated buffer was incorrectly sized. This should
+<span class="lineNum">     101 </span>            :         // not happen, assuming a correct implementation of (v)snprintf. Fail
+<span class="lineNum">     102 </span>            :         // in tests, recover by truncating the log message in production.
+<span class="lineNum">     103 </span><span class="lineNoCov">          0 :         assert(false);</span>
+<span class="lineNum">     104 </span>            :         buffer_offset = buffer_size - 1;
+<span class="lineNum">     105 </span>            :       }
+<span class="lineNum">     106 </span>            : 
+<span class="lineNum">     107 </span>            :       // Add a newline if necessary.
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :       if (buffer[buffer_offset - 1] != '\n') {</span>
+<span class="lineNum">     109 </span><span class="lineNoCov">          0 :         buffer[buffer_offset] = '\n';</span>
+<span class="lineNum">     110 </span><span class="lineNoCov">          0 :         ++buffer_offset;</span>
+<span class="lineNum">     111 </span>            :       }
+<span class="lineNum">     112 </span>            : 
+<span class="lineNum">     113 </span><span class="lineNoCov">          0 :       assert(buffer_offset &lt;= buffer_size);</span>
+<span class="lineNum">     114 </span><span class="lineNoCov">          0 :       std::fwrite(buffer, 1, buffer_offset, fp_);</span>
+<span class="lineNum">     115 </span><span class="lineNoCov">          0 :       std::fflush(fp_);</span>
+<span class="lineNum">     116 </span>            : 
+<span class="lineNum">     117 </span><span class="lineNoCov">          0 :       if (iteration != 0) {</span>
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :         delete[] buffer;</span>
+<span class="lineNum">     119 </span>            :       }
+<span class="lineNum">     120 </span>            :       break;
+<span class="lineNum">     121 </span>            :     }
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :   }</span>
+<span class="lineNum">     123 </span>            : 
+<span class="lineNum">     124 </span>            :  private:
+<span class="lineNum">     125 </span>            :   std::FILE* const fp_;
+<span class="lineNum">     126 </span>            : };
+<span class="lineNum">     127 </span>            : 
+<span class="lineNum">     128 </span>            : }  // namespace leveldb
+<span class="lineNum">     129 </span>            : 
+<span class="lineNum">     130 </span>            : #endif  // STORAGE_LEVELDB_UTIL_POSIX_LOGGER_H_
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
