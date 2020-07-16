@@ -1,0 +1,154 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - policy_cov.info - /usr/include/boost/iterator/reverse_iterator.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">usr/include/boost/iterator</a> - reverse_iterator.hpp<span style="font-size: 80%;"> (source / <a href="reverse_iterator.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">policy_cov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-16 14:33:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryHi">-</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // (C) Copyright David Abrahams 2002.</a>
+<span class="lineNum">       2 </span>            : // (C) Copyright Jeremy Siek    2002.
+<span class="lineNum">       3 </span>            : // (C) Copyright Thomas Witt    2002.
+<span class="lineNum">       4 </span>            : // Distributed under the Boost Software License, Version 1.0. (See
+<span class="lineNum">       5 </span>            : // accompanying file LICENSE_1_0.txt or copy at
+<span class="lineNum">       6 </span>            : // http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       7 </span>            : #ifndef BOOST_REVERSE_ITERATOR_23022003THW_HPP
+<span class="lineNum">       8 </span>            : #define BOOST_REVERSE_ITERATOR_23022003THW_HPP
+<span class="lineNum">       9 </span>            : 
+<span class="lineNum">      10 </span>            : #include &lt;boost/iterator.hpp&gt;
+<span class="lineNum">      11 </span>            : #include &lt;boost/iterator/iterator_adaptor.hpp&gt;
+<span class="lineNum">      12 </span>            : 
+<span class="lineNum">      13 </span>            : namespace boost {
+<span class="lineNum">      14 </span>            : namespace iterators {
+<span class="lineNum">      15 </span>            : 
+<span class="lineNum">      16 </span>            :   //
+<span class="lineNum">      17 </span>            :   //
+<span class="lineNum">      18 </span>            :   //
+<span class="lineNum">      19 </span>            :   template &lt;class Iterator&gt;
+<span class="lineNum">      20 </span>            :   class reverse_iterator
+<span class="lineNum">      21 </span>            :       : public iterator_adaptor&lt; reverse_iterator&lt;Iterator&gt;, Iterator &gt;
+<span class="lineNum">      22 </span>            :   {
+<span class="lineNum">      23 </span>            :       typedef iterator_adaptor&lt; reverse_iterator&lt;Iterator&gt;, Iterator &gt; super_t;
+<span class="lineNum">      24 </span>            : 
+<span class="lineNum">      25 </span>            :       friend class iterator_core_access;
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span>            :    public:
+<span class="lineNum">      28 </span>            :       reverse_iterator() {}
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            :       explicit reverse_iterator(Iterator x)
+<span class="lineNum">      31 </span><span class="lineNoCov">          0 :           : super_t(x) {}</span>
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            :       template&lt;class OtherIterator&gt;
+<span class="lineNum">      34 </span>            :       reverse_iterator(
+<span class="lineNum">      35 </span>            :           reverse_iterator&lt;OtherIterator&gt; const&amp; r
+<span class="lineNum">      36 </span>            :           , typename enable_if_convertible&lt;OtherIterator, Iterator&gt;::type* = 0
+<span class="lineNum">      37 </span>            :           )
+<span class="lineNum">      38 </span>            :           : super_t(r.base())
+<span class="lineNum">      39 </span>            :       {}
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span>            :    private:
+<span class="lineNum">      42 </span>            :       typename super_t::reference dereference() const
+<span class="lineNum">      43 </span>            :       {
+<span class="lineNum">      44 </span><span class="lineNoCov">          0 :           Iterator it = this-&gt;base_reference();</span>
+<span class="lineNum">      45 </span><span class="lineNoCov">          0 :           --it;</span>
+<span class="lineNum">      46 </span><span class="lineNoCov">          0 :           return *it;</span>
+<span class="lineNum">      47 </span>            :       }
+<span class="lineNum">      48 </span>            : 
+<span class="lineNum">      49 </span><span class="lineNoCov">          0 :       void increment() { --this-&gt;base_reference(); }</span>
+<span class="lineNum">      50 </span>            :       void decrement() { ++this-&gt;base_reference(); }
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span>            :       void advance(typename super_t::difference_type n)
+<span class="lineNum">      53 </span>            :       {
+<span class="lineNum">      54 </span>            :           this-&gt;base_reference() -= n;
+<span class="lineNum">      55 </span>            :       }
+<span class="lineNum">      56 </span>            : 
+<span class="lineNum">      57 </span>            :       template &lt;class OtherIterator&gt;
+<span class="lineNum">      58 </span>            :       typename super_t::difference_type
+<span class="lineNum">      59 </span>            :       distance_to(reverse_iterator&lt;OtherIterator&gt; const&amp; y) const
+<span class="lineNum">      60 </span>            :       {
+<span class="lineNum">      61 </span>            :           return this-&gt;base_reference() - y.base();
+<span class="lineNum">      62 </span>            :       }
+<span class="lineNum">      63 </span>            :   };
+<span class="lineNum">      64 </span>            : 
+<span class="lineNum">      65 </span>            :   template &lt;class BidirectionalIterator&gt;
+<span class="lineNum">      66 </span>            :   inline reverse_iterator&lt;BidirectionalIterator&gt; make_reverse_iterator(BidirectionalIterator x)
+<span class="lineNum">      67 </span>            :   {
+<span class="lineNum">      68 </span><span class="lineNoCov">          0 :       return reverse_iterator&lt;BidirectionalIterator&gt;(x);</span>
+<span class="lineNum">      69 </span>            :   }
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span>            : } // namespace iterators
+<span class="lineNum">      72 </span>            : 
+<span class="lineNum">      73 </span>            : using iterators::reverse_iterator;
+<span class="lineNum">      74 </span>            : using iterators::make_reverse_iterator;
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span>            : } // namespace boost
+<span class="lineNum">      77 </span>            : 
+<span class="lineNum">      78 </span>            : #endif // BOOST_REVERSE_ITERATOR_23022003THW_HPP
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

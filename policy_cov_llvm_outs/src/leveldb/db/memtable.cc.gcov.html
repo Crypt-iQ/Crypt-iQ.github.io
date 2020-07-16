@@ -1,0 +1,213 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - policy_cov.info - src/leveldb/db/memtable.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">src/leveldb/db</a> - memtable.cc<span style="font-size: 80%;"> (source / <a href="memtable.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">policy_cov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">67</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-16 14:33:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">20</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2011 The LevelDB Authors. All rights reserved.</a>
+<span class="lineNum">       2 </span>            : // Use of this source code is governed by a BSD-style license that can be
+<span class="lineNum">       3 </span>            : // found in the LICENSE file. See the AUTHORS file for names of contributors.
+<span class="lineNum">       4 </span>            : 
+<span class="lineNum">       5 </span>            : #include &quot;db/memtable.h&quot;
+<span class="lineNum">       6 </span>            : #include &quot;db/dbformat.h&quot;
+<span class="lineNum">       7 </span>            : #include &quot;leveldb/comparator.h&quot;
+<span class="lineNum">       8 </span>            : #include &quot;leveldb/env.h&quot;
+<span class="lineNum">       9 </span>            : #include &quot;leveldb/iterator.h&quot;
+<span class="lineNum">      10 </span>            : #include &quot;util/coding.h&quot;
+<span class="lineNum">      11 </span>            : 
+<a name="12"><span class="lineNum">      12 </span>            : namespace leveldb {</a>
+<span class="lineNum">      13 </span>            : 
+<span class="lineNum">      14 </span><span class="lineNoCov">          0 : static Slice GetLengthPrefixedSlice(const char* data) {</span>
+<span class="lineNum">      15 </span>            :   uint32_t len;
+<span class="lineNum">      16 </span><span class="lineNoCov">          0 :   const char* p = data;</span>
+<span class="lineNum">      17 </span><span class="lineNoCov">          0 :   p = GetVarint32Ptr(p, p + 5, &amp;len);  // +5: we assume &quot;p&quot; is not corrupted</span>
+<span class="lineNum">      18 </span><span class="lineNoCov">          0 :   return Slice(p, len);</span>
+<a name="19"><span class="lineNum">      19 </span>            : }</a>
+<span class="lineNum">      20 </span>            : 
+<span class="lineNum">      21 </span><span class="lineNoCov">          0 : MemTable::MemTable(const InternalKeyComparator&amp; comparator)</span>
+<a name="22"><span class="lineNum">      22 </span><span class="lineNoCov">          0 :     : comparator_(comparator), refs_(0), table_(comparator_, &amp;arena_) {}</span></a>
+<span class="lineNum">      23 </span>            : 
+<a name="24"><span class="lineNum">      24 </span><span class="lineNoCov">          0 : MemTable::~MemTable() { assert(refs_ == 0); }</span></a>
+<span class="lineNum">      25 </span>            : 
+<a name="26"><span class="lineNum">      26 </span><span class="lineNoCov">          0 : size_t MemTable::ApproximateMemoryUsage() { return arena_.MemoryUsage(); }</span></a>
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span><span class="lineNoCov">          0 : int MemTable::KeyComparator::operator()(const char* aptr,</span>
+<span class="lineNum">      29 </span>            :                                         const char* bptr) const {
+<span class="lineNum">      30 </span>            :   // Internal keys are encoded as length-prefixed strings.
+<span class="lineNum">      31 </span><span class="lineNoCov">          0 :   Slice a = GetLengthPrefixedSlice(aptr);</span>
+<span class="lineNum">      32 </span><span class="lineNoCov">          0 :   Slice b = GetLengthPrefixedSlice(bptr);</span>
+<span class="lineNum">      33 </span><span class="lineNoCov">          0 :   return comparator.Compare(a, b);</span>
+<span class="lineNum">      34 </span>            : }
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span>            : // Encode a suitable internal key target for &quot;target&quot; and return it.
+<a name="37"><span class="lineNum">      37 </span>            : // Uses *scratch as scratch space, and the returned pointer will point</a>
+<span class="lineNum">      38 </span>            : // into this scratch space.
+<span class="lineNum">      39 </span><span class="lineNoCov">          0 : static const char* EncodeKey(std::string* scratch, const Slice&amp; target) {</span>
+<span class="lineNum">      40 </span><span class="lineNoCov">          0 :   scratch-&gt;clear();</span>
+<span class="lineNum">      41 </span><span class="lineNoCov">          0 :   PutVarint32(scratch, target.size());</span>
+<span class="lineNum">      42 </span><span class="lineNoCov">          0 :   scratch-&gt;append(target.data(), target.size());</span>
+<span class="lineNum">      43 </span><span class="lineNoCov">          0 :   return scratch-&gt;data();</span>
+<span class="lineNum">      44 </span>            : }
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span>            : class MemTableIterator : public Iterator {
+<span class="lineNum">      47 </span>            :  public:
+<span class="lineNum">      48 </span><span class="lineNoCov">          0 :   explicit MemTableIterator(MemTable::Table* table) : iter_(table) {}</span>
+<span class="lineNum">      49 </span>            : 
+<span class="lineNum">      50 </span>            :   MemTableIterator(const MemTableIterator&amp;) = delete;
+<a name="51"><span class="lineNum">      51 </span>            :   MemTableIterator&amp; operator=(const MemTableIterator&amp;) = delete;</a>
+<span class="lineNum">      52 </span>            : 
+<a name="53"><span class="lineNum">      53 </span><span class="lineNoCov">          0 :   ~MemTableIterator() override = default;</span></a>
+<a name="54"><span class="lineNum">      54 </span>            : </a>
+<a name="55"><span class="lineNum">      55 </span><span class="lineNoCov">          0 :   bool Valid() const override { return iter_.Valid(); }</span></a>
+<a name="56"><span class="lineNum">      56 </span><span class="lineNoCov">          0 :   void Seek(const Slice&amp; k) override { iter_.Seek(EncodeKey(&amp;tmp_, k)); }</span></a>
+<a name="57"><span class="lineNum">      57 </span><span class="lineNoCov">          0 :   void SeekToFirst() override { iter_.SeekToFirst(); }</span></a>
+<a name="58"><span class="lineNum">      58 </span><span class="lineNoCov">          0 :   void SeekToLast() override { iter_.SeekToLast(); }</span></a>
+<a name="59"><span class="lineNum">      59 </span><span class="lineNoCov">          0 :   void Next() override { iter_.Next(); }</span></a>
+<a name="60"><span class="lineNum">      60 </span><span class="lineNoCov">          0 :   void Prev() override { iter_.Prev(); }</span></a>
+<span class="lineNum">      61 </span><span class="lineNoCov">          0 :   Slice key() const override { return GetLengthPrefixedSlice(iter_.key()); }</span>
+<span class="lineNum">      62 </span><span class="lineNoCov">          0 :   Slice value() const override {</span>
+<span class="lineNum">      63 </span><span class="lineNoCov">          0 :     Slice key_slice = GetLengthPrefixedSlice(iter_.key());</span>
+<span class="lineNum">      64 </span><span class="lineNoCov">          0 :     return GetLengthPrefixedSlice(key_slice.data() + key_slice.size());</span>
+<a name="65"><span class="lineNum">      65 </span>            :   }</a>
+<span class="lineNum">      66 </span>            : 
+<span class="lineNum">      67 </span><span class="lineNoCov">          0 :   Status status() const override { return Status::OK(); }</span>
+<span class="lineNum">      68 </span>            : 
+<span class="lineNum">      69 </span>            :  private:
+<span class="lineNum">      70 </span>            :   MemTable::Table::Iterator iter_;
+<span class="lineNum">      71 </span>            :   std::string tmp_;  // For passing to EncodeKey
+<a name="72"><span class="lineNum">      72 </span>            : };</a>
+<span class="lineNum">      73 </span>            : 
+<a name="74"><span class="lineNum">      74 </span><span class="lineNoCov">          0 : Iterator* MemTable::NewIterator() { return new MemTableIterator(&amp;table_); }</span></a>
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 : void MemTable::Add(SequenceNumber s, ValueType type, const Slice&amp; key,</span>
+<span class="lineNum">      77 </span>            :                    const Slice&amp; value) {
+<span class="lineNum">      78 </span>            :   // Format of an entry is concatenation of:
+<span class="lineNum">      79 </span>            :   //  key_size     : varint32 of internal_key.size()
+<span class="lineNum">      80 </span>            :   //  key bytes    : char[internal_key.size()]
+<span class="lineNum">      81 </span>            :   //  value_size   : varint32 of value.size()
+<span class="lineNum">      82 </span>            :   //  value bytes  : char[value.size()]
+<span class="lineNum">      83 </span><span class="lineNoCov">          0 :   size_t key_size = key.size();</span>
+<span class="lineNum">      84 </span><span class="lineNoCov">          0 :   size_t val_size = value.size();</span>
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 :   size_t internal_key_size = key_size + 8;</span>
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 :   const size_t encoded_len = VarintLength(internal_key_size) +</span>
+<span class="lineNum">      87 </span><span class="lineNoCov">          0 :                              internal_key_size + VarintLength(val_size) +</span>
+<span class="lineNum">      88 </span><span class="lineNoCov">          0 :                              val_size;</span>
+<span class="lineNum">      89 </span><span class="lineNoCov">          0 :   char* buf = arena_.Allocate(encoded_len);</span>
+<span class="lineNum">      90 </span><span class="lineNoCov">          0 :   char* p = EncodeVarint32(buf, internal_key_size);</span>
+<span class="lineNum">      91 </span><span class="lineNoCov">          0 :   memcpy(p, key.data(), key_size);</span>
+<span class="lineNum">      92 </span><span class="lineNoCov">          0 :   p += key_size;</span>
+<span class="lineNum">      93 </span><span class="lineNoCov">          0 :   EncodeFixed64(p, (s &lt;&lt; 8) | type);</span>
+<span class="lineNum">      94 </span><span class="lineNoCov">          0 :   p += 8;</span>
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 :   p = EncodeVarint32(p, val_size);</span>
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :   memcpy(p, value.data(), val_size);</span>
+<span class="lineNum">      97 </span><span class="lineNoCov">          0 :   assert(p + val_size == buf + encoded_len);</span>
+<span class="lineNum">      98 </span><span class="lineNoCov">          0 :   table_.Insert(buf);</span>
+<a name="99"><span class="lineNum">      99 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span><span class="lineNoCov">          0 : bool MemTable::Get(const LookupKey&amp; key, std::string* value, Status* s) {</span>
+<span class="lineNum">     102 </span><span class="lineNoCov">          0 :   Slice memkey = key.memtable_key();</span>
+<span class="lineNum">     103 </span><span class="lineNoCov">          0 :   Table::Iterator iter(&amp;table_);</span>
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 :   iter.Seek(memkey.data());</span>
+<span class="lineNum">     105 </span><span class="lineNoCov">          0 :   if (iter.Valid()) {</span>
+<span class="lineNum">     106 </span>            :     // entry format is:
+<span class="lineNum">     107 </span>            :     //    klength  varint32
+<span class="lineNum">     108 </span>            :     //    userkey  char[klength]
+<span class="lineNum">     109 </span>            :     //    tag      uint64
+<span class="lineNum">     110 </span>            :     //    vlength  varint32
+<span class="lineNum">     111 </span>            :     //    value    char[vlength]
+<span class="lineNum">     112 </span>            :     // Check that it belongs to same user key.  We do not check the
+<span class="lineNum">     113 </span>            :     // sequence number since the Seek() call above should have skipped
+<span class="lineNum">     114 </span>            :     // all entries with overly large sequence numbers.
+<span class="lineNum">     115 </span><span class="lineNoCov">          0 :     const char* entry = iter.key();</span>
+<span class="lineNum">     116 </span>            :     uint32_t key_length;
+<span class="lineNum">     117 </span><span class="lineNoCov">          0 :     const char* key_ptr = GetVarint32Ptr(entry, entry + 5, &amp;key_length);</span>
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :     if (comparator_.comparator.user_comparator()-&gt;Compare(</span>
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 :             Slice(key_ptr, key_length - 8), key.user_key()) == 0) {</span>
+<span class="lineNum">     120 </span>            :       // Correct user key
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 :       const uint64_t tag = DecodeFixed64(key_ptr + key_length - 8);</span>
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :       switch (static_cast&lt;ValueType&gt;(tag &amp; 0xff)) {</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :         case kTypeValue: {</span>
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :           Slice v = GetLengthPrefixedSlice(key_ptr + key_length);</span>
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :           value-&gt;assign(v.data(), v.size());</span>
+<span class="lineNum">     126 </span><span class="lineNoCov">          0 :           return true;</span>
+<span class="lineNum">     127 </span>            :         }
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :         case kTypeDeletion:</span>
+<span class="lineNum">     129 </span><span class="lineNoCov">          0 :           *s = Status::NotFound(Slice());</span>
+<span class="lineNum">     130 </span><span class="lineNoCov">          0 :           return true;</span>
+<span class="lineNum">     131 </span>            :       }
+<span class="lineNum">     132 </span>            :     }
+<span class="lineNum">     133 </span>            :   }
+<span class="lineNum">     134 </span>            :   return false;
+<span class="lineNum">     135 </span>            : }
+<span class="lineNum">     136 </span>            : 
+<span class="lineNum">     137 </span>            : }  // namespace leveldb
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
