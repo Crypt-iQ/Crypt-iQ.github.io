@@ -1,0 +1,243 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - pr19065_cov.info - src/leveldb/include/leveldb/db.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">src/leveldb/include/leveldb</a> - db.h<span style="font-size: 80%;"> (source / <a href="db.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">pr19065_cov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-19 02:14:11</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2011 The LevelDB Authors. All rights reserved.</a>
+<span class="lineNum">       2 </span>            : // Use of this source code is governed by a BSD-style license that can be
+<span class="lineNum">       3 </span>            : // found in the LICENSE file. See the AUTHORS file for names of contributors.
+<span class="lineNum">       4 </span>            : 
+<span class="lineNum">       5 </span>            : #ifndef STORAGE_LEVELDB_INCLUDE_DB_H_
+<span class="lineNum">       6 </span>            : #define STORAGE_LEVELDB_INCLUDE_DB_H_
+<span class="lineNum">       7 </span>            : 
+<span class="lineNum">       8 </span>            : #include &lt;stdint.h&gt;
+<span class="lineNum">       9 </span>            : #include &lt;stdio.h&gt;
+<span class="lineNum">      10 </span>            : 
+<span class="lineNum">      11 </span>            : #include &quot;leveldb/export.h&quot;
+<span class="lineNum">      12 </span>            : #include &quot;leveldb/iterator.h&quot;
+<span class="lineNum">      13 </span>            : #include &quot;leveldb/options.h&quot;
+<span class="lineNum">      14 </span>            : 
+<span class="lineNum">      15 </span>            : namespace leveldb {
+<span class="lineNum">      16 </span>            : 
+<span class="lineNum">      17 </span>            : // Update CMakeLists.txt if you change these
+<span class="lineNum">      18 </span>            : static const int kMajorVersion = 1;
+<span class="lineNum">      19 </span>            : static const int kMinorVersion = 22;
+<span class="lineNum">      20 </span>            : 
+<span class="lineNum">      21 </span>            : struct Options;
+<span class="lineNum">      22 </span>            : struct ReadOptions;
+<span class="lineNum">      23 </span>            : struct WriteOptions;
+<span class="lineNum">      24 </span>            : class WriteBatch;
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : // Abstract handle to particular state of a DB.
+<a name="27"><span class="lineNum">      27 </span>            : // A Snapshot is an immutable object and can therefore be safely</a>
+<span class="lineNum">      28 </span>            : // accessed from multiple threads without any external synchronization.
+<span class="lineNum">      29 </span><span class="lineNoCov">          0 : class LEVELDB_EXPORT Snapshot {</span>
+<span class="lineNum">      30 </span>            :  protected:
+<span class="lineNum">      31 </span>            :   virtual ~Snapshot();
+<span class="lineNum">      32 </span>            : };
+<span class="lineNum">      33 </span>            : 
+<span class="lineNum">      34 </span>            : // A range of keys
+<span class="lineNum">      35 </span>            : struct LEVELDB_EXPORT Range {
+<span class="lineNum">      36 </span>            :   Range() = default;
+<span class="lineNum">      37 </span><span class="lineNoCov">          0 :   Range(const Slice&amp; s, const Slice&amp; l) : start(s), limit(l) {}</span>
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            :   Slice start;  // Included in the range
+<span class="lineNum">      40 </span>            :   Slice limit;  // Not included in the range
+<span class="lineNum">      41 </span>            : };
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : // A DB is a persistent ordered map from keys to values.
+<a name="44"><span class="lineNum">      44 </span>            : // A DB is safe for concurrent access from multiple threads without</a>
+<span class="lineNum">      45 </span>            : // any external synchronization.
+<span class="lineNum">      46 </span><span class="lineNoCov">          0 : class LEVELDB_EXPORT DB {</span>
+<span class="lineNum">      47 </span>            :  public:
+<span class="lineNum">      48 </span>            :   // Open the database with the specified &quot;name&quot;.
+<span class="lineNum">      49 </span>            :   // Stores a pointer to a heap-allocated database in *dbptr and returns
+<span class="lineNum">      50 </span>            :   // OK on success.
+<span class="lineNum">      51 </span>            :   // Stores nullptr in *dbptr and returns a non-OK status on error.
+<span class="lineNum">      52 </span>            :   // Caller should delete *dbptr when it is no longer needed.
+<span class="lineNum">      53 </span>            :   static Status Open(const Options&amp; options, const std::string&amp; name,
+<span class="lineNum">      54 </span>            :                      DB** dbptr);
+<span class="lineNum">      55 </span>            : 
+<span class="lineNum">      56 </span>            :   DB() = default;
+<span class="lineNum">      57 </span>            : 
+<span class="lineNum">      58 </span>            :   DB(const DB&amp;) = delete;
+<span class="lineNum">      59 </span>            :   DB&amp; operator=(const DB&amp;) = delete;
+<span class="lineNum">      60 </span>            : 
+<span class="lineNum">      61 </span>            :   virtual ~DB();
+<span class="lineNum">      62 </span>            : 
+<span class="lineNum">      63 </span>            :   // Set the database entry for &quot;key&quot; to &quot;value&quot;.  Returns OK on success,
+<span class="lineNum">      64 </span>            :   // and a non-OK status on error.
+<span class="lineNum">      65 </span>            :   // Note: consider setting options.sync = true.
+<span class="lineNum">      66 </span>            :   virtual Status Put(const WriteOptions&amp; options, const Slice&amp; key,
+<span class="lineNum">      67 </span>            :                      const Slice&amp; value) = 0;
+<span class="lineNum">      68 </span>            : 
+<span class="lineNum">      69 </span>            :   // Remove the database entry (if any) for &quot;key&quot;.  Returns OK on
+<span class="lineNum">      70 </span>            :   // success, and a non-OK status on error.  It is not an error if &quot;key&quot;
+<span class="lineNum">      71 </span>            :   // did not exist in the database.
+<span class="lineNum">      72 </span>            :   // Note: consider setting options.sync = true.
+<span class="lineNum">      73 </span>            :   virtual Status Delete(const WriteOptions&amp; options, const Slice&amp; key) = 0;
+<span class="lineNum">      74 </span>            : 
+<span class="lineNum">      75 </span>            :   // Apply the specified updates to the database.
+<span class="lineNum">      76 </span>            :   // Returns OK on success, non-OK on failure.
+<span class="lineNum">      77 </span>            :   // Note: consider setting options.sync = true.
+<span class="lineNum">      78 </span>            :   virtual Status Write(const WriteOptions&amp; options, WriteBatch* updates) = 0;
+<span class="lineNum">      79 </span>            : 
+<span class="lineNum">      80 </span>            :   // If the database contains an entry for &quot;key&quot; store the
+<span class="lineNum">      81 </span>            :   // corresponding value in *value and return OK.
+<span class="lineNum">      82 </span>            :   //
+<span class="lineNum">      83 </span>            :   // If there is no entry for &quot;key&quot; leave *value unchanged and return
+<span class="lineNum">      84 </span>            :   // a status for which Status::IsNotFound() returns true.
+<span class="lineNum">      85 </span>            :   //
+<span class="lineNum">      86 </span>            :   // May return some other Status on an error.
+<span class="lineNum">      87 </span>            :   virtual Status Get(const ReadOptions&amp; options, const Slice&amp; key,
+<span class="lineNum">      88 </span>            :                      std::string* value) = 0;
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span>            :   // Return a heap-allocated iterator over the contents of the database.
+<span class="lineNum">      91 </span>            :   // The result of NewIterator() is initially invalid (caller must
+<span class="lineNum">      92 </span>            :   // call one of the Seek methods on the iterator before using it).
+<span class="lineNum">      93 </span>            :   //
+<span class="lineNum">      94 </span>            :   // Caller should delete the iterator when it is no longer needed.
+<span class="lineNum">      95 </span>            :   // The returned iterator should be deleted before this db is deleted.
+<span class="lineNum">      96 </span>            :   virtual Iterator* NewIterator(const ReadOptions&amp; options) = 0;
+<span class="lineNum">      97 </span>            : 
+<span class="lineNum">      98 </span>            :   // Return a handle to the current DB state.  Iterators created with
+<span class="lineNum">      99 </span>            :   // this handle will all observe a stable snapshot of the current DB
+<span class="lineNum">     100 </span>            :   // state.  The caller must call ReleaseSnapshot(result) when the
+<span class="lineNum">     101 </span>            :   // snapshot is no longer needed.
+<span class="lineNum">     102 </span>            :   virtual const Snapshot* GetSnapshot() = 0;
+<span class="lineNum">     103 </span>            : 
+<span class="lineNum">     104 </span>            :   // Release a previously acquired snapshot.  The caller must not
+<span class="lineNum">     105 </span>            :   // use &quot;snapshot&quot; after this call.
+<span class="lineNum">     106 </span>            :   virtual void ReleaseSnapshot(const Snapshot* snapshot) = 0;
+<span class="lineNum">     107 </span>            : 
+<span class="lineNum">     108 </span>            :   // DB implementations can export properties about their state
+<span class="lineNum">     109 </span>            :   // via this method.  If &quot;property&quot; is a valid property understood by this
+<span class="lineNum">     110 </span>            :   // DB implementation, fills &quot;*value&quot; with its current value and returns
+<span class="lineNum">     111 </span>            :   // true.  Otherwise returns false.
+<span class="lineNum">     112 </span>            :   //
+<span class="lineNum">     113 </span>            :   //
+<span class="lineNum">     114 </span>            :   // Valid property names include:
+<span class="lineNum">     115 </span>            :   //
+<span class="lineNum">     116 </span>            :   //  &quot;leveldb.num-files-at-level&lt;N&gt;&quot; - return the number of files at level &lt;N&gt;,
+<span class="lineNum">     117 </span>            :   //     where &lt;N&gt; is an ASCII representation of a level number (e.g. &quot;0&quot;).
+<span class="lineNum">     118 </span>            :   //  &quot;leveldb.stats&quot; - returns a multi-line string that describes statistics
+<span class="lineNum">     119 </span>            :   //     about the internal operation of the DB.
+<span class="lineNum">     120 </span>            :   //  &quot;leveldb.sstables&quot; - returns a multi-line string that describes all
+<span class="lineNum">     121 </span>            :   //     of the sstables that make up the db contents.
+<span class="lineNum">     122 </span>            :   //  &quot;leveldb.approximate-memory-usage&quot; - returns the approximate number of
+<span class="lineNum">     123 </span>            :   //     bytes of memory in use by the DB.
+<span class="lineNum">     124 </span>            :   virtual bool GetProperty(const Slice&amp; property, std::string* value) = 0;
+<span class="lineNum">     125 </span>            : 
+<span class="lineNum">     126 </span>            :   // For each i in [0,n-1], store in &quot;sizes[i]&quot;, the approximate
+<span class="lineNum">     127 </span>            :   // file system space used by keys in &quot;[range[i].start .. range[i].limit)&quot;.
+<span class="lineNum">     128 </span>            :   //
+<span class="lineNum">     129 </span>            :   // Note that the returned sizes measure file system space usage, so
+<span class="lineNum">     130 </span>            :   // if the user data compresses by a factor of ten, the returned
+<span class="lineNum">     131 </span>            :   // sizes will be one-tenth the size of the corresponding user data size.
+<span class="lineNum">     132 </span>            :   //
+<span class="lineNum">     133 </span>            :   // The results may not include the sizes of recently written data.
+<span class="lineNum">     134 </span>            :   virtual void GetApproximateSizes(const Range* range, int n,
+<span class="lineNum">     135 </span>            :                                    uint64_t* sizes) = 0;
+<span class="lineNum">     136 </span>            : 
+<span class="lineNum">     137 </span>            :   // Compact the underlying storage for the key range [*begin,*end].
+<span class="lineNum">     138 </span>            :   // In particular, deleted and overwritten versions are discarded,
+<span class="lineNum">     139 </span>            :   // and the data is rearranged to reduce the cost of operations
+<span class="lineNum">     140 </span>            :   // needed to access the data.  This operation should typically only
+<span class="lineNum">     141 </span>            :   // be invoked by users who understand the underlying implementation.
+<span class="lineNum">     142 </span>            :   //
+<span class="lineNum">     143 </span>            :   // begin==nullptr is treated as a key before all keys in the database.
+<span class="lineNum">     144 </span>            :   // end==nullptr is treated as a key after all keys in the database.
+<span class="lineNum">     145 </span>            :   // Therefore the following call will compact the entire database:
+<span class="lineNum">     146 </span>            :   //    db-&gt;CompactRange(nullptr, nullptr);
+<span class="lineNum">     147 </span>            :   virtual void CompactRange(const Slice* begin, const Slice* end) = 0;
+<span class="lineNum">     148 </span>            : };
+<span class="lineNum">     149 </span>            : 
+<span class="lineNum">     150 </span>            : // Destroy the contents of the specified database.
+<span class="lineNum">     151 </span>            : // Be very careful using this method.
+<span class="lineNum">     152 </span>            : //
+<span class="lineNum">     153 </span>            : // Note: For backwards compatibility, if DestroyDB is unable to list the
+<span class="lineNum">     154 </span>            : // database files, Status::OK() will still be returned masking this failure.
+<span class="lineNum">     155 </span>            : LEVELDB_EXPORT Status DestroyDB(const std::string&amp; name,
+<span class="lineNum">     156 </span>            :                                 const Options&amp; options);
+<span class="lineNum">     157 </span>            : 
+<span class="lineNum">     158 </span>            : // If a DB cannot be opened, you may attempt to call this method to
+<span class="lineNum">     159 </span>            : // resurrect as much of the contents of the database as possible.
+<span class="lineNum">     160 </span>            : // Some data may be lost, so be careful when calling this function
+<span class="lineNum">     161 </span>            : // on a database that contains important information.
+<span class="lineNum">     162 </span>            : LEVELDB_EXPORT Status RepairDB(const std::string&amp; dbname,
+<span class="lineNum">     163 </span>            :                                const Options&amp; options);
+<span class="lineNum">     164 </span>            : 
+<span class="lineNum">     165 </span>            : }  // namespace leveldb
+<span class="lineNum">     166 </span>            : 
+<span class="lineNum">     167 </span>            : #endif  // STORAGE_LEVELDB_INCLUDE_DB_H_
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

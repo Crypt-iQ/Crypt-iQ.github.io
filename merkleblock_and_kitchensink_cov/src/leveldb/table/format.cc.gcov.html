@@ -1,0 +1,217 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - pr19065_cov.info - src/leveldb/table/format.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">src/leveldb/table</a> - format.cc<span style="font-size: 80%;"> (source / <a href="format.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">pr19065_cov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">69</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-19 02:14:11</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2011 The LevelDB Authors. All rights reserved.</a>
+<span class="lineNum">       2 </span>            : // Use of this source code is governed by a BSD-style license that can be
+<span class="lineNum">       3 </span>            : // found in the LICENSE file. See the AUTHORS file for names of contributors.
+<span class="lineNum">       4 </span>            : 
+<span class="lineNum">       5 </span>            : #include &quot;table/format.h&quot;
+<span class="lineNum">       6 </span>            : 
+<span class="lineNum">       7 </span>            : #include &quot;leveldb/env.h&quot;
+<span class="lineNum">       8 </span>            : #include &quot;port/port.h&quot;
+<span class="lineNum">       9 </span>            : #include &quot;table/block.h&quot;
+<span class="lineNum">      10 </span>            : #include &quot;util/coding.h&quot;
+<span class="lineNum">      11 </span>            : #include &quot;util/crc32c.h&quot;
+<span class="lineNum">      12 </span>            : 
+<a name="13"><span class="lineNum">      13 </span>            : namespace leveldb {</a>
+<span class="lineNum">      14 </span>            : 
+<span class="lineNum">      15 </span><span class="lineNoCov">          0 : void BlockHandle::EncodeTo(std::string* dst) const {</span>
+<span class="lineNum">      16 </span>            :   // Sanity check that all fields have been set
+<span class="lineNum">      17 </span><span class="lineNoCov">          0 :   assert(offset_ != ~static_cast&lt;uint64_t&gt;(0));</span>
+<span class="lineNum">      18 </span><span class="lineNoCov">          0 :   assert(size_ != ~static_cast&lt;uint64_t&gt;(0));</span>
+<span class="lineNum">      19 </span><span class="lineNoCov">          0 :   PutVarint64(dst, offset_);</span>
+<span class="lineNum">      20 </span><span class="lineNoCov">          0 :   PutVarint64(dst, size_);</span>
+<a name="21"><span class="lineNum">      21 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span><span class="lineNoCov">          0 : Status BlockHandle::DecodeFrom(Slice* input) {</span>
+<span class="lineNum">      24 </span><span class="lineNoCov">          0 :   if (GetVarint64(input, &amp;offset_) &amp;&amp; GetVarint64(input, &amp;size_)) {</span>
+<span class="lineNum">      25 </span>            :     return Status::OK();
+<span class="lineNum">      26 </span>            :   } else {
+<span class="lineNum">      27 </span><span class="lineNoCov">          0 :     return Status::Corruption(&quot;bad block handle&quot;);</span>
+<span class="lineNum">      28 </span>            :   }
+<span class="lineNum">      29 </span>            : }
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span><span class="lineNoCov">          0 : void Footer::EncodeTo(std::string* dst) const {</span>
+<span class="lineNum">      32 </span><span class="lineNoCov">          0 :   const size_t original_size = dst-&gt;size();</span>
+<span class="lineNum">      33 </span><span class="lineNoCov">          0 :   metaindex_handle_.EncodeTo(dst);</span>
+<span class="lineNum">      34 </span><span class="lineNoCov">          0 :   index_handle_.EncodeTo(dst);</span>
+<span class="lineNum">      35 </span><span class="lineNoCov">          0 :   dst-&gt;resize(2 * BlockHandle::kMaxEncodedLength);  // Padding</span>
+<span class="lineNum">      36 </span><span class="lineNoCov">          0 :   PutFixed32(dst, static_cast&lt;uint32_t&gt;(kTableMagicNumber &amp; 0xffffffffu));</span>
+<span class="lineNum">      37 </span><span class="lineNoCov">          0 :   PutFixed32(dst, static_cast&lt;uint32_t&gt;(kTableMagicNumber &gt;&gt; 32));</span>
+<span class="lineNum">      38 </span><span class="lineNoCov">          0 :   assert(dst-&gt;size() == original_size + kEncodedLength);</span>
+<span class="lineNum">      39 </span>            :   (void)original_size;  // Disable unused variable warning.
+<a name="40"><span class="lineNum">      40 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span><span class="lineNoCov">          0 : Status Footer::DecodeFrom(Slice* input) {</span>
+<span class="lineNum">      43 </span><span class="lineNoCov">          0 :   const char* magic_ptr = input-&gt;data() + kEncodedLength - 8;</span>
+<span class="lineNum">      44 </span><span class="lineNoCov">          0 :   const uint32_t magic_lo = DecodeFixed32(magic_ptr);</span>
+<span class="lineNum">      45 </span><span class="lineNoCov">          0 :   const uint32_t magic_hi = DecodeFixed32(magic_ptr + 4);</span>
+<span class="lineNum">      46 </span><span class="lineNoCov">          0 :   const uint64_t magic = ((static_cast&lt;uint64_t&gt;(magic_hi) &lt;&lt; 32) |</span>
+<span class="lineNum">      47 </span><span class="lineNoCov">          0 :                           (static_cast&lt;uint64_t&gt;(magic_lo)));</span>
+<span class="lineNum">      48 </span><span class="lineNoCov">          0 :   if (magic != kTableMagicNumber) {</span>
+<span class="lineNum">      49 </span><span class="lineNoCov">          0 :     return Status::Corruption(&quot;not an sstable (bad magic number)&quot;);</span>
+<span class="lineNum">      50 </span>            :   }
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span><span class="lineNoCov">          0 :   Status result = metaindex_handle_.DecodeFrom(input);</span>
+<span class="lineNum">      53 </span><span class="lineNoCov">          0 :   if (result.ok()) {</span>
+<span class="lineNum">      54 </span><span class="lineNoCov">          0 :     result = index_handle_.DecodeFrom(input);</span>
+<span class="lineNum">      55 </span>            :   }
+<span class="lineNum">      56 </span><span class="lineNoCov">          0 :   if (result.ok()) {</span>
+<span class="lineNum">      57 </span>            :     // We skip over any leftover data (just padding for now) in &quot;input&quot;
+<span class="lineNum">      58 </span><span class="lineNoCov">          0 :     const char* end = magic_ptr + 8;</span>
+<span class="lineNum">      59 </span><span class="lineNoCov">          0 :     *input = Slice(end, input-&gt;data() + input-&gt;size() - end);</span>
+<span class="lineNum">      60 </span>            :   }
+<span class="lineNum">      61 </span><span class="lineNoCov">          0 :   return result;</span>
+<span class="lineNum">      62 </span>            : }
+<span class="lineNum">      63 </span>            : 
+<span class="lineNum">      64 </span><span class="lineNoCov">          0 : Status ReadBlock(RandomAccessFile* file, const ReadOptions&amp; options,</span>
+<span class="lineNum">      65 </span>            :                  const BlockHandle&amp; handle, BlockContents* result) {
+<span class="lineNum">      66 </span><span class="lineNoCov">          0 :   result-&gt;data = Slice();</span>
+<span class="lineNum">      67 </span><span class="lineNoCov">          0 :   result-&gt;cachable = false;</span>
+<span class="lineNum">      68 </span><span class="lineNoCov">          0 :   result-&gt;heap_allocated = false;</span>
+<span class="lineNum">      69 </span>            : 
+<span class="lineNum">      70 </span>            :   // Read the block contents as well as the type/crc footer.
+<span class="lineNum">      71 </span>            :   // See table_builder.cc for the code that built this structure.
+<span class="lineNum">      72 </span><span class="lineNoCov">          0 :   size_t n = static_cast&lt;size_t&gt;(handle.size());</span>
+<span class="lineNum">      73 </span><span class="lineNoCov">          0 :   char* buf = new char[n + kBlockTrailerSize];</span>
+<span class="lineNum">      74 </span><span class="lineNoCov">          0 :   Slice contents;</span>
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 :   Status s = file-&gt;Read(handle.offset(), n + kBlockTrailerSize, &amp;contents, buf);</span>
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :   if (!s.ok()) {</span>
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 :     delete[] buf;</span>
+<span class="lineNum">      78 </span>            :     return s;
+<span class="lineNum">      79 </span>            :   }
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 :   if (contents.size() != n + kBlockTrailerSize) {</span>
+<span class="lineNum">      81 </span><span class="lineNoCov">          0 :     delete[] buf;</span>
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 :     return Status::Corruption(&quot;truncated block read&quot;, file-&gt;GetName());</span>
+<span class="lineNum">      83 </span>            :   }
+<span class="lineNum">      84 </span>            : 
+<span class="lineNum">      85 </span>            :   // Check the crc of the type and the block contents
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 :   const char* data = contents.data();  // Pointer to where Read put the data</span>
+<span class="lineNum">      87 </span><span class="lineNoCov">          0 :   if (options.verify_checksums) {</span>
+<span class="lineNum">      88 </span><span class="lineNoCov">          0 :     const uint32_t crc = crc32c::Unmask(DecodeFixed32(data + n + 1));</span>
+<span class="lineNum">      89 </span><span class="lineNoCov">          0 :     const uint32_t actual = crc32c::Value(data, n + 1);</span>
+<span class="lineNum">      90 </span><span class="lineNoCov">          0 :     if (actual != crc) {</span>
+<span class="lineNum">      91 </span><span class="lineNoCov">          0 :       delete[] buf;</span>
+<span class="lineNum">      92 </span><span class="lineNoCov">          0 :       s = Status::Corruption(&quot;block checksum mismatch&quot;, file-&gt;GetName());</span>
+<span class="lineNum">      93 </span>            :       return s;
+<span class="lineNum">      94 </span>            :     }
+<span class="lineNum">      95 </span>            :   }
+<span class="lineNum">      96 </span>            : 
+<span class="lineNum">      97 </span><span class="lineNoCov">          0 :   switch (data[n]) {</span>
+<span class="lineNum">      98 </span><span class="lineNoCov">          0 :     case kNoCompression:</span>
+<span class="lineNum">      99 </span><span class="lineNoCov">          0 :       if (data != buf) {</span>
+<span class="lineNum">     100 </span>            :         // File implementation gave us pointer to some other data.
+<span class="lineNum">     101 </span>            :         // Use it directly under the assumption that it will be live
+<span class="lineNum">     102 </span>            :         // while the file is open.
+<span class="lineNum">     103 </span><span class="lineNoCov">          0 :         delete[] buf;</span>
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 :         result-&gt;data = Slice(data, n);</span>
+<span class="lineNum">     105 </span><span class="lineNoCov">          0 :         result-&gt;heap_allocated = false;</span>
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 :         result-&gt;cachable = false;  // Do not double-cache</span>
+<span class="lineNum">     107 </span>            :       } else {
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :         result-&gt;data = Slice(buf, n);</span>
+<span class="lineNum">     109 </span><span class="lineNoCov">          0 :         result-&gt;heap_allocated = true;</span>
+<span class="lineNum">     110 </span><span class="lineNoCov">          0 :         result-&gt;cachable = true;</span>
+<span class="lineNum">     111 </span>            :       }
+<span class="lineNum">     112 </span>            : 
+<span class="lineNum">     113 </span>            :       // Ok
+<span class="lineNum">     114 </span>            :       break;
+<span class="lineNum">     115 </span>            :     case kSnappyCompression: {
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 :       size_t ulength = 0;</span>
+<span class="lineNum">     117 </span><span class="lineNoCov">          0 :       if (!port::Snappy_GetUncompressedLength(data, n, &amp;ulength)) {</span>
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :         delete[] buf;</span>
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 :         return Status::Corruption(&quot;corrupted compressed block contents&quot;, file-&gt;GetName());</span>
+<span class="lineNum">     120 </span>            :       }
+<span class="lineNum">     121 </span>            :       char* ubuf = new char[ulength];
+<span class="lineNum">     122 </span>            :       if (!port::Snappy_Uncompress(data, n, ubuf)) {
+<span class="lineNum">     123 </span>            :         delete[] buf;
+<span class="lineNum">     124 </span>            :         delete[] ubuf;
+<span class="lineNum">     125 </span>            :         return Status::Corruption(&quot;corrupted compressed block contents&quot;, file-&gt;GetName());
+<span class="lineNum">     126 </span>            :       }
+<span class="lineNum">     127 </span>            :       delete[] buf;
+<span class="lineNum">     128 </span>            :       result-&gt;data = Slice(ubuf, ulength);
+<span class="lineNum">     129 </span>            :       result-&gt;heap_allocated = true;
+<span class="lineNum">     130 </span>            :       result-&gt;cachable = true;
+<span class="lineNum">     131 </span>            :       break;
+<span class="lineNum">     132 </span>            :     }
+<span class="lineNum">     133 </span>            :     default:
+<span class="lineNum">     134 </span><span class="lineNoCov">          0 :       delete[] buf;</span>
+<span class="lineNum">     135 </span><span class="lineNoCov">          0 :       return Status::Corruption(&quot;bad block type&quot;, file-&gt;GetName());</span>
+<span class="lineNum">     136 </span>            :   }
+<span class="lineNum">     137 </span>            : 
+<span class="lineNum">     138 </span>            :   return Status::OK();
+<span class="lineNum">     139 </span>            : }
+<span class="lineNum">     140 </span>            : 
+<span class="lineNum">     141 </span>            : }  // namespace leveldb
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

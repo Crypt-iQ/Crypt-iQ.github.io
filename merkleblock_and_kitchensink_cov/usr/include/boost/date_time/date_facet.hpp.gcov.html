@@ -1,0 +1,843 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - pr19065_cov.info - /usr/include/boost/date_time/date_facet.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">usr/include/boost/date_time</a> - date_facet.hpp<span style="font-size: 80%;"> (source / <a href="date_facet.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">pr19065_cov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-19 02:14:11</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : #ifndef _DATE_TIME_DATE_FACET__HPP___</a>
+<span class="lineNum">       2 </span>            : #define _DATE_TIME_DATE_FACET__HPP___
+<span class="lineNum">       3 </span>            : 
+<span class="lineNum">       4 </span>            : /* Copyright (c) 2004-2005 CrystalClear Software, Inc.
+<span class="lineNum">       5 </span>            :  * Use, modification and distribution is subject to the
+<span class="lineNum">       6 </span>            :  * Boost Software License, Version 1.0. (See accompanying
+<span class="lineNum">       7 </span>            :  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       8 </span>            :  * Author:  Martin Andrian, Jeff Garland, Bart Garst
+<span class="lineNum">       9 </span>            :  * $Date$
+<span class="lineNum">      10 </span>            :  */
+<span class="lineNum">      11 </span>            : 
+<span class="lineNum">      12 </span>            : #include &lt;locale&gt;
+<span class="lineNum">      13 </span>            : #include &lt;string&gt;
+<span class="lineNum">      14 </span>            : #include &lt;vector&gt;
+<span class="lineNum">      15 </span>            : #include &lt;iterator&gt; // ostreambuf_iterator
+<span class="lineNum">      16 </span>            : #include &lt;boost/throw_exception.hpp&gt;
+<span class="lineNum">      17 </span>            : #include &lt;boost/algorithm/string/replace.hpp&gt;
+<span class="lineNum">      18 </span>            : #include &lt;boost/date_time/compiler_config.hpp&gt;
+<span class="lineNum">      19 </span>            : #include &lt;boost/date_time/period.hpp&gt;
+<span class="lineNum">      20 </span>            : #include &lt;boost/date_time/special_defs.hpp&gt;
+<span class="lineNum">      21 </span>            : #include &lt;boost/date_time/special_values_formatter.hpp&gt;
+<span class="lineNum">      22 </span>            : #include &lt;boost/date_time/period_formatter.hpp&gt;
+<span class="lineNum">      23 </span>            : #include &lt;boost/date_time/period_parser.hpp&gt;
+<span class="lineNum">      24 </span>            : #include &lt;boost/date_time/date_generator_formatter.hpp&gt;
+<span class="lineNum">      25 </span>            : #include &lt;boost/date_time/date_generator_parser.hpp&gt;
+<span class="lineNum">      26 </span>            : #include &lt;boost/date_time/format_date_parser.hpp&gt;
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            : namespace boost { namespace date_time {
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            :   /*! Class that provides format based I/O facet for date types.
+<span class="lineNum">      32 </span>            :    *
+<span class="lineNum">      33 </span>            :    * This class allows the formatting of dates by using format string.
+<span class="lineNum">      34 </span>            :    * Format strings are:
+<span class="lineNum">      35 </span>            :    *
+<span class="lineNum">      36 </span>            :    *  - %A =&gt; long_weekday_format - Full name Ex: Tuesday
+<span class="lineNum">      37 </span>            :    *  - %a =&gt; short_weekday_format - Three letter abbreviation Ex: Tue
+<span class="lineNum">      38 </span>            :    *  - %B =&gt; long_month_format - Full name Ex: October
+<span class="lineNum">      39 </span>            :    *  - %b =&gt; short_month_format - Three letter abbreviation Ex: Oct
+<span class="lineNum">      40 </span>            :    *  - %x =&gt; standard_format_specifier - defined by the locale
+<span class="lineNum">      41 </span>            :    *  - %Y-%b-%d =&gt; default_date_format - YYYY-Mon-dd
+<span class="lineNum">      42 </span>            :    *
+<span class="lineNum">      43 </span>            :    * Default month format == %b
+<span class="lineNum">      44 </span>            :    * Default weekday format == %a
+<span class="lineNum">      45 </span>            :    */
+<span class="lineNum">      46 </span>            :   template &lt;class date_type,
+<span class="lineNum">      47 </span>            :             class CharT,
+<span class="lineNum">      48 </span>            :             class OutItrT = std::ostreambuf_iterator&lt;CharT, std::char_traits&lt;CharT&gt; &gt; &gt;
+<span class="lineNum">      49 </span>            :   class BOOST_SYMBOL_VISIBLE date_facet : public std::locale::facet {
+<span class="lineNum">      50 </span>            :   public:
+<span class="lineNum">      51 </span>            :     typedef typename date_type::duration_type duration_type;
+<span class="lineNum">      52 </span>            :     // greg_weekday is gregorian_calendar::day_of_week_type
+<span class="lineNum">      53 </span>            :     typedef typename date_type::day_of_week_type day_of_week_type;
+<span class="lineNum">      54 </span>            :     typedef typename date_type::day_type day_type;
+<span class="lineNum">      55 </span>            :     typedef typename date_type::month_type month_type;
+<span class="lineNum">      56 </span>            :     typedef boost::date_time::period&lt;date_type,duration_type&gt; period_type;
+<span class="lineNum">      57 </span>            :     typedef std::basic_string&lt;CharT&gt; string_type;
+<span class="lineNum">      58 </span>            :     typedef CharT                    char_type;
+<span class="lineNum">      59 </span>            :     typedef boost::date_time::period_formatter&lt;CharT&gt;  period_formatter_type;
+<span class="lineNum">      60 </span>            :     typedef boost::date_time::special_values_formatter&lt;CharT&gt;  special_values_formatter_type;
+<span class="lineNum">      61 </span>            :     typedef std::vector&lt;std::basic_string&lt;CharT&gt; &gt; input_collection_type;
+<span class="lineNum">      62 </span>            :     // used for the output of the date_generators
+<span class="lineNum">      63 </span>            :     typedef date_generator_formatter&lt;date_type, CharT&gt; date_gen_formatter_type;
+<span class="lineNum">      64 </span>            :     typedef partial_date&lt;date_type&gt;          partial_date_type;
+<span class="lineNum">      65 </span>            :     typedef nth_kday_of_month&lt;date_type&gt;     nth_kday_type;
+<span class="lineNum">      66 </span>            :     typedef first_kday_of_month&lt;date_type&gt;   first_kday_type;
+<span class="lineNum">      67 </span>            :     typedef last_kday_of_month&lt;date_type&gt;    last_kday_type;
+<span class="lineNum">      68 </span>            :     typedef first_kday_after&lt;date_type&gt;      kday_after_type;
+<span class="lineNum">      69 </span>            :     typedef first_kday_before&lt;date_type&gt;     kday_before_type;
+<span class="lineNum">      70 </span>            :     static const char_type long_weekday_format[3];
+<span class="lineNum">      71 </span>            :     static const char_type short_weekday_format[3];
+<span class="lineNum">      72 </span>            :     static const char_type long_month_format[3];
+<span class="lineNum">      73 </span>            :     static const char_type short_month_format[3];
+<span class="lineNum">      74 </span>            :     static const char_type default_period_separator[4];
+<span class="lineNum">      75 </span>            :     static const char_type standard_format_specifier[3];
+<span class="lineNum">      76 </span>            :     static const char_type iso_format_specifier[7];
+<span class="lineNum">      77 </span>            :     static const char_type iso_format_extended_specifier[9];
+<span class="lineNum">      78 </span>            :     static const char_type default_date_format[9]; // YYYY-Mon-DD
+<span class="lineNum">      79 </span>            :     static std::locale::id id;
+<span class="lineNum">      80 </span>            : 
+<span class="lineNum">      81 </span>            : #if defined (__SUNPRO_CC) &amp;&amp; defined (_RWSTD_VER)
+<span class="lineNum">      82 </span>            :       std::locale::id&amp; __get_id (void) const { return id; }
+<span class="lineNum">      83 </span>            : #endif
+<span class="lineNum">      84 </span>            : 
+<span class="lineNum">      85 </span>            :     explicit date_facet(::size_t a_ref = 0)
+<span class="lineNum">      86 </span>            :       : std::locale::facet(a_ref),
+<span class="lineNum">      87 </span>            :         //m_format(standard_format_specifier)
+<span class="lineNum">      88 </span>            :         m_format(default_date_format),
+<span class="lineNum">      89 </span>            :         m_month_format(short_month_format),
+<span class="lineNum">      90 </span>            :         m_weekday_format(short_weekday_format)
+<span class="lineNum">      91 </span>            :     {}
+<span class="lineNum">      92 </span>            : 
+<span class="lineNum">      93 </span>            :     explicit date_facet(const char_type* format_str,
+<span class="lineNum">      94 </span>            :                         const input_collection_type&amp; short_names,
+<span class="lineNum">      95 </span>            :                         ::size_t ref_count = 0)
+<span class="lineNum">      96 </span>            :       : std::locale::facet(ref_count),
+<span class="lineNum">      97 </span>            :         m_format(format_str),
+<span class="lineNum">      98 </span>            :         m_month_format(short_month_format),
+<span class="lineNum">      99 </span>            :         m_weekday_format(short_weekday_format),
+<span class="lineNum">     100 </span>            :         m_month_short_names(short_names)
+<span class="lineNum">     101 </span>            :     {}
+<span class="lineNum">     102 </span>            : 
+<span class="lineNum">     103 </span>            : 
+<span class="lineNum">     104 </span>            :     explicit date_facet(const char_type* format_str,
+<span class="lineNum">     105 </span>            :                         period_formatter_type per_formatter = period_formatter_type(),
+<span class="lineNum">     106 </span>            :                         special_values_formatter_type sv_formatter = special_values_formatter_type(),
+<span class="lineNum">     107 </span>            :                         date_gen_formatter_type dg_formatter = date_gen_formatter_type(),
+<span class="lineNum">     108 </span>            :                         ::size_t ref_count = 0)
+<span class="lineNum">     109 </span>            :       : std::locale::facet(ref_count),
+<span class="lineNum">     110 </span>            :         m_format(format_str),
+<span class="lineNum">     111 </span>            :         m_month_format(short_month_format),
+<span class="lineNum">     112 </span>            :         m_weekday_format(short_weekday_format),
+<span class="lineNum">     113 </span>            :         m_period_formatter(per_formatter),
+<span class="lineNum">     114 </span>            :         m_date_gen_formatter(dg_formatter),
+<span class="lineNum">     115 </span>            :         m_special_values_formatter(sv_formatter)
+<span class="lineNum">     116 </span>            :      {}
+<span class="lineNum">     117 </span>            :     void format(const char_type* const format_str) {
+<span class="lineNum">     118 </span>            :       m_format = format_str;
+<span class="lineNum">     119 </span>            :     }
+<span class="lineNum">     120 </span>            :     virtual void set_iso_format()
+<span class="lineNum">     121 </span>            :     {
+<span class="lineNum">     122 </span>            :       m_format = iso_format_specifier;
+<span class="lineNum">     123 </span>            :     }
+<span class="lineNum">     124 </span>            :     virtual void set_iso_extended_format()
+<span class="lineNum">     125 </span>            :     {
+<span class="lineNum">     126 </span>            :       m_format = iso_format_extended_specifier;
+<span class="lineNum">     127 </span>            :     }
+<span class="lineNum">     128 </span>            :     void month_format(const char_type* const format_str) {
+<span class="lineNum">     129 </span>            :       m_month_format = format_str;
+<span class="lineNum">     130 </span>            :     }
+<span class="lineNum">     131 </span>            :     void weekday_format(const char_type* const format_str) {
+<span class="lineNum">     132 </span>            :       m_weekday_format = format_str;
+<span class="lineNum">     133 </span>            :     }
+<span class="lineNum">     134 </span>            : 
+<span class="lineNum">     135 </span>            :     void period_formatter(period_formatter_type per_formatter) {
+<span class="lineNum">     136 </span>            :       m_period_formatter= per_formatter;
+<span class="lineNum">     137 </span>            :     }
+<span class="lineNum">     138 </span>            :     void special_values_formatter(const special_values_formatter_type&amp; svf)
+<span class="lineNum">     139 </span>            :     {
+<span class="lineNum">     140 </span>            :       m_special_values_formatter = svf;
+<span class="lineNum">     141 </span>            :     }
+<span class="lineNum">     142 </span>            :     void short_weekday_names(const input_collection_type&amp; short_names)
+<span class="lineNum">     143 </span>            :     {
+<span class="lineNum">     144 </span>            :       m_weekday_short_names = short_names;
+<span class="lineNum">     145 </span>            :     }
+<span class="lineNum">     146 </span>            :     void long_weekday_names(const input_collection_type&amp; long_names)
+<span class="lineNum">     147 </span>            :     {
+<span class="lineNum">     148 </span>            :       m_weekday_long_names = long_names;
+<span class="lineNum">     149 </span>            :     }
+<span class="lineNum">     150 </span>            : 
+<span class="lineNum">     151 </span>            :     void short_month_names(const input_collection_type&amp; short_names)
+<span class="lineNum">     152 </span>            :     {
+<span class="lineNum">     153 </span>            :       m_month_short_names = short_names;
+<span class="lineNum">     154 </span>            :     }
+<span class="lineNum">     155 </span>            : 
+<span class="lineNum">     156 </span>            :     void long_month_names(const input_collection_type&amp; long_names)
+<span class="lineNum">     157 </span>            :     {
+<span class="lineNum">     158 </span>            :       m_month_long_names = long_names;
+<span class="lineNum">     159 </span>            :     }
+<span class="lineNum">     160 </span>            : 
+<span class="lineNum">     161 </span>            :     void date_gen_phrase_strings(const input_collection_type&amp; new_strings,
+<span class="lineNum">     162 </span>            :                            typename date_gen_formatter_type::phrase_elements beg_pos=date_gen_formatter_type::first)
+<span class="lineNum">     163 </span>            :     {
+<span class="lineNum">     164 </span>            :       m_date_gen_formatter.elements(new_strings, beg_pos);
+<span class="lineNum">     165 </span>            :     }
+<span class="lineNum">     166 </span>            : 
+<span class="lineNum">     167 </span>            :     OutItrT put(OutItrT next,
+<span class="lineNum">     168 </span>            :                 std::ios_base&amp; a_ios,
+<span class="lineNum">     169 </span>            :                 char_type fill_char,
+<span class="lineNum">     170 </span>            :                 const date_type&amp; d) const
+<span class="lineNum">     171 </span>            :     {
+<span class="lineNum">     172 </span>            :       if (d.is_special()) {
+<span class="lineNum">     173 </span>            :         return do_put_special(next, a_ios, fill_char, d.as_special());
+<span class="lineNum">     174 </span>            :       }
+<span class="lineNum">     175 </span>            :       //The following line of code required the date to support a to_tm function
+<span class="lineNum">     176 </span>            :       return do_put_tm(next, a_ios, fill_char, to_tm(d), m_format);
+<span class="lineNum">     177 </span>            :     }
+<span class="lineNum">     178 </span>            : 
+<span class="lineNum">     179 </span>            :     OutItrT put(OutItrT next,
+<span class="lineNum">     180 </span>            :                 std::ios_base&amp; a_ios,
+<span class="lineNum">     181 </span>            :                 char_type fill_char,
+<span class="lineNum">     182 </span>            :                 const duration_type&amp; dd) const
+<span class="lineNum">     183 </span>            :     {
+<span class="lineNum">     184 </span>            :       if (dd.is_special()) {
+<span class="lineNum">     185 </span>            :         return do_put_special(next, a_ios, fill_char, dd.get_rep().as_special());
+<span class="lineNum">     186 </span>            :       }
+<span class="lineNum">     187 </span>            : 
+<span class="lineNum">     188 </span>            :       typedef std::num_put&lt;CharT, OutItrT&gt; num_put;
+<span class="lineNum">     189 </span>            :       if (std::has_facet&lt;num_put&gt;(a_ios.getloc())) {
+<span class="lineNum">     190 </span>            :         return std::use_facet&lt;num_put&gt;(a_ios.getloc()).put(next, a_ios, fill_char, dd.get_rep().as_number());
+<span class="lineNum">     191 </span>            :       }
+<span class="lineNum">     192 </span>            :       else {
+<span class="lineNum">     193 </span>            :         num_put* f = new num_put();
+<span class="lineNum">     194 </span>            :         std::locale l = std::locale(a_ios.getloc(), f);
+<span class="lineNum">     195 </span>            :         a_ios.imbue(l);
+<span class="lineNum">     196 </span>            :         return f-&gt;put(next, a_ios, fill_char, dd.get_rep().as_number());
+<span class="lineNum">     197 </span>            :       }
+<span class="lineNum">     198 </span>            : 
+<span class="lineNum">     199 </span>            :     }
+<span class="lineNum">     200 </span>            : 
+<span class="lineNum">     201 </span>            : 
+<span class="lineNum">     202 </span>            :     OutItrT put(OutItrT next,
+<span class="lineNum">     203 </span>            :                 std::ios_base&amp; a_ios,
+<span class="lineNum">     204 </span>            :                 char_type fill_char,
+<span class="lineNum">     205 </span>            :                 const month_type&amp; m) const
+<span class="lineNum">     206 </span>            :     {
+<span class="lineNum">     207 </span>            :       //if (d.is_special()) {
+<span class="lineNum">     208 </span>            :       //  return do_put_special(next, a_ios, fill_char, d.as_special());
+<span class="lineNum">     209 </span>            :       //}
+<span class="lineNum">     210 </span>            :       //The following line of code required the date to support a to_tm function
+<span class="lineNum">     211 </span>            :       std::tm dtm;
+<span class="lineNum">     212 </span>            :       std::memset(&amp;dtm, 0, sizeof(dtm));
+<span class="lineNum">     213 </span>            :       dtm.tm_mon = m - 1;
+<span class="lineNum">     214 </span>            :       return do_put_tm(next, a_ios, fill_char, dtm, m_month_format);
+<span class="lineNum">     215 </span>            :     }
+<span class="lineNum">     216 </span>            : 
+<span class="lineNum">     217 </span>            :     //! puts the day of month
+<span class="lineNum">     218 </span>            :     OutItrT put(OutItrT next,
+<span class="lineNum">     219 </span>            :                 std::ios_base&amp; a_ios,
+<span class="lineNum">     220 </span>            :                 char_type fill_char,
+<span class="lineNum">     221 </span>            :                 const day_type&amp; day) const
+<span class="lineNum">     222 </span>            :     {
+<span class="lineNum">     223 </span>            :       std::tm dtm;
+<span class="lineNum">     224 </span>            :       std::memset(&amp;dtm, 0, sizeof(dtm));
+<span class="lineNum">     225 </span>            :       dtm.tm_mday = day.as_number();
+<span class="lineNum">     226 </span>            :       char_type tmp[3] = {'%','d'};
+<span class="lineNum">     227 </span>            :       string_type temp_format(tmp);
+<span class="lineNum">     228 </span>            :       return do_put_tm(next, a_ios, fill_char, dtm, temp_format);
+<span class="lineNum">     229 </span>            :     }
+<span class="lineNum">     230 </span>            : 
+<span class="lineNum">     231 </span>            :     OutItrT put(OutItrT next,
+<span class="lineNum">     232 </span>            :                 std::ios_base&amp; a_ios,
+<span class="lineNum">     233 </span>            :                 char_type fill_char,
+<span class="lineNum">     234 </span>            :                 const day_of_week_type&amp; dow) const
+<span class="lineNum">     235 </span>            :     {
+<span class="lineNum">     236 </span>            :       //if (d.is_special()) {
+<span class="lineNum">     237 </span>            :       //  return do_put_special(next, a_ios, fill_char, d.as_special());
+<span class="lineNum">     238 </span>            :       //}
+<span class="lineNum">     239 </span>            :       //The following line of code required the date to support a to_tm function
+<span class="lineNum">     240 </span>            :       std::tm dtm;
+<span class="lineNum">     241 </span>            :       std::memset(&amp;dtm, 0, sizeof(dtm));
+<span class="lineNum">     242 </span>            :       dtm.tm_wday = dow;
+<span class="lineNum">     243 </span>            :       return do_put_tm(next, a_ios, fill_char, dtm, m_weekday_format);
+<span class="lineNum">     244 </span>            :     }
+<span class="lineNum">     245 </span>            : 
+<span class="lineNum">     246 </span>            : 
+<span class="lineNum">     247 </span>            :     OutItrT put(OutItrT next,
+<span class="lineNum">     248 </span>            :                 std::ios_base&amp; a_ios,
+<span class="lineNum">     249 </span>            :                 char_type fill_char,
+<span class="lineNum">     250 </span>            :                 const period_type&amp; p) const
+<span class="lineNum">     251 </span>            :     {
+<span class="lineNum">     252 </span>            :       return m_period_formatter.put_period(next, a_ios, fill_char, p, *this);
+<span class="lineNum">     253 </span>            :     }
+<span class="lineNum">     254 </span>            : 
+<span class="lineNum">     255 </span>            :     OutItrT put(OutItrT next,
+<span class="lineNum">     256 </span>            :                 std::ios_base&amp; a_ios,
+<span class="lineNum">     257 </span>            :                 char_type fill_char,
+<span class="lineNum">     258 </span>            :                 const partial_date_type&amp; pd) const
+<span class="lineNum">     259 </span>            :     {
+<span class="lineNum">     260 </span>            :       return m_date_gen_formatter.put_partial_date(next, a_ios, fill_char, pd, *this);
+<span class="lineNum">     261 </span>            :     }
+<span class="lineNum">     262 </span>            : 
+<span class="lineNum">     263 </span>            :     OutItrT put(OutItrT next,
+<span class="lineNum">     264 </span>            :                 std::ios_base&amp; a_ios,
+<span class="lineNum">     265 </span>            :                 char_type fill_char,
+<span class="lineNum">     266 </span>            :                 const nth_kday_type&amp; nkd) const
+<span class="lineNum">     267 </span>            :     {
+<span class="lineNum">     268 </span>            :       return m_date_gen_formatter.put_nth_kday(next, a_ios, fill_char, nkd, *this);
+<span class="lineNum">     269 </span>            :     }
+<span class="lineNum">     270 </span>            : 
+<span class="lineNum">     271 </span>            :     OutItrT put(OutItrT next,
+<span class="lineNum">     272 </span>            :                 std::ios_base&amp; a_ios,
+<span class="lineNum">     273 </span>            :                 char_type fill_char,
+<span class="lineNum">     274 </span>            :                 const first_kday_type&amp; fkd) const
+<span class="lineNum">     275 </span>            :     {
+<span class="lineNum">     276 </span>            :       return m_date_gen_formatter.put_first_kday(next, a_ios, fill_char, fkd, *this);
+<span class="lineNum">     277 </span>            :     }
+<span class="lineNum">     278 </span>            : 
+<span class="lineNum">     279 </span>            :     OutItrT put(OutItrT next,
+<span class="lineNum">     280 </span>            :                 std::ios_base&amp; a_ios,
+<span class="lineNum">     281 </span>            :                 char_type fill_char,
+<span class="lineNum">     282 </span>            :                 const last_kday_type&amp; lkd) const
+<span class="lineNum">     283 </span>            :     {
+<span class="lineNum">     284 </span>            :       return m_date_gen_formatter.put_last_kday(next, a_ios, fill_char, lkd, *this);
+<span class="lineNum">     285 </span>            :     }
+<span class="lineNum">     286 </span>            : 
+<span class="lineNum">     287 </span>            :     OutItrT put(OutItrT next,
+<span class="lineNum">     288 </span>            :                 std::ios_base&amp; a_ios,
+<span class="lineNum">     289 </span>            :                 char_type fill_char,
+<span class="lineNum">     290 </span>            :                 const kday_before_type&amp; fkb) const
+<span class="lineNum">     291 </span>            :     {
+<span class="lineNum">     292 </span>            :       return m_date_gen_formatter.put_kday_before(next, a_ios, fill_char, fkb, *this);
+<span class="lineNum">     293 </span>            :     }
+<span class="lineNum">     294 </span>            : 
+<span class="lineNum">     295 </span>            :     OutItrT put(OutItrT next,
+<span class="lineNum">     296 </span>            :                 std::ios_base&amp; a_ios,
+<span class="lineNum">     297 </span>            :                 char_type fill_char,
+<span class="lineNum">     298 </span>            :                 const kday_after_type&amp; fka) const
+<span class="lineNum">     299 </span>            :     {
+<span class="lineNum">     300 </span>            :       return m_date_gen_formatter.put_kday_after(next, a_ios, fill_char, fka, *this);
+<span class="lineNum">     301 </span>            :     }
+<span class="lineNum">     302 </span>            : 
+<span class="lineNum">     303 </span>            :   protected:
+<span class="lineNum">     304 </span>            :     virtual OutItrT do_put_special(OutItrT next,
+<span class="lineNum">     305 </span>            :                                    std::ios_base&amp; /*a_ios*/,
+<span class="lineNum">     306 </span>            :                                    char_type /*fill_char*/,
+<span class="lineNum">     307 </span>            :                                    const boost::date_time::special_values sv) const
+<span class="lineNum">     308 </span>            :     {
+<span class="lineNum">     309 </span>            :       m_special_values_formatter.put_special(next, sv);
+<span class="lineNum">     310 </span>            :       return next;
+<span class="lineNum">     311 </span>            :     }
+<span class="lineNum">     312 </span>            :     virtual OutItrT do_put_tm(OutItrT next,
+<span class="lineNum">     313 </span>            :                               std::ios_base&amp; a_ios,
+<span class="lineNum">     314 </span>            :                               char_type fill_char,
+<span class="lineNum">     315 </span>            :                               const tm&amp; tm_value,
+<span class="lineNum">     316 </span>            :                               string_type a_format) const
+<span class="lineNum">     317 </span>            :     {
+<span class="lineNum">     318 </span>            :       // update format string with custom names
+<span class="lineNum">     319 </span>            :       if (m_weekday_long_names.size()) {
+<span class="lineNum">     320 </span>            :         boost::algorithm::replace_all(a_format,
+<span class="lineNum">     321 </span>            :                                       long_weekday_format,
+<span class="lineNum">     322 </span>            :                                       m_weekday_long_names[tm_value.tm_wday]);
+<span class="lineNum">     323 </span>            :       }
+<span class="lineNum">     324 </span>            :       if (m_weekday_short_names.size()) {
+<span class="lineNum">     325 </span>            :         boost::algorithm::replace_all(a_format,
+<span class="lineNum">     326 </span>            :                                       short_weekday_format,
+<span class="lineNum">     327 </span>            :                                       m_weekday_short_names[tm_value.tm_wday]);
+<span class="lineNum">     328 </span>            : 
+<span class="lineNum">     329 </span>            :       }
+<span class="lineNum">     330 </span>            :       if (m_month_long_names.size()) {
+<span class="lineNum">     331 </span>            :         boost::algorithm::replace_all(a_format,
+<span class="lineNum">     332 </span>            :                                       long_month_format,
+<span class="lineNum">     333 </span>            :                                       m_month_long_names[tm_value.tm_mon]);
+<span class="lineNum">     334 </span>            :       }
+<span class="lineNum">     335 </span>            :       if (m_month_short_names.size()) {
+<span class="lineNum">     336 </span>            :         boost::algorithm::replace_all(a_format,
+<span class="lineNum">     337 </span>            :                                       short_month_format,
+<span class="lineNum">     338 </span>            :                                       m_month_short_names[tm_value.tm_mon]);
+<span class="lineNum">     339 </span>            :       }
+<span class="lineNum">     340 </span>            :       // use time_put facet to create final string
+<span class="lineNum">     341 </span>            :       const char_type* p_format = a_format.c_str();
+<span class="lineNum">     342 </span>            :       return std::use_facet&lt;std::time_put&lt;CharT&gt; &gt;(a_ios.getloc()).put(next, a_ios,
+<span class="lineNum">     343 </span>            :                                                                        fill_char,
+<span class="lineNum">     344 </span>            :                                                                        &amp;tm_value,
+<span class="lineNum">     345 </span>            :                                                                        p_format,
+<span class="lineNum">     346 </span>            :                                                                        p_format + a_format.size());
+<span class="lineNum">     347 </span>            :     }
+<span class="lineNum">     348 </span>            :   protected:
+<span class="lineNum">     349 </span>            :     string_type                   m_format;
+<span class="lineNum">     350 </span>            :     string_type                   m_month_format;
+<span class="lineNum">     351 </span>            :     string_type                   m_weekday_format;
+<span class="lineNum">     352 </span>            :     period_formatter_type         m_period_formatter;
+<span class="lineNum">     353 </span>            :     date_gen_formatter_type       m_date_gen_formatter;
+<span class="lineNum">     354 </span>            :     special_values_formatter_type m_special_values_formatter;
+<span class="lineNum">     355 </span>            :     input_collection_type         m_month_short_names;
+<span class="lineNum">     356 </span>            :     input_collection_type         m_month_long_names;
+<span class="lineNum">     357 </span>            :     input_collection_type         m_weekday_short_names;
+<span class="lineNum">     358 </span>            :     input_collection_type         m_weekday_long_names;
+<span class="lineNum">     359 </span>            :   private:
+<span class="lineNum">     360 </span>            :   };
+<span class="lineNum">     361 </span>            : 
+<span class="lineNum">     362 </span>            :   template &lt;class date_type, class CharT, class OutItrT&gt;
+<span class="lineNum">     363 </span>            :   std::locale::id date_facet&lt;date_type, CharT, OutItrT&gt;::id;
+<span class="lineNum">     364 </span>            : 
+<span class="lineNum">     365 </span>            :   template &lt;class date_type, class CharT, class OutItrT&gt;
+<span class="lineNum">     366 </span>            :   const typename date_facet&lt;date_type, CharT, OutItrT&gt;::char_type
+<span class="lineNum">     367 </span>            :   date_facet&lt;date_type, CharT, OutItrT&gt;::long_weekday_format[3] = {'%','A'};
+<span class="lineNum">     368 </span>            : 
+<span class="lineNum">     369 </span>            :   template &lt;class date_type, class CharT, class OutItrT&gt;
+<span class="lineNum">     370 </span>            :   const typename date_facet&lt;date_type, CharT, OutItrT&gt;::char_type
+<span class="lineNum">     371 </span>            :   date_facet&lt;date_type, CharT, OutItrT&gt;::short_weekday_format[3] = {'%','a'};
+<span class="lineNum">     372 </span>            : 
+<span class="lineNum">     373 </span>            :   template &lt;class date_type, class CharT, class OutItrT&gt;
+<span class="lineNum">     374 </span>            :   const typename date_facet&lt;date_type, CharT, OutItrT&gt;::char_type
+<span class="lineNum">     375 </span>            :   date_facet&lt;date_type, CharT, OutItrT&gt;::long_month_format[3] = {'%','B'};
+<span class="lineNum">     376 </span>            : 
+<span class="lineNum">     377 </span>            :   template &lt;class date_type, class CharT, class OutItrT&gt;
+<span class="lineNum">     378 </span>            :   const typename date_facet&lt;date_type, CharT, OutItrT&gt;::char_type
+<span class="lineNum">     379 </span>            :   date_facet&lt;date_type, CharT, OutItrT&gt;::short_month_format[3] = {'%','b'};
+<span class="lineNum">     380 </span>            : 
+<span class="lineNum">     381 </span>            :   template &lt;class date_type, class CharT, class OutItrT&gt;
+<span class="lineNum">     382 </span>            :   const typename date_facet&lt;date_type, CharT, OutItrT&gt;::char_type
+<span class="lineNum">     383 </span>            :   date_facet&lt;date_type, CharT, OutItrT&gt;::default_period_separator[4] = { ' ', '/', ' '};
+<span class="lineNum">     384 </span>            : 
+<span class="lineNum">     385 </span>            :   template &lt;class date_type, class CharT, class OutItrT&gt;
+<span class="lineNum">     386 </span>            :   const typename date_facet&lt;date_type, CharT, OutItrT&gt;::char_type
+<span class="lineNum">     387 </span>            :   date_facet&lt;date_type, CharT, OutItrT&gt;::standard_format_specifier[3] =
+<span class="lineNum">     388 </span>            :     {'%', 'x' };
+<span class="lineNum">     389 </span>            : 
+<span class="lineNum">     390 </span>            :   template &lt;class date_type, class CharT, class OutItrT&gt;
+<span class="lineNum">     391 </span>            :   const typename date_facet&lt;date_type, CharT, OutItrT&gt;::char_type
+<span class="lineNum">     392 </span>            :   date_facet&lt;date_type, CharT, OutItrT&gt;::iso_format_specifier[7] =
+<span class="lineNum">     393 </span>            :     {'%', 'Y', '%', 'm', '%', 'd' };
+<span class="lineNum">     394 </span>            : 
+<span class="lineNum">     395 </span>            :   template &lt;class date_type, class CharT, class OutItrT&gt;
+<span class="lineNum">     396 </span>            :   const typename date_facet&lt;date_type, CharT, OutItrT&gt;::char_type
+<span class="lineNum">     397 </span>            :   date_facet&lt;date_type, CharT, OutItrT&gt;::iso_format_extended_specifier[9] =
+<span class="lineNum">     398 </span>            :     {'%', 'Y', '-', '%', 'm', '-', '%', 'd' };
+<span class="lineNum">     399 </span>            : 
+<span class="lineNum">     400 </span>            :   template &lt;class date_type, class CharT, class OutItrT&gt;
+<span class="lineNum">     401 </span>            :   const typename date_facet&lt;date_type, CharT, OutItrT&gt;::char_type
+<span class="lineNum">     402 </span>            :   date_facet&lt;date_type, CharT, OutItrT&gt;::default_date_format[9] =
+<span class="lineNum">     403 </span>            :     {'%','Y','-','%','b','-','%','d'};
+<span class="lineNum">     404 </span>            : 
+<span class="lineNum">     405 </span>            : 
+<span class="lineNum">     406 </span>            : 
+<span class="lineNum">     407 </span>            :   //! Input facet
+<span class="lineNum">     408 </span>            :   template &lt;class date_type,
+<a name="409"><span class="lineNum">     409 </span>            :             class CharT,</a>
+<span class="lineNum">     410 </span>            :             class InItrT = std::istreambuf_iterator&lt;CharT, std::char_traits&lt;CharT&gt; &gt; &gt;
+<span class="lineNum">     411 </span><span class="lineNoCov">          0 :   class BOOST_SYMBOL_VISIBLE date_input_facet : public std::locale::facet {</span>
+<span class="lineNum">     412 </span>            :   public:
+<span class="lineNum">     413 </span>            :     typedef typename date_type::duration_type duration_type;
+<span class="lineNum">     414 </span>            :     // greg_weekday is gregorian_calendar::day_of_week_type
+<span class="lineNum">     415 </span>            :     typedef typename date_type::day_of_week_type day_of_week_type;
+<span class="lineNum">     416 </span>            :     typedef typename date_type::day_type day_type;
+<span class="lineNum">     417 </span>            :     typedef typename date_type::month_type month_type;
+<span class="lineNum">     418 </span>            :     typedef typename date_type::year_type year_type;
+<span class="lineNum">     419 </span>            :     typedef boost::date_time::period&lt;date_type,duration_type&gt; period_type;
+<span class="lineNum">     420 </span>            :     typedef std::basic_string&lt;CharT&gt; string_type;
+<span class="lineNum">     421 </span>            :     typedef CharT                    char_type;
+<span class="lineNum">     422 </span>            :     typedef boost::date_time::period_parser&lt;date_type, CharT&gt;  period_parser_type;
+<span class="lineNum">     423 </span>            :     typedef boost::date_time::special_values_parser&lt;date_type,CharT&gt; special_values_parser_type;
+<span class="lineNum">     424 </span>            :     typedef std::vector&lt;std::basic_string&lt;CharT&gt; &gt; input_collection_type;
+<span class="lineNum">     425 </span>            :     typedef format_date_parser&lt;date_type, CharT&gt; format_date_parser_type;
+<span class="lineNum">     426 </span>            :     // date_generators stuff goes here
+<span class="lineNum">     427 </span>            :     typedef date_generator_parser&lt;date_type, CharT&gt; date_gen_parser_type;
+<span class="lineNum">     428 </span>            :     typedef partial_date&lt;date_type&gt;          partial_date_type;
+<span class="lineNum">     429 </span>            :     typedef nth_kday_of_month&lt;date_type&gt;     nth_kday_type;
+<span class="lineNum">     430 </span>            :     typedef first_kday_of_month&lt;date_type&gt;   first_kday_type;
+<span class="lineNum">     431 </span>            :     typedef last_kday_of_month&lt;date_type&gt;    last_kday_type;
+<span class="lineNum">     432 </span>            :     typedef first_kday_after&lt;date_type&gt;      kday_after_type;
+<span class="lineNum">     433 </span>            :     typedef first_kday_before&lt;date_type&gt;     kday_before_type;
+<span class="lineNum">     434 </span>            : 
+<span class="lineNum">     435 </span>            :     static const char_type long_weekday_format[3];
+<span class="lineNum">     436 </span>            :     static const char_type short_weekday_format[3];
+<span class="lineNum">     437 </span>            :     static const char_type long_month_format[3];
+<span class="lineNum">     438 </span>            :     static const char_type short_month_format[3];
+<span class="lineNum">     439 </span>            :     static const char_type four_digit_year_format[3];
+<span class="lineNum">     440 </span>            :     static const char_type two_digit_year_format[3];
+<span class="lineNum">     441 </span>            :     static const char_type default_period_separator[4];
+<span class="lineNum">     442 </span>            :     static const char_type standard_format_specifier[3];
+<span class="lineNum">     443 </span>            :     static const char_type iso_format_specifier[7];
+<span class="lineNum">     444 </span>            :     static const char_type iso_format_extended_specifier[9];
+<span class="lineNum">     445 </span>            :     static const char_type default_date_format[9]; // YYYY-Mon-DD
+<span class="lineNum">     446 </span>            :     static std::locale::id id;
+<span class="lineNum">     447 </span>            : 
+<span class="lineNum">     448 </span>            :     explicit date_input_facet(::size_t a_ref = 0)
+<span class="lineNum">     449 </span>            :       : std::locale::facet(a_ref),
+<span class="lineNum">     450 </span>            :         m_format(default_date_format),
+<span class="lineNum">     451 </span>            :         m_month_format(short_month_format),
+<span class="lineNum">     452 </span>            :         m_weekday_format(short_weekday_format),
+<span class="lineNum">     453 </span>            :         m_year_format(four_digit_year_format),
+<span class="lineNum">     454 </span>            :         m_parser(m_format, std::locale::classic())
+<span class="lineNum">     455 </span>            :         // default period_parser &amp; special_values_parser used
+<a name="456"><span class="lineNum">     456 </span>            :     {}</a>
+<span class="lineNum">     457 </span>            : 
+<span class="lineNum">     458 </span><span class="lineNoCov">          0 :     explicit date_input_facet(const string_type&amp; format_str,</span>
+<span class="lineNum">     459 </span>            :                               ::size_t a_ref = 0)
+<span class="lineNum">     460 </span>            :       : std::locale::facet(a_ref),
+<span class="lineNum">     461 </span>            :         m_format(format_str),
+<span class="lineNum">     462 </span>            :         m_month_format(short_month_format),
+<span class="lineNum">     463 </span>            :         m_weekday_format(short_weekday_format),
+<span class="lineNum">     464 </span>            :         m_year_format(four_digit_year_format),
+<span class="lineNum">     465 </span><span class="lineNoCov">          0 :         m_parser(m_format, std::locale::classic())</span>
+<span class="lineNum">     466 </span>            :         // default period_parser &amp; special_values_parser used
+<span class="lineNum">     467 </span><span class="lineNoCov">          0 :     {}</span>
+<span class="lineNum">     468 </span>            : 
+<span class="lineNum">     469 </span>            :     explicit date_input_facet(const string_type&amp; format_str,
+<span class="lineNum">     470 </span>            :                               const format_date_parser_type&amp; date_parser,
+<span class="lineNum">     471 </span>            :                               const special_values_parser_type&amp; sv_parser,
+<span class="lineNum">     472 </span>            :                               const period_parser_type&amp; per_parser,
+<span class="lineNum">     473 </span>            :                               const date_gen_parser_type&amp; date_gen_parser,
+<span class="lineNum">     474 </span>            :                               ::size_t ref_count = 0)
+<span class="lineNum">     475 </span>            :       : std::locale::facet(ref_count),
+<span class="lineNum">     476 </span>            :         m_format(format_str),
+<span class="lineNum">     477 </span>            :         m_month_format(short_month_format),
+<span class="lineNum">     478 </span>            :         m_weekday_format(short_weekday_format),
+<span class="lineNum">     479 </span>            :         m_year_format(four_digit_year_format),
+<span class="lineNum">     480 </span>            :         m_parser(date_parser),
+<span class="lineNum">     481 </span>            :         m_date_gen_parser(date_gen_parser),
+<span class="lineNum">     482 </span>            :         m_period_parser(per_parser),
+<span class="lineNum">     483 </span>            :         m_sv_parser(sv_parser)
+<span class="lineNum">     484 </span>            :     {}
+<span class="lineNum">     485 </span>            : 
+<span class="lineNum">     486 </span>            : 
+<span class="lineNum">     487 </span>            :     void format(const char_type* const format_str) {
+<a name="488"><span class="lineNum">     488 </span>            :       m_format = format_str;</a>
+<span class="lineNum">     489 </span>            :     }
+<span class="lineNum">     490 </span><span class="lineNoCov">          0 :     virtual void set_iso_format()</span>
+<span class="lineNum">     491 </span>            :     {
+<a name="492"><span class="lineNum">     492 </span><span class="lineNoCov">          0 :       m_format = iso_format_specifier;</span></a>
+<span class="lineNum">     493 </span><span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     494 </span><span class="lineNoCov">          0 :     virtual void set_iso_extended_format()</span>
+<span class="lineNum">     495 </span>            :     {
+<span class="lineNum">     496 </span><span class="lineNoCov">          0 :       m_format = iso_format_extended_specifier;</span>
+<span class="lineNum">     497 </span><span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     498 </span>            :     void month_format(const char_type* const format_str) {
+<span class="lineNum">     499 </span>            :       m_month_format = format_str;
+<span class="lineNum">     500 </span>            :     }
+<span class="lineNum">     501 </span>            :     void weekday_format(const char_type* const format_str) {
+<span class="lineNum">     502 </span>            :       m_weekday_format = format_str;
+<span class="lineNum">     503 </span>            :     }
+<span class="lineNum">     504 </span>            :     void year_format(const char_type* const format_str) {
+<span class="lineNum">     505 </span>            :       m_year_format = format_str;
+<span class="lineNum">     506 </span>            :     }
+<span class="lineNum">     507 </span>            : 
+<span class="lineNum">     508 </span>            :     void period_parser(period_parser_type per_parser) {
+<span class="lineNum">     509 </span>            :       m_period_parser = per_parser;
+<span class="lineNum">     510 </span>            :     }
+<span class="lineNum">     511 </span>            :     void short_weekday_names(const input_collection_type&amp; weekday_names)
+<span class="lineNum">     512 </span>            :     {
+<span class="lineNum">     513 </span>            :       m_parser.short_weekday_names(weekday_names);
+<span class="lineNum">     514 </span>            :     }
+<span class="lineNum">     515 </span>            :     void long_weekday_names(const input_collection_type&amp; weekday_names)
+<span class="lineNum">     516 </span>            :     {
+<span class="lineNum">     517 </span>            :       m_parser.long_weekday_names(weekday_names);
+<span class="lineNum">     518 </span>            :     }
+<span class="lineNum">     519 </span>            : 
+<span class="lineNum">     520 </span>            :     void short_month_names(const input_collection_type&amp; month_names)
+<span class="lineNum">     521 </span>            :     {
+<span class="lineNum">     522 </span>            :       m_parser.short_month_names(month_names);
+<span class="lineNum">     523 </span>            :     }
+<span class="lineNum">     524 </span>            : 
+<span class="lineNum">     525 </span>            :     void long_month_names(const input_collection_type&amp; month_names)
+<span class="lineNum">     526 </span>            :     {
+<span class="lineNum">     527 </span>            :       m_parser.long_month_names(month_names);
+<span class="lineNum">     528 </span>            :     }
+<span class="lineNum">     529 </span>            : 
+<span class="lineNum">     530 </span>            :     void date_gen_element_strings(const input_collection_type&amp; col)
+<span class="lineNum">     531 </span>            :     {
+<span class="lineNum">     532 </span>            :       m_date_gen_parser.element_strings(col);
+<span class="lineNum">     533 </span>            :     }
+<span class="lineNum">     534 </span>            :     void date_gen_element_strings(const string_type&amp; first,
+<span class="lineNum">     535 </span>            :                                   const string_type&amp; second,
+<span class="lineNum">     536 </span>            :                                   const string_type&amp; third,
+<span class="lineNum">     537 </span>            :                                   const string_type&amp; fourth,
+<span class="lineNum">     538 </span>            :                                   const string_type&amp; fifth,
+<span class="lineNum">     539 </span>            :                                   const string_type&amp; last,
+<span class="lineNum">     540 </span>            :                                   const string_type&amp; before,
+<span class="lineNum">     541 </span>            :                                   const string_type&amp; after,
+<span class="lineNum">     542 </span>            :                                   const string_type&amp; of)
+<span class="lineNum">     543 </span>            : 
+<span class="lineNum">     544 </span>            :     {
+<span class="lineNum">     545 </span>            :       m_date_gen_parser.element_strings(first,second,third,fourth,fifth,last,before,after,of);
+<span class="lineNum">     546 </span>            :     }
+<span class="lineNum">     547 </span>            : 
+<span class="lineNum">     548 </span>            :     void special_values_parser(special_values_parser_type sv_parser)
+<span class="lineNum">     549 </span>            :     {
+<span class="lineNum">     550 </span>            :       m_sv_parser = sv_parser;
+<span class="lineNum">     551 </span>            :     }
+<span class="lineNum">     552 </span>            : 
+<span class="lineNum">     553 </span>            :     InItrT get(InItrT&amp; from,
+<span class="lineNum">     554 </span>            :                InItrT&amp; to,
+<span class="lineNum">     555 </span>            :                std::ios_base&amp; /*a_ios*/,
+<span class="lineNum">     556 </span>            :                date_type&amp; d) const
+<span class="lineNum">     557 </span>            :     {
+<span class="lineNum">     558 </span>            :       d = m_parser.parse_date(from, to, m_format, m_sv_parser);
+<span class="lineNum">     559 </span>            :       return from;
+<span class="lineNum">     560 </span>            :     }
+<span class="lineNum">     561 </span>            :     InItrT get(InItrT&amp; from,
+<span class="lineNum">     562 </span>            :                InItrT&amp; to,
+<span class="lineNum">     563 </span>            :                std::ios_base&amp; /*a_ios*/,
+<span class="lineNum">     564 </span>            :                month_type&amp; m) const
+<span class="lineNum">     565 </span>            :     {
+<span class="lineNum">     566 </span>            :       m = m_parser.parse_month(from, to, m_month_format);
+<span class="lineNum">     567 </span>            :       return from;
+<span class="lineNum">     568 </span>            :     }
+<span class="lineNum">     569 </span>            :     InItrT get(InItrT&amp; from,
+<span class="lineNum">     570 </span>            :                InItrT&amp; to,
+<span class="lineNum">     571 </span>            :                std::ios_base&amp; /*a_ios*/,
+<span class="lineNum">     572 </span>            :                day_of_week_type&amp; wd) const
+<span class="lineNum">     573 </span>            :     {
+<span class="lineNum">     574 </span>            :       wd = m_parser.parse_weekday(from, to, m_weekday_format);
+<span class="lineNum">     575 </span>            :       return from;
+<span class="lineNum">     576 </span>            :     }
+<span class="lineNum">     577 </span>            :     //! Expects 1 or 2 digit day range: 1-31
+<span class="lineNum">     578 </span>            :     InItrT get(InItrT&amp; from,
+<span class="lineNum">     579 </span>            :                InItrT&amp; to,
+<span class="lineNum">     580 </span>            :                std::ios_base&amp; /*a_ios*/,
+<span class="lineNum">     581 </span>            :                day_type&amp; d) const
+<span class="lineNum">     582 </span>            :     {
+<span class="lineNum">     583 </span>            :       d = m_parser.parse_var_day_of_month(from, to);
+<span class="lineNum">     584 </span>            :       return from;
+<span class="lineNum">     585 </span>            :     }
+<span class="lineNum">     586 </span>            :     InItrT get(InItrT&amp; from,
+<span class="lineNum">     587 </span>            :                InItrT&amp; to,
+<span class="lineNum">     588 </span>            :                std::ios_base&amp; /*a_ios*/,
+<span class="lineNum">     589 </span>            :                year_type&amp; y) const
+<span class="lineNum">     590 </span>            :     {
+<span class="lineNum">     591 </span>            :       y = m_parser.parse_year(from, to, m_year_format);
+<span class="lineNum">     592 </span>            :       return from;
+<span class="lineNum">     593 </span>            :     }
+<span class="lineNum">     594 </span>            :     InItrT get(InItrT&amp; from,
+<span class="lineNum">     595 </span>            :                InItrT&amp; to,
+<span class="lineNum">     596 </span>            :                std::ios_base&amp; a_ios,
+<span class="lineNum">     597 </span>            :                duration_type&amp; dd) const
+<span class="lineNum">     598 </span>            :     {
+<span class="lineNum">     599 </span>            :       // skip leading whitespace
+<span class="lineNum">     600 </span>            :       while(std::isspace(*from) &amp;&amp; from != to) { ++from; }
+<span class="lineNum">     601 </span>            : 
+<span class="lineNum">     602 </span>            :       /* num_get.get() will always consume the first character if it
+<span class="lineNum">     603 </span>            :        * is a sign indicator (+/-). Special value strings may begin
+<span class="lineNum">     604 </span>            :        * with one of these signs so we'll need a copy of it
+<span class="lineNum">     605 </span>            :        * in case num_get.get() fails. */
+<span class="lineNum">     606 </span>            :       char_type c = '\0';
+<span class="lineNum">     607 </span>            :       // TODO Are these characters somewhere in the locale?
+<span class="lineNum">     608 </span>            :       if(*from == '-' || *from == '+') {
+<span class="lineNum">     609 </span>            :         c = *from;
+<span class="lineNum">     610 </span>            :       }
+<span class="lineNum">     611 </span>            :       typedef std::num_get&lt;CharT, InItrT&gt; num_get;
+<span class="lineNum">     612 </span>            :       typename duration_type::duration_rep_type val = 0;
+<span class="lineNum">     613 </span>            :       std::ios_base::iostate err = std::ios_base::goodbit;
+<span class="lineNum">     614 </span>            : 
+<span class="lineNum">     615 </span>            :       if (std::has_facet&lt;num_get&gt;(a_ios.getloc())) {
+<span class="lineNum">     616 </span>            :         from = std::use_facet&lt;num_get&gt;(a_ios.getloc()).get(from, to, a_ios, err, val);
+<span class="lineNum">     617 </span>            :       }
+<span class="lineNum">     618 </span>            :       else {
+<span class="lineNum">     619 </span>            :         num_get* ng = new num_get();
+<span class="lineNum">     620 </span>            :         std::locale l = std::locale(a_ios.getloc(), ng);
+<span class="lineNum">     621 </span>            :         a_ios.imbue(l);
+<span class="lineNum">     622 </span>            :         from = ng-&gt;get(from, to, a_ios, err, val);
+<span class="lineNum">     623 </span>            :       }
+<span class="lineNum">     624 </span>            :       if(err &amp; std::ios_base::failbit){
+<span class="lineNum">     625 </span>            :         typedef typename special_values_parser_type::match_results match_results;
+<span class="lineNum">     626 </span>            :         match_results mr;
+<span class="lineNum">     627 </span>            :         if(c == '-' || c == '+') { // was the first character consumed?
+<span class="lineNum">     628 </span>            :           mr.cache += c;
+<span class="lineNum">     629 </span>            :         }
+<span class="lineNum">     630 </span>            :         m_sv_parser.match(from, to, mr);
+<span class="lineNum">     631 </span>            :         if(mr.current_match == match_results::PARSE_ERROR) {
+<span class="lineNum">     632 </span>            :           boost::throw_exception(std::ios_base::failure(&quot;Parse failed. No match found for '&quot; + mr.cache + &quot;'&quot;));
+<span class="lineNum">     633 </span>            :           BOOST_DATE_TIME_UNREACHABLE_EXPRESSION(return from); // should never reach
+<span class="lineNum">     634 </span>            :         }
+<span class="lineNum">     635 </span>            :         dd = duration_type(static_cast&lt;special_values&gt;(mr.current_match));
+<span class="lineNum">     636 </span>            :       }
+<span class="lineNum">     637 </span>            :       else {
+<span class="lineNum">     638 </span>            :         dd = duration_type(val);
+<span class="lineNum">     639 </span>            :       }
+<span class="lineNum">     640 </span>            :       return from;
+<span class="lineNum">     641 </span>            :     }
+<span class="lineNum">     642 </span>            :     InItrT get(InItrT&amp; from,
+<span class="lineNum">     643 </span>            :                InItrT&amp; to,
+<span class="lineNum">     644 </span>            :                std::ios_base&amp; a_ios,
+<span class="lineNum">     645 </span>            :                period_type&amp; p) const
+<span class="lineNum">     646 </span>            :     {
+<span class="lineNum">     647 </span>            :       p = m_period_parser.get_period(from, to, a_ios, p, duration_type::unit(), *this);
+<span class="lineNum">     648 </span>            :       return from;
+<span class="lineNum">     649 </span>            :     }
+<span class="lineNum">     650 </span>            :     InItrT get(InItrT&amp; from,
+<span class="lineNum">     651 </span>            :                InItrT&amp; to,
+<span class="lineNum">     652 </span>            :                std::ios_base&amp; a_ios,
+<span class="lineNum">     653 </span>            :                nth_kday_type&amp; nkd) const
+<span class="lineNum">     654 </span>            :     {
+<span class="lineNum">     655 </span>            :       nkd = m_date_gen_parser.get_nth_kday_type(from, to, a_ios, *this);
+<span class="lineNum">     656 </span>            :       return from;
+<span class="lineNum">     657 </span>            :     }
+<span class="lineNum">     658 </span>            :     InItrT get(InItrT&amp; from,
+<span class="lineNum">     659 </span>            :                InItrT&amp; to,
+<span class="lineNum">     660 </span>            :                std::ios_base&amp; a_ios,
+<span class="lineNum">     661 </span>            :                partial_date_type&amp; pd) const
+<span class="lineNum">     662 </span>            :     {
+<span class="lineNum">     663 </span>            : 
+<span class="lineNum">     664 </span>            :       pd = m_date_gen_parser.get_partial_date_type(from, to, a_ios, *this);
+<span class="lineNum">     665 </span>            :       return from;
+<span class="lineNum">     666 </span>            :     }
+<span class="lineNum">     667 </span>            :     InItrT get(InItrT&amp; from,
+<span class="lineNum">     668 </span>            :                InItrT&amp; to,
+<span class="lineNum">     669 </span>            :                std::ios_base&amp; a_ios,
+<span class="lineNum">     670 </span>            :                first_kday_type&amp; fkd) const
+<span class="lineNum">     671 </span>            :     {
+<span class="lineNum">     672 </span>            :       fkd = m_date_gen_parser.get_first_kday_type(from, to, a_ios, *this);
+<span class="lineNum">     673 </span>            :       return from;
+<span class="lineNum">     674 </span>            :     }
+<span class="lineNum">     675 </span>            :     InItrT get(InItrT&amp; from,
+<span class="lineNum">     676 </span>            :                InItrT&amp; to,
+<span class="lineNum">     677 </span>            :                std::ios_base&amp; a_ios,
+<span class="lineNum">     678 </span>            :                last_kday_type&amp; lkd) const
+<span class="lineNum">     679 </span>            :     {
+<span class="lineNum">     680 </span>            :       lkd = m_date_gen_parser.get_last_kday_type(from, to, a_ios, *this);
+<span class="lineNum">     681 </span>            :       return from;
+<span class="lineNum">     682 </span>            :     }
+<span class="lineNum">     683 </span>            :     InItrT get(InItrT&amp; from,
+<span class="lineNum">     684 </span>            :                InItrT&amp; to,
+<span class="lineNum">     685 </span>            :                std::ios_base&amp; a_ios,
+<span class="lineNum">     686 </span>            :                kday_before_type&amp; fkb) const
+<span class="lineNum">     687 </span>            :     {
+<span class="lineNum">     688 </span>            :       fkb = m_date_gen_parser.get_kday_before_type(from, to, a_ios, *this);
+<span class="lineNum">     689 </span>            :       return from;
+<span class="lineNum">     690 </span>            :     }
+<span class="lineNum">     691 </span>            :     InItrT get(InItrT&amp; from,
+<span class="lineNum">     692 </span>            :                InItrT&amp; to,
+<span class="lineNum">     693 </span>            :                std::ios_base&amp; a_ios,
+<span class="lineNum">     694 </span>            :                kday_after_type&amp; fka) const
+<span class="lineNum">     695 </span>            :     {
+<span class="lineNum">     696 </span>            :       fka = m_date_gen_parser.get_kday_after_type(from, to, a_ios, *this);
+<span class="lineNum">     697 </span>            :       return from;
+<span class="lineNum">     698 </span>            :     }
+<span class="lineNum">     699 </span>            : 
+<span class="lineNum">     700 </span>            :   protected:
+<span class="lineNum">     701 </span>            :     string_type                   m_format;
+<span class="lineNum">     702 </span>            :     string_type                   m_month_format;
+<span class="lineNum">     703 </span>            :     string_type                   m_weekday_format;
+<span class="lineNum">     704 </span>            :     string_type                   m_year_format;
+<span class="lineNum">     705 </span>            :     format_date_parser_type       m_parser;
+<span class="lineNum">     706 </span>            :     date_gen_parser_type          m_date_gen_parser;
+<span class="lineNum">     707 </span>            :     period_parser_type            m_period_parser;
+<span class="lineNum">     708 </span>            :     special_values_parser_type    m_sv_parser;
+<span class="lineNum">     709 </span>            :   private:
+<span class="lineNum">     710 </span>            :   };
+<span class="lineNum">     711 </span>            : 
+<span class="lineNum">     712 </span>            : 
+<span class="lineNum">     713 </span>            :   template &lt;class date_type, class CharT, class OutItrT&gt;
+<span class="lineNum">     714 </span>            :   std::locale::id date_input_facet&lt;date_type, CharT, OutItrT&gt;::id;
+<span class="lineNum">     715 </span>            : 
+<span class="lineNum">     716 </span>            :   template &lt;class date_type, class CharT, class OutItrT&gt;
+<span class="lineNum">     717 </span>            :   const typename date_input_facet&lt;date_type, CharT, OutItrT&gt;::char_type
+<span class="lineNum">     718 </span>            :   date_input_facet&lt;date_type, CharT, OutItrT&gt;::long_weekday_format[3] = {'%','A'};
+<span class="lineNum">     719 </span>            : 
+<span class="lineNum">     720 </span>            :   template &lt;class date_type, class CharT, class OutItrT&gt;
+<span class="lineNum">     721 </span>            :   const typename date_input_facet&lt;date_type, CharT, OutItrT&gt;::char_type
+<span class="lineNum">     722 </span>            :   date_input_facet&lt;date_type, CharT, OutItrT&gt;::short_weekday_format[3] = {'%','a'};
+<span class="lineNum">     723 </span>            : 
+<span class="lineNum">     724 </span>            :   template &lt;class date_type, class CharT, class OutItrT&gt;
+<span class="lineNum">     725 </span>            :   const typename date_input_facet&lt;date_type, CharT, OutItrT&gt;::char_type
+<span class="lineNum">     726 </span>            :   date_input_facet&lt;date_type, CharT, OutItrT&gt;::long_month_format[3] = {'%','B'};
+<span class="lineNum">     727 </span>            : 
+<span class="lineNum">     728 </span>            :   template &lt;class date_type, class CharT, class OutItrT&gt;
+<span class="lineNum">     729 </span>            :   const typename date_input_facet&lt;date_type, CharT, OutItrT&gt;::char_type
+<span class="lineNum">     730 </span>            :   date_input_facet&lt;date_type, CharT, OutItrT&gt;::short_month_format[3] = {'%','b'};
+<span class="lineNum">     731 </span>            : 
+<span class="lineNum">     732 </span>            :   template &lt;class date_type, class CharT, class OutItrT&gt;
+<span class="lineNum">     733 </span>            :   const typename date_input_facet&lt;date_type, CharT, OutItrT&gt;::char_type
+<span class="lineNum">     734 </span>            :   date_input_facet&lt;date_type, CharT, OutItrT&gt;::four_digit_year_format[3] = {'%','Y'};
+<span class="lineNum">     735 </span>            : 
+<span class="lineNum">     736 </span>            :   template &lt;class date_type, class CharT, class OutItrT&gt;
+<span class="lineNum">     737 </span>            :   const typename date_input_facet&lt;date_type, CharT, OutItrT&gt;::char_type
+<span class="lineNum">     738 </span>            :   date_input_facet&lt;date_type, CharT, OutItrT&gt;::two_digit_year_format[3] = {'%','y'};
+<span class="lineNum">     739 </span>            : 
+<span class="lineNum">     740 </span>            :   template &lt;class date_type, class CharT, class OutItrT&gt;
+<span class="lineNum">     741 </span>            :   const typename date_input_facet&lt;date_type, CharT, OutItrT&gt;::char_type
+<span class="lineNum">     742 </span>            :   date_input_facet&lt;date_type, CharT, OutItrT&gt;::default_period_separator[4] = { ' ', '/', ' '};
+<span class="lineNum">     743 </span>            : 
+<span class="lineNum">     744 </span>            :   template &lt;class date_type, class CharT, class OutItrT&gt;
+<span class="lineNum">     745 </span>            :   const typename date_input_facet&lt;date_type, CharT, OutItrT&gt;::char_type
+<span class="lineNum">     746 </span>            :   date_input_facet&lt;date_type, CharT, OutItrT&gt;::standard_format_specifier[3] =
+<span class="lineNum">     747 </span>            :     {'%', 'x' };
+<span class="lineNum">     748 </span>            : 
+<span class="lineNum">     749 </span>            :   template &lt;class date_type, class CharT, class OutItrT&gt;
+<span class="lineNum">     750 </span>            :   const typename date_input_facet&lt;date_type, CharT, OutItrT&gt;::char_type
+<span class="lineNum">     751 </span>            :   date_input_facet&lt;date_type, CharT, OutItrT&gt;::iso_format_specifier[7] =
+<span class="lineNum">     752 </span>            :     {'%', 'Y', '%', 'm', '%', 'd' };
+<span class="lineNum">     753 </span>            : 
+<span class="lineNum">     754 </span>            :   template &lt;class date_type, class CharT, class OutItrT&gt;
+<span class="lineNum">     755 </span>            :   const typename date_input_facet&lt;date_type, CharT, OutItrT&gt;::char_type
+<span class="lineNum">     756 </span>            :   date_input_facet&lt;date_type, CharT, OutItrT&gt;::iso_format_extended_specifier[9] =
+<span class="lineNum">     757 </span>            :     {'%', 'Y', '-', '%', 'm', '-', '%', 'd' };
+<span class="lineNum">     758 </span>            : 
+<span class="lineNum">     759 </span>            :   template &lt;class date_type, class CharT, class OutItrT&gt;
+<span class="lineNum">     760 </span>            :   const typename date_input_facet&lt;date_type, CharT, OutItrT&gt;::char_type
+<span class="lineNum">     761 </span>            :   date_input_facet&lt;date_type, CharT, OutItrT&gt;::default_date_format[9] =
+<span class="lineNum">     762 </span>            :     {'%','Y','-','%','b','-','%','d'};
+<span class="lineNum">     763 </span>            : 
+<span class="lineNum">     764 </span>            : } } // namespaces
+<span class="lineNum">     765 </span>            : 
+<span class="lineNum">     766 </span>            : 
+<span class="lineNum">     767 </span>            : #endif
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

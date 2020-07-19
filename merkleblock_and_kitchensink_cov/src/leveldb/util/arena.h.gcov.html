@@ -1,0 +1,147 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - pr19065_cov.info - src/leveldb/util/arena.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">src/leveldb/util</a> - arena.h<span style="font-size: 80%;"> (source / <a href="arena.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">pr19065_cov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-19 02:14:11</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2011 The LevelDB Authors. All rights reserved.</a>
+<span class="lineNum">       2 </span>            : // Use of this source code is governed by a BSD-style license that can be
+<span class="lineNum">       3 </span>            : // found in the LICENSE file. See the AUTHORS file for names of contributors.
+<span class="lineNum">       4 </span>            : 
+<span class="lineNum">       5 </span>            : #ifndef STORAGE_LEVELDB_UTIL_ARENA_H_
+<span class="lineNum">       6 </span>            : #define STORAGE_LEVELDB_UTIL_ARENA_H_
+<span class="lineNum">       7 </span>            : 
+<span class="lineNum">       8 </span>            : #include &lt;atomic&gt;
+<span class="lineNum">       9 </span>            : #include &lt;cassert&gt;
+<span class="lineNum">      10 </span>            : #include &lt;cstddef&gt;
+<span class="lineNum">      11 </span>            : #include &lt;cstdint&gt;
+<span class="lineNum">      12 </span>            : #include &lt;vector&gt;
+<span class="lineNum">      13 </span>            : 
+<span class="lineNum">      14 </span>            : namespace leveldb {
+<span class="lineNum">      15 </span>            : 
+<span class="lineNum">      16 </span>            : class Arena {
+<span class="lineNum">      17 </span>            :  public:
+<span class="lineNum">      18 </span>            :   Arena();
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            :   Arena(const Arena&amp;) = delete;
+<span class="lineNum">      21 </span>            :   Arena&amp; operator=(const Arena&amp;) = delete;
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            :   ~Arena();
+<span class="lineNum">      24 </span>            : 
+<span class="lineNum">      25 </span>            :   // Return a pointer to a newly allocated memory block of &quot;bytes&quot; bytes.
+<span class="lineNum">      26 </span>            :   char* Allocate(size_t bytes);
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            :   // Allocate memory with the normal alignment guarantees provided by malloc.
+<span class="lineNum">      29 </span>            :   char* AllocateAligned(size_t bytes);
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            :   // Returns an estimate of the total memory usage of data allocated
+<span class="lineNum">      32 </span>            :   // by the arena.
+<span class="lineNum">      33 </span>            :   size_t MemoryUsage() const {
+<span class="lineNum">      34 </span><span class="lineNoCov">          0 :     return memory_usage_.load(std::memory_order_relaxed);</span>
+<span class="lineNum">      35 </span>            :   }
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span>            :  private:
+<span class="lineNum">      38 </span>            :   char* AllocateFallback(size_t bytes);
+<span class="lineNum">      39 </span>            :   char* AllocateNewBlock(size_t block_bytes);
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span>            :   // Allocation state
+<span class="lineNum">      42 </span>            :   char* alloc_ptr_;
+<span class="lineNum">      43 </span>            :   size_t alloc_bytes_remaining_;
+<span class="lineNum">      44 </span>            : 
+<span class="lineNum">      45 </span>            :   // Array of new[] allocated memory blocks
+<span class="lineNum">      46 </span>            :   std::vector&lt;char*&gt; blocks_;
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span>            :   // Total memory usage of the arena.
+<span class="lineNum">      49 </span>            :   //
+<span class="lineNum">      50 </span>            :   // TODO(costan): This member is accessed via atomics, but the others are
+<span class="lineNum">      51 </span>            :   //               accessed without any locking. Is this OK?
+<span class="lineNum">      52 </span>            :   std::atomic&lt;size_t&gt; memory_usage_;
+<a name="53"><span class="lineNum">      53 </span>            : };</a>
+<span class="lineNum">      54 </span>            : 
+<span class="lineNum">      55 </span><span class="lineNoCov">          0 : inline char* Arena::Allocate(size_t bytes) {</span>
+<span class="lineNum">      56 </span>            :   // The semantics of what to return are a bit messy if we allow
+<span class="lineNum">      57 </span>            :   // 0-byte allocations, so we disallow them here (we don't need
+<span class="lineNum">      58 </span>            :   // them for our internal use).
+<span class="lineNum">      59 </span><span class="lineNoCov">          0 :   assert(bytes &gt; 0);</span>
+<span class="lineNum">      60 </span><span class="lineNoCov">          0 :   if (bytes &lt;= alloc_bytes_remaining_) {</span>
+<span class="lineNum">      61 </span><span class="lineNoCov">          0 :     char* result = alloc_ptr_;</span>
+<span class="lineNum">      62 </span><span class="lineNoCov">          0 :     alloc_ptr_ += bytes;</span>
+<span class="lineNum">      63 </span><span class="lineNoCov">          0 :     alloc_bytes_remaining_ -= bytes;</span>
+<span class="lineNum">      64 </span><span class="lineNoCov">          0 :     return result;</span>
+<span class="lineNum">      65 </span>            :   }
+<span class="lineNum">      66 </span><span class="lineNoCov">          0 :   return AllocateFallback(bytes);</span>
+<span class="lineNum">      67 </span>            : }
+<span class="lineNum">      68 </span>            : 
+<span class="lineNum">      69 </span>            : }  // namespace leveldb
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span>            : #endif  // STORAGE_LEVELDB_UTIL_ARENA_H_
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
