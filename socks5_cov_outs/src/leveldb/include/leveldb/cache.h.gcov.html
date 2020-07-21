@@ -1,0 +1,187 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - socks5_cov.info - src/leveldb/include/leveldb/cache.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">src/leveldb/include/leveldb</a> - cache.h<span style="font-size: 80%;"> (source / <a href="cache.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">socks5_cov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-21 05:45:46</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2011 The LevelDB Authors. All rights reserved.</a>
+<span class="lineNum">       2 </span>            : // Use of this source code is governed by a BSD-style license that can be
+<span class="lineNum">       3 </span>            : // found in the LICENSE file. See the AUTHORS file for names of contributors.
+<span class="lineNum">       4 </span>            : //
+<span class="lineNum">       5 </span>            : // A Cache is an interface that maps keys to values.  It has internal
+<span class="lineNum">       6 </span>            : // synchronization and may be safely accessed concurrently from
+<span class="lineNum">       7 </span>            : // multiple threads.  It may automatically evict entries to make room
+<span class="lineNum">       8 </span>            : // for new entries.  Values have a specified charge against the cache
+<span class="lineNum">       9 </span>            : // capacity.  For example, a cache where the values are variable
+<span class="lineNum">      10 </span>            : // length strings, may use the length of the string as the charge for
+<span class="lineNum">      11 </span>            : // the string.
+<span class="lineNum">      12 </span>            : //
+<span class="lineNum">      13 </span>            : // A builtin cache implementation with a least-recently-used eviction
+<span class="lineNum">      14 </span>            : // policy is provided.  Clients may use their own implementations if
+<span class="lineNum">      15 </span>            : // they want something more sophisticated (like scan-resistance, a
+<span class="lineNum">      16 </span>            : // custom eviction policy, variable cache sizing, etc.)
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : #ifndef STORAGE_LEVELDB_INCLUDE_CACHE_H_
+<span class="lineNum">      19 </span>            : #define STORAGE_LEVELDB_INCLUDE_CACHE_H_
+<span class="lineNum">      20 </span>            : 
+<span class="lineNum">      21 </span>            : #include &lt;stdint.h&gt;
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            : #include &quot;leveldb/export.h&quot;
+<span class="lineNum">      24 </span>            : #include &quot;leveldb/slice.h&quot;
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : namespace leveldb {
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            : class LEVELDB_EXPORT Cache;
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : // Create a new cache with a fixed size capacity.  This implementation
+<span class="lineNum">      31 </span>            : // of Cache uses a least-recently-used eviction policy.
+<span class="lineNum">      32 </span>            : LEVELDB_EXPORT Cache* NewLRUCache(size_t capacity);
+<span class="lineNum">      33 </span>            : 
+<span class="lineNum">      34 </span>            : class LEVELDB_EXPORT Cache {
+<span class="lineNum">      35 </span>            :  public:
+<span class="lineNum">      36 </span>            :   Cache() = default;
+<span class="lineNum">      37 </span>            : 
+<span class="lineNum">      38 </span>            :   Cache(const Cache&amp;) = delete;
+<span class="lineNum">      39 </span>            :   Cache&amp; operator=(const Cache&amp;) = delete;
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span>            :   // Destroys all existing entries by calling the &quot;deleter&quot;
+<span class="lineNum">      42 </span>            :   // function that was passed to the constructor.
+<span class="lineNum">      43 </span>            :   virtual ~Cache();
+<span class="lineNum">      44 </span>            : 
+<span class="lineNum">      45 </span>            :   // Opaque handle to an entry stored in the cache.
+<span class="lineNum">      46 </span>            :   struct Handle {};
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span>            :   // Insert a mapping from key-&gt;value into the cache and assign it
+<span class="lineNum">      49 </span>            :   // the specified charge against the total cache capacity.
+<span class="lineNum">      50 </span>            :   //
+<span class="lineNum">      51 </span>            :   // Returns a handle that corresponds to the mapping.  The caller
+<span class="lineNum">      52 </span>            :   // must call this-&gt;Release(handle) when the returned mapping is no
+<span class="lineNum">      53 </span>            :   // longer needed.
+<span class="lineNum">      54 </span>            :   //
+<span class="lineNum">      55 </span>            :   // When the inserted entry is no longer needed, the key and
+<span class="lineNum">      56 </span>            :   // value will be passed to &quot;deleter&quot;.
+<span class="lineNum">      57 </span>            :   virtual Handle* Insert(const Slice&amp; key, void* value, size_t charge,
+<span class="lineNum">      58 </span>            :                          void (*deleter)(const Slice&amp; key, void* value)) = 0;
+<span class="lineNum">      59 </span>            : 
+<span class="lineNum">      60 </span>            :   // If the cache has no mapping for &quot;key&quot;, returns nullptr.
+<span class="lineNum">      61 </span>            :   //
+<span class="lineNum">      62 </span>            :   // Else return a handle that corresponds to the mapping.  The caller
+<span class="lineNum">      63 </span>            :   // must call this-&gt;Release(handle) when the returned mapping is no
+<span class="lineNum">      64 </span>            :   // longer needed.
+<span class="lineNum">      65 </span>            :   virtual Handle* Lookup(const Slice&amp; key) = 0;
+<span class="lineNum">      66 </span>            : 
+<span class="lineNum">      67 </span>            :   // Release a mapping returned by a previous Lookup().
+<span class="lineNum">      68 </span>            :   // REQUIRES: handle must not have been released yet.
+<span class="lineNum">      69 </span>            :   // REQUIRES: handle must have been returned by a method on *this.
+<span class="lineNum">      70 </span>            :   virtual void Release(Handle* handle) = 0;
+<span class="lineNum">      71 </span>            : 
+<span class="lineNum">      72 </span>            :   // Return the value encapsulated in a handle returned by a
+<span class="lineNum">      73 </span>            :   // successful Lookup().
+<span class="lineNum">      74 </span>            :   // REQUIRES: handle must not have been released yet.
+<span class="lineNum">      75 </span>            :   // REQUIRES: handle must have been returned by a method on *this.
+<span class="lineNum">      76 </span>            :   virtual void* Value(Handle* handle) = 0;
+<span class="lineNum">      77 </span>            : 
+<span class="lineNum">      78 </span>            :   // If the cache contains entry for key, erase it.  Note that the
+<span class="lineNum">      79 </span>            :   // underlying entry will be kept around until all existing handles
+<span class="lineNum">      80 </span>            :   // to it have been released.
+<span class="lineNum">      81 </span>            :   virtual void Erase(const Slice&amp; key) = 0;
+<span class="lineNum">      82 </span>            : 
+<span class="lineNum">      83 </span>            :   // Return a new numeric id.  May be used by multiple clients who are
+<span class="lineNum">      84 </span>            :   // sharing the same cache to partition the key space.  Typically the
+<span class="lineNum">      85 </span>            :   // client will allocate a new id at startup and prepend the id to
+<span class="lineNum">      86 </span>            :   // its cache keys.
+<span class="lineNum">      87 </span>            :   virtual uint64_t NewId() = 0;
+<span class="lineNum">      88 </span>            : 
+<span class="lineNum">      89 </span>            :   // Remove all cache entries that are not actively in use.  Memory-constrained
+<span class="lineNum">      90 </span>            :   // applications may wish to call this method to reduce memory usage.
+<span class="lineNum">      91 </span>            :   // Default implementation of Prune() does nothing.  Subclasses are strongly
+<a name="92"><span class="lineNum">      92 </span>            :   // encouraged to override the default implementation.  A future release of</a>
+<span class="lineNum">      93 </span>            :   // leveldb may change Prune() to a pure abstract method.
+<span class="lineNum">      94 </span><span class="lineNoCov">          0 :   virtual void Prune() {}</span>
+<span class="lineNum">      95 </span>            : 
+<span class="lineNum">      96 </span>            :   // Return an estimate of the combined charges of all elements stored in the
+<span class="lineNum">      97 </span>            :   // cache.
+<span class="lineNum">      98 </span>            :   virtual size_t TotalCharge() const = 0;
+<span class="lineNum">      99 </span>            : 
+<span class="lineNum">     100 </span>            :  private:
+<span class="lineNum">     101 </span>            :   void LRU_Remove(Handle* e);
+<span class="lineNum">     102 </span>            :   void LRU_Append(Handle* e);
+<span class="lineNum">     103 </span>            :   void Unref(Handle* e);
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span>            :   struct Rep;
+<span class="lineNum">     106 </span>            :   Rep* rep_;
+<span class="lineNum">     107 </span>            : };
+<span class="lineNum">     108 </span>            : 
+<span class="lineNum">     109 </span>            : }  // namespace leveldb
+<span class="lineNum">     110 </span>            : 
+<span class="lineNum">     111 </span>            : #endif  // STORAGE_LEVELDB_INCLUDE_CACHE_H_
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

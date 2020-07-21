@@ -1,0 +1,142 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - socks5_cov.info - src/util/threadnames.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">src/util</a> - threadnames.cpp<span style="font-size: 80%;"> (source / <a href="threadnames.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">socks5_cov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntryMed">81.8 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-21 05:45:46</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryMed">75.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2018-2019 The Bitcoin Core developers</a>
+<span class="lineNum">       2 </span>            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       3 </span>            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       4 </span>            : 
+<span class="lineNum">       5 </span>            : #if defined(HAVE_CONFIG_H)
+<span class="lineNum">       6 </span>            : #include &lt;config/bitcoin-config.h&gt;
+<span class="lineNum">       7 </span>            : #endif
+<span class="lineNum">       8 </span>            : 
+<span class="lineNum">       9 </span>            : #include &lt;thread&gt;
+<span class="lineNum">      10 </span>            : 
+<span class="lineNum">      11 </span>            : #if (defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__DragonFly__))
+<span class="lineNum">      12 </span>            : #include &lt;pthread.h&gt;
+<span class="lineNum">      13 </span>            : #include &lt;pthread_np.h&gt;
+<span class="lineNum">      14 </span>            : #endif
+<span class="lineNum">      15 </span>            : 
+<span class="lineNum">      16 </span>            : #include &lt;util/threadnames.h&gt;
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : #ifdef HAVE_SYS_PRCTL_H
+<span class="lineNum">      19 </span>            : #include &lt;sys/prctl.h&gt; // For prctl, PR_SET_NAME, PR_GET_NAME
+<span class="lineNum">      20 </span>            : #endif
+<span class="lineNum">      21 </span>            : 
+<span class="lineNum">      22 </span>            : //! Set the thread's name at the process level. Does not affect the
+<span class="lineNum">      23 </span>            : //! internal name.
+<span class="lineNum">      24 </span>            : static void SetThreadName(const char* name)
+<span class="lineNum">      25 </span>            : {
+<span class="lineNum">      26 </span>            : #if defined(PR_SET_NAME)
+<span class="lineNum">      27 </span>            :     // Only the first 15 characters are used (16 - NUL terminator)
+<span class="lineNum">      28 </span><span class="lineCov">       5213 :     ::prctl(PR_SET_NAME, name, 0, 0, 0);</span>
+<span class="lineNum">      29 </span>            : #elif (defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__DragonFly__))
+<span class="lineNum">      30 </span>            :     pthread_set_name_np(pthread_self(), name);
+<span class="lineNum">      31 </span>            : #elif defined(MAC_OSX)
+<span class="lineNum">      32 </span>            :     pthread_setname_np(name);
+<span class="lineNum">      33 </span>            : #else
+<span class="lineNum">      34 </span>            :     // Prevent warnings for unused parameters...
+<span class="lineNum">      35 </span>            :     (void)name;
+<span class="lineNum">      36 </span>            : #endif
+<span class="lineNum">      37 </span>            : }
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            : // If we have thread_local, just keep thread ID and name in a thread_local
+<span class="lineNum">      40 </span>            : // global.
+<span class="lineNum">      41 </span>            : #if defined(HAVE_THREAD_LOCAL)
+<a name="42"><span class="lineNum">      42 </span>            : </a>
+<span class="lineNum">      43 </span><span class="lineCov">      26065 : static thread_local std::string g_thread_name;</span>
+<span class="lineNum">      44 </span><span class="lineCov">      31278 : const std::string&amp; util::ThreadGetInternalName() { return g_thread_name; }</span>
+<span class="lineNum">      45 </span>            : //! Set the in-memory internal name for this thread. Does not affect the process
+<span class="lineNum">      46 </span>            : //! name.
+<span class="lineNum">      47 </span><span class="lineCov">      10426 : static void SetInternalName(std::string name) { g_thread_name = std::move(name); }</span>
+<span class="lineNum">      48 </span>            : 
+<span class="lineNum">      49 </span>            : // Without thread_local available, don't handle internal name at all.
+<span class="lineNum">      50 </span>            : #else
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span>            : static const std::string empty_string;
+<span class="lineNum">      53 </span>            : const std::string&amp; util::ThreadGetInternalName() { return empty_string; }
+<span class="lineNum">      54 </span>            : static void SetInternalName(std::string name) { }
+<span class="lineNum">      55 </span>            : #endif
+<span class="lineNum">      56 </span>            : 
+<span class="lineNum">      57 </span><span class="lineCov">       5213 : void util::ThreadRename(std::string&amp;&amp; name)</span>
+<span class="lineNum">      58 </span>            : {
+<span class="lineNum">      59 </span><span class="lineCov">      20852 :     SetThreadName((&quot;b-&quot; + name).c_str());</span>
+<span class="lineNum">      60 </span><span class="lineCov">      20852 :     SetInternalName(std::move(name));</span>
+<span class="lineNum">      61 </span><span class="lineCov">       5213 : }</span>
+<span class="lineNum">      62 </span>            : 
+<span class="lineNum">      63 </span><span class="lineNoCov">          0 : void util::ThreadSetInternalName(std::string&amp;&amp; name)</span>
+<span class="lineNum">      64 </span>            : {
+<span class="lineNum">      65 </span><span class="lineNoCov">          0 :     SetInternalName(std::move(name));</span>
+<span class="lineNum">      66 </span><span class="lineCov">      20852 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

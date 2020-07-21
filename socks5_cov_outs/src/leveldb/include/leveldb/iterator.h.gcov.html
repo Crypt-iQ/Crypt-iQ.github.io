@@ -1,0 +1,188 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - socks5_cov.info - src/leveldb/include/leveldb/iterator.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">src/leveldb/include/leveldb</a> - iterator.h<span style="font-size: 80%;"> (source / <a href="iterator.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">socks5_cov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-21 05:45:46</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2011 The LevelDB Authors. All rights reserved.</a>
+<span class="lineNum">       2 </span>            : // Use of this source code is governed by a BSD-style license that can be
+<span class="lineNum">       3 </span>            : // found in the LICENSE file. See the AUTHORS file for names of contributors.
+<span class="lineNum">       4 </span>            : //
+<span class="lineNum">       5 </span>            : // An iterator yields a sequence of key/value pairs from a source.
+<span class="lineNum">       6 </span>            : // The following class defines the interface.  Multiple implementations
+<span class="lineNum">       7 </span>            : // are provided by this library.  In particular, iterators are provided
+<span class="lineNum">       8 </span>            : // to access the contents of a Table or a DB.
+<span class="lineNum">       9 </span>            : //
+<span class="lineNum">      10 </span>            : // Multiple threads can invoke const methods on an Iterator without
+<span class="lineNum">      11 </span>            : // external synchronization, but if any of the threads may call a
+<span class="lineNum">      12 </span>            : // non-const method, all threads accessing the same Iterator must use
+<span class="lineNum">      13 </span>            : // external synchronization.
+<span class="lineNum">      14 </span>            : 
+<span class="lineNum">      15 </span>            : #ifndef STORAGE_LEVELDB_INCLUDE_ITERATOR_H_
+<span class="lineNum">      16 </span>            : #define STORAGE_LEVELDB_INCLUDE_ITERATOR_H_
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : #include &quot;leveldb/export.h&quot;
+<span class="lineNum">      19 </span>            : #include &quot;leveldb/slice.h&quot;
+<span class="lineNum">      20 </span>            : #include &quot;leveldb/status.h&quot;
+<span class="lineNum">      21 </span>            : 
+<span class="lineNum">      22 </span>            : namespace leveldb {
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span>            : class LEVELDB_EXPORT Iterator {
+<span class="lineNum">      25 </span>            :  public:
+<span class="lineNum">      26 </span>            :   Iterator();
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            :   Iterator(const Iterator&amp;) = delete;
+<span class="lineNum">      29 </span>            :   Iterator&amp; operator=(const Iterator&amp;) = delete;
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            :   virtual ~Iterator();
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            :   // An iterator is either positioned at a key/value pair, or
+<span class="lineNum">      34 </span>            :   // not valid.  This method returns true iff the iterator is valid.
+<span class="lineNum">      35 </span>            :   virtual bool Valid() const = 0;
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span>            :   // Position at the first key in the source.  The iterator is Valid()
+<span class="lineNum">      38 </span>            :   // after this call iff the source is not empty.
+<span class="lineNum">      39 </span>            :   virtual void SeekToFirst() = 0;
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span>            :   // Position at the last key in the source.  The iterator is
+<span class="lineNum">      42 </span>            :   // Valid() after this call iff the source is not empty.
+<span class="lineNum">      43 </span>            :   virtual void SeekToLast() = 0;
+<span class="lineNum">      44 </span>            : 
+<span class="lineNum">      45 </span>            :   // Position at the first key in the source that is at or past target.
+<span class="lineNum">      46 </span>            :   // The iterator is Valid() after this call iff the source contains
+<span class="lineNum">      47 </span>            :   // an entry that comes at or past target.
+<span class="lineNum">      48 </span>            :   virtual void Seek(const Slice&amp; target) = 0;
+<span class="lineNum">      49 </span>            : 
+<span class="lineNum">      50 </span>            :   // Moves to the next entry in the source.  After this call, Valid() is
+<span class="lineNum">      51 </span>            :   // true iff the iterator was not positioned at the last entry in the source.
+<span class="lineNum">      52 </span>            :   // REQUIRES: Valid()
+<span class="lineNum">      53 </span>            :   virtual void Next() = 0;
+<span class="lineNum">      54 </span>            : 
+<span class="lineNum">      55 </span>            :   // Moves to the previous entry in the source.  After this call, Valid() is
+<span class="lineNum">      56 </span>            :   // true iff the iterator was not positioned at the first entry in source.
+<span class="lineNum">      57 </span>            :   // REQUIRES: Valid()
+<span class="lineNum">      58 </span>            :   virtual void Prev() = 0;
+<span class="lineNum">      59 </span>            : 
+<span class="lineNum">      60 </span>            :   // Return the key for the current entry.  The underlying storage for
+<span class="lineNum">      61 </span>            :   // the returned slice is valid only until the next modification of
+<span class="lineNum">      62 </span>            :   // the iterator.
+<span class="lineNum">      63 </span>            :   // REQUIRES: Valid()
+<span class="lineNum">      64 </span>            :   virtual Slice key() const = 0;
+<span class="lineNum">      65 </span>            : 
+<span class="lineNum">      66 </span>            :   // Return the value for the current entry.  The underlying storage for
+<span class="lineNum">      67 </span>            :   // the returned slice is valid only until the next modification of
+<span class="lineNum">      68 </span>            :   // the iterator.
+<span class="lineNum">      69 </span>            :   // REQUIRES: Valid()
+<span class="lineNum">      70 </span>            :   virtual Slice value() const = 0;
+<span class="lineNum">      71 </span>            : 
+<span class="lineNum">      72 </span>            :   // If an error has occurred, return it.  Else return an ok status.
+<span class="lineNum">      73 </span>            :   virtual Status status() const = 0;
+<span class="lineNum">      74 </span>            : 
+<span class="lineNum">      75 </span>            :   // Clients are allowed to register function/arg1/arg2 triples that
+<span class="lineNum">      76 </span>            :   // will be invoked when this iterator is destroyed.
+<span class="lineNum">      77 </span>            :   //
+<span class="lineNum">      78 </span>            :   // Note that unlike all of the preceding methods, this method is
+<span class="lineNum">      79 </span>            :   // not abstract and therefore clients should not override it.
+<span class="lineNum">      80 </span>            :   using CleanupFunction = void (*)(void* arg1, void* arg2);
+<span class="lineNum">      81 </span>            :   void RegisterCleanup(CleanupFunction function, void* arg1, void* arg2);
+<span class="lineNum">      82 </span>            : 
+<span class="lineNum">      83 </span>            :  private:
+<span class="lineNum">      84 </span>            :   // Cleanup functions are stored in a single-linked list.
+<span class="lineNum">      85 </span>            :   // The list's head node is inlined in the iterator.
+<span class="lineNum">      86 </span>            :   struct CleanupNode {
+<span class="lineNum">      87 </span>            :     // True if the node is not used. Only head nodes might be unused.
+<a name="88"><span class="lineNum">      88 </span>            :     bool IsEmpty() const { return function == nullptr; }</a>
+<span class="lineNum">      89 </span>            :     // Invokes the cleanup function.
+<span class="lineNum">      90 </span><span class="lineNoCov">          0 :     void Run() {</span>
+<span class="lineNum">      91 </span><span class="lineNoCov">          0 :       assert(function != nullptr);</span>
+<span class="lineNum">      92 </span><span class="lineNoCov">          0 :       (*function)(arg1, arg2);</span>
+<span class="lineNum">      93 </span><span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">      94 </span>            : 
+<span class="lineNum">      95 </span>            :     // The head node is used if the function pointer is not null.
+<span class="lineNum">      96 </span>            :     CleanupFunction function;
+<span class="lineNum">      97 </span>            :     void* arg1;
+<span class="lineNum">      98 </span>            :     void* arg2;
+<span class="lineNum">      99 </span>            :     CleanupNode* next;
+<span class="lineNum">     100 </span>            :   };
+<span class="lineNum">     101 </span>            :   CleanupNode cleanup_head_;
+<span class="lineNum">     102 </span>            : };
+<span class="lineNum">     103 </span>            : 
+<span class="lineNum">     104 </span>            : // Return an empty iterator (yields nothing).
+<span class="lineNum">     105 </span>            : LEVELDB_EXPORT Iterator* NewEmptyIterator();
+<span class="lineNum">     106 </span>            : 
+<span class="lineNum">     107 </span>            : // Return an empty iterator with the specified status.
+<span class="lineNum">     108 </span>            : LEVELDB_EXPORT Iterator* NewErrorIterator(const Status&amp; status);
+<span class="lineNum">     109 </span>            : 
+<span class="lineNum">     110 </span>            : }  // namespace leveldb
+<span class="lineNum">     111 </span>            : 
+<span class="lineNum">     112 </span>            : #endif  // STORAGE_LEVELDB_INCLUDE_ITERATOR_H_
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
