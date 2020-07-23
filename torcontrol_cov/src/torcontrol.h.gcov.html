@@ -1,0 +1,229 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - torcontrol_cov.info - src/torcontrol.h</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">src</a> - torcontrol.h<span style="font-size: 80%;"> (source / <a href="torcontrol.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">torcontrol_cov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-20 13:39:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2015-2019 The Bitcoin Core developers</a>
+<span class="lineNum">       2 </span>            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       3 </span>            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       4 </span>            : 
+<span class="lineNum">       5 </span>            : /**
+<span class="lineNum">       6 </span>            :  * Functionality for communicating with Tor.
+<span class="lineNum">       7 </span>            :  */
+<span class="lineNum">       8 </span>            : #ifndef BITCOIN_TORCONTROL_H
+<span class="lineNum">       9 </span>            : #define BITCOIN_TORCONTROL_H
+<span class="lineNum">      10 </span>            : 
+<span class="lineNum">      11 </span>            : #include &lt;fs.h&gt;
+<span class="lineNum">      12 </span>            : #include &lt;netaddress.h&gt;
+<span class="lineNum">      13 </span>            : 
+<span class="lineNum">      14 </span>            : #include &lt;boost/signals2/signal.hpp&gt;
+<span class="lineNum">      15 </span>            : 
+<span class="lineNum">      16 </span>            : #include &lt;event2/bufferevent.h&gt;
+<span class="lineNum">      17 </span>            : #include &lt;event2/event.h&gt;
+<span class="lineNum">      18 </span>            : 
+<span class="lineNum">      19 </span>            : #include &lt;cstdlib&gt;
+<span class="lineNum">      20 </span>            : #include &lt;deque&gt;
+<span class="lineNum">      21 </span>            : #include &lt;functional&gt;
+<span class="lineNum">      22 </span>            : #include &lt;string&gt;
+<span class="lineNum">      23 </span>            : #include &lt;vector&gt;
+<span class="lineNum">      24 </span>            : 
+<span class="lineNum">      25 </span>            : extern const std::string DEFAULT_TOR_CONTROL;
+<span class="lineNum">      26 </span>            : static const bool DEFAULT_LISTEN_ONION = true;
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            : void StartTorControl();
+<span class="lineNum">      29 </span>            : void InterruptTorControl();
+<span class="lineNum">      30 </span>            : void StopTorControl();
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : /** Reply from Tor, can be single or multi-line */
+<span class="lineNum">      33 </span><span class="lineCov">     944894 : class TorControlReply</span>
+<span class="lineNum">      34 </span>            : {
+<span class="lineNum">      35 </span>            : public:
+<span class="lineNum">      36 </span><span class="lineCov">    2838681 :     TorControlReply() { Clear(); }</span>
+<span class="lineNum">      37 </span>            : 
+<span class="lineNum">      38 </span>            :     int code;
+<span class="lineNum">      39 </span>            :     std::vector&lt;std::string&gt; lines;
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span>            :     void Clear()
+<span class="lineNum">      42 </span>            :     {
+<span class="lineNum">      43 </span><span class="lineCov">     946227 :         code = 0;</span>
+<span class="lineNum">      44 </span><span class="lineCov">     946227 :         lines.clear();</span>
+<span class="lineNum">      45 </span>            :     }
+<span class="lineNum">      46 </span>            : };
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span>            : /** Low-level handling for Tor control connection.
+<span class="lineNum">      49 </span>            :  * Speaks the SMTP-like protocol as defined in torspec/control-spec.txt
+<span class="lineNum">      50 </span>            :  */
+<span class="lineNum">      51 </span>            : class TorControlConnection
+<span class="lineNum">      52 </span>            : {
+<span class="lineNum">      53 </span>            : public:
+<span class="lineNum">      54 </span>            :     typedef std::function&lt;void(TorControlConnection&amp;)&gt; ConnectionCB;
+<span class="lineNum">      55 </span>            :     typedef std::function&lt;void(TorControlConnection &amp;,const TorControlReply &amp;)&gt; ReplyHandlerCB;
+<span class="lineNum">      56 </span>            : 
+<span class="lineNum">      57 </span>            :     /** Create a new TorControlConnection.
+<span class="lineNum">      58 </span>            :      */
+<span class="lineNum">      59 </span>            :     explicit TorControlConnection(struct event_base *base);
+<span class="lineNum">      60 </span>            :     ~TorControlConnection();
+<span class="lineNum">      61 </span>            : 
+<span class="lineNum">      62 </span>            :     /**
+<span class="lineNum">      63 </span>            :      * Connect to a Tor control port.
+<span class="lineNum">      64 </span>            :      * target is address of the form host:port.
+<span class="lineNum">      65 </span>            :      * connected is the handler that is called when connection is successfully established.
+<span class="lineNum">      66 </span>            :      * disconnected is a handler that is called when the connection is broken.
+<span class="lineNum">      67 </span>            :      * Return true on success.
+<span class="lineNum">      68 </span>            :      */
+<span class="lineNum">      69 </span>            :     bool Connect(const std::string &amp;target, const ConnectionCB&amp; connected, const ConnectionCB&amp; disconnected);
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span>            :     /**
+<span class="lineNum">      72 </span>            :      * Disconnect from Tor control port.
+<span class="lineNum">      73 </span>            :      */
+<span class="lineNum">      74 </span>            :     void Disconnect();
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span>            :     /** Send a command, register a handler for the reply.
+<span class="lineNum">      77 </span>            :      * A trailing CRLF is automatically added.
+<span class="lineNum">      78 </span>            :      * Return true on success.
+<span class="lineNum">      79 </span>            :      */
+<span class="lineNum">      80 </span>            :     bool Command(const std::string &amp;cmd, const ReplyHandlerCB&amp; reply_handler);
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span>            :     /** Response handlers for async replies */
+<span class="lineNum">      83 </span>            :     boost::signals2::signal&lt;void(TorControlConnection &amp;,const TorControlReply &amp;)&gt; async_handler;
+<span class="lineNum">      84 </span>            : private:
+<span class="lineNum">      85 </span>            :     /** Callback when ready for use */
+<span class="lineNum">      86 </span>            :     std::function&lt;void(TorControlConnection&amp;)&gt; connected;
+<span class="lineNum">      87 </span>            :     /** Callback when connection lost */
+<span class="lineNum">      88 </span>            :     std::function&lt;void(TorControlConnection&amp;)&gt; disconnected;
+<span class="lineNum">      89 </span>            :     /** Libevent event base */
+<span class="lineNum">      90 </span>            :     struct event_base *base;
+<span class="lineNum">      91 </span>            :     /** Connection to control socket */
+<span class="lineNum">      92 </span>            :     struct bufferevent *b_conn;
+<span class="lineNum">      93 </span>            :     /** Message being received */
+<span class="lineNum">      94 </span>            :     TorControlReply message;
+<span class="lineNum">      95 </span>            :     /** Response handlers */
+<span class="lineNum">      96 </span>            :     std::deque&lt;ReplyHandlerCB&gt; reply_handlers;
+<span class="lineNum">      97 </span>            : 
+<span class="lineNum">      98 </span>            :     /** Libevent handlers: internal */
+<span class="lineNum">      99 </span>            :     static void readcb(struct bufferevent *bev, void *ctx);
+<span class="lineNum">     100 </span>            :     static void eventcb(struct bufferevent *bev, short what, void *ctx);
+<span class="lineNum">     101 </span>            : };
+<span class="lineNum">     102 </span>            : 
+<span class="lineNum">     103 </span>            : /** Controller that connects to Tor control socket, authenticate, then create
+<span class="lineNum">     104 </span>            :  * and maintain an ephemeral hidden service.
+<span class="lineNum">     105 </span>            :  */
+<span class="lineNum">     106 </span>            : class TorController
+<span class="lineNum">     107 </span>            : {
+<span class="lineNum">     108 </span>            : public:
+<span class="lineNum">     109 </span>            :     TorController(struct event_base* base, const std::string&amp; target);
+<span class="lineNum">     110 </span><span class="lineCov">      89448 :     TorController() : conn{nullptr} {</span>
+<span class="lineNum">     111 </span>            :         // Used for testing only.
+<span class="lineNum">     112 </span><span class="lineCov">      14908 :     }</span>
+<span class="lineNum">     113 </span>            :     ~TorController();
+<span class="lineNum">     114 </span>            : 
+<span class="lineNum">     115 </span>            :     /** Get name of file to store private key in */
+<span class="lineNum">     116 </span>            :     fs::path GetPrivateKeyFile();
+<span class="lineNum">     117 </span>            : 
+<span class="lineNum">     118 </span>            :     /** Reconnect, after getting disconnected */
+<span class="lineNum">     119 </span>            :     void Reconnect();
+<span class="lineNum">     120 </span>            : private:
+<span class="lineNum">     121 </span>            :     struct event_base* base;
+<span class="lineNum">     122 </span>            :     std::string target;
+<span class="lineNum">     123 </span>            :     TorControlConnection conn;
+<span class="lineNum">     124 </span>            :     std::string private_key;
+<span class="lineNum">     125 </span>            :     std::string service_id;
+<span class="lineNum">     126 </span>            :     bool reconnect;
+<span class="lineNum">     127 </span>            :     struct event *reconnect_ev = nullptr;
+<span class="lineNum">     128 </span>            :     float reconnect_timeout;
+<span class="lineNum">     129 </span>            :     CService service;
+<span class="lineNum">     130 </span>            :     /** Cookie for SAFECOOKIE auth */
+<span class="lineNum">     131 </span>            :     std::vector&lt;uint8_t&gt; cookie;
+<span class="lineNum">     132 </span>            :     /** ClientNonce for SAFECOOKIE auth */
+<span class="lineNum">     133 </span>            :     std::vector&lt;uint8_t&gt; clientNonce;
+<span class="lineNum">     134 </span>            : 
+<span class="lineNum">     135 </span>            : public:
+<span class="lineNum">     136 </span>            :     /** Callback for ADD_ONION result */
+<span class="lineNum">     137 </span>            :     void add_onion_cb(TorControlConnection&amp; conn, const TorControlReply&amp; reply);
+<span class="lineNum">     138 </span>            :     /** Callback for AUTHENTICATE result */
+<span class="lineNum">     139 </span>            :     void auth_cb(TorControlConnection&amp; conn, const TorControlReply&amp; reply);
+<span class="lineNum">     140 </span>            :     /** Callback for AUTHCHALLENGE result */
+<span class="lineNum">     141 </span>            :     void authchallenge_cb(TorControlConnection&amp; conn, const TorControlReply&amp; reply);
+<span class="lineNum">     142 </span>            :     /** Callback for PROTOCOLINFO result */
+<span class="lineNum">     143 </span>            :     void protocolinfo_cb(TorControlConnection&amp; conn, const TorControlReply&amp; reply);
+<span class="lineNum">     144 </span>            :     /** Callback after successful connection */
+<span class="lineNum">     145 </span>            :     void connected_cb(TorControlConnection&amp; conn);
+<span class="lineNum">     146 </span>            :     /** Callback after connection lost or failed connection attempt */
+<span class="lineNum">     147 </span>            :     void disconnected_cb(TorControlConnection&amp; conn);
+<span class="lineNum">     148 </span>            : 
+<span class="lineNum">     149 </span>            :     /** Callback for reconnect timer */
+<span class="lineNum">     150 </span>            :     static void reconnect_cb(evutil_socket_t fd, short what, void *arg);
+<span class="lineNum">     151 </span>            : };
+<span class="lineNum">     152 </span>            : 
+<span class="lineNum">     153 </span>            : #endif /* BITCOIN_TORCONTROL_H */
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - torcontrol_cov.info - src/leveldb/include/leveldb/table.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">src/leveldb/include/leveldb</a> - table.h<span style="font-size: 80%;"> (source / <a href="table.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">torcontrol_cov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-20 13:39:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryHi">-</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2011 The LevelDB Authors. All rights reserved.</a>
+<span class="lineNum">       2 </span>            : // Use of this source code is governed by a BSD-style license that can be
+<span class="lineNum">       3 </span>            : // found in the LICENSE file. See the AUTHORS file for names of contributors.
+<span class="lineNum">       4 </span>            : 
+<span class="lineNum">       5 </span>            : #ifndef STORAGE_LEVELDB_INCLUDE_TABLE_H_
+<span class="lineNum">       6 </span>            : #define STORAGE_LEVELDB_INCLUDE_TABLE_H_
+<span class="lineNum">       7 </span>            : 
+<span class="lineNum">       8 </span>            : #include &lt;stdint.h&gt;
+<span class="lineNum">       9 </span>            : 
+<span class="lineNum">      10 </span>            : #include &quot;leveldb/export.h&quot;
+<span class="lineNum">      11 </span>            : #include &quot;leveldb/iterator.h&quot;
+<span class="lineNum">      12 </span>            : 
+<span class="lineNum">      13 </span>            : namespace leveldb {
+<span class="lineNum">      14 </span>            : 
+<span class="lineNum">      15 </span>            : class Block;
+<span class="lineNum">      16 </span>            : class BlockHandle;
+<span class="lineNum">      17 </span>            : class Footer;
+<span class="lineNum">      18 </span>            : struct Options;
+<span class="lineNum">      19 </span>            : class RandomAccessFile;
+<span class="lineNum">      20 </span>            : struct ReadOptions;
+<span class="lineNum">      21 </span>            : class TableCache;
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            : // A Table is a sorted map from strings to strings.  Tables are
+<span class="lineNum">      24 </span>            : // immutable and persistent.  A Table may be safely accessed from
+<span class="lineNum">      25 </span>            : // multiple threads without external synchronization.
+<span class="lineNum">      26 </span>            : class LEVELDB_EXPORT Table {
+<span class="lineNum">      27 </span>            :  public:
+<span class="lineNum">      28 </span>            :   // Attempt to open the table that is stored in bytes [0..file_size)
+<span class="lineNum">      29 </span>            :   // of &quot;file&quot;, and read the metadata entries necessary to allow
+<span class="lineNum">      30 </span>            :   // retrieving data from the table.
+<span class="lineNum">      31 </span>            :   //
+<span class="lineNum">      32 </span>            :   // If successful, returns ok and sets &quot;*table&quot; to the newly opened
+<span class="lineNum">      33 </span>            :   // table.  The client should delete &quot;*table&quot; when no longer needed.
+<span class="lineNum">      34 </span>            :   // If there was an error while initializing the table, sets &quot;*table&quot;
+<span class="lineNum">      35 </span>            :   // to nullptr and returns a non-ok status.  Does not take ownership of
+<span class="lineNum">      36 </span>            :   // &quot;*source&quot;, but the client must ensure that &quot;source&quot; remains live
+<span class="lineNum">      37 </span>            :   // for the duration of the returned table's lifetime.
+<span class="lineNum">      38 </span>            :   //
+<span class="lineNum">      39 </span>            :   // *file must remain live while this Table is in use.
+<span class="lineNum">      40 </span>            :   static Status Open(const Options&amp; options, RandomAccessFile* file,
+<span class="lineNum">      41 </span>            :                      uint64_t file_size, Table** table);
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            :   Table(const Table&amp;) = delete;
+<span class="lineNum">      44 </span>            :   Table&amp; operator=(const Table&amp;) = delete;
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span>            :   ~Table();
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span>            :   // Returns a new iterator over the table contents.
+<span class="lineNum">      49 </span>            :   // The result of NewIterator() is initially invalid (caller must
+<span class="lineNum">      50 </span>            :   // call one of the Seek methods on the iterator before using it).
+<span class="lineNum">      51 </span>            :   Iterator* NewIterator(const ReadOptions&amp;) const;
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span>            :   // Given a key, return an approximate byte offset in the file where
+<span class="lineNum">      54 </span>            :   // the data for that key begins (or would begin if the key were
+<span class="lineNum">      55 </span>            :   // present in the file).  The returned value is in terms of file
+<span class="lineNum">      56 </span>            :   // bytes, and so includes effects like compression of the underlying data.
+<span class="lineNum">      57 </span>            :   // E.g., the approximate offset of the last key in the table will
+<span class="lineNum">      58 </span>            :   // be close to the file length.
+<span class="lineNum">      59 </span>            :   uint64_t ApproximateOffsetOf(const Slice&amp; key) const;
+<span class="lineNum">      60 </span>            : 
+<span class="lineNum">      61 </span>            :  private:
+<span class="lineNum">      62 </span>            :   friend class TableCache;
+<span class="lineNum">      63 </span>            :   struct Rep;
+<span class="lineNum">      64 </span>            : 
+<span class="lineNum">      65 </span>            :   static Iterator* BlockReader(void*, const ReadOptions&amp;, const Slice&amp;);
+<span class="lineNum">      66 </span>            : 
+<span class="lineNum">      67 </span><span class="lineNoCov">          0 :   explicit Table(Rep* rep) : rep_(rep) {}</span>
+<span class="lineNum">      68 </span>            : 
+<span class="lineNum">      69 </span>            :   // Calls (*handle_result)(arg, ...) with the entry found after a call
+<span class="lineNum">      70 </span>            :   // to Seek(key).  May not make such a call if filter policy says
+<span class="lineNum">      71 </span>            :   // that key is not present.
+<span class="lineNum">      72 </span>            :   Status InternalGet(const ReadOptions&amp;, const Slice&amp; key, void* arg,
+<span class="lineNum">      73 </span>            :                      void (*handle_result)(void* arg, const Slice&amp; k,
+<span class="lineNum">      74 </span>            :                                            const Slice&amp; v));
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span>            :   void ReadMeta(const Footer&amp; footer);
+<span class="lineNum">      77 </span>            :   void ReadFilter(const Slice&amp; filter_handle_value);
+<span class="lineNum">      78 </span>            : 
+<span class="lineNum">      79 </span>            :   Rep* const rep_;
+<span class="lineNum">      80 </span>            : };
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span>            : }  // namespace leveldb
+<span class="lineNum">      83 </span>            : 
+<span class="lineNum">      84 </span>            : #endif  // STORAGE_LEVELDB_INCLUDE_TABLE_H_
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

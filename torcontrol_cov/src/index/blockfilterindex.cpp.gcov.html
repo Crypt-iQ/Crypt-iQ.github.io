@@ -1,0 +1,558 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - torcontrol_cov.info - src/index/blockfilterindex.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">src/index</a> - blockfilterindex.cpp<span style="font-size: 80%;"> (source / <a href="blockfilterindex.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">torcontrol_cov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">203</td>
+            <td class="headerCovTableEntryLo">1.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-20 13:39:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">26</td>
+            <td class="headerCovTableEntryLo">7.7 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2018 The Bitcoin Core developers</a>
+<span class="lineNum">       2 </span>            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       3 </span>            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       4 </span>            : 
+<span class="lineNum">       5 </span>            : #include &lt;map&gt;
+<span class="lineNum">       6 </span>            : 
+<span class="lineNum">       7 </span>            : #include &lt;dbwrapper.h&gt;
+<span class="lineNum">       8 </span>            : #include &lt;index/blockfilterindex.h&gt;
+<span class="lineNum">       9 </span>            : #include &lt;util/system.h&gt;
+<span class="lineNum">      10 </span>            : #include &lt;validation.h&gt;
+<span class="lineNum">      11 </span>            : 
+<span class="lineNum">      12 </span>            : /* The index database stores three items for each block: the disk location of the encoded filter,
+<span class="lineNum">      13 </span>            :  * its dSHA256 hash, and the header. Those belonging to blocks on the active chain are indexed by
+<span class="lineNum">      14 </span>            :  * height, and those belonging to blocks that have been reorganized out of the active chain are
+<span class="lineNum">      15 </span>            :  * indexed by block hash. This ensures that filter data for any block that becomes part of the
+<span class="lineNum">      16 </span>            :  * active chain can always be retrieved, alleviating timing concerns.
+<span class="lineNum">      17 </span>            :  *
+<span class="lineNum">      18 </span>            :  * The filters themselves are stored in flat files and referenced by the LevelDB entries. This
+<span class="lineNum">      19 </span>            :  * minimizes the amount of data written to LevelDB and keeps the database values constant size. The
+<span class="lineNum">      20 </span>            :  * disk location of the next block filter to be written (represented as a FlatFilePos) is stored
+<span class="lineNum">      21 </span>            :  * under the DB_FILTER_POS key.
+<span class="lineNum">      22 </span>            :  *
+<span class="lineNum">      23 </span>            :  * Keys for the height index have the type [DB_BLOCK_HEIGHT, uint32 (BE)]. The height is represented
+<span class="lineNum">      24 </span>            :  * as big-endian so that sequential reads of filters by height are fast.
+<span class="lineNum">      25 </span>            :  * Keys for the hash index have the type [DB_BLOCK_HASH, uint256].
+<span class="lineNum">      26 </span>            :  */
+<span class="lineNum">      27 </span>            : constexpr char DB_BLOCK_HASH = 's';
+<span class="lineNum">      28 </span>            : constexpr char DB_BLOCK_HEIGHT = 't';
+<span class="lineNum">      29 </span>            : constexpr char DB_FILTER_POS = 'P';
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            : constexpr unsigned int MAX_FLTR_FILE_SIZE = 0x1000000; // 16 MiB
+<span class="lineNum">      32 </span>            : /** The pre-allocation chunk size for fltr?????.dat files */
+<span class="lineNum">      33 </span>            : constexpr unsigned int FLTR_FILE_CHUNK_SIZE = 0x100000; // 1 MiB
+<span class="lineNum">      34 </span>            : /** Maximum size of the cfheaders cache
+<span class="lineNum">      35 </span>            :  *  We have a limit to prevent a bug in filling this cache
+<span class="lineNum">      36 </span>            :  *  potentially turning into an OOM. At 2000 entries, this cache
+<span class="lineNum">      37 </span>            :  *  is big enough for a 2,000,000 length block chain, which
+<span class="lineNum">      38 </span>            :  *  we should be enough until ~2047. */
+<span class="lineNum">      39 </span>            : constexpr size_t CF_HEADERS_CACHE_MAX_SZ{2000};
+<span class="lineNum">      40 </span>            : 
+<a name="41"><span class="lineNum">      41 </span>            : namespace {</a>
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span><span class="lineNoCov">          0 : struct DBVal {</span>
+<span class="lineNum">      44 </span>            :     uint256 hash;
+<span class="lineNum">      45 </span>            :     uint256 header;
+<a name="46"><span class="lineNum">      46 </span>            :     FlatFilePos pos;</a>
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span><span class="lineNoCov">          0 :     SERIALIZE_METHODS(DBVal, obj) { READWRITE(obj.hash, obj.header, obj.pos); }</span>
+<span class="lineNum">      49 </span>            : };
+<span class="lineNum">      50 </span>            : 
+<span class="lineNum">      51 </span>            : struct DBHeightKey {
+<span class="lineNum">      52 </span>            :     int height;
+<span class="lineNum">      53 </span>            : 
+<span class="lineNum">      54 </span>            :     DBHeightKey() : height(0) {}
+<span class="lineNum">      55 </span><span class="lineNoCov">          0 :     explicit DBHeightKey(int height_in) : height(height_in) {}</span>
+<a name="56"><span class="lineNum">      56 </span>            : </a>
+<span class="lineNum">      57 </span>            :     template&lt;typename Stream&gt;
+<span class="lineNum">      58 </span><span class="lineNoCov">          0 :     void Serialize(Stream&amp; s) const</span>
+<span class="lineNum">      59 </span>            :     {
+<span class="lineNum">      60 </span><span class="lineNoCov">          0 :         ser_writedata8(s, DB_BLOCK_HEIGHT);</span>
+<span class="lineNum">      61 </span><span class="lineNoCov">          0 :         ser_writedata32be(s, height);</span>
+<span class="lineNum">      62 </span><span class="lineNoCov">          0 :     }</span>
+<a name="63"><span class="lineNum">      63 </span>            : </a>
+<span class="lineNum">      64 </span>            :     template&lt;typename Stream&gt;
+<span class="lineNum">      65 </span><span class="lineNoCov">          0 :     void Unserialize(Stream&amp; s)</span>
+<span class="lineNum">      66 </span>            :     {
+<span class="lineNum">      67 </span><span class="lineNoCov">          0 :         char prefix = ser_readdata8(s);</span>
+<span class="lineNum">      68 </span><span class="lineNoCov">          0 :         if (prefix != DB_BLOCK_HEIGHT) {</span>
+<span class="lineNum">      69 </span><span class="lineNoCov">          0 :             throw std::ios_base::failure(&quot;Invalid format for block filter index DB height key&quot;);</span>
+<span class="lineNum">      70 </span>            :         }
+<span class="lineNum">      71 </span><span class="lineNoCov">          0 :         height = ser_readdata32be(s);</span>
+<span class="lineNum">      72 </span><span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">      73 </span>            : };
+<span class="lineNum">      74 </span>            : 
+<span class="lineNum">      75 </span>            : struct DBHashKey {
+<span class="lineNum">      76 </span>            :     uint256 hash;
+<span class="lineNum">      77 </span>            : 
+<a name="78"><span class="lineNum">      78 </span><span class="lineNoCov">          0 :     explicit DBHashKey(const uint256&amp; hash_in) : hash(hash_in) {}</span></a>
+<span class="lineNum">      79 </span>            : 
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 :     SERIALIZE_METHODS(DBHashKey, obj) {</span>
+<span class="lineNum">      81 </span><span class="lineNoCov">          0 :         char prefix = DB_BLOCK_HASH;</span>
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 :         READWRITE(prefix);</span>
+<span class="lineNum">      83 </span>            :         if (prefix != DB_BLOCK_HASH) {
+<span class="lineNum">      84 </span>            :             throw std::ios_base::failure(&quot;Invalid format for block filter index DB hash key&quot;);
+<span class="lineNum">      85 </span>            :         }
+<span class="lineNum">      86 </span>            : 
+<span class="lineNum">      87 </span><span class="lineNoCov">          0 :         READWRITE(obj.hash);</span>
+<span class="lineNum">      88 </span><span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">      89 </span>            : };
+<span class="lineNum">      90 </span>            : 
+<span class="lineNum">      91 </span>            : }; // namespace
+<span class="lineNum">      92 </span>            : 
+<span class="lineNum">      93 </span><span class="lineCov">      14908 : static std::map&lt;BlockFilterType, BlockFilterIndex&gt; g_filter_indexes;</span>
+<span class="lineNum">      94 </span>            : 
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 : BlockFilterIndex::BlockFilterIndex(BlockFilterType filter_type,</span>
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :                                    size_t n_cache_size, bool f_memory, bool f_wipe)</span>
+<span class="lineNum">      97 </span><span class="lineNoCov">          0 :     : m_filter_type(filter_type)</span>
+<span class="lineNum">      98 </span>            : {
+<span class="lineNum">      99 </span><span class="lineNoCov">          0 :     const std::string&amp; filter_name = BlockFilterTypeName(filter_type);</span>
+<span class="lineNum">     100 </span><span class="lineNoCov">          0 :     if (filter_name.empty()) throw std::invalid_argument(&quot;unknown filter_type&quot;);</span>
+<span class="lineNum">     101 </span>            : 
+<span class="lineNum">     102 </span><span class="lineNoCov">          0 :     fs::path path = GetDataDir() / &quot;indexes&quot; / &quot;blockfilter&quot; / filter_name;</span>
+<span class="lineNum">     103 </span><span class="lineNoCov">          0 :     fs::create_directories(path);</span>
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span><span class="lineNoCov">          0 :     m_name = filter_name + &quot; block filter index&quot;;</span>
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 :     m_db = MakeUnique&lt;BaseIndex::DB&gt;(path / &quot;db&quot;, n_cache_size, f_memory, f_wipe);</span>
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 :     m_filter_fileseq = MakeUnique&lt;FlatFileSeq&gt;(std::move(path), &quot;fltr&quot;, FLTR_FILE_CHUNK_SIZE);</span>
+<a name="108"><span class="lineNum">     108 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     109 </span>            : 
+<span class="lineNum">     110 </span><span class="lineNoCov">          0 : bool BlockFilterIndex::Init()</span>
+<span class="lineNum">     111 </span>            : {
+<span class="lineNum">     112 </span><span class="lineNoCov">          0 :     if (!m_db-&gt;Read(DB_FILTER_POS, m_next_filter_pos)) {</span>
+<span class="lineNum">     113 </span>            :         // Check that the cause of the read failure is that the key does not exist. Any other errors
+<span class="lineNum">     114 </span>            :         // indicate database corruption or a disk failure, and starting the index would cause
+<span class="lineNum">     115 </span>            :         // further corruption.
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 :         if (m_db-&gt;Exists(DB_FILTER_POS)) {</span>
+<span class="lineNum">     117 </span>            :             return error(&quot;%s: Cannot read current %s state; index may be corrupted&quot;,
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :                          __func__, GetName());</span>
+<span class="lineNum">     119 </span>            :         }
+<span class="lineNum">     120 </span>            : 
+<span class="lineNum">     121 </span>            :         // If the DB_FILTER_POS is not set, then initialize to the first location.
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :         m_next_filter_pos.nFile = 0;</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :         m_next_filter_pos.nPos = 0;</span>
+<span class="lineNum">     124 </span>            :     }
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :     return BaseIndex::Init();</span>
+<a name="126"><span class="lineNum">     126 </span>            : }</a>
+<span class="lineNum">     127 </span>            : 
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 : bool BlockFilterIndex::CommitInternal(CDBBatch&amp; batch)</span>
+<span class="lineNum">     129 </span>            : {
+<span class="lineNum">     130 </span><span class="lineNoCov">          0 :     const FlatFilePos&amp; pos = m_next_filter_pos;</span>
+<span class="lineNum">     131 </span>            : 
+<span class="lineNum">     132 </span>            :     // Flush current filter file to disk.
+<span class="lineNum">     133 </span><span class="lineNoCov">          0 :     CAutoFile file(m_filter_fileseq-&gt;Open(pos), SER_DISK, CLIENT_VERSION);</span>
+<span class="lineNum">     134 </span><span class="lineNoCov">          0 :     if (file.IsNull()) {</span>
+<span class="lineNum">     135 </span><span class="lineNoCov">          0 :         return error(&quot;%s: Failed to open filter file %d&quot;, __func__, pos.nFile);</span>
+<span class="lineNum">     136 </span>            :     }
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 :     if (!FileCommit(file.Get())) {</span>
+<span class="lineNum">     138 </span><span class="lineNoCov">          0 :         return error(&quot;%s: Failed to commit filter file %d&quot;, __func__, pos.nFile);</span>
+<span class="lineNum">     139 </span>            :     }
+<span class="lineNum">     140 </span>            : 
+<span class="lineNum">     141 </span><span class="lineNoCov">          0 :     batch.Write(DB_FILTER_POS, pos);</span>
+<span class="lineNum">     142 </span><span class="lineNoCov">          0 :     return BaseIndex::CommitInternal(batch);</span>
+<span class="lineNum">     143 </span>            : }
+<span class="lineNum">     144 </span>            : 
+<span class="lineNum">     145 </span><span class="lineNoCov">          0 : bool BlockFilterIndex::ReadFilterFromDisk(const FlatFilePos&amp; pos, BlockFilter&amp; filter) const</span>
+<span class="lineNum">     146 </span>            : {
+<span class="lineNum">     147 </span><span class="lineNoCov">          0 :     CAutoFile filein(m_filter_fileseq-&gt;Open(pos, true), SER_DISK, CLIENT_VERSION);</span>
+<span class="lineNum">     148 </span><span class="lineNoCov">          0 :     if (filein.IsNull()) {</span>
+<span class="lineNum">     149 </span>            :         return false;
+<span class="lineNum">     150 </span>            :     }
+<span class="lineNum">     151 </span>            : 
+<span class="lineNum">     152 </span><span class="lineNoCov">          0 :     uint256 block_hash;</span>
+<span class="lineNum">     153 </span><span class="lineNoCov">          0 :     std::vector&lt;unsigned char&gt; encoded_filter;</span>
+<span class="lineNum">     154 </span>            :     try {
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :         filein &gt;&gt; block_hash &gt;&gt; encoded_filter;</span>
+<span class="lineNum">     156 </span><span class="lineNoCov">          0 :         filter = BlockFilter(GetFilterType(), block_hash, std::move(encoded_filter));</span>
+<span class="lineNum">     157 </span>            :     }
+<span class="lineNum">     158 </span><span class="lineNoCov">          0 :     catch (const std::exception&amp; e) {</span>
+<span class="lineNum">     159 </span><span class="lineNoCov">          0 :         return error(&quot;%s: Failed to deserialize block filter from disk: %s&quot;, __func__, e.what());</span>
+<span class="lineNum">     160 </span>            :     }
+<span class="lineNum">     161 </span>            : 
+<span class="lineNum">     162 </span><span class="lineNoCov">          0 :     return true;</span>
+<a name="163"><span class="lineNum">     163 </span>            : }</a>
+<span class="lineNum">     164 </span>            : 
+<span class="lineNum">     165 </span><span class="lineNoCov">          0 : size_t BlockFilterIndex::WriteFilterToDisk(FlatFilePos&amp; pos, const BlockFilter&amp; filter)</span>
+<span class="lineNum">     166 </span>            : {
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 :     assert(filter.GetFilterType() == GetFilterType());</span>
+<span class="lineNum">     168 </span>            : 
+<span class="lineNum">     169 </span>            :     size_t data_size =
+<span class="lineNum">     170 </span><span class="lineNoCov">          0 :         GetSerializeSize(filter.GetBlockHash(), CLIENT_VERSION) +</span>
+<span class="lineNum">     171 </span><span class="lineNoCov">          0 :         GetSerializeSize(filter.GetEncodedFilter(), CLIENT_VERSION);</span>
+<span class="lineNum">     172 </span>            : 
+<span class="lineNum">     173 </span>            :     // If writing the filter would overflow the file, flush and move to the next one.
+<span class="lineNum">     174 </span><span class="lineNoCov">          0 :     if (pos.nPos + data_size &gt; MAX_FLTR_FILE_SIZE) {</span>
+<span class="lineNum">     175 </span><span class="lineNoCov">          0 :         CAutoFile last_file(m_filter_fileseq-&gt;Open(pos), SER_DISK, CLIENT_VERSION);</span>
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 :         if (last_file.IsNull()) {</span>
+<span class="lineNum">     177 </span><span class="lineNoCov">          0 :             LogPrintf(&quot;%s: Failed to open filter file %d\n&quot;, __func__, pos.nFile);</span>
+<span class="lineNum">     178 </span>            :             return 0;
+<span class="lineNum">     179 </span>            :         }
+<span class="lineNum">     180 </span><span class="lineNoCov">          0 :         if (!TruncateFile(last_file.Get(), pos.nPos)) {</span>
+<span class="lineNum">     181 </span><span class="lineNoCov">          0 :             LogPrintf(&quot;%s: Failed to truncate filter file %d\n&quot;, __func__, pos.nFile);</span>
+<span class="lineNum">     182 </span>            :             return 0;
+<span class="lineNum">     183 </span>            :         }
+<span class="lineNum">     184 </span><span class="lineNoCov">          0 :         if (!FileCommit(last_file.Get())) {</span>
+<span class="lineNum">     185 </span><span class="lineNoCov">          0 :             LogPrintf(&quot;%s: Failed to commit filter file %d\n&quot;, __func__, pos.nFile);</span>
+<span class="lineNum">     186 </span>            :             return 0;
+<span class="lineNum">     187 </span>            :         }
+<span class="lineNum">     188 </span>            : 
+<span class="lineNum">     189 </span><span class="lineNoCov">          0 :         pos.nFile++;</span>
+<span class="lineNum">     190 </span><span class="lineNoCov">          0 :         pos.nPos = 0;</span>
+<span class="lineNum">     191 </span>            :     }
+<span class="lineNum">     192 </span>            : 
+<span class="lineNum">     193 </span>            :     // Pre-allocate sufficient space for filter data.
+<span class="lineNum">     194 </span>            :     bool out_of_space;
+<span class="lineNum">     195 </span><span class="lineNoCov">          0 :     m_filter_fileseq-&gt;Allocate(pos, data_size, out_of_space);</span>
+<span class="lineNum">     196 </span><span class="lineNoCov">          0 :     if (out_of_space) {</span>
+<span class="lineNum">     197 </span><span class="lineNoCov">          0 :         LogPrintf(&quot;%s: out of disk space\n&quot;, __func__);</span>
+<span class="lineNum">     198 </span><span class="lineNoCov">          0 :         return 0;</span>
+<span class="lineNum">     199 </span>            :     }
+<span class="lineNum">     200 </span>            : 
+<span class="lineNum">     201 </span><span class="lineNoCov">          0 :     CAutoFile fileout(m_filter_fileseq-&gt;Open(pos), SER_DISK, CLIENT_VERSION);</span>
+<span class="lineNum">     202 </span><span class="lineNoCov">          0 :     if (fileout.IsNull()) {</span>
+<span class="lineNum">     203 </span><span class="lineNoCov">          0 :         LogPrintf(&quot;%s: Failed to open filter file %d\n&quot;, __func__, pos.nFile);</span>
+<span class="lineNum">     204 </span>            :         return 0;
+<span class="lineNum">     205 </span>            :     }
+<span class="lineNum">     206 </span>            : 
+<span class="lineNum">     207 </span><span class="lineNoCov">          0 :     fileout &lt;&lt; filter.GetBlockHash() &lt;&lt; filter.GetEncodedFilter();</span>
+<span class="lineNum">     208 </span>            :     return data_size;
+<span class="lineNum">     209 </span>            : }
+<span class="lineNum">     210 </span>            : 
+<span class="lineNum">     211 </span><span class="lineNoCov">          0 : bool BlockFilterIndex::WriteBlock(const CBlock&amp; block, const CBlockIndex* pindex)</span>
+<span class="lineNum">     212 </span>            : {
+<span class="lineNum">     213 </span><span class="lineNoCov">          0 :     CBlockUndo block_undo;</span>
+<span class="lineNum">     214 </span><span class="lineNoCov">          0 :     uint256 prev_header;</span>
+<span class="lineNum">     215 </span>            : 
+<span class="lineNum">     216 </span><span class="lineNoCov">          0 :     if (pindex-&gt;nHeight &gt; 0) {</span>
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :         if (!UndoReadFromDisk(block_undo, pindex)) {</span>
+<span class="lineNum">     218 </span>            :             return false;
+<span class="lineNum">     219 </span>            :         }
+<span class="lineNum">     220 </span>            : 
+<span class="lineNum">     221 </span><span class="lineNoCov">          0 :         std::pair&lt;uint256, DBVal&gt; read_out;</span>
+<span class="lineNum">     222 </span><span class="lineNoCov">          0 :         if (!m_db-&gt;Read(DBHeightKey(pindex-&gt;nHeight - 1), read_out)) {</span>
+<span class="lineNum">     223 </span>            :             return false;
+<span class="lineNum">     224 </span>            :         }
+<span class="lineNum">     225 </span>            : 
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 :         uint256 expected_block_hash = pindex-&gt;pprev-&gt;GetBlockHash();</span>
+<span class="lineNum">     227 </span><span class="lineNoCov">          0 :         if (read_out.first != expected_block_hash) {</span>
+<span class="lineNum">     228 </span>            :             return error(&quot;%s: previous block header belongs to unexpected block %s; expected %s&quot;,
+<span class="lineNum">     229 </span><span class="lineNoCov">          0 :                          __func__, read_out.first.ToString(), expected_block_hash.ToString());</span>
+<span class="lineNum">     230 </span>            :         }
+<span class="lineNum">     231 </span>            : 
+<span class="lineNum">     232 </span><span class="lineNoCov">          0 :         prev_header = read_out.second.header;</span>
+<span class="lineNum">     233 </span>            :     }
+<span class="lineNum">     234 </span>            : 
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 :     BlockFilter filter(m_filter_type, block, block_undo);</span>
+<span class="lineNum">     236 </span>            : 
+<span class="lineNum">     237 </span><span class="lineNoCov">          0 :     size_t bytes_written = WriteFilterToDisk(m_next_filter_pos, filter);</span>
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 :     if (bytes_written == 0) return false;</span>
+<span class="lineNum">     239 </span>            : 
+<span class="lineNum">     240 </span><span class="lineNoCov">          0 :     std::pair&lt;uint256, DBVal&gt; value;</span>
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 :     value.first = pindex-&gt;GetBlockHash();</span>
+<span class="lineNum">     242 </span><span class="lineNoCov">          0 :     value.second.hash = filter.GetHash();</span>
+<span class="lineNum">     243 </span><span class="lineNoCov">          0 :     value.second.header = filter.ComputeHeader(prev_header);</span>
+<span class="lineNum">     244 </span><span class="lineNoCov">          0 :     value.second.pos = m_next_filter_pos;</span>
+<span class="lineNum">     245 </span>            : 
+<span class="lineNum">     246 </span><span class="lineNoCov">          0 :     if (!m_db-&gt;Write(DBHeightKey(pindex-&gt;nHeight), value)) {</span>
+<span class="lineNum">     247 </span>            :         return false;
+<span class="lineNum">     248 </span>            :     }
+<span class="lineNum">     249 </span>            : 
+<span class="lineNum">     250 </span><span class="lineNoCov">          0 :     m_next_filter_pos.nPos += bytes_written;</span>
+<span class="lineNum">     251 </span><span class="lineNoCov">          0 :     return true;</span>
+<a name="252"><span class="lineNum">     252 </span>            : }</a>
+<span class="lineNum">     253 </span>            : 
+<span class="lineNum">     254 </span><span class="lineNoCov">          0 : static bool CopyHeightIndexToHashIndex(CDBIterator&amp; db_it, CDBBatch&amp; batch,</span>
+<span class="lineNum">     255 </span>            :                                        const std::string&amp; index_name,
+<span class="lineNum">     256 </span>            :                                        int start_height, int stop_height)
+<span class="lineNum">     257 </span>            : {
+<span class="lineNum">     258 </span><span class="lineNoCov">          0 :     DBHeightKey key(start_height);</span>
+<span class="lineNum">     259 </span><span class="lineNoCov">          0 :     db_it.Seek(key);</span>
+<span class="lineNum">     260 </span>            : 
+<span class="lineNum">     261 </span><span class="lineNoCov">          0 :     for (int height = start_height; height &lt;= stop_height; ++height) {</span>
+<span class="lineNum">     262 </span><span class="lineNoCov">          0 :         if (!db_it.GetKey(key) || key.height != height) {</span>
+<span class="lineNum">     263 </span>            :             return error(&quot;%s: unexpected key in %s: expected (%c, %d)&quot;,
+<span class="lineNum">     264 </span><span class="lineNoCov">          0 :                          __func__, index_name, DB_BLOCK_HEIGHT, height);</span>
+<span class="lineNum">     265 </span>            :         }
+<span class="lineNum">     266 </span>            : 
+<span class="lineNum">     267 </span><span class="lineNoCov">          0 :         std::pair&lt;uint256, DBVal&gt; value;</span>
+<span class="lineNum">     268 </span><span class="lineNoCov">          0 :         if (!db_it.GetValue(value)) {</span>
+<span class="lineNum">     269 </span>            :             return error(&quot;%s: unable to read value in %s at key (%c, %d)&quot;,
+<span class="lineNum">     270 </span><span class="lineNoCov">          0 :                          __func__, index_name, DB_BLOCK_HEIGHT, height);</span>
+<span class="lineNum">     271 </span>            :         }
+<span class="lineNum">     272 </span>            : 
+<span class="lineNum">     273 </span><span class="lineNoCov">          0 :         batch.Write(DBHashKey(value.first), std::move(value.second));</span>
+<span class="lineNum">     274 </span>            : 
+<span class="lineNum">     275 </span><span class="lineNoCov">          0 :         db_it.Next();</span>
+<span class="lineNum">     276 </span>            :     }
+<span class="lineNum">     277 </span>            :     return true;
+<a name="278"><span class="lineNum">     278 </span>            : }</a>
+<span class="lineNum">     279 </span>            : 
+<span class="lineNum">     280 </span><span class="lineNoCov">          0 : bool BlockFilterIndex::Rewind(const CBlockIndex* current_tip, const CBlockIndex* new_tip)</span>
+<span class="lineNum">     281 </span>            : {
+<span class="lineNum">     282 </span><span class="lineNoCov">          0 :     assert(current_tip-&gt;GetAncestor(new_tip-&gt;nHeight) == new_tip);</span>
+<span class="lineNum">     283 </span>            : 
+<span class="lineNum">     284 </span><span class="lineNoCov">          0 :     CDBBatch batch(*m_db);</span>
+<span class="lineNum">     285 </span><span class="lineNoCov">          0 :     std::unique_ptr&lt;CDBIterator&gt; db_it(m_db-&gt;NewIterator());</span>
+<span class="lineNum">     286 </span>            : 
+<span class="lineNum">     287 </span>            :     // During a reorg, we need to copy all filters for blocks that are getting disconnected from the
+<span class="lineNum">     288 </span>            :     // height index to the hash index so we can still find them when the height index entries are
+<span class="lineNum">     289 </span>            :     // overwritten.
+<span class="lineNum">     290 </span><span class="lineNoCov">          0 :     if (!CopyHeightIndexToHashIndex(*db_it, batch, m_name, new_tip-&gt;nHeight, current_tip-&gt;nHeight)) {</span>
+<span class="lineNum">     291 </span>            :         return false;
+<span class="lineNum">     292 </span>            :     }
+<span class="lineNum">     293 </span>            : 
+<span class="lineNum">     294 </span>            :     // The latest filter position gets written in Commit by the call to the BaseIndex::Rewind.
+<span class="lineNum">     295 </span>            :     // But since this creates new references to the filter, the position should get updated here
+<span class="lineNum">     296 </span>            :     // atomically as well in case Commit fails.
+<span class="lineNum">     297 </span><span class="lineNoCov">          0 :     batch.Write(DB_FILTER_POS, m_next_filter_pos);</span>
+<span class="lineNum">     298 </span><span class="lineNoCov">          0 :     if (!m_db-&gt;WriteBatch(batch)) return false;</span>
+<span class="lineNum">     299 </span>            : 
+<span class="lineNum">     300 </span><span class="lineNoCov">          0 :     return BaseIndex::Rewind(current_tip, new_tip);</span>
+<a name="301"><span class="lineNum">     301 </span>            : }</a>
+<span class="lineNum">     302 </span>            : 
+<span class="lineNum">     303 </span><span class="lineNoCov">          0 : static bool LookupOne(const CDBWrapper&amp; db, const CBlockIndex* block_index, DBVal&amp; result)</span>
+<span class="lineNum">     304 </span>            : {
+<span class="lineNum">     305 </span>            :     // First check if the result is stored under the height index and the value there matches the
+<span class="lineNum">     306 </span>            :     // block hash. This should be the case if the block is on the active chain.
+<span class="lineNum">     307 </span><span class="lineNoCov">          0 :     std::pair&lt;uint256, DBVal&gt; read_out;</span>
+<span class="lineNum">     308 </span><span class="lineNoCov">          0 :     if (!db.Read(DBHeightKey(block_index-&gt;nHeight), read_out)) {</span>
+<span class="lineNum">     309 </span>            :         return false;
+<span class="lineNum">     310 </span>            :     }
+<span class="lineNum">     311 </span><span class="lineNoCov">          0 :     if (read_out.first == block_index-&gt;GetBlockHash()) {</span>
+<span class="lineNum">     312 </span><span class="lineNoCov">          0 :         result = std::move(read_out.second);</span>
+<span class="lineNum">     313 </span><span class="lineNoCov">          0 :         return true;</span>
+<span class="lineNum">     314 </span>            :     }
+<span class="lineNum">     315 </span>            : 
+<span class="lineNum">     316 </span>            :     // If value at the height index corresponds to an different block, the result will be stored in
+<span class="lineNum">     317 </span>            :     // the hash index.
+<span class="lineNum">     318 </span><span class="lineNoCov">          0 :     return db.Read(DBHashKey(block_index-&gt;GetBlockHash()), result);</span>
+<span class="lineNum">     319 </span>            : }
+<span class="lineNum">     320 </span>            : 
+<span class="lineNum">     321 </span><span class="lineNoCov">          0 : static bool LookupRange(CDBWrapper&amp; db, const std::string&amp; index_name, int start_height,</span>
+<span class="lineNum">     322 </span>            :                         const CBlockIndex* stop_index, std::vector&lt;DBVal&gt;&amp; results)
+<span class="lineNum">     323 </span>            : {
+<span class="lineNum">     324 </span><span class="lineNoCov">          0 :     if (start_height &lt; 0) {</span>
+<span class="lineNum">     325 </span><span class="lineNoCov">          0 :         return error(&quot;%s: start height (%d) is negative&quot;, __func__, start_height);</span>
+<span class="lineNum">     326 </span>            :     }
+<span class="lineNum">     327 </span><span class="lineNoCov">          0 :     if (start_height &gt; stop_index-&gt;nHeight) {</span>
+<span class="lineNum">     328 </span><span class="lineNoCov">          0 :         return error(&quot;%s: start height (%d) is greater than stop height (%d)&quot;,</span>
+<span class="lineNum">     329 </span><span class="lineNoCov">          0 :                      __func__, start_height, stop_index-&gt;nHeight);</span>
+<span class="lineNum">     330 </span>            :     }
+<span class="lineNum">     331 </span>            : 
+<span class="lineNum">     332 </span><span class="lineNoCov">          0 :     size_t results_size = static_cast&lt;size_t&gt;(stop_index-&gt;nHeight - start_height + 1);</span>
+<span class="lineNum">     333 </span><span class="lineNoCov">          0 :     std::vector&lt;std::pair&lt;uint256, DBVal&gt;&gt; values(results_size);</span>
+<span class="lineNum">     334 </span>            : 
+<span class="lineNum">     335 </span><span class="lineNoCov">          0 :     DBHeightKey key(start_height);</span>
+<span class="lineNum">     336 </span><span class="lineNoCov">          0 :     std::unique_ptr&lt;CDBIterator&gt; db_it(db.NewIterator());</span>
+<span class="lineNum">     337 </span><span class="lineNoCov">          0 :     db_it-&gt;Seek(DBHeightKey(start_height));</span>
+<span class="lineNum">     338 </span><span class="lineNoCov">          0 :     for (int height = start_height; height &lt;= stop_index-&gt;nHeight; ++height) {</span>
+<span class="lineNum">     339 </span><span class="lineNoCov">          0 :         if (!db_it-&gt;Valid() || !db_it-&gt;GetKey(key) || key.height != height) {</span>
+<span class="lineNum">     340 </span>            :             return false;
+<span class="lineNum">     341 </span>            :         }
+<span class="lineNum">     342 </span>            : 
+<span class="lineNum">     343 </span><span class="lineNoCov">          0 :         size_t i = static_cast&lt;size_t&gt;(height - start_height);</span>
+<span class="lineNum">     344 </span><span class="lineNoCov">          0 :         if (!db_it-&gt;GetValue(values[i])) {</span>
+<span class="lineNum">     345 </span>            :             return error(&quot;%s: unable to read value in %s at key (%c, %d)&quot;,
+<span class="lineNum">     346 </span><span class="lineNoCov">          0 :                          __func__, index_name, DB_BLOCK_HEIGHT, height);</span>
+<span class="lineNum">     347 </span>            :         }
+<span class="lineNum">     348 </span>            : 
+<span class="lineNum">     349 </span><span class="lineNoCov">          0 :         db_it-&gt;Next();</span>
+<span class="lineNum">     350 </span>            :     }
+<span class="lineNum">     351 </span>            : 
+<span class="lineNum">     352 </span><span class="lineNoCov">          0 :     results.resize(results_size);</span>
+<span class="lineNum">     353 </span>            : 
+<span class="lineNum">     354 </span>            :     // Iterate backwards through block indexes collecting results in order to access the block hash
+<span class="lineNum">     355 </span>            :     // of each entry in case we need to look it up in the hash index.
+<span class="lineNum">     356 </span><span class="lineNoCov">          0 :     for (const CBlockIndex* block_index = stop_index;</span>
+<span class="lineNum">     357 </span><span class="lineNoCov">          0 :          block_index &amp;&amp; block_index-&gt;nHeight &gt;= start_height;</span>
+<span class="lineNum">     358 </span><span class="lineNoCov">          0 :          block_index = block_index-&gt;pprev) {</span>
+<span class="lineNum">     359 </span><span class="lineNoCov">          0 :         uint256 block_hash = block_index-&gt;GetBlockHash();</span>
+<span class="lineNum">     360 </span>            : 
+<span class="lineNum">     361 </span><span class="lineNoCov">          0 :         size_t i = static_cast&lt;size_t&gt;(block_index-&gt;nHeight - start_height);</span>
+<span class="lineNum">     362 </span><span class="lineNoCov">          0 :         if (block_hash == values[i].first) {</span>
+<span class="lineNum">     363 </span><span class="lineNoCov">          0 :             results[i] = std::move(values[i].second);</span>
+<span class="lineNum">     364 </span><span class="lineNoCov">          0 :             continue;</span>
+<span class="lineNum">     365 </span>            :         }
+<span class="lineNum">     366 </span>            : 
+<span class="lineNum">     367 </span><span class="lineNoCov">          0 :         if (!db.Read(DBHashKey(block_hash), results[i])) {</span>
+<span class="lineNum">     368 </span>            :             return error(&quot;%s: unable to read value in %s at key (%c, %s)&quot;,
+<span class="lineNum">     369 </span><span class="lineNoCov">          0 :                          __func__, index_name, DB_BLOCK_HASH, block_hash.ToString());</span>
+<span class="lineNum">     370 </span>            :         }
+<span class="lineNum">     371 </span>            :     }
+<span class="lineNum">     372 </span>            : 
+<span class="lineNum">     373 </span>            :     return true;
+<a name="374"><span class="lineNum">     374 </span>            : }</a>
+<span class="lineNum">     375 </span>            : 
+<span class="lineNum">     376 </span><span class="lineNoCov">          0 : bool BlockFilterIndex::LookupFilter(const CBlockIndex* block_index, BlockFilter&amp; filter_out) const</span>
+<span class="lineNum">     377 </span>            : {
+<span class="lineNum">     378 </span><span class="lineNoCov">          0 :     DBVal entry;</span>
+<span class="lineNum">     379 </span><span class="lineNoCov">          0 :     if (!LookupOne(*m_db, block_index, entry)) {</span>
+<span class="lineNum">     380 </span>            :         return false;
+<span class="lineNum">     381 </span>            :     }
+<span class="lineNum">     382 </span>            : 
+<span class="lineNum">     383 </span><span class="lineNoCov">          0 :     return ReadFilterFromDisk(entry.pos, filter_out);</span>
+<a name="384"><span class="lineNum">     384 </span>            : }</a>
+<span class="lineNum">     385 </span>            : 
+<span class="lineNum">     386 </span><span class="lineNoCov">          0 : bool BlockFilterIndex::LookupFilterHeader(const CBlockIndex* block_index, uint256&amp; header_out)</span>
+<span class="lineNum">     387 </span>            : {
+<span class="lineNum">     388 </span><span class="lineNoCov">          0 :     LOCK(m_cs_headers_cache);</span>
+<span class="lineNum">     389 </span>            : 
+<span class="lineNum">     390 </span><span class="lineNoCov">          0 :     bool is_checkpoint{block_index-&gt;nHeight % CFCHECKPT_INTERVAL == 0};</span>
+<span class="lineNum">     391 </span>            : 
+<span class="lineNum">     392 </span><span class="lineNoCov">          0 :     if (is_checkpoint) {</span>
+<span class="lineNum">     393 </span>            :         // Try to find the block in the headers cache if this is a checkpoint height.
+<span class="lineNum">     394 </span><span class="lineNoCov">          0 :         auto header = m_headers_cache.find(block_index-&gt;GetBlockHash());</span>
+<span class="lineNum">     395 </span><span class="lineNoCov">          0 :         if (header != m_headers_cache.end()) {</span>
+<span class="lineNum">     396 </span><span class="lineNoCov">          0 :             header_out = header-&gt;second;</span>
+<span class="lineNum">     397 </span><span class="lineNoCov">          0 :             return true;</span>
+<span class="lineNum">     398 </span>            :         }
+<span class="lineNum">     399 </span>            :     }
+<span class="lineNum">     400 </span>            : 
+<span class="lineNum">     401 </span><span class="lineNoCov">          0 :     DBVal entry;</span>
+<span class="lineNum">     402 </span><span class="lineNoCov">          0 :     if (!LookupOne(*m_db, block_index, entry)) {</span>
+<span class="lineNum">     403 </span>            :         return false;
+<span class="lineNum">     404 </span>            :     }
+<span class="lineNum">     405 </span>            : 
+<span class="lineNum">     406 </span><span class="lineNoCov">          0 :     if (is_checkpoint &amp;&amp;</span>
+<span class="lineNum">     407 </span><span class="lineNoCov">          0 :         m_headers_cache.size() &lt; CF_HEADERS_CACHE_MAX_SZ) {</span>
+<span class="lineNum">     408 </span>            :         // Add to the headers cache if this is a checkpoint height.
+<span class="lineNum">     409 </span><span class="lineNoCov">          0 :         m_headers_cache.emplace(block_index-&gt;GetBlockHash(), entry.header);</span>
+<span class="lineNum">     410 </span>            :     }
+<span class="lineNum">     411 </span>            : 
+<span class="lineNum">     412 </span><span class="lineNoCov">          0 :     header_out = entry.header;</span>
+<span class="lineNum">     413 </span><span class="lineNoCov">          0 :     return true;</span>
+<span class="lineNum">     414 </span>            : }
+<span class="lineNum">     415 </span>            : 
+<span class="lineNum">     416 </span><span class="lineNoCov">          0 : bool BlockFilterIndex::LookupFilterRange(int start_height, const CBlockIndex* stop_index,</span>
+<span class="lineNum">     417 </span>            :                                          std::vector&lt;BlockFilter&gt;&amp; filters_out) const
+<span class="lineNum">     418 </span>            : {
+<span class="lineNum">     419 </span><span class="lineNoCov">          0 :     std::vector&lt;DBVal&gt; entries;</span>
+<span class="lineNum">     420 </span><span class="lineNoCov">          0 :     if (!LookupRange(*m_db, m_name, start_height, stop_index, entries)) {</span>
+<span class="lineNum">     421 </span>            :         return false;
+<span class="lineNum">     422 </span>            :     }
+<span class="lineNum">     423 </span>            : 
+<span class="lineNum">     424 </span><span class="lineNoCov">          0 :     filters_out.resize(entries.size());</span>
+<span class="lineNum">     425 </span><span class="lineNoCov">          0 :     auto filter_pos_it = filters_out.begin();</span>
+<span class="lineNum">     426 </span><span class="lineNoCov">          0 :     for (const auto&amp; entry : entries) {</span>
+<span class="lineNum">     427 </span><span class="lineNoCov">          0 :         if (!ReadFilterFromDisk(entry.pos, *filter_pos_it)) {</span>
+<span class="lineNum">     428 </span>            :             return false;
+<span class="lineNum">     429 </span>            :         }
+<span class="lineNum">     430 </span><span class="lineNoCov">          0 :         ++filter_pos_it;</span>
+<span class="lineNum">     431 </span>            :     }
+<span class="lineNum">     432 </span>            : 
+<span class="lineNum">     433 </span>            :     return true;
+<span class="lineNum">     434 </span>            : }
+<span class="lineNum">     435 </span>            : 
+<span class="lineNum">     436 </span><span class="lineNoCov">          0 : bool BlockFilterIndex::LookupFilterHashRange(int start_height, const CBlockIndex* stop_index,</span>
+<span class="lineNum">     437 </span>            :                                              std::vector&lt;uint256&gt;&amp; hashes_out) const
+<span class="lineNum">     438 </span>            : 
+<span class="lineNum">     439 </span>            : {
+<span class="lineNum">     440 </span><span class="lineNoCov">          0 :     std::vector&lt;DBVal&gt; entries;</span>
+<span class="lineNum">     441 </span><span class="lineNoCov">          0 :     if (!LookupRange(*m_db, m_name, start_height, stop_index, entries)) {</span>
+<span class="lineNum">     442 </span>            :         return false;
+<span class="lineNum">     443 </span>            :     }
+<span class="lineNum">     444 </span>            : 
+<span class="lineNum">     445 </span><span class="lineNoCov">          0 :     hashes_out.clear();</span>
+<span class="lineNum">     446 </span><span class="lineNoCov">          0 :     hashes_out.reserve(entries.size());</span>
+<span class="lineNum">     447 </span><span class="lineNoCov">          0 :     for (const auto&amp; entry : entries) {</span>
+<span class="lineNum">     448 </span><span class="lineNoCov">          0 :         hashes_out.push_back(entry.hash);</span>
+<span class="lineNum">     449 </span>            :     }
+<span class="lineNum">     450 </span>            :     return true;
+<a name="451"><span class="lineNum">     451 </span>            : }</a>
+<span class="lineNum">     452 </span>            : 
+<span class="lineNum">     453 </span><span class="lineNoCov">          0 : BlockFilterIndex* GetBlockFilterIndex(BlockFilterType filter_type)</span>
+<span class="lineNum">     454 </span>            : {
+<span class="lineNum">     455 </span><span class="lineNoCov">          0 :     auto it = g_filter_indexes.find(filter_type);</span>
+<span class="lineNum">     456 </span><span class="lineNoCov">          0 :     return it != g_filter_indexes.end() ? &amp;it-&gt;second : nullptr;</span>
+<a name="457"><span class="lineNum">     457 </span>            : }</a>
+<span class="lineNum">     458 </span>            : 
+<span class="lineNum">     459 </span><span class="lineNoCov">          0 : void ForEachBlockFilterIndex(std::function&lt;void (BlockFilterIndex&amp;)&gt; fn)</span>
+<span class="lineNum">     460 </span>            : {
+<span class="lineNum">     461 </span><span class="lineNoCov">          0 :     for (auto&amp; entry : g_filter_indexes) fn(entry.second);</span>
+<a name="462"><span class="lineNum">     462 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     463 </span>            : 
+<span class="lineNum">     464 </span><span class="lineNoCov">          0 : bool InitBlockFilterIndex(BlockFilterType filter_type,</span>
+<span class="lineNum">     465 </span>            :                           size_t n_cache_size, bool f_memory, bool f_wipe)
+<span class="lineNum">     466 </span>            : {
+<span class="lineNum">     467 </span>            :     auto result = g_filter_indexes.emplace(std::piecewise_construct,
+<span class="lineNum">     468 </span>            :                                            std::forward_as_tuple(filter_type),
+<span class="lineNum">     469 </span>            :                                            std::forward_as_tuple(filter_type,
+<span class="lineNum">     470 </span><span class="lineNoCov">          0 :                                                                  n_cache_size, f_memory, f_wipe));</span>
+<span class="lineNum">     471 </span><span class="lineNoCov">          0 :     return result.second;</span>
+<a name="472"><span class="lineNum">     472 </span>            : }</a>
+<span class="lineNum">     473 </span>            : 
+<span class="lineNum">     474 </span><span class="lineNoCov">          0 : bool DestroyBlockFilterIndex(BlockFilterType filter_type)</span>
+<span class="lineNum">     475 </span>            : {
+<span class="lineNum">     476 </span><span class="lineNoCov">          0 :     return g_filter_indexes.erase(filter_type);</span>
+<a name="477"><span class="lineNum">     477 </span>            : }</a>
+<span class="lineNum">     478 </span>            : 
+<span class="lineNum">     479 </span><span class="lineNoCov">          0 : void DestroyAllBlockFilterIndexes()</span>
+<a name="480"><span class="lineNum">     480 </span>            : {</a>
+<span class="lineNum">     481 </span><span class="lineNoCov">          0 :     g_filter_indexes.clear();</span>
+<span class="lineNum">     482 </span><span class="lineCov">      44724 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

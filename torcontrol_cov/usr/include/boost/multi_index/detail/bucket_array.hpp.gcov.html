@@ -1,0 +1,319 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - torcontrol_cov.info - /usr/include/boost/multi_index/detail/bucket_array.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">usr/include/boost/multi_index/detail</a> - bucket_array.hpp<span style="font-size: 80%;"> (source / <a href="bucket_array.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">torcontrol_cov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntry">24</td>
+            <td class="headerCovTableEntryLo">66.7 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-20 13:39:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryLo">33.3 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* Copyright 2003-2015 Joaquin M Lopez Munoz.</a>
+<span class="lineNum">       2 </span>            :  * Distributed under the Boost Software License, Version 1.0.
+<span class="lineNum">       3 </span>            :  * (See accompanying file LICENSE_1_0.txt or copy at
+<span class="lineNum">       4 </span>            :  * http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       5 </span>            :  *
+<span class="lineNum">       6 </span>            :  * See http://www.boost.org/libs/multi_index for library home page.
+<span class="lineNum">       7 </span>            :  */
+<span class="lineNum">       8 </span>            : 
+<span class="lineNum">       9 </span>            : #ifndef BOOST_MULTI_INDEX_DETAIL_BUCKET_ARRAY_HPP
+<span class="lineNum">      10 </span>            : #define BOOST_MULTI_INDEX_DETAIL_BUCKET_ARRAY_HPP
+<span class="lineNum">      11 </span>            : 
+<span class="lineNum">      12 </span>            : #if defined(_MSC_VER)
+<span class="lineNum">      13 </span>            : #pragma once
+<span class="lineNum">      14 </span>            : #endif
+<span class="lineNum">      15 </span>            : 
+<span class="lineNum">      16 </span>            : #include &lt;boost/config.hpp&gt; /* keep it first to prevent nasty warns in MSVC */
+<span class="lineNum">      17 </span>            : #include &lt;algorithm&gt;
+<span class="lineNum">      18 </span>            : #include &lt;boost/multi_index/detail/auto_space.hpp&gt;
+<span class="lineNum">      19 </span>            : #include &lt;boost/multi_index/detail/hash_index_node.hpp&gt;
+<span class="lineNum">      20 </span>            : #include &lt;boost/noncopyable.hpp&gt;
+<span class="lineNum">      21 </span>            : #include &lt;boost/preprocessor/repetition/repeat.hpp&gt;
+<span class="lineNum">      22 </span>            : #include &lt;boost/preprocessor/seq/elem.hpp&gt;
+<span class="lineNum">      23 </span>            : #include &lt;boost/preprocessor/seq/enum.hpp&gt;
+<span class="lineNum">      24 </span>            : #include &lt;boost/preprocessor/seq/size.hpp&gt;
+<span class="lineNum">      25 </span>            : #include &lt;cstddef&gt;
+<span class="lineNum">      26 </span>            : #include &lt;limits.h&gt;
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            : #if !defined(BOOST_MULTI_INDEX_DISABLE_SERIALIZATION)
+<span class="lineNum">      29 </span>            : #include &lt;boost/archive/archive_exception.hpp&gt;
+<span class="lineNum">      30 </span>            : #include &lt;boost/serialization/access.hpp&gt;
+<span class="lineNum">      31 </span>            : #include &lt;boost/throw_exception.hpp&gt; 
+<span class="lineNum">      32 </span>            : #endif
+<span class="lineNum">      33 </span>            : 
+<span class="lineNum">      34 </span>            : namespace boost{
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span>            : namespace multi_index{
+<span class="lineNum">      37 </span>            : 
+<span class="lineNum">      38 </span>            : namespace detail{
+<span class="lineNum">      39 </span>            : 
+<span class="lineNum">      40 </span>            : /* bucket structure for use by hashed indices */
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span>            : #define BOOST_MULTI_INDEX_BA_SIZES_32BIT                                  \
+<span class="lineNum">      43 </span>            : (53ul)(97ul)(193ul)(389ul)(769ul)                                         \
+<span class="lineNum">      44 </span>            : (1543ul)(3079ul)(6151ul)(12289ul)(24593ul)                                \
+<span class="lineNum">      45 </span>            : (49157ul)(98317ul)(196613ul)(393241ul)(786433ul)                          \
+<span class="lineNum">      46 </span>            : (1572869ul)(3145739ul)(6291469ul)(12582917ul)(25165843ul)                 \
+<span class="lineNum">      47 </span>            : (50331653ul)(100663319ul)(201326611ul)(402653189ul)(805306457ul)          \
+<span class="lineNum">      48 </span>            : (1610612741ul)(3221225473ul)
+<span class="lineNum">      49 </span>            : 
+<span class="lineNum">      50 </span>            : #if ((((ULONG_MAX&gt;&gt;16)&gt;&gt;16)&gt;&gt;16)&gt;&gt;15)==0 /* unsigned long less than 64 bits */
+<span class="lineNum">      51 </span>            : #define BOOST_MULTI_INDEX_BA_SIZES                                         \
+<span class="lineNum">      52 </span>            : BOOST_MULTI_INDEX_BA_SIZES_32BIT                                           \
+<span class="lineNum">      53 </span>            : (4294967291ul)
+<span class="lineNum">      54 </span>            : #else
+<span class="lineNum">      55 </span>            :   /* obtained with aid from
+<span class="lineNum">      56 </span>            :    *   http://javaboutique.internet.com/prime_numb/
+<span class="lineNum">      57 </span>            :    *   http://www.rsok.com/~jrm/next_ten_primes.html
+<span class="lineNum">      58 </span>            :    * and verified with
+<span class="lineNum">      59 </span>            :    *   http://www.alpertron.com.ar/ECM.HTM
+<span class="lineNum">      60 </span>            :    */
+<span class="lineNum">      61 </span>            : 
+<span class="lineNum">      62 </span>            : #define BOOST_MULTI_INDEX_BA_SIZES                                         \
+<span class="lineNum">      63 </span>            : BOOST_MULTI_INDEX_BA_SIZES_32BIT                                           \
+<span class="lineNum">      64 </span>            : (6442450939ul)(12884901893ul)(25769803751ul)(51539607551ul)                \
+<span class="lineNum">      65 </span>            : (103079215111ul)(206158430209ul)(412316860441ul)(824633720831ul)           \
+<span class="lineNum">      66 </span>            : (1649267441651ul)(3298534883309ul)(6597069766657ul)(13194139533299ul)      \
+<span class="lineNum">      67 </span>            : (26388279066623ul)(52776558133303ul)(105553116266489ul)(211106232532969ul) \
+<span class="lineNum">      68 </span>            : (422212465066001ul)(844424930131963ul)(1688849860263953ul)                 \
+<span class="lineNum">      69 </span>            : (3377699720527861ul)(6755399441055731ul)(13510798882111483ul)              \
+<span class="lineNum">      70 </span>            : (27021597764222939ul)(54043195528445957ul)(108086391056891903ul)           \
+<span class="lineNum">      71 </span>            : (216172782113783843ul)(432345564227567621ul)(864691128455135207ul)         \
+<span class="lineNum">      72 </span>            : (1729382256910270481ul)(3458764513820540933ul)(6917529027641081903ul)      \
+<span class="lineNum">      73 </span>            : (13835058055282163729ul)(18446744073709551557ul)
+<span class="lineNum">      74 </span>            : #endif
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span>            : template&lt;bool _=true&gt; /* templatized to have in-header static var defs */
+<span class="lineNum">      77 </span>            : class bucket_array_base:private noncopyable
+<span class="lineNum">      78 </span>            : {
+<span class="lineNum">      79 </span>            : protected:
+<span class="lineNum">      80 </span>            :   static const std::size_t sizes[
+<span class="lineNum">      81 </span>            :     BOOST_PP_SEQ_SIZE(BOOST_MULTI_INDEX_BA_SIZES)];
+<span class="lineNum">      82 </span>            : 
+<span class="lineNum">      83 </span>            :   static std::size_t size_index(std::size_t n)
+<span class="lineNum">      84 </span>            :   {
+<span class="lineNum">      85 </span><span class="lineCov">      29816 :     const std::size_t *bound=std::lower_bound(sizes,sizes+sizes_length,n);</span>
+<span class="lineNum">      86 </span><span class="lineCov">      14908 :     if(bound==sizes+sizes_length)--bound;</span>
+<span class="lineNum">      87 </span><span class="lineCov">      14908 :     return bound-sizes;</span>
+<span class="lineNum">      88 </span>            :   }
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span>            : #define BOOST_MULTI_INDEX_BA_POSITION_CASE(z,n,_)                    \
+<a name="91"><span class="lineNum">      91 </span>            :   case n:return hash%BOOST_PP_SEQ_ELEM(n,BOOST_MULTI_INDEX_BA_SIZES);</a>
+<span class="lineNum">      92 </span>            : 
+<span class="lineNum">      93 </span><span class="lineNoCov">          0 :   static std::size_t position(std::size_t hash,std::size_t size_index_)</span>
+<span class="lineNum">      94 </span>            :   {
+<span class="lineNum">      95 </span>            :     /* Accelerate hash%sizes[size_index_] by replacing with a switch on
+<span class="lineNum">      96 </span>            :      * hash%Ci expressions, each Ci a compile-time constant, which the
+<span class="lineNum">      97 </span>            :      * compiler can implement without using integer division.
+<span class="lineNum">      98 </span>            :      */
+<span class="lineNum">      99 </span>            : 
+<span class="lineNum">     100 </span><span class="lineNoCov">          0 :     switch(size_index_){</span>
+<span class="lineNum">     101 </span><span class="lineNoCov">          0 :       default: /* never used */</span>
+<span class="lineNum">     102 </span><span class="lineNoCov">          0 :       BOOST_PP_REPEAT(</span>
+<span class="lineNum">     103 </span>            :         BOOST_PP_SEQ_SIZE(BOOST_MULTI_INDEX_BA_SIZES),
+<span class="lineNum">     104 </span>            :         BOOST_MULTI_INDEX_BA_POSITION_CASE,~)
+<span class="lineNum">     105 </span>            :     }
+<span class="lineNum">     106 </span>            :   }
+<span class="lineNum">     107 </span>            : 
+<span class="lineNum">     108 </span>            : private:
+<span class="lineNum">     109 </span>            :   static const std::size_t sizes_length;
+<span class="lineNum">     110 </span>            : };
+<span class="lineNum">     111 </span>            : 
+<span class="lineNum">     112 </span>            : template&lt;bool _&gt;
+<span class="lineNum">     113 </span>            : const std::size_t bucket_array_base&lt;_&gt;::sizes[]={
+<span class="lineNum">     114 </span>            :   BOOST_PP_SEQ_ENUM(BOOST_MULTI_INDEX_BA_SIZES)
+<span class="lineNum">     115 </span>            : };
+<span class="lineNum">     116 </span>            : 
+<span class="lineNum">     117 </span>            : template&lt;bool _&gt;
+<span class="lineNum">     118 </span>            : const std::size_t bucket_array_base&lt;_&gt;::sizes_length=
+<span class="lineNum">     119 </span>            :   sizeof(bucket_array_base&lt;_&gt;::sizes)/
+<span class="lineNum">     120 </span>            :   sizeof(bucket_array_base&lt;_&gt;::sizes[0]);
+<span class="lineNum">     121 </span>            : 
+<span class="lineNum">     122 </span>            : #undef BOOST_MULTI_INDEX_BA_POSITION_CASE
+<span class="lineNum">     123 </span>            : #undef BOOST_MULTI_INDEX_BA_SIZES
+<span class="lineNum">     124 </span>            : #undef BOOST_MULTI_INDEX_BA_SIZES_32BIT
+<span class="lineNum">     125 </span>            : 
+<span class="lineNum">     126 </span>            : template&lt;typename Allocator&gt;
+<span class="lineNum">     127 </span><span class="lineCov">      29816 : class bucket_array:bucket_array_base&lt;&gt;</span>
+<span class="lineNum">     128 </span>            : {
+<span class="lineNum">     129 </span>            :   typedef bucket_array_base&lt;&gt;                        super;
+<span class="lineNum">     130 </span>            :   typedef hashed_index_base_node_impl&lt;
+<span class="lineNum">     131 </span>            :     typename boost::detail::allocator::rebind_to&lt;
+<span class="lineNum">     132 </span>            :       Allocator,
+<span class="lineNum">     133 </span>            :       char
+<span class="lineNum">     134 </span>            :     &gt;::type
+<span class="lineNum">     135 </span>            :   &gt;                                                  base_node_impl_type;
+<span class="lineNum">     136 </span>            : 
+<span class="lineNum">     137 </span>            : public:
+<span class="lineNum">     138 </span>            :   typedef typename base_node_impl_type::base_pointer base_pointer;
+<a name="139"><span class="lineNum">     139 </span>            :   typedef typename base_node_impl_type::pointer      pointer;</a>
+<span class="lineNum">     140 </span>            : 
+<span class="lineNum">     141 </span><span class="lineCov">      14908 :   bucket_array(const Allocator&amp; al,pointer end_,std::size_t size_):</span>
+<span class="lineNum">     142 </span><span class="lineCov">      14908 :     size_index_(super::size_index(size_)),</span>
+<span class="lineNum">     143 </span><span class="lineCov">      14908 :     spc(al,super::sizes[size_index_]+1)</span>
+<span class="lineNum">     144 </span>            :   {
+<span class="lineNum">     145 </span><span class="lineCov">      14908 :     clear(end_);</span>
+<span class="lineNum">     146 </span><span class="lineCov">      14908 :   }</span>
+<span class="lineNum">     147 </span>            : 
+<span class="lineNum">     148 </span>            :   std::size_t size()const
+<span class="lineNum">     149 </span>            :   {
+<span class="lineNum">     150 </span><span class="lineCov">      44724 :     return super::sizes[size_index_];</span>
+<span class="lineNum">     151 </span>            :   }
+<span class="lineNum">     152 </span>            : 
+<span class="lineNum">     153 </span>            :   std::size_t position(std::size_t hash)const
+<span class="lineNum">     154 </span>            :   {
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :     return super::position(hash,size_index_);</span>
+<span class="lineNum">     156 </span>            :   }
+<span class="lineNum">     157 </span>            : 
+<span class="lineNum">     158 </span><span class="lineCov">      29816 :   base_pointer begin()const{return buckets();}</span>
+<span class="lineNum">     159 </span><span class="lineCov">     119264 :   base_pointer end()const{return buckets()+size();}</span>
+<span class="lineNum">     160 </span><span class="lineNoCov">          0 :   base_pointer at(std::size_t n)const{return buckets()+n;}</span>
+<span class="lineNum">     161 </span>            : 
+<span class="lineNum">     162 </span>            :   void clear(pointer end_)
+<span class="lineNum">     163 </span>            :   {
+<span class="lineNum">     164 </span><span class="lineCov">      59632 :     for(base_pointer x=begin(),y=end();x!=y;++x)x-&gt;prior()=pointer(0);</span>
+<span class="lineNum">     165 </span><span class="lineCov">      59632 :     end()-&gt;prior()=end_-&gt;prior()=end_;</span>
+<span class="lineNum">     166 </span><span class="lineCov">      29816 :     end_-&gt;next()=end();</span>
+<span class="lineNum">     167 </span>            :  }
+<span class="lineNum">     168 </span>            : 
+<span class="lineNum">     169 </span>            :   void swap(bucket_array&amp; x)
+<span class="lineNum">     170 </span>            :   {
+<span class="lineNum">     171 </span><span class="lineNoCov">          0 :     std::swap(size_index_,x.size_index_);</span>
+<span class="lineNum">     172 </span><span class="lineNoCov">          0 :     spc.swap(x.spc);</span>
+<span class="lineNum">     173 </span>            :   }
+<span class="lineNum">     174 </span>            : 
+<span class="lineNum">     175 </span>            : private:
+<span class="lineNum">     176 </span>            :   std::size_t                               size_index_;
+<span class="lineNum">     177 </span>            :   auto_space&lt;base_node_impl_type,Allocator&gt; spc;
+<span class="lineNum">     178 </span>            : 
+<span class="lineNum">     179 </span>            :   base_pointer buckets()const
+<span class="lineNum">     180 </span>            :   {
+<span class="lineNum">     181 </span><span class="lineCov">     119264 :     return spc.data();</span>
+<span class="lineNum">     182 </span>            :   }
+<span class="lineNum">     183 </span>            : 
+<span class="lineNum">     184 </span>            : #if !defined(BOOST_MULTI_INDEX_DISABLE_SERIALIZATION)
+<span class="lineNum">     185 </span>            :   friend class boost::serialization::access;
+<span class="lineNum">     186 </span>            :   
+<span class="lineNum">     187 </span>            :   /* bucket_arrays do not emit any kind of serialization info. They are
+<span class="lineNum">     188 </span>            :    * fed to Boost.Serialization as hashed index iterators need to track
+<span class="lineNum">     189 </span>            :    * them during serialization.
+<span class="lineNum">     190 </span>            :    */
+<span class="lineNum">     191 </span>            : 
+<span class="lineNum">     192 </span>            :   template&lt;class Archive&gt;
+<span class="lineNum">     193 </span>            :   void serialize(Archive&amp;,const unsigned int)
+<span class="lineNum">     194 </span>            :   {
+<span class="lineNum">     195 </span>            :   }
+<span class="lineNum">     196 </span>            : #endif
+<span class="lineNum">     197 </span>            : };
+<span class="lineNum">     198 </span>            : 
+<span class="lineNum">     199 </span>            : template&lt;typename Allocator&gt;
+<span class="lineNum">     200 </span>            : void swap(bucket_array&lt;Allocator&gt;&amp; x,bucket_array&lt;Allocator&gt;&amp; y)
+<span class="lineNum">     201 </span>            : {
+<span class="lineNum">     202 </span>            :   x.swap(y);
+<span class="lineNum">     203 </span>            : }
+<span class="lineNum">     204 </span>            : 
+<span class="lineNum">     205 </span>            : } /* namespace multi_index::detail */
+<span class="lineNum">     206 </span>            : 
+<span class="lineNum">     207 </span>            : } /* namespace multi_index */
+<span class="lineNum">     208 </span>            : 
+<span class="lineNum">     209 </span>            : #if !defined(BOOST_MULTI_INDEX_DISABLE_SERIALIZATION)
+<span class="lineNum">     210 </span>            : /* bucket_arrays never get constructed directly by Boost.Serialization,
+<span class="lineNum">     211 </span>            :  * as archives are always fed pointers to previously existent
+<span class="lineNum">     212 </span>            :  * arrays. So, if this is called it means we are dealing with a
+<span class="lineNum">     213 </span>            :  * somehow invalid archive.
+<span class="lineNum">     214 </span>            :  */
+<span class="lineNum">     215 </span>            : 
+<span class="lineNum">     216 </span>            : #if defined(BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP)
+<span class="lineNum">     217 </span>            : namespace serialization{
+<span class="lineNum">     218 </span>            : #else
+<span class="lineNum">     219 </span>            : namespace multi_index{
+<span class="lineNum">     220 </span>            : namespace detail{
+<span class="lineNum">     221 </span>            : #endif
+<span class="lineNum">     222 </span>            : 
+<span class="lineNum">     223 </span>            : template&lt;class Archive,typename Allocator&gt;
+<span class="lineNum">     224 </span>            : inline void load_construct_data(
+<span class="lineNum">     225 </span>            :   Archive&amp;,boost::multi_index::detail::bucket_array&lt;Allocator&gt;*,
+<span class="lineNum">     226 </span>            :   const unsigned int)
+<span class="lineNum">     227 </span>            : {
+<span class="lineNum">     228 </span>            :   throw_exception(
+<span class="lineNum">     229 </span>            :     archive::archive_exception(archive::archive_exception::other_exception));
+<span class="lineNum">     230 </span>            : }
+<span class="lineNum">     231 </span>            : 
+<span class="lineNum">     232 </span>            : #if defined(BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP)
+<span class="lineNum">     233 </span>            : } /* namespace serialization */
+<span class="lineNum">     234 </span>            : #else
+<span class="lineNum">     235 </span>            : } /* namespace multi_index::detail */
+<span class="lineNum">     236 </span>            : } /* namespace multi_index */
+<span class="lineNum">     237 </span>            : #endif
+<span class="lineNum">     238 </span>            : 
+<span class="lineNum">     239 </span>            : #endif
+<span class="lineNum">     240 </span>            : 
+<span class="lineNum">     241 </span>            : } /* namespace boost */
+<span class="lineNum">     242 </span>            : 
+<span class="lineNum">     243 </span>            : #endif
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
