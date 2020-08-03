@@ -1,0 +1,945 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - netbase_cov.info - src/rpc/util.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">src/rpc</a> - util.cpp<span style="font-size: 80%;"> (source / <a href="util.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">netbase_cov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">428</td>
+            <td class="headerCovTableEntryLo">0.7 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-23 06:26:49</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">49</td>
+            <td class="headerCovTableEntryLo">6.1 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2017-2020 The Bitcoin Core developers</a>
+<span class="lineNum">       2 </span>            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       3 </span>            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       4 </span>            : 
+<span class="lineNum">       5 </span>            : #include &lt;key_io.h&gt;
+<span class="lineNum">       6 </span>            : #include &lt;outputtype.h&gt;
+<span class="lineNum">       7 </span>            : #include &lt;rpc/util.h&gt;
+<span class="lineNum">       8 </span>            : #include &lt;script/descriptor.h&gt;
+<span class="lineNum">       9 </span>            : #include &lt;script/signingprovider.h&gt;
+<span class="lineNum">      10 </span>            : #include &lt;tinyformat.h&gt;
+<span class="lineNum">      11 </span>            : #include &lt;util/strencodings.h&gt;
+<span class="lineNum">      12 </span>            : #include &lt;util/string.h&gt;
+<span class="lineNum">      13 </span>            : #include &lt;util/translation.h&gt;
+<span class="lineNum">      14 </span>            : 
+<span class="lineNum">      15 </span>            : #include &lt;tuple&gt;
+<span class="lineNum">      16 </span>            : 
+<span class="lineNum">      17 </span>            : #include &lt;boost/algorithm/string/classification.hpp&gt;
+<span class="lineNum">      18 </span>            : #include &lt;boost/algorithm/string/split.hpp&gt;
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span><span class="lineCov">      11532 : const std::string UNIX_EPOCH_TIME = &quot;UNIX epoch time&quot;;</span>
+<a name="21"><span class="lineNum">      21 </span><span class="lineCov">      26908 : const std::string EXAMPLE_ADDRESS[2] = {&quot;bc1q09vm5lfy0j5reeulh4x5752q25uqqvz34hufdl&quot;, &quot;bc1q02ad21edsxd23d32dfgqqsz4vv4nmtfzuklhy3&quot;};</span></a>
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span><span class="lineNoCov">          0 : void RPCTypeCheck(const UniValue&amp; params,</span>
+<span class="lineNum">      24 </span>            :                   const std::list&lt;UniValueType&gt;&amp; typesExpected,
+<span class="lineNum">      25 </span>            :                   bool fAllowNull)
+<span class="lineNum">      26 </span>            : {
+<span class="lineNum">      27 </span><span class="lineNoCov">          0 :     unsigned int i = 0;</span>
+<span class="lineNum">      28 </span><span class="lineNoCov">          0 :     for (const UniValueType&amp; t : typesExpected) {</span>
+<span class="lineNum">      29 </span><span class="lineNoCov">          0 :         if (params.size() &lt;= i)</span>
+<span class="lineNum">      30 </span>            :             break;
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span><span class="lineNoCov">          0 :         const UniValue&amp; v = params[i];</span>
+<span class="lineNum">      33 </span><span class="lineNoCov">          0 :         if (!(fAllowNull &amp;&amp; v.isNull())) {</span>
+<span class="lineNum">      34 </span><span class="lineNoCov">          0 :             RPCTypeCheckArgument(v, t);</span>
+<span class="lineNum">      35 </span>            :         }
+<span class="lineNum">      36 </span><span class="lineNoCov">          0 :         i++;</span>
+<span class="lineNum">      37 </span>            :     }
+<span class="lineNum">      38 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">      39 </span>            : 
+<span class="lineNum">      40 </span><span class="lineNoCov">          0 : void RPCTypeCheckArgument(const UniValue&amp; value, const UniValueType&amp; typeExpected)</span>
+<span class="lineNum">      41 </span>            : {
+<span class="lineNum">      42 </span><span class="lineNoCov">          0 :     if (!typeExpected.typeAny &amp;&amp; value.type() != typeExpected.type) {</span>
+<span class="lineNum">      43 </span><span class="lineNoCov">          0 :         throw JSONRPCError(RPC_TYPE_ERROR, strprintf(&quot;Expected type %s, got %s&quot;, uvTypeName(typeExpected.type), uvTypeName(value.type())));</span>
+<span class="lineNum">      44 </span>            :     }
+<span class="lineNum">      45 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span><span class="lineNoCov">          0 : void RPCTypeCheckObj(const UniValue&amp; o,</span>
+<span class="lineNum">      48 </span>            :     const std::map&lt;std::string, UniValueType&gt;&amp; typesExpected,
+<span class="lineNum">      49 </span>            :     bool fAllowNull,
+<span class="lineNum">      50 </span>            :     bool fStrict)
+<span class="lineNum">      51 </span>            : {
+<span class="lineNum">      52 </span><span class="lineNoCov">          0 :     for (const auto&amp; t : typesExpected) {</span>
+<span class="lineNum">      53 </span><span class="lineNoCov">          0 :         const UniValue&amp; v = find_value(o, t.first);</span>
+<span class="lineNum">      54 </span><span class="lineNoCov">          0 :         if (!fAllowNull &amp;&amp; v.isNull())</span>
+<span class="lineNum">      55 </span><span class="lineNoCov">          0 :             throw JSONRPCError(RPC_TYPE_ERROR, strprintf(&quot;Missing %s&quot;, t.first));</span>
+<span class="lineNum">      56 </span>            : 
+<span class="lineNum">      57 </span><span class="lineNoCov">          0 :         if (!(t.second.typeAny || v.type() == t.second.type || (fAllowNull &amp;&amp; v.isNull()))) {</span>
+<span class="lineNum">      58 </span>            :             std::string err = strprintf(&quot;Expected type %s for %s, got %s&quot;,
+<span class="lineNum">      59 </span><span class="lineNoCov">          0 :                 uvTypeName(t.second.type), t.first, uvTypeName(v.type()));</span>
+<span class="lineNum">      60 </span><span class="lineNoCov">          0 :             throw JSONRPCError(RPC_TYPE_ERROR, err);</span>
+<span class="lineNum">      61 </span>            :         }
+<span class="lineNum">      62 </span>            :     }
+<span class="lineNum">      63 </span>            : 
+<span class="lineNum">      64 </span><span class="lineNoCov">          0 :     if (fStrict)</span>
+<span class="lineNum">      65 </span>            :     {
+<span class="lineNum">      66 </span><span class="lineNoCov">          0 :         for (const std::string&amp; k : o.getKeys())</span>
+<span class="lineNum">      67 </span>            :         {
+<span class="lineNum">      68 </span><span class="lineNoCov">          0 :             if (typesExpected.count(k) == 0)</span>
+<span class="lineNum">      69 </span>            :             {
+<span class="lineNum">      70 </span><span class="lineNoCov">          0 :                 std::string err = strprintf(&quot;Unexpected key %s&quot;, k);</span>
+<span class="lineNum">      71 </span><span class="lineNoCov">          0 :                 throw JSONRPCError(RPC_TYPE_ERROR, err);</span>
+<span class="lineNum">      72 </span>            :             }
+<span class="lineNum">      73 </span>            :         }
+<span class="lineNum">      74 </span>            :     }
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">      76 </span>            : 
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 : CAmount AmountFromValue(const UniValue&amp; value)</span>
+<span class="lineNum">      78 </span>            : {
+<span class="lineNum">      79 </span><span class="lineNoCov">          0 :     if (!value.isNum() &amp;&amp; !value.isStr())</span>
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 :         throw JSONRPCError(RPC_TYPE_ERROR, &quot;Amount is not a number or string&quot;);</span>
+<span class="lineNum">      81 </span>            :     CAmount amount;
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 :     if (!ParseFixedPoint(value.getValStr(), 8, &amp;amount))</span>
+<span class="lineNum">      83 </span><span class="lineNoCov">          0 :         throw JSONRPCError(RPC_TYPE_ERROR, &quot;Invalid amount&quot;);</span>
+<span class="lineNum">      84 </span><span class="lineNoCov">          0 :     if (!MoneyRange(amount))</span>
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 :         throw JSONRPCError(RPC_TYPE_ERROR, &quot;Amount out of range&quot;);</span>
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 :     return amount;</span>
+<span class="lineNum">      87 </span>            : }
+<span class="lineNum">      88 </span>            : 
+<span class="lineNum">      89 </span><span class="lineNoCov">          0 : uint256 ParseHashV(const UniValue&amp; v, std::string strName)</span>
+<span class="lineNum">      90 </span>            : {
+<span class="lineNum">      91 </span><span class="lineNoCov">          0 :     std::string strHex(v.get_str());</span>
+<span class="lineNum">      92 </span><span class="lineNoCov">          0 :     if (64 != strHex.length())</span>
+<span class="lineNum">      93 </span><span class="lineNoCov">          0 :         throw JSONRPCError(RPC_INVALID_PARAMETER, strprintf(&quot;%s must be of length %d (not %d, for '%s')&quot;, strName, 64, strHex.length(), strHex));</span>
+<span class="lineNum">      94 </span><span class="lineNoCov">          0 :     if (!IsHex(strHex)) // Note: IsHex(&quot;&quot;) is false</span>
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 :         throw JSONRPCError(RPC_INVALID_PARAMETER, strName+&quot; must be hexadecimal string (not '&quot;+strHex+&quot;')&quot;);</span>
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :     return uint256S(strHex);</span>
+<span class="lineNum">      97 </span>            : }
+<span class="lineNum">      98 </span><span class="lineNoCov">          0 : uint256 ParseHashO(const UniValue&amp; o, std::string strKey)</span>
+<span class="lineNum">      99 </span>            : {
+<span class="lineNum">     100 </span><span class="lineNoCov">          0 :     return ParseHashV(find_value(o, strKey), strKey);</span>
+<span class="lineNum">     101 </span>            : }
+<span class="lineNum">     102 </span><span class="lineNoCov">          0 : std::vector&lt;unsigned char&gt; ParseHexV(const UniValue&amp; v, std::string strName)</span>
+<span class="lineNum">     103 </span>            : {
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 :     std::string strHex;</span>
+<span class="lineNum">     105 </span><span class="lineNoCov">          0 :     if (v.isStr())</span>
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 :         strHex = v.get_str();</span>
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 :     if (!IsHex(strHex))</span>
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :         throw JSONRPCError(RPC_INVALID_PARAMETER, strName+&quot; must be hexadecimal string (not '&quot;+strHex+&quot;')&quot;);</span>
+<span class="lineNum">     109 </span><span class="lineNoCov">          0 :     return ParseHex(strHex);</span>
+<span class="lineNum">     110 </span>            : }
+<span class="lineNum">     111 </span><span class="lineNoCov">          0 : std::vector&lt;unsigned char&gt; ParseHexO(const UniValue&amp; o, std::string strKey)</span>
+<span class="lineNum">     112 </span>            : {
+<span class="lineNum">     113 </span><span class="lineNoCov">          0 :     return ParseHexV(find_value(o, strKey), strKey);</span>
+<span class="lineNum">     114 </span>            : }
+<span class="lineNum">     115 </span>            : 
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 : CoinStatsHashType ParseHashType(const UniValue&amp; param, const CoinStatsHashType default_type)</span>
+<span class="lineNum">     117 </span>            : {
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :     if (param.isNull()) {</span>
+<span class="lineNum">     119 </span>            :         return default_type;
+<span class="lineNum">     120 </span>            :     } else {
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 :         std::string hash_type_input = param.get_str();</span>
+<span class="lineNum">     122 </span>            : 
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :         if (hash_type_input == &quot;hash_serialized_2&quot;) {</span>
+<span class="lineNum">     124 </span>            :             return CoinStatsHashType::HASH_SERIALIZED;
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :         } else if (hash_type_input == &quot;none&quot;) {</span>
+<span class="lineNum">     126 </span>            :             return CoinStatsHashType::NONE;
+<span class="lineNum">     127 </span>            :         } else {
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :             throw JSONRPCError(RPC_INVALID_PARAMETER, strprintf(&quot;%d is not a valid hash_type&quot;, hash_type_input));</span>
+<span class="lineNum">     129 </span>            :         }
+<span class="lineNum">     130 </span>            :     }
+<span class="lineNum">     131 </span>            : }
+<span class="lineNum">     132 </span>            : 
+<span class="lineNum">     133 </span><span class="lineNoCov">          0 : std::string HelpExampleCli(const std::string&amp; methodname, const std::string&amp; args)</span>
+<span class="lineNum">     134 </span>            : {
+<span class="lineNum">     135 </span><span class="lineNoCov">          0 :     return &quot;&gt; bitcoin-cli &quot; + methodname + &quot; &quot; + args + &quot;\n&quot;;</span>
+<span class="lineNum">     136 </span>            : }
+<span class="lineNum">     137 </span>            : 
+<span class="lineNum">     138 </span><span class="lineNoCov">          0 : std::string HelpExampleRpc(const std::string&amp; methodname, const std::string&amp; args)</span>
+<span class="lineNum">     139 </span>            : {
+<span class="lineNum">     140 </span>            :     return &quot;&gt; curl --user myusername --data-binary '{\&quot;jsonrpc\&quot;: \&quot;1.0\&quot;, \&quot;id\&quot;: \&quot;curltest\&quot;, &quot;
+<span class="lineNum">     141 </span><span class="lineNoCov">          0 :         &quot;\&quot;method\&quot;: \&quot;&quot; + methodname + &quot;\&quot;, \&quot;params\&quot;: [&quot; + args + &quot;]}' -H 'content-type: text/plain;' http://127.0.0.1:8332/\n&quot;;</span>
+<span class="lineNum">     142 </span>            : }
+<span class="lineNum">     143 </span>            : 
+<span class="lineNum">     144 </span>            : // Converts a hex string to a public key if possible
+<span class="lineNum">     145 </span><span class="lineNoCov">          0 : CPubKey HexToPubKey(const std::string&amp; hex_in)</span>
+<span class="lineNum">     146 </span>            : {
+<span class="lineNum">     147 </span><span class="lineNoCov">          0 :     if (!IsHex(hex_in)) {</span>
+<span class="lineNum">     148 </span><span class="lineNoCov">          0 :         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, &quot;Invalid public key: &quot; + hex_in);</span>
+<span class="lineNum">     149 </span>            :     }
+<span class="lineNum">     150 </span><span class="lineNoCov">          0 :     CPubKey vchPubKey(ParseHex(hex_in));</span>
+<span class="lineNum">     151 </span><span class="lineNoCov">          0 :     if (!vchPubKey.IsFullyValid()) {</span>
+<span class="lineNum">     152 </span><span class="lineNoCov">          0 :         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, &quot;Invalid public key: &quot; + hex_in);</span>
+<span class="lineNum">     153 </span>            :     }
+<span class="lineNum">     154 </span><span class="lineNoCov">          0 :     return vchPubKey;</span>
+<span class="lineNum">     155 </span>            : }
+<span class="lineNum">     156 </span>            : 
+<span class="lineNum">     157 </span>            : // Retrieves a public key for an address from the given FillableSigningProvider
+<span class="lineNum">     158 </span><span class="lineNoCov">          0 : CPubKey AddrToPubKey(const FillableSigningProvider&amp; keystore, const std::string&amp; addr_in)</span>
+<span class="lineNum">     159 </span>            : {
+<span class="lineNum">     160 </span><span class="lineNoCov">          0 :     CTxDestination dest = DecodeDestination(addr_in);</span>
+<span class="lineNum">     161 </span><span class="lineNoCov">          0 :     if (!IsValidDestination(dest)) {</span>
+<span class="lineNum">     162 </span><span class="lineNoCov">          0 :         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, &quot;Invalid address: &quot; + addr_in);</span>
+<span class="lineNum">     163 </span>            :     }
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :     CKeyID key = GetKeyForDestination(keystore, dest);</span>
+<span class="lineNum">     165 </span><span class="lineNoCov">          0 :     if (key.IsNull()) {</span>
+<span class="lineNum">     166 </span><span class="lineNoCov">          0 :         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, strprintf(&quot;%s does not refer to a key&quot;, addr_in));</span>
+<span class="lineNum">     167 </span>            :     }
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 :     CPubKey vchPubKey;</span>
+<span class="lineNum">     169 </span><span class="lineNoCov">          0 :     if (!keystore.GetPubKey(key, vchPubKey)) {</span>
+<span class="lineNum">     170 </span><span class="lineNoCov">          0 :         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, strprintf(&quot;no full public key for address %s&quot;, addr_in));</span>
+<span class="lineNum">     171 </span>            :     }
+<span class="lineNum">     172 </span><span class="lineNoCov">          0 :     if (!vchPubKey.IsFullyValid()) {</span>
+<span class="lineNum">     173 </span><span class="lineNoCov">          0 :        throw JSONRPCError(RPC_INTERNAL_ERROR, &quot;Wallet contains an invalid public key&quot;);</span>
+<span class="lineNum">     174 </span>            :     }
+<span class="lineNum">     175 </span><span class="lineNoCov">          0 :     return vchPubKey;</span>
+<span class="lineNum">     176 </span>            : }
+<span class="lineNum">     177 </span>            : 
+<span class="lineNum">     178 </span>            : // Creates a multisig address from a given list of public keys, number of signatures required, and the address type
+<span class="lineNum">     179 </span><span class="lineNoCov">          0 : CTxDestination AddAndGetMultisigDestination(const int required, const std::vector&lt;CPubKey&gt;&amp; pubkeys, OutputType type, FillableSigningProvider&amp; keystore, CScript&amp; script_out)</span>
+<span class="lineNum">     180 </span>            : {
+<span class="lineNum">     181 </span>            :     // Gather public keys
+<span class="lineNum">     182 </span><span class="lineNoCov">          0 :     if (required &lt; 1) {</span>
+<span class="lineNum">     183 </span><span class="lineNoCov">          0 :         throw JSONRPCError(RPC_INVALID_PARAMETER, &quot;a multisignature address must require at least one key to redeem&quot;);</span>
+<span class="lineNum">     184 </span>            :     }
+<span class="lineNum">     185 </span><span class="lineNoCov">          0 :     if ((int)pubkeys.size() &lt; required) {</span>
+<span class="lineNum">     186 </span><span class="lineNoCov">          0 :         throw JSONRPCError(RPC_INVALID_PARAMETER, strprintf(&quot;not enough keys supplied (got %u keys, but need at least %d to redeem)&quot;, pubkeys.size(), required));</span>
+<span class="lineNum">     187 </span>            :     }
+<span class="lineNum">     188 </span><span class="lineNoCov">          0 :     if (pubkeys.size() &gt; 16) {</span>
+<span class="lineNum">     189 </span><span class="lineNoCov">          0 :         throw JSONRPCError(RPC_INVALID_PARAMETER, &quot;Number of keys involved in the multisignature address creation &gt; 16\nReduce the number&quot;);</span>
+<span class="lineNum">     190 </span>            :     }
+<span class="lineNum">     191 </span>            : 
+<span class="lineNum">     192 </span><span class="lineNoCov">          0 :     script_out = GetScriptForMultisig(required, pubkeys);</span>
+<span class="lineNum">     193 </span>            : 
+<span class="lineNum">     194 </span><span class="lineNoCov">          0 :     if (script_out.size() &gt; MAX_SCRIPT_ELEMENT_SIZE) {</span>
+<span class="lineNum">     195 </span><span class="lineNoCov">          0 :         throw JSONRPCError(RPC_INVALID_PARAMETER, (strprintf(&quot;redeemScript exceeds size limit: %d &gt; %d&quot;, script_out.size(), MAX_SCRIPT_ELEMENT_SIZE)));</span>
+<span class="lineNum">     196 </span>            :     }
+<span class="lineNum">     197 </span>            : 
+<span class="lineNum">     198 </span>            :     // Check if any keys are uncompressed. If so, the type is legacy
+<span class="lineNum">     199 </span><span class="lineNoCov">          0 :     for (const CPubKey&amp; pk : pubkeys) {</span>
+<span class="lineNum">     200 </span><span class="lineNoCov">          0 :         if (!pk.IsCompressed()) {</span>
+<span class="lineNum">     201 </span>            :             type = OutputType::LEGACY;
+<span class="lineNum">     202 </span>            :             break;
+<span class="lineNum">     203 </span>            :         }
+<span class="lineNum">     204 </span>            :     }
+<span class="lineNum">     205 </span>            : 
+<span class="lineNum">     206 </span>            :     // Make the address
+<span class="lineNum">     207 </span><span class="lineNoCov">          0 :     CTxDestination dest = AddAndGetDestinationForScript(keystore, script_out, type);</span>
+<span class="lineNum">     208 </span>            : 
+<span class="lineNum">     209 </span><span class="lineNoCov">          0 :     return dest;</span>
+<span class="lineNum">     210 </span>            : }
+<span class="lineNum">     211 </span>            : 
+<span class="lineNum">     212 </span>            : class DescribeAddressVisitor : public boost::static_visitor&lt;UniValue&gt;
+<span class="lineNum">     213 </span>            : {
+<span class="lineNum">     214 </span>            : public:
+<span class="lineNum">     215 </span>            :     explicit DescribeAddressVisitor() {}
+<span class="lineNum">     216 </span>            : 
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :     UniValue operator()(const CNoDestination&amp; dest) const</span>
+<span class="lineNum">     218 </span>            :     {
+<span class="lineNum">     219 </span><span class="lineNoCov">          0 :         return UniValue(UniValue::VOBJ);</span>
+<span class="lineNum">     220 </span>            :     }
+<span class="lineNum">     221 </span>            : 
+<span class="lineNum">     222 </span><span class="lineNoCov">          0 :     UniValue operator()(const PKHash&amp; keyID) const</span>
+<span class="lineNum">     223 </span>            :     {
+<span class="lineNum">     224 </span><span class="lineNoCov">          0 :         UniValue obj(UniValue::VOBJ);</span>
+<span class="lineNum">     225 </span><span class="lineNoCov">          0 :         obj.pushKV(&quot;isscript&quot;, false);</span>
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 :         obj.pushKV(&quot;iswitness&quot;, false);</span>
+<span class="lineNum">     227 </span><span class="lineNoCov">          0 :         return obj;</span>
+<span class="lineNum">     228 </span>            :     }
+<span class="lineNum">     229 </span>            : 
+<span class="lineNum">     230 </span><span class="lineNoCov">          0 :     UniValue operator()(const ScriptHash&amp; scriptID) const</span>
+<span class="lineNum">     231 </span>            :     {
+<span class="lineNum">     232 </span><span class="lineNoCov">          0 :         UniValue obj(UniValue::VOBJ);</span>
+<span class="lineNum">     233 </span><span class="lineNoCov">          0 :         obj.pushKV(&quot;isscript&quot;, true);</span>
+<span class="lineNum">     234 </span><span class="lineNoCov">          0 :         obj.pushKV(&quot;iswitness&quot;, false);</span>
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 :         return obj;</span>
+<span class="lineNum">     236 </span>            :     }
+<span class="lineNum">     237 </span>            : 
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 :     UniValue operator()(const WitnessV0KeyHash&amp; id) const</span>
+<span class="lineNum">     239 </span>            :     {
+<span class="lineNum">     240 </span><span class="lineNoCov">          0 :         UniValue obj(UniValue::VOBJ);</span>
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 :         obj.pushKV(&quot;isscript&quot;, false);</span>
+<span class="lineNum">     242 </span><span class="lineNoCov">          0 :         obj.pushKV(&quot;iswitness&quot;, true);</span>
+<span class="lineNum">     243 </span><span class="lineNoCov">          0 :         obj.pushKV(&quot;witness_version&quot;, 0);</span>
+<span class="lineNum">     244 </span><span class="lineNoCov">          0 :         obj.pushKV(&quot;witness_program&quot;, HexStr(id));</span>
+<span class="lineNum">     245 </span><span class="lineNoCov">          0 :         return obj;</span>
+<span class="lineNum">     246 </span>            :     }
+<span class="lineNum">     247 </span>            : 
+<span class="lineNum">     248 </span><span class="lineNoCov">          0 :     UniValue operator()(const WitnessV0ScriptHash&amp; id) const</span>
+<span class="lineNum">     249 </span>            :     {
+<span class="lineNum">     250 </span><span class="lineNoCov">          0 :         UniValue obj(UniValue::VOBJ);</span>
+<span class="lineNum">     251 </span><span class="lineNoCov">          0 :         obj.pushKV(&quot;isscript&quot;, true);</span>
+<span class="lineNum">     252 </span><span class="lineNoCov">          0 :         obj.pushKV(&quot;iswitness&quot;, true);</span>
+<span class="lineNum">     253 </span><span class="lineNoCov">          0 :         obj.pushKV(&quot;witness_version&quot;, 0);</span>
+<span class="lineNum">     254 </span><span class="lineNoCov">          0 :         obj.pushKV(&quot;witness_program&quot;, HexStr(id));</span>
+<span class="lineNum">     255 </span><span class="lineNoCov">          0 :         return obj;</span>
+<span class="lineNum">     256 </span>            :     }
+<span class="lineNum">     257 </span>            : 
+<span class="lineNum">     258 </span><span class="lineNoCov">          0 :     UniValue operator()(const WitnessUnknown&amp; id) const</span>
+<span class="lineNum">     259 </span>            :     {
+<span class="lineNum">     260 </span><span class="lineNoCov">          0 :         UniValue obj(UniValue::VOBJ);</span>
+<span class="lineNum">     261 </span><span class="lineNoCov">          0 :         obj.pushKV(&quot;iswitness&quot;, true);</span>
+<span class="lineNum">     262 </span><span class="lineNoCov">          0 :         obj.pushKV(&quot;witness_version&quot;, (int)id.version);</span>
+<span class="lineNum">     263 </span><span class="lineNoCov">          0 :         obj.pushKV(&quot;witness_program&quot;, HexStr(id.program, id.program + id.length));</span>
+<span class="lineNum">     264 </span><span class="lineNoCov">          0 :         return obj;</span>
+<span class="lineNum">     265 </span>            :     }
+<a name="266"><span class="lineNum">     266 </span>            : };</a>
+<span class="lineNum">     267 </span>            : 
+<span class="lineNum">     268 </span><span class="lineNoCov">          0 : UniValue DescribeAddress(const CTxDestination&amp; dest)</span>
+<span class="lineNum">     269 </span>            : {
+<span class="lineNum">     270 </span><span class="lineNoCov">          0 :     return boost::apply_visitor(DescribeAddressVisitor(), dest);</span>
+<span class="lineNum">     271 </span>            : }
+<span class="lineNum">     272 </span>            : 
+<span class="lineNum">     273 </span><span class="lineNoCov">          0 : unsigned int ParseConfirmTarget(const UniValue&amp; value, unsigned int max_target)</span>
+<span class="lineNum">     274 </span>            : {
+<span class="lineNum">     275 </span><span class="lineNoCov">          0 :     int target = value.get_int();</span>
+<span class="lineNum">     276 </span><span class="lineNoCov">          0 :     if (target &lt; 1 || (unsigned int)target &gt; max_target) {</span>
+<span class="lineNum">     277 </span><span class="lineNoCov">          0 :         throw JSONRPCError(RPC_INVALID_PARAMETER, strprintf(&quot;Invalid conf_target, must be between %u - %u&quot;, 1, max_target));</span>
+<span class="lineNum">     278 </span>            :     }
+<span class="lineNum">     279 </span><span class="lineNoCov">          0 :     return (unsigned int)target;</span>
+<a name="280"><span class="lineNum">     280 </span>            : }</a>
+<span class="lineNum">     281 </span>            : 
+<span class="lineNum">     282 </span><span class="lineNoCov">          0 : RPCErrorCode RPCErrorFromTransactionError(TransactionError terr)</span>
+<span class="lineNum">     283 </span>            : {
+<span class="lineNum">     284 </span><span class="lineNoCov">          0 :     switch (terr) {</span>
+<span class="lineNum">     285 </span>            :         case TransactionError::MEMPOOL_REJECTED:
+<span class="lineNum">     286 </span>            :             return RPC_TRANSACTION_REJECTED;
+<span class="lineNum">     287 </span>            :         case TransactionError::ALREADY_IN_CHAIN:
+<span class="lineNum">     288 </span>            :             return RPC_TRANSACTION_ALREADY_IN_CHAIN;
+<span class="lineNum">     289 </span>            :         case TransactionError::P2P_DISABLED:
+<span class="lineNum">     290 </span>            :             return RPC_CLIENT_P2P_DISABLED;
+<span class="lineNum">     291 </span>            :         case TransactionError::INVALID_PSBT:
+<span class="lineNum">     292 </span>            :         case TransactionError::PSBT_MISMATCH:
+<span class="lineNum">     293 </span>            :             return RPC_INVALID_PARAMETER;
+<span class="lineNum">     294 </span>            :         case TransactionError::SIGHASH_MISMATCH:
+<span class="lineNum">     295 </span>            :             return RPC_DESERIALIZATION_ERROR;
+<span class="lineNum">     296 </span>            :         default: break;
+<span class="lineNum">     297 </span>            :     }
+<span class="lineNum">     298 </span>            :     return RPC_TRANSACTION_ERROR;
+<a name="299"><span class="lineNum">     299 </span>            : }</a>
+<span class="lineNum">     300 </span>            : 
+<span class="lineNum">     301 </span><span class="lineNoCov">          0 : UniValue JSONRPCTransactionError(TransactionError terr, const std::string&amp; err_string)</span>
+<span class="lineNum">     302 </span>            : {
+<span class="lineNum">     303 </span><span class="lineNoCov">          0 :     if (err_string.length() &gt; 0) {</span>
+<span class="lineNum">     304 </span><span class="lineNoCov">          0 :         return JSONRPCError(RPCErrorFromTransactionError(terr), err_string);</span>
+<span class="lineNum">     305 </span>            :     } else {
+<span class="lineNum">     306 </span><span class="lineNoCov">          0 :         return JSONRPCError(RPCErrorFromTransactionError(terr), TransactionErrorString(terr).original);</span>
+<span class="lineNum">     307 </span>            :     }
+<span class="lineNum">     308 </span>            : }
+<span class="lineNum">     309 </span>            : 
+<span class="lineNum">     310 </span>            : /**
+<span class="lineNum">     311 </span>            :  * A pair of strings that can be aligned (through padding) with other Sections
+<span class="lineNum">     312 </span>            :  * later on
+<span class="lineNum">     313 </span>            :  */
+<span class="lineNum">     314 </span><span class="lineNoCov">          0 : struct Section {</span>
+<span class="lineNum">     315 </span><span class="lineNoCov">          0 :     Section(const std::string&amp; left, const std::string&amp; right)</span>
+<span class="lineNum">     316 </span><span class="lineNoCov">          0 :         : m_left{left}, m_right{right} {}</span>
+<span class="lineNum">     317 </span>            :     std::string m_left;
+<span class="lineNum">     318 </span>            :     const std::string m_right;
+<span class="lineNum">     319 </span>            : };
+<span class="lineNum">     320 </span>            : 
+<span class="lineNum">     321 </span>            : /**
+<span class="lineNum">     322 </span>            :  * Keeps track of RPCArgs by transforming them into sections for the purpose
+<span class="lineNum">     323 </span>            :  * of serializing everything to a single string
+<span class="lineNum">     324 </span>            :  */
+<span class="lineNum">     325 </span><span class="lineNoCov">          0 : struct Sections {</span>
+<span class="lineNum">     326 </span>            :     std::vector&lt;Section&gt; m_sections;
+<span class="lineNum">     327 </span>            :     size_t m_max_pad{0};
+<span class="lineNum">     328 </span>            : 
+<span class="lineNum">     329 </span>            :     void PushSection(const Section&amp; s)
+<span class="lineNum">     330 </span>            :     {
+<span class="lineNum">     331 </span><span class="lineNoCov">          0 :         m_max_pad = std::max(m_max_pad, s.m_left.size());</span>
+<span class="lineNum">     332 </span><span class="lineNoCov">          0 :         m_sections.push_back(s);</span>
+<span class="lineNum">     333 </span>            :     }
+<span class="lineNum">     334 </span>            : 
+<span class="lineNum">     335 </span>            :     /**
+<span class="lineNum">     336 </span>            :      * Recursive helper to translate an RPCArg into sections
+<span class="lineNum">     337 </span>            :      */
+<span class="lineNum">     338 </span><span class="lineNoCov">          0 :     void Push(const RPCArg&amp; arg, const size_t current_indent = 5, const OuterType outer_type = OuterType::NONE)</span>
+<span class="lineNum">     339 </span>            :     {
+<span class="lineNum">     340 </span><span class="lineNoCov">          0 :         const auto indent = std::string(current_indent, ' ');</span>
+<span class="lineNum">     341 </span><span class="lineNoCov">          0 :         const auto indent_next = std::string(current_indent + 2, ' ');</span>
+<span class="lineNum">     342 </span><span class="lineNoCov">          0 :         const bool push_name{outer_type == OuterType::OBJ}; // Dictionary keys must have a name</span>
+<span class="lineNum">     343 </span>            : 
+<span class="lineNum">     344 </span><span class="lineNoCov">          0 :         switch (arg.m_type) {</span>
+<span class="lineNum">     345 </span><span class="lineNoCov">          0 :         case RPCArg::Type::STR_HEX:</span>
+<span class="lineNum">     346 </span>            :         case RPCArg::Type::STR:
+<span class="lineNum">     347 </span>            :         case RPCArg::Type::NUM:
+<span class="lineNum">     348 </span>            :         case RPCArg::Type::AMOUNT:
+<span class="lineNum">     349 </span>            :         case RPCArg::Type::RANGE:
+<span class="lineNum">     350 </span>            :         case RPCArg::Type::BOOL: {
+<span class="lineNum">     351 </span><span class="lineNoCov">          0 :             if (outer_type == OuterType::NONE) return; // Nothing more to do for non-recursive types on first recursion</span>
+<span class="lineNum">     352 </span><span class="lineNoCov">          0 :             auto left = indent;</span>
+<span class="lineNum">     353 </span><span class="lineNoCov">          0 :             if (arg.m_type_str.size() != 0 &amp;&amp; push_name) {</span>
+<span class="lineNum">     354 </span><span class="lineNoCov">          0 :                 left += &quot;\&quot;&quot; + arg.GetName() + &quot;\&quot;: &quot; + arg.m_type_str.at(0);</span>
+<span class="lineNum">     355 </span>            :             } else {
+<span class="lineNum">     356 </span><span class="lineNoCov">          0 :                 left += push_name ? arg.ToStringObj(/* oneline */ false) : arg.ToString(/* oneline */ false);</span>
+<span class="lineNum">     357 </span>            :             }
+<span class="lineNum">     358 </span><span class="lineNoCov">          0 :             left += &quot;,&quot;;</span>
+<span class="lineNum">     359 </span><span class="lineNoCov">          0 :             PushSection({left, arg.ToDescriptionString()});</span>
+<span class="lineNum">     360 </span>            :             break;
+<span class="lineNum">     361 </span>            :         }
+<span class="lineNum">     362 </span><span class="lineNoCov">          0 :         case RPCArg::Type::OBJ:</span>
+<span class="lineNum">     363 </span>            :         case RPCArg::Type::OBJ_USER_KEYS: {
+<span class="lineNum">     364 </span><span class="lineNoCov">          0 :             const auto right = outer_type == OuterType::NONE ? &quot;&quot; : arg.ToDescriptionString();</span>
+<span class="lineNum">     365 </span><span class="lineNoCov">          0 :             PushSection({indent + (push_name ? &quot;\&quot;&quot; + arg.GetName() + &quot;\&quot;: &quot; : &quot;&quot;) + &quot;{&quot;, right});</span>
+<span class="lineNum">     366 </span><span class="lineNoCov">          0 :             for (const auto&amp; arg_inner : arg.m_inner) {</span>
+<span class="lineNum">     367 </span><span class="lineNoCov">          0 :                 Push(arg_inner, current_indent + 2, OuterType::OBJ);</span>
+<span class="lineNum">     368 </span>            :             }
+<span class="lineNum">     369 </span><span class="lineNoCov">          0 :             if (arg.m_type != RPCArg::Type::OBJ) {</span>
+<span class="lineNum">     370 </span><span class="lineNoCov">          0 :                 PushSection({indent_next + &quot;...&quot;, &quot;&quot;});</span>
+<span class="lineNum">     371 </span>            :             }
+<span class="lineNum">     372 </span><span class="lineNoCov">          0 :             PushSection({indent + &quot;}&quot; + (outer_type != OuterType::NONE ? &quot;,&quot; : &quot;&quot;), &quot;&quot;});</span>
+<span class="lineNum">     373 </span>            :             break;
+<span class="lineNum">     374 </span>            :         }
+<span class="lineNum">     375 </span><span class="lineNoCov">          0 :         case RPCArg::Type::ARR: {</span>
+<span class="lineNum">     376 </span><span class="lineNoCov">          0 :             auto left = indent;</span>
+<span class="lineNum">     377 </span><span class="lineNoCov">          0 :             left += push_name ? &quot;\&quot;&quot; + arg.GetName() + &quot;\&quot;: &quot; : &quot;&quot;;</span>
+<span class="lineNum">     378 </span><span class="lineNoCov">          0 :             left += &quot;[&quot;;</span>
+<span class="lineNum">     379 </span><span class="lineNoCov">          0 :             const auto right = outer_type == OuterType::NONE ? &quot;&quot; : arg.ToDescriptionString();</span>
+<span class="lineNum">     380 </span><span class="lineNoCov">          0 :             PushSection({left, right});</span>
+<span class="lineNum">     381 </span><span class="lineNoCov">          0 :             for (const auto&amp; arg_inner : arg.m_inner) {</span>
+<span class="lineNum">     382 </span><span class="lineNoCov">          0 :                 Push(arg_inner, current_indent + 2, OuterType::ARR);</span>
+<span class="lineNum">     383 </span>            :             }
+<span class="lineNum">     384 </span><span class="lineNoCov">          0 :             PushSection({indent_next + &quot;...&quot;, &quot;&quot;});</span>
+<span class="lineNum">     385 </span><span class="lineNoCov">          0 :             PushSection({indent + &quot;]&quot; + (outer_type != OuterType::NONE ? &quot;,&quot; : &quot;&quot;), &quot;&quot;});</span>
+<span class="lineNum">     386 </span>            :             break;
+<span class="lineNum">     387 </span>            :         }
+<span class="lineNum">     388 </span>            : 
+<span class="lineNum">     389 </span>            :             // no default case, so the compiler can warn about missing cases
+<span class="lineNum">     390 </span>            :         }
+<span class="lineNum">     391 </span>            :     }
+<span class="lineNum">     392 </span>            : 
+<span class="lineNum">     393 </span>            :     /**
+<span class="lineNum">     394 </span>            :      * Concatenate all sections with proper padding
+<span class="lineNum">     395 </span>            :      */
+<span class="lineNum">     396 </span><span class="lineNoCov">          0 :     std::string ToString() const</span>
+<span class="lineNum">     397 </span>            :     {
+<span class="lineNum">     398 </span><span class="lineNoCov">          0 :         std::string ret;</span>
+<span class="lineNum">     399 </span><span class="lineNoCov">          0 :         const size_t pad = m_max_pad + 4;</span>
+<span class="lineNum">     400 </span><span class="lineNoCov">          0 :         for (const auto&amp; s : m_sections) {</span>
+<span class="lineNum">     401 </span><span class="lineNoCov">          0 :             if (s.m_right.empty()) {</span>
+<span class="lineNum">     402 </span><span class="lineNoCov">          0 :                 ret += s.m_left;</span>
+<span class="lineNum">     403 </span><span class="lineNoCov">          0 :                 ret += &quot;\n&quot;;</span>
+<span class="lineNum">     404 </span><span class="lineNoCov">          0 :                 continue;</span>
+<span class="lineNum">     405 </span>            :             }
+<span class="lineNum">     406 </span>            : 
+<span class="lineNum">     407 </span><span class="lineNoCov">          0 :             std::string left = s.m_left;</span>
+<span class="lineNum">     408 </span><span class="lineNoCov">          0 :             left.resize(pad, ' ');</span>
+<span class="lineNum">     409 </span><span class="lineNoCov">          0 :             ret += left;</span>
+<span class="lineNum">     410 </span>            : 
+<span class="lineNum">     411 </span>            :             // Properly pad after newlines
+<span class="lineNum">     412 </span><span class="lineNoCov">          0 :             std::string right;</span>
+<span class="lineNum">     413 </span><span class="lineNoCov">          0 :             size_t begin = 0;</span>
+<span class="lineNum">     414 </span><span class="lineNoCov">          0 :             size_t new_line_pos = s.m_right.find_first_of('\n');</span>
+<span class="lineNum">     415 </span>            :             while (true) {
+<span class="lineNum">     416 </span><span class="lineNoCov">          0 :                 right += s.m_right.substr(begin, new_line_pos - begin);</span>
+<span class="lineNum">     417 </span><span class="lineNoCov">          0 :                 if (new_line_pos == std::string::npos) {</span>
+<span class="lineNum">     418 </span>            :                     break; //No new line
+<span class="lineNum">     419 </span>            :                 }
+<span class="lineNum">     420 </span><span class="lineNoCov">          0 :                 right += &quot;\n&quot; + std::string(pad, ' ');</span>
+<span class="lineNum">     421 </span><span class="lineNoCov">          0 :                 begin = s.m_right.find_first_not_of(' ', new_line_pos + 1);</span>
+<span class="lineNum">     422 </span><span class="lineNoCov">          0 :                 if (begin == std::string::npos) {</span>
+<span class="lineNum">     423 </span>            :                     break; // Empty line
+<span class="lineNum">     424 </span>            :                 }
+<span class="lineNum">     425 </span><span class="lineNoCov">          0 :                 new_line_pos = s.m_right.find_first_of('\n', begin + 1);</span>
+<span class="lineNum">     426 </span>            :             }
+<span class="lineNum">     427 </span><span class="lineNoCov">          0 :             ret += right;</span>
+<span class="lineNum">     428 </span><span class="lineNoCov">          0 :             ret += &quot;\n&quot;;</span>
+<span class="lineNum">     429 </span>            :         }
+<span class="lineNum">     430 </span><span class="lineNoCov">          0 :         return ret;</span>
+<span class="lineNum">     431 </span>            :     }
+<span class="lineNum">     432 </span>            : };
+<span class="lineNum">     433 </span>            : 
+<span class="lineNum">     434 </span><span class="lineNoCov">          0 : RPCHelpMan::RPCHelpMan(std::string name, std::string description, std::vector&lt;RPCArg&gt; args, RPCResults results, RPCExamples examples)</span>
+<span class="lineNum">     435 </span><span class="lineNoCov">          0 :     : m_name{std::move(name)},</span>
+<span class="lineNum">     436 </span><span class="lineNoCov">          0 :       m_description{std::move(description)},</span>
+<span class="lineNum">     437 </span><span class="lineNoCov">          0 :       m_args{std::move(args)},</span>
+<span class="lineNum">     438 </span><span class="lineNoCov">          0 :       m_results{std::move(results)},</span>
+<span class="lineNum">     439 </span><span class="lineNoCov">          0 :       m_examples{std::move(examples)}</span>
+<span class="lineNum">     440 </span>            : {
+<span class="lineNum">     441 </span><span class="lineNoCov">          0 :     std::set&lt;std::string&gt; named_args;</span>
+<span class="lineNum">     442 </span><span class="lineNoCov">          0 :     for (const auto&amp; arg : m_args) {</span>
+<span class="lineNum">     443 </span><span class="lineNoCov">          0 :         std::vector&lt;std::string&gt; names;</span>
+<span class="lineNum">     444 </span><span class="lineNoCov">          0 :         boost::split(names, arg.m_names, boost::is_any_of(&quot;|&quot;));</span>
+<span class="lineNum">     445 </span>            :         // Should have unique named arguments
+<span class="lineNum">     446 </span><span class="lineNoCov">          0 :         for (const std::string&amp; name : names) {</span>
+<span class="lineNum">     447 </span><span class="lineNoCov">          0 :             CHECK_NONFATAL(named_args.insert(name).second);</span>
+<span class="lineNum">     448 </span>            :         }
+<span class="lineNum">     449 </span>            :     }
+<span class="lineNum">     450 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     451 </span>            : 
+<span class="lineNum">     452 </span><span class="lineNoCov">          0 : std::string RPCResults::ToDescriptionString() const</span>
+<span class="lineNum">     453 </span>            : {
+<span class="lineNum">     454 </span><span class="lineNoCov">          0 :     std::string result;</span>
+<span class="lineNum">     455 </span><span class="lineNoCov">          0 :     for (const auto&amp; r : m_results) {</span>
+<span class="lineNum">     456 </span><span class="lineNoCov">          0 :         if (r.m_cond.empty()) {</span>
+<span class="lineNum">     457 </span>            :             result += &quot;\nResult:\n&quot;;
+<span class="lineNum">     458 </span>            :         } else {
+<span class="lineNum">     459 </span><span class="lineNoCov">          0 :             result += &quot;\nResult (&quot; + r.m_cond + &quot;):\n&quot;;</span>
+<span class="lineNum">     460 </span>            :         }
+<span class="lineNum">     461 </span><span class="lineNoCov">          0 :         Sections sections;</span>
+<span class="lineNum">     462 </span><span class="lineNoCov">          0 :         r.ToSections(sections);</span>
+<span class="lineNum">     463 </span><span class="lineNoCov">          0 :         result += sections.ToString();</span>
+<span class="lineNum">     464 </span>            :     }
+<span class="lineNum">     465 </span><span class="lineNoCov">          0 :     return result;</span>
+<span class="lineNum">     466 </span>            : }
+<span class="lineNum">     467 </span>            : 
+<span class="lineNum">     468 </span><span class="lineNoCov">          0 : std::string RPCExamples::ToDescriptionString() const</span>
+<span class="lineNum">     469 </span>            : {
+<span class="lineNum">     470 </span><span class="lineNoCov">          0 :     return m_examples.empty() ? m_examples : &quot;\nExamples:\n&quot; + m_examples;</span>
+<a name="471"><span class="lineNum">     471 </span>            : }</a>
+<span class="lineNum">     472 </span>            : 
+<span class="lineNum">     473 </span><span class="lineNoCov">          0 : bool RPCHelpMan::IsValidNumArgs(size_t num_args) const</span>
+<span class="lineNum">     474 </span>            : {
+<span class="lineNum">     475 </span><span class="lineNoCov">          0 :     size_t num_required_args = 0;</span>
+<span class="lineNum">     476 </span><span class="lineNoCov">          0 :     for (size_t n = m_args.size(); n &gt; 0; --n) {</span>
+<span class="lineNum">     477 </span><span class="lineNoCov">          0 :         if (!m_args.at(n - 1).IsOptional()) {</span>
+<span class="lineNum">     478 </span>            :             num_required_args = n;
+<span class="lineNum">     479 </span>            :             break;
+<span class="lineNum">     480 </span>            :         }
+<span class="lineNum">     481 </span>            :     }
+<span class="lineNum">     482 </span><span class="lineNoCov">          0 :     return num_required_args &lt;= num_args &amp;&amp; num_args &lt;= m_args.size();</span>
+<span class="lineNum">     483 </span>            : }
+<span class="lineNum">     484 </span><span class="lineNoCov">          0 : std::string RPCHelpMan::ToString() const</span>
+<span class="lineNum">     485 </span>            : {
+<span class="lineNum">     486 </span><span class="lineNoCov">          0 :     std::string ret;</span>
+<span class="lineNum">     487 </span>            : 
+<span class="lineNum">     488 </span>            :     // Oneline summary
+<span class="lineNum">     489 </span><span class="lineNoCov">          0 :     ret += m_name;</span>
+<span class="lineNum">     490 </span><span class="lineNoCov">          0 :     bool was_optional{false};</span>
+<span class="lineNum">     491 </span><span class="lineNoCov">          0 :     for (const auto&amp; arg : m_args) {</span>
+<span class="lineNum">     492 </span><span class="lineNoCov">          0 :         const bool optional = arg.IsOptional();</span>
+<span class="lineNum">     493 </span><span class="lineNoCov">          0 :         ret += &quot; &quot;;</span>
+<span class="lineNum">     494 </span><span class="lineNoCov">          0 :         if (optional) {</span>
+<span class="lineNum">     495 </span><span class="lineNoCov">          0 :             if (!was_optional) ret += &quot;( &quot;;</span>
+<span class="lineNum">     496 </span>            :             was_optional = true;
+<span class="lineNum">     497 </span>            :         } else {
+<span class="lineNum">     498 </span><span class="lineNoCov">          0 :             if (was_optional) ret += &quot;) &quot;;</span>
+<span class="lineNum">     499 </span>            :             was_optional = false;
+<span class="lineNum">     500 </span>            :         }
+<span class="lineNum">     501 </span><span class="lineNoCov">          0 :         ret += arg.ToString(/* oneline */ true);</span>
+<span class="lineNum">     502 </span>            :     }
+<span class="lineNum">     503 </span><span class="lineNoCov">          0 :     if (was_optional) ret += &quot; )&quot;;</span>
+<span class="lineNum">     504 </span><span class="lineNoCov">          0 :     ret += &quot;\n&quot;;</span>
+<span class="lineNum">     505 </span>            : 
+<span class="lineNum">     506 </span>            :     // Description
+<span class="lineNum">     507 </span><span class="lineNoCov">          0 :     ret += m_description;</span>
+<span class="lineNum">     508 </span>            : 
+<span class="lineNum">     509 </span>            :     // Arguments
+<span class="lineNum">     510 </span><span class="lineNoCov">          0 :     Sections sections;</span>
+<span class="lineNum">     511 </span><span class="lineNoCov">          0 :     for (size_t i{0}; i &lt; m_args.size(); ++i) {</span>
+<span class="lineNum">     512 </span><span class="lineNoCov">          0 :         const auto&amp; arg = m_args.at(i);</span>
+<span class="lineNum">     513 </span>            : 
+<span class="lineNum">     514 </span><span class="lineNoCov">          0 :         if (i == 0) ret += &quot;\nArguments:\n&quot;;</span>
+<span class="lineNum">     515 </span>            : 
+<span class="lineNum">     516 </span>            :         // Push named argument name and description
+<span class="lineNum">     517 </span><span class="lineNoCov">          0 :         sections.m_sections.emplace_back(::ToString(i + 1) + &quot;. &quot; + arg.GetFirstName(), arg.ToDescriptionString());</span>
+<span class="lineNum">     518 </span><span class="lineNoCov">          0 :         sections.m_max_pad = std::max(sections.m_max_pad, sections.m_sections.back().m_left.size());</span>
+<span class="lineNum">     519 </span>            : 
+<span class="lineNum">     520 </span>            :         // Recursively push nested args
+<span class="lineNum">     521 </span><span class="lineNoCov">          0 :         sections.Push(arg);</span>
+<span class="lineNum">     522 </span>            :     }
+<span class="lineNum">     523 </span><span class="lineNoCov">          0 :     ret += sections.ToString();</span>
+<span class="lineNum">     524 </span>            : 
+<span class="lineNum">     525 </span>            :     // Result
+<span class="lineNum">     526 </span><span class="lineNoCov">          0 :     ret += m_results.ToDescriptionString();</span>
+<span class="lineNum">     527 </span>            : 
+<span class="lineNum">     528 </span>            :     // Examples
+<span class="lineNum">     529 </span><span class="lineNoCov">          0 :     ret += m_examples.ToDescriptionString();</span>
+<span class="lineNum">     530 </span>            : 
+<span class="lineNum">     531 </span><span class="lineNoCov">          0 :     return ret;</span>
+<span class="lineNum">     532 </span>            : }
+<span class="lineNum">     533 </span>            : 
+<span class="lineNum">     534 </span><span class="lineNoCov">          0 : std::string RPCArg::GetFirstName() const</span>
+<span class="lineNum">     535 </span>            : {
+<span class="lineNum">     536 </span><span class="lineNoCov">          0 :     return m_names.substr(0, m_names.find(&quot;|&quot;));</span>
+<span class="lineNum">     537 </span>            : }
+<span class="lineNum">     538 </span>            : 
+<span class="lineNum">     539 </span><span class="lineNoCov">          0 : std::string RPCArg::GetName() const</span>
+<span class="lineNum">     540 </span>            : {
+<span class="lineNum">     541 </span><span class="lineNoCov">          0 :     CHECK_NONFATAL(std::string::npos == m_names.find(&quot;|&quot;));</span>
+<span class="lineNum">     542 </span><span class="lineNoCov">          0 :     return m_names;</span>
+<a name="543"><span class="lineNum">     543 </span>            : }</a>
+<span class="lineNum">     544 </span>            : 
+<span class="lineNum">     545 </span><span class="lineNoCov">          0 : bool RPCArg::IsOptional() const</span>
+<span class="lineNum">     546 </span>            : {
+<span class="lineNum">     547 </span><span class="lineNoCov">          0 :     if (m_fallback.which() == 1) {</span>
+<span class="lineNum">     548 </span>            :         return true;
+<span class="lineNum">     549 </span>            :     } else {
+<span class="lineNum">     550 </span><span class="lineNoCov">          0 :         return RPCArg::Optional::NO != boost::get&lt;RPCArg::Optional&gt;(m_fallback);</span>
+<span class="lineNum">     551 </span>            :     }
+<span class="lineNum">     552 </span>            : }
+<span class="lineNum">     553 </span>            : 
+<span class="lineNum">     554 </span><span class="lineNoCov">          0 : std::string RPCArg::ToDescriptionString() const</span>
+<span class="lineNum">     555 </span>            : {
+<span class="lineNum">     556 </span><span class="lineNoCov">          0 :     std::string ret;</span>
+<span class="lineNum">     557 </span><span class="lineNoCov">          0 :     ret += &quot;(&quot;;</span>
+<span class="lineNum">     558 </span><span class="lineNoCov">          0 :     if (m_type_str.size() != 0) {</span>
+<span class="lineNum">     559 </span><span class="lineNoCov">          0 :         ret += m_type_str.at(1);</span>
+<span class="lineNum">     560 </span>            :     } else {
+<span class="lineNum">     561 </span><span class="lineNoCov">          0 :         switch (m_type) {</span>
+<span class="lineNum">     562 </span><span class="lineNoCov">          0 :         case Type::STR_HEX:</span>
+<span class="lineNum">     563 </span>            :         case Type::STR: {
+<span class="lineNum">     564 </span>            :             ret += &quot;string&quot;;
+<span class="lineNum">     565 </span>            :             break;
+<span class="lineNum">     566 </span>            :         }
+<span class="lineNum">     567 </span><span class="lineNoCov">          0 :         case Type::NUM: {</span>
+<span class="lineNum">     568 </span>            :             ret += &quot;numeric&quot;;
+<span class="lineNum">     569 </span>            :             break;
+<span class="lineNum">     570 </span>            :         }
+<span class="lineNum">     571 </span><span class="lineNoCov">          0 :         case Type::AMOUNT: {</span>
+<span class="lineNum">     572 </span>            :             ret += &quot;numeric or string&quot;;
+<span class="lineNum">     573 </span>            :             break;
+<span class="lineNum">     574 </span>            :         }
+<span class="lineNum">     575 </span><span class="lineNoCov">          0 :         case Type::RANGE: {</span>
+<span class="lineNum">     576 </span>            :             ret += &quot;numeric or array&quot;;
+<span class="lineNum">     577 </span>            :             break;
+<span class="lineNum">     578 </span>            :         }
+<span class="lineNum">     579 </span><span class="lineNoCov">          0 :         case Type::BOOL: {</span>
+<span class="lineNum">     580 </span>            :             ret += &quot;boolean&quot;;
+<span class="lineNum">     581 </span>            :             break;
+<span class="lineNum">     582 </span>            :         }
+<span class="lineNum">     583 </span><span class="lineNoCov">          0 :         case Type::OBJ:</span>
+<span class="lineNum">     584 </span>            :         case Type::OBJ_USER_KEYS: {
+<span class="lineNum">     585 </span>            :             ret += &quot;json object&quot;;
+<span class="lineNum">     586 </span>            :             break;
+<span class="lineNum">     587 </span>            :         }
+<span class="lineNum">     588 </span><span class="lineNoCov">          0 :         case Type::ARR: {</span>
+<span class="lineNum">     589 </span>            :             ret += &quot;json array&quot;;
+<span class="lineNum">     590 </span>            :             break;
+<span class="lineNum">     591 </span>            :         }
+<span class="lineNum">     592 </span>            : 
+<span class="lineNum">     593 </span>            :             // no default case, so the compiler can warn about missing cases
+<span class="lineNum">     594 </span>            :         }
+<span class="lineNum">     595 </span>            :     }
+<span class="lineNum">     596 </span><span class="lineNoCov">          0 :     if (m_fallback.which() == 1) {</span>
+<span class="lineNum">     597 </span><span class="lineNoCov">          0 :         ret += &quot;, optional, default=&quot; + boost::get&lt;std::string&gt;(m_fallback);</span>
+<span class="lineNum">     598 </span>            :     } else {
+<span class="lineNum">     599 </span><span class="lineNoCov">          0 :         switch (boost::get&lt;RPCArg::Optional&gt;(m_fallback)) {</span>
+<span class="lineNum">     600 </span>            :         case RPCArg::Optional::OMITTED: {
+<span class="lineNum">     601 </span>            :             // nothing to do. Element is treated as if not present and has no default value
+<span class="lineNum">     602 </span>            :             break;
+<span class="lineNum">     603 </span>            :         }
+<span class="lineNum">     604 </span><span class="lineNoCov">          0 :         case RPCArg::Optional::OMITTED_NAMED_ARG: {</span>
+<span class="lineNum">     605 </span>            :             ret += &quot;, optional&quot;; // Default value is &quot;null&quot;
+<span class="lineNum">     606 </span>            :             break;
+<span class="lineNum">     607 </span>            :         }
+<span class="lineNum">     608 </span><span class="lineNoCov">          0 :         case RPCArg::Optional::NO: {</span>
+<span class="lineNum">     609 </span>            :             ret += &quot;, required&quot;;
+<span class="lineNum">     610 </span>            :             break;
+<span class="lineNum">     611 </span>            :         }
+<span class="lineNum">     612 </span>            : 
+<span class="lineNum">     613 </span>            :             // no default case, so the compiler can warn about missing cases
+<span class="lineNum">     614 </span>            :         }
+<span class="lineNum">     615 </span>            :     }
+<span class="lineNum">     616 </span><span class="lineNoCov">          0 :     ret += &quot;)&quot;;</span>
+<span class="lineNum">     617 </span><span class="lineNoCov">          0 :     ret += m_description.empty() ? &quot;&quot; : &quot; &quot; + m_description;</span>
+<span class="lineNum">     618 </span><span class="lineNoCov">          0 :     return ret;</span>
+<span class="lineNum">     619 </span>            : }
+<span class="lineNum">     620 </span>            : 
+<span class="lineNum">     621 </span><span class="lineNoCov">          0 : void RPCResult::ToSections(Sections&amp; sections, const OuterType outer_type, const int current_indent) const</span>
+<span class="lineNum">     622 </span>            : {
+<span class="lineNum">     623 </span>            :     // Indentation
+<span class="lineNum">     624 </span><span class="lineNoCov">          0 :     const std::string indent(current_indent, ' ');</span>
+<span class="lineNum">     625 </span><span class="lineNoCov">          0 :     const std::string indent_next(current_indent + 2, ' ');</span>
+<span class="lineNum">     626 </span>            : 
+<span class="lineNum">     627 </span>            :     // Elements in a JSON structure (dictionary or array) are separated by a comma
+<span class="lineNum">     628 </span><span class="lineNoCov">          0 :     const std::string maybe_separator{outer_type != OuterType::NONE ? &quot;,&quot; : &quot;&quot;};</span>
+<span class="lineNum">     629 </span>            : 
+<span class="lineNum">     630 </span>            :     // The key name if recursed into an dictionary
+<span class="lineNum">     631 </span>            :     const std::string maybe_key{
+<span class="lineNum">     632 </span>            :         outer_type == OuterType::OBJ ?
+<span class="lineNum">     633 </span><span class="lineNoCov">          0 :             &quot;\&quot;&quot; + this-&gt;m_key_name + &quot;\&quot; : &quot; :</span>
+<span class="lineNum">     634 </span><span class="lineNoCov">          0 :             &quot;&quot;};</span>
+<span class="lineNum">     635 </span>            : 
+<span class="lineNum">     636 </span>            :     // Format description with type
+<span class="lineNum">     637 </span><span class="lineNoCov">          0 :     const auto Description = [&amp;](const std::string&amp; type) {</span>
+<span class="lineNum">     638 </span><span class="lineNoCov">          0 :         return &quot;(&quot; + type + (this-&gt;m_optional ? &quot;, optional&quot; : &quot;&quot;) + &quot;)&quot; +</span>
+<span class="lineNum">     639 </span><span class="lineNoCov">          0 :                (this-&gt;m_description.empty() ? &quot;&quot; : &quot; &quot; + this-&gt;m_description);</span>
+<span class="lineNum">     640 </span><span class="lineNoCov">          0 :     };</span>
+<span class="lineNum">     641 </span>            : 
+<span class="lineNum">     642 </span><span class="lineNoCov">          0 :     switch (m_type) {</span>
+<span class="lineNum">     643 </span><span class="lineNoCov">          0 :     case Type::ELISION: {</span>
+<span class="lineNum">     644 </span>            :         // If the inner result is empty, use three dots for elision
+<span class="lineNum">     645 </span><span class="lineNoCov">          0 :         sections.PushSection({indent + &quot;...&quot; + maybe_separator, m_description});</span>
+<span class="lineNum">     646 </span>            :         return;
+<span class="lineNum">     647 </span>            :     }
+<span class="lineNum">     648 </span><span class="lineNoCov">          0 :     case Type::NONE: {</span>
+<span class="lineNum">     649 </span><span class="lineNoCov">          0 :         sections.PushSection({indent + &quot;null&quot; + maybe_separator, Description(&quot;json null&quot;)});</span>
+<span class="lineNum">     650 </span>            :         return;
+<span class="lineNum">     651 </span>            :     }
+<span class="lineNum">     652 </span><span class="lineNoCov">          0 :     case Type::STR: {</span>
+<span class="lineNum">     653 </span><span class="lineNoCov">          0 :         sections.PushSection({indent + maybe_key + &quot;\&quot;str\&quot;&quot; + maybe_separator, Description(&quot;string&quot;)});</span>
+<span class="lineNum">     654 </span>            :         return;
+<span class="lineNum">     655 </span>            :     }
+<span class="lineNum">     656 </span><span class="lineNoCov">          0 :     case Type::STR_AMOUNT: {</span>
+<span class="lineNum">     657 </span><span class="lineNoCov">          0 :         sections.PushSection({indent + maybe_key + &quot;n&quot; + maybe_separator, Description(&quot;numeric&quot;)});</span>
+<span class="lineNum">     658 </span>            :         return;
+<span class="lineNum">     659 </span>            :     }
+<span class="lineNum">     660 </span><span class="lineNoCov">          0 :     case Type::STR_HEX: {</span>
+<span class="lineNum">     661 </span><span class="lineNoCov">          0 :         sections.PushSection({indent + maybe_key + &quot;\&quot;hex\&quot;&quot; + maybe_separator, Description(&quot;string&quot;)});</span>
+<span class="lineNum">     662 </span>            :         return;
+<span class="lineNum">     663 </span>            :     }
+<span class="lineNum">     664 </span><span class="lineNoCov">          0 :     case Type::NUM: {</span>
+<span class="lineNum">     665 </span><span class="lineNoCov">          0 :         sections.PushSection({indent + maybe_key + &quot;n&quot; + maybe_separator, Description(&quot;numeric&quot;)});</span>
+<span class="lineNum">     666 </span>            :         return;
+<span class="lineNum">     667 </span>            :     }
+<span class="lineNum">     668 </span><span class="lineNoCov">          0 :     case Type::NUM_TIME: {</span>
+<span class="lineNum">     669 </span><span class="lineNoCov">          0 :         sections.PushSection({indent + maybe_key + &quot;xxx&quot; + maybe_separator, Description(&quot;numeric&quot;)});</span>
+<span class="lineNum">     670 </span>            :         return;
+<span class="lineNum">     671 </span>            :     }
+<span class="lineNum">     672 </span><span class="lineNoCov">          0 :     case Type::BOOL: {</span>
+<span class="lineNum">     673 </span><span class="lineNoCov">          0 :         sections.PushSection({indent + maybe_key + &quot;true|false&quot; + maybe_separator, Description(&quot;boolean&quot;)});</span>
+<span class="lineNum">     674 </span>            :         return;
+<span class="lineNum">     675 </span>            :     }
+<span class="lineNum">     676 </span><span class="lineNoCov">          0 :     case Type::ARR_FIXED:</span>
+<span class="lineNum">     677 </span>            :     case Type::ARR: {
+<span class="lineNum">     678 </span><span class="lineNoCov">          0 :         sections.PushSection({indent + maybe_key + &quot;[&quot;, Description(&quot;json array&quot;)});</span>
+<span class="lineNum">     679 </span><span class="lineNoCov">          0 :         for (const auto&amp; i : m_inner) {</span>
+<span class="lineNum">     680 </span><span class="lineNoCov">          0 :             i.ToSections(sections, OuterType::ARR, current_indent + 2);</span>
+<span class="lineNum">     681 </span>            :         }
+<span class="lineNum">     682 </span><span class="lineNoCov">          0 :         CHECK_NONFATAL(!m_inner.empty());</span>
+<span class="lineNum">     683 </span><span class="lineNoCov">          0 :         if (m_type == Type::ARR &amp;&amp; m_inner.back().m_type != Type::ELISION) {</span>
+<span class="lineNum">     684 </span><span class="lineNoCov">          0 :             sections.PushSection({indent_next + &quot;...&quot;, &quot;&quot;});</span>
+<span class="lineNum">     685 </span>            :         } else {
+<span class="lineNum">     686 </span>            :             // Remove final comma, which would be invalid JSON
+<span class="lineNum">     687 </span><span class="lineNoCov">          0 :             sections.m_sections.back().m_left.pop_back();</span>
+<span class="lineNum">     688 </span>            :         }
+<span class="lineNum">     689 </span><span class="lineNoCov">          0 :         sections.PushSection({indent + &quot;]&quot; + maybe_separator, &quot;&quot;});</span>
+<span class="lineNum">     690 </span>            :         return;
+<span class="lineNum">     691 </span>            :     }
+<span class="lineNum">     692 </span><span class="lineNoCov">          0 :     case Type::OBJ_DYN:</span>
+<span class="lineNum">     693 </span>            :     case Type::OBJ: {
+<span class="lineNum">     694 </span><span class="lineNoCov">          0 :         sections.PushSection({indent + maybe_key + &quot;{&quot;, Description(&quot;json object&quot;)});</span>
+<span class="lineNum">     695 </span><span class="lineNoCov">          0 :         for (const auto&amp; i : m_inner) {</span>
+<span class="lineNum">     696 </span><span class="lineNoCov">          0 :             i.ToSections(sections, OuterType::OBJ, current_indent + 2);</span>
+<span class="lineNum">     697 </span>            :         }
+<span class="lineNum">     698 </span><span class="lineNoCov">          0 :         CHECK_NONFATAL(!m_inner.empty());</span>
+<span class="lineNum">     699 </span><span class="lineNoCov">          0 :         if (m_type == Type::OBJ_DYN &amp;&amp; m_inner.back().m_type != Type::ELISION) {</span>
+<span class="lineNum">     700 </span>            :             // If the dictionary keys are dynamic, use three dots for continuation
+<span class="lineNum">     701 </span><span class="lineNoCov">          0 :             sections.PushSection({indent_next + &quot;...&quot;, &quot;&quot;});</span>
+<span class="lineNum">     702 </span>            :         } else {
+<span class="lineNum">     703 </span>            :             // Remove final comma, which would be invalid JSON
+<span class="lineNum">     704 </span><span class="lineNoCov">          0 :             sections.m_sections.back().m_left.pop_back();</span>
+<span class="lineNum">     705 </span>            :         }
+<span class="lineNum">     706 </span><span class="lineNoCov">          0 :         sections.PushSection({indent + &quot;}&quot; + maybe_separator, &quot;&quot;});</span>
+<span class="lineNum">     707 </span>            :         return;
+<span class="lineNum">     708 </span>            :     }
+<span class="lineNum">     709 </span>            : 
+<span class="lineNum">     710 </span>            :         // no default case, so the compiler can warn about missing cases
+<span class="lineNum">     711 </span>            :     }
+<span class="lineNum">     712 </span>            : 
+<span class="lineNum">     713 </span><span class="lineNoCov">          0 :     CHECK_NONFATAL(false);</span>
+<span class="lineNum">     714 </span>            : }
+<span class="lineNum">     715 </span>            : 
+<span class="lineNum">     716 </span><span class="lineNoCov">          0 : std::string RPCArg::ToStringObj(const bool oneline) const</span>
+<span class="lineNum">     717 </span>            : {
+<span class="lineNum">     718 </span><span class="lineNoCov">          0 :     std::string res;</span>
+<span class="lineNum">     719 </span><span class="lineNoCov">          0 :     res += &quot;\&quot;&quot;;</span>
+<span class="lineNum">     720 </span><span class="lineNoCov">          0 :     res += GetFirstName();</span>
+<span class="lineNum">     721 </span><span class="lineNoCov">          0 :     if (oneline) {</span>
+<span class="lineNum">     722 </span>            :         res += &quot;\&quot;:&quot;;
+<span class="lineNum">     723 </span>            :     } else {
+<span class="lineNum">     724 </span>            :         res += &quot;\&quot;: &quot;;
+<span class="lineNum">     725 </span>            :     }
+<span class="lineNum">     726 </span><span class="lineNoCov">          0 :     switch (m_type) {</span>
+<span class="lineNum">     727 </span><span class="lineNoCov">          0 :     case Type::STR:</span>
+<span class="lineNum">     728 </span><span class="lineNoCov">          0 :         return res + &quot;\&quot;str\&quot;&quot;;</span>
+<span class="lineNum">     729 </span><span class="lineNoCov">          0 :     case Type::STR_HEX:</span>
+<span class="lineNum">     730 </span><span class="lineNoCov">          0 :         return res + &quot;\&quot;hex\&quot;&quot;;</span>
+<span class="lineNum">     731 </span><span class="lineNoCov">          0 :     case Type::NUM:</span>
+<span class="lineNum">     732 </span><span class="lineNoCov">          0 :         return res + &quot;n&quot;;</span>
+<span class="lineNum">     733 </span><span class="lineNoCov">          0 :     case Type::RANGE:</span>
+<span class="lineNum">     734 </span><span class="lineNoCov">          0 :         return res + &quot;n or [n,n]&quot;;</span>
+<span class="lineNum">     735 </span><span class="lineNoCov">          0 :     case Type::AMOUNT:</span>
+<span class="lineNum">     736 </span><span class="lineNoCov">          0 :         return res + &quot;amount&quot;;</span>
+<span class="lineNum">     737 </span><span class="lineNoCov">          0 :     case Type::BOOL:</span>
+<span class="lineNum">     738 </span><span class="lineNoCov">          0 :         return res + &quot;bool&quot;;</span>
+<span class="lineNum">     739 </span><span class="lineNoCov">          0 :     case Type::ARR:</span>
+<span class="lineNum">     740 </span><span class="lineNoCov">          0 :         res += &quot;[&quot;;</span>
+<span class="lineNum">     741 </span><span class="lineNoCov">          0 :         for (const auto&amp; i : m_inner) {</span>
+<span class="lineNum">     742 </span><span class="lineNoCov">          0 :             res += i.ToString(oneline) + &quot;,&quot;;</span>
+<span class="lineNum">     743 </span>            :         }
+<span class="lineNum">     744 </span><span class="lineNoCov">          0 :         return res + &quot;...]&quot;;</span>
+<span class="lineNum">     745 </span><span class="lineNoCov">          0 :     case Type::OBJ:</span>
+<span class="lineNum">     746 </span>            :     case Type::OBJ_USER_KEYS:
+<span class="lineNum">     747 </span>            :         // Currently unused, so avoid writing dead code
+<span class="lineNum">     748 </span><span class="lineNoCov">          0 :         CHECK_NONFATAL(false);</span>
+<span class="lineNum">     749 </span>            : 
+<span class="lineNum">     750 </span>            :         // no default case, so the compiler can warn about missing cases
+<span class="lineNum">     751 </span>            :     }
+<span class="lineNum">     752 </span><span class="lineNoCov">          0 :     CHECK_NONFATAL(false);</span>
+<span class="lineNum">     753 </span>            : }
+<span class="lineNum">     754 </span>            : 
+<span class="lineNum">     755 </span><span class="lineNoCov">          0 : std::string RPCArg::ToString(const bool oneline) const</span>
+<span class="lineNum">     756 </span>            : {
+<span class="lineNum">     757 </span><span class="lineNoCov">          0 :     if (oneline &amp;&amp; !m_oneline_description.empty()) return m_oneline_description;</span>
+<span class="lineNum">     758 </span>            : 
+<span class="lineNum">     759 </span><span class="lineNoCov">          0 :     switch (m_type) {</span>
+<span class="lineNum">     760 </span><span class="lineNoCov">          0 :     case Type::STR_HEX:</span>
+<span class="lineNum">     761 </span>            :     case Type::STR: {
+<span class="lineNum">     762 </span><span class="lineNoCov">          0 :         return &quot;\&quot;&quot; + GetFirstName() + &quot;\&quot;&quot;;</span>
+<span class="lineNum">     763 </span>            :     }
+<span class="lineNum">     764 </span><span class="lineNoCov">          0 :     case Type::NUM:</span>
+<span class="lineNum">     765 </span>            :     case Type::RANGE:
+<span class="lineNum">     766 </span>            :     case Type::AMOUNT:
+<span class="lineNum">     767 </span>            :     case Type::BOOL: {
+<span class="lineNum">     768 </span><span class="lineNoCov">          0 :         return GetFirstName();</span>
+<span class="lineNum">     769 </span>            :     }
+<span class="lineNum">     770 </span><span class="lineNoCov">          0 :     case Type::OBJ:</span>
+<span class="lineNum">     771 </span>            :     case Type::OBJ_USER_KEYS: {
+<span class="lineNum">     772 </span><span class="lineNoCov">          0 :         const std::string res = Join(m_inner, &quot;,&quot;, [&amp;](const RPCArg&amp; i) { return i.ToStringObj(oneline); });</span>
+<span class="lineNum">     773 </span><span class="lineNoCov">          0 :         if (m_type == Type::OBJ) {</span>
+<span class="lineNum">     774 </span><span class="lineNoCov">          0 :             return &quot;{&quot; + res + &quot;}&quot;;</span>
+<span class="lineNum">     775 </span>            :         } else {
+<span class="lineNum">     776 </span><span class="lineNoCov">          0 :             return &quot;{&quot; + res + &quot;,...}&quot;;</span>
+<span class="lineNum">     777 </span>            :         }
+<span class="lineNum">     778 </span>            :     }
+<span class="lineNum">     779 </span><span class="lineNoCov">          0 :     case Type::ARR: {</span>
+<span class="lineNum">     780 </span><span class="lineNoCov">          0 :         std::string res;</span>
+<span class="lineNum">     781 </span><span class="lineNoCov">          0 :         for (const auto&amp; i : m_inner) {</span>
+<span class="lineNum">     782 </span><span class="lineNoCov">          0 :             res += i.ToString(oneline) + &quot;,&quot;;</span>
+<span class="lineNum">     783 </span>            :         }
+<span class="lineNum">     784 </span><span class="lineNoCov">          0 :         return &quot;[&quot; + res + &quot;...]&quot;;</span>
+<span class="lineNum">     785 </span>            :     }
+<span class="lineNum">     786 </span>            : 
+<span class="lineNum">     787 </span>            :         // no default case, so the compiler can warn about missing cases
+<span class="lineNum">     788 </span>            :     }
+<span class="lineNum">     789 </span><span class="lineNoCov">          0 :     CHECK_NONFATAL(false);</span>
+<span class="lineNum">     790 </span>            : }
+<span class="lineNum">     791 </span>            : 
+<span class="lineNum">     792 </span><span class="lineNoCov">          0 : static std::pair&lt;int64_t, int64_t&gt; ParseRange(const UniValue&amp; value)</span>
+<span class="lineNum">     793 </span>            : {
+<span class="lineNum">     794 </span><span class="lineNoCov">          0 :     if (value.isNum()) {</span>
+<span class="lineNum">     795 </span><span class="lineNoCov">          0 :         return {0, value.get_int64()};</span>
+<span class="lineNum">     796 </span>            :     }
+<span class="lineNum">     797 </span><span class="lineNoCov">          0 :     if (value.isArray() &amp;&amp; value.size() == 2 &amp;&amp; value[0].isNum() &amp;&amp; value[1].isNum()) {</span>
+<span class="lineNum">     798 </span><span class="lineNoCov">          0 :         int64_t low = value[0].get_int64();</span>
+<span class="lineNum">     799 </span><span class="lineNoCov">          0 :         int64_t high = value[1].get_int64();</span>
+<span class="lineNum">     800 </span><span class="lineNoCov">          0 :         if (low &gt; high) throw JSONRPCError(RPC_INVALID_PARAMETER, &quot;Range specified as [begin,end] must not have begin after end&quot;);</span>
+<span class="lineNum">     801 </span><span class="lineNoCov">          0 :         return {low, high};</span>
+<span class="lineNum">     802 </span>            :     }
+<span class="lineNum">     803 </span><span class="lineNoCov">          0 :     throw JSONRPCError(RPC_INVALID_PARAMETER, &quot;Range must be specified as end or as [begin,end]&quot;);</span>
+<span class="lineNum">     804 </span>            : }
+<span class="lineNum">     805 </span>            : 
+<span class="lineNum">     806 </span><span class="lineNoCov">          0 : std::pair&lt;int64_t, int64_t&gt; ParseDescriptorRange(const UniValue&amp; value)</span>
+<span class="lineNum">     807 </span>            : {
+<span class="lineNum">     808 </span>            :     int64_t low, high;
+<span class="lineNum">     809 </span><span class="lineNoCov">          0 :     std::tie(low, high) = ParseRange(value);</span>
+<span class="lineNum">     810 </span><span class="lineNoCov">          0 :     if (low &lt; 0) {</span>
+<span class="lineNum">     811 </span><span class="lineNoCov">          0 :         throw JSONRPCError(RPC_INVALID_PARAMETER, &quot;Range should be greater or equal than 0&quot;);</span>
+<span class="lineNum">     812 </span>            :     }
+<span class="lineNum">     813 </span><span class="lineNoCov">          0 :     if ((high &gt;&gt; 31) != 0) {</span>
+<span class="lineNum">     814 </span><span class="lineNoCov">          0 :         throw JSONRPCError(RPC_INVALID_PARAMETER, &quot;End of range is too high&quot;);</span>
+<span class="lineNum">     815 </span>            :     }
+<span class="lineNum">     816 </span><span class="lineNoCov">          0 :     if (high &gt;= low + 1000000) {</span>
+<span class="lineNum">     817 </span><span class="lineNoCov">          0 :         throw JSONRPCError(RPC_INVALID_PARAMETER, &quot;Range is too large&quot;);</span>
+<span class="lineNum">     818 </span>            :     }
+<span class="lineNum">     819 </span><span class="lineNoCov">          0 :     return {low, high};</span>
+<span class="lineNum">     820 </span>            : }
+<span class="lineNum">     821 </span>            : 
+<span class="lineNum">     822 </span><span class="lineNoCov">          0 : std::vector&lt;CScript&gt; EvalDescriptorStringOrObject(const UniValue&amp; scanobject, FlatSigningProvider&amp; provider)</span>
+<span class="lineNum">     823 </span>            : {
+<span class="lineNum">     824 </span><span class="lineNoCov">          0 :     std::string desc_str;</span>
+<span class="lineNum">     825 </span><span class="lineNoCov">          0 :     std::pair&lt;int64_t, int64_t&gt; range = {0, 1000};</span>
+<span class="lineNum">     826 </span><span class="lineNoCov">          0 :     if (scanobject.isStr()) {</span>
+<span class="lineNum">     827 </span><span class="lineNoCov">          0 :         desc_str = scanobject.get_str();</span>
+<span class="lineNum">     828 </span><span class="lineNoCov">          0 :     } else if (scanobject.isObject()) {</span>
+<span class="lineNum">     829 </span><span class="lineNoCov">          0 :         UniValue desc_uni = find_value(scanobject, &quot;desc&quot;);</span>
+<span class="lineNum">     830 </span><span class="lineNoCov">          0 :         if (desc_uni.isNull()) throw JSONRPCError(RPC_INVALID_PARAMETER, &quot;Descriptor needs to be provided in scan object&quot;);</span>
+<span class="lineNum">     831 </span><span class="lineNoCov">          0 :         desc_str = desc_uni.get_str();</span>
+<span class="lineNum">     832 </span><span class="lineNoCov">          0 :         UniValue range_uni = find_value(scanobject, &quot;range&quot;);</span>
+<span class="lineNum">     833 </span><span class="lineNoCov">          0 :         if (!range_uni.isNull()) {</span>
+<span class="lineNum">     834 </span><span class="lineNoCov">          0 :             range = ParseDescriptorRange(range_uni);</span>
+<span class="lineNum">     835 </span>            :         }
+<span class="lineNum">     836 </span>            :     } else {
+<span class="lineNum">     837 </span><span class="lineNoCov">          0 :         throw JSONRPCError(RPC_INVALID_PARAMETER, &quot;Scan object needs to be either a string or an object&quot;);</span>
+<span class="lineNum">     838 </span>            :     }
+<span class="lineNum">     839 </span>            : 
+<span class="lineNum">     840 </span><span class="lineNoCov">          0 :     std::string error;</span>
+<span class="lineNum">     841 </span><span class="lineNoCov">          0 :     auto desc = Parse(desc_str, provider, error);</span>
+<span class="lineNum">     842 </span><span class="lineNoCov">          0 :     if (!desc) {</span>
+<span class="lineNum">     843 </span><span class="lineNoCov">          0 :         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, error);</span>
+<span class="lineNum">     844 </span>            :     }
+<span class="lineNum">     845 </span><span class="lineNoCov">          0 :     if (!desc-&gt;IsRange()) {</span>
+<span class="lineNum">     846 </span><span class="lineNoCov">          0 :         range.first = 0;</span>
+<span class="lineNum">     847 </span><span class="lineNoCov">          0 :         range.second = 0;</span>
+<span class="lineNum">     848 </span>            :     }
+<span class="lineNum">     849 </span><span class="lineNoCov">          0 :     std::vector&lt;CScript&gt; ret;</span>
+<span class="lineNum">     850 </span><span class="lineNoCov">          0 :     for (int i = range.first; i &lt;= range.second; ++i) {</span>
+<span class="lineNum">     851 </span><span class="lineNoCov">          0 :         std::vector&lt;CScript&gt; scripts;</span>
+<span class="lineNum">     852 </span><span class="lineNoCov">          0 :         if (!desc-&gt;Expand(i, provider, scripts, provider)) {</span>
+<span class="lineNum">     853 </span><span class="lineNoCov">          0 :             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, strprintf(&quot;Cannot derive script without private keys: '%s'&quot;, desc_str));</span>
+<span class="lineNum">     854 </span>            :         }
+<span class="lineNum">     855 </span><span class="lineNoCov">          0 :         std::move(scripts.begin(), scripts.end(), std::back_inserter(ret));</span>
+<span class="lineNum">     856 </span>            :     }
+<span class="lineNum">     857 </span><span class="lineNoCov">          0 :     return ret;</span>
+<span class="lineNum">     858 </span>            : }
+<span class="lineNum">     859 </span>            : 
+<span class="lineNum">     860 </span><span class="lineNoCov">          0 : UniValue GetServicesNames(ServiceFlags services)</span>
+<span class="lineNum">     861 </span>            : {
+<span class="lineNum">     862 </span><span class="lineNoCov">          0 :     UniValue servicesNames(UniValue::VARR);</span>
+<span class="lineNum">     863 </span>            : 
+<span class="lineNum">     864 </span><span class="lineNoCov">          0 :     for (const auto&amp; flag : serviceFlagsToStr(services)) {</span>
+<span class="lineNum">     865 </span><span class="lineNoCov">          0 :         servicesNames.push_back(flag);</span>
+<span class="lineNum">     866 </span>            :     }
+<a name="867"><span class="lineNum">     867 </span>            : </a>
+<span class="lineNum">     868 </span><span class="lineNoCov">          0 :     return servicesNames;</span>
+<span class="lineNum">     869 </span><span class="lineCov">      11532 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

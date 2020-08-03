@@ -1,0 +1,333 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - netbase_cov.info - src/leveldb/db/version_edit.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">src/leveldb/db</a> - version_edit.cc<span style="font-size: 80%;"> (source / <a href="version_edit.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">netbase_cov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">137</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-23 06:26:49</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2011 The LevelDB Authors. All rights reserved.</a>
+<span class="lineNum">       2 </span>            : // Use of this source code is governed by a BSD-style license that can be
+<span class="lineNum">       3 </span>            : // found in the LICENSE file. See the AUTHORS file for names of contributors.
+<span class="lineNum">       4 </span>            : 
+<span class="lineNum">       5 </span>            : #include &quot;db/version_edit.h&quot;
+<span class="lineNum">       6 </span>            : 
+<span class="lineNum">       7 </span>            : #include &quot;db/version_set.h&quot;
+<span class="lineNum">       8 </span>            : #include &quot;util/coding.h&quot;
+<span class="lineNum">       9 </span>            : 
+<span class="lineNum">      10 </span>            : namespace leveldb {
+<span class="lineNum">      11 </span>            : 
+<span class="lineNum">      12 </span>            : // Tag numbers for serialized VersionEdit.  These numbers are written to
+<span class="lineNum">      13 </span>            : // disk and should not be changed.
+<span class="lineNum">      14 </span>            : enum Tag {
+<span class="lineNum">      15 </span>            :   kComparator = 1,
+<span class="lineNum">      16 </span>            :   kLogNumber = 2,
+<span class="lineNum">      17 </span>            :   kNextFileNumber = 3,
+<span class="lineNum">      18 </span>            :   kLastSequence = 4,
+<span class="lineNum">      19 </span>            :   kCompactPointer = 5,
+<span class="lineNum">      20 </span>            :   kDeletedFile = 6,
+<span class="lineNum">      21 </span>            :   kNewFile = 7,
+<span class="lineNum">      22 </span>            :   // 8 was used for large value refs
+<span class="lineNum">      23 </span>            :   kPrevLogNumber = 9
+<a name="24"><span class="lineNum">      24 </span>            : };</a>
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span><span class="lineNoCov">          0 : void VersionEdit::Clear() {</span>
+<span class="lineNum">      27 </span><span class="lineNoCov">          0 :   comparator_.clear();</span>
+<span class="lineNum">      28 </span><span class="lineNoCov">          0 :   log_number_ = 0;</span>
+<span class="lineNum">      29 </span><span class="lineNoCov">          0 :   prev_log_number_ = 0;</span>
+<span class="lineNum">      30 </span><span class="lineNoCov">          0 :   last_sequence_ = 0;</span>
+<span class="lineNum">      31 </span><span class="lineNoCov">          0 :   next_file_number_ = 0;</span>
+<span class="lineNum">      32 </span><span class="lineNoCov">          0 :   has_comparator_ = false;</span>
+<span class="lineNum">      33 </span><span class="lineNoCov">          0 :   has_log_number_ = false;</span>
+<span class="lineNum">      34 </span><span class="lineNoCov">          0 :   has_prev_log_number_ = false;</span>
+<span class="lineNum">      35 </span><span class="lineNoCov">          0 :   has_next_file_number_ = false;</span>
+<span class="lineNum">      36 </span><span class="lineNoCov">          0 :   has_last_sequence_ = false;</span>
+<span class="lineNum">      37 </span><span class="lineNoCov">          0 :   deleted_files_.clear();</span>
+<span class="lineNum">      38 </span><span class="lineNoCov">          0 :   new_files_.clear();</span>
+<a name="39"><span class="lineNum">      39 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span><span class="lineNoCov">          0 : void VersionEdit::EncodeTo(std::string* dst) const {</span>
+<span class="lineNum">      42 </span><span class="lineNoCov">          0 :   if (has_comparator_) {</span>
+<span class="lineNum">      43 </span><span class="lineNoCov">          0 :     PutVarint32(dst, kComparator);</span>
+<span class="lineNum">      44 </span><span class="lineNoCov">          0 :     PutLengthPrefixedSlice(dst, comparator_);</span>
+<span class="lineNum">      45 </span>            :   }
+<span class="lineNum">      46 </span><span class="lineNoCov">          0 :   if (has_log_number_) {</span>
+<span class="lineNum">      47 </span><span class="lineNoCov">          0 :     PutVarint32(dst, kLogNumber);</span>
+<span class="lineNum">      48 </span><span class="lineNoCov">          0 :     PutVarint64(dst, log_number_);</span>
+<span class="lineNum">      49 </span>            :   }
+<span class="lineNum">      50 </span><span class="lineNoCov">          0 :   if (has_prev_log_number_) {</span>
+<span class="lineNum">      51 </span><span class="lineNoCov">          0 :     PutVarint32(dst, kPrevLogNumber);</span>
+<span class="lineNum">      52 </span><span class="lineNoCov">          0 :     PutVarint64(dst, prev_log_number_);</span>
+<span class="lineNum">      53 </span>            :   }
+<span class="lineNum">      54 </span><span class="lineNoCov">          0 :   if (has_next_file_number_) {</span>
+<span class="lineNum">      55 </span><span class="lineNoCov">          0 :     PutVarint32(dst, kNextFileNumber);</span>
+<span class="lineNum">      56 </span><span class="lineNoCov">          0 :     PutVarint64(dst, next_file_number_);</span>
+<span class="lineNum">      57 </span>            :   }
+<span class="lineNum">      58 </span><span class="lineNoCov">          0 :   if (has_last_sequence_) {</span>
+<span class="lineNum">      59 </span><span class="lineNoCov">          0 :     PutVarint32(dst, kLastSequence);</span>
+<span class="lineNum">      60 </span><span class="lineNoCov">          0 :     PutVarint64(dst, last_sequence_);</span>
+<span class="lineNum">      61 </span>            :   }
+<span class="lineNum">      62 </span>            : 
+<span class="lineNum">      63 </span><span class="lineNoCov">          0 :   for (size_t i = 0; i &lt; compact_pointers_.size(); i++) {</span>
+<span class="lineNum">      64 </span><span class="lineNoCov">          0 :     PutVarint32(dst, kCompactPointer);</span>
+<span class="lineNum">      65 </span><span class="lineNoCov">          0 :     PutVarint32(dst, compact_pointers_[i].first);  // level</span>
+<span class="lineNum">      66 </span><span class="lineNoCov">          0 :     PutLengthPrefixedSlice(dst, compact_pointers_[i].second.Encode());</span>
+<span class="lineNum">      67 </span>            :   }
+<span class="lineNum">      68 </span>            : 
+<span class="lineNum">      69 </span><span class="lineNoCov">          0 :   for (const auto&amp; deleted_file_kvp : deleted_files_) {</span>
+<span class="lineNum">      70 </span><span class="lineNoCov">          0 :     PutVarint32(dst, kDeletedFile);</span>
+<span class="lineNum">      71 </span><span class="lineNoCov">          0 :     PutVarint32(dst, deleted_file_kvp.first);   // level</span>
+<span class="lineNum">      72 </span><span class="lineNoCov">          0 :     PutVarint64(dst, deleted_file_kvp.second);  // file number</span>
+<span class="lineNum">      73 </span>            :   }
+<span class="lineNum">      74 </span>            : 
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 :   for (size_t i = 0; i &lt; new_files_.size(); i++) {</span>
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :     const FileMetaData&amp; f = new_files_[i].second;</span>
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 :     PutVarint32(dst, kNewFile);</span>
+<span class="lineNum">      78 </span><span class="lineNoCov">          0 :     PutVarint32(dst, new_files_[i].first);  // level</span>
+<span class="lineNum">      79 </span><span class="lineNoCov">          0 :     PutVarint64(dst, f.number);</span>
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 :     PutVarint64(dst, f.file_size);</span>
+<span class="lineNum">      81 </span><span class="lineNoCov">          0 :     PutLengthPrefixedSlice(dst, f.smallest.Encode());</span>
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 :     PutLengthPrefixedSlice(dst, f.largest.Encode());</span>
+<span class="lineNum">      83 </span>            :   }
+<a name="84"><span class="lineNum">      84 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      85 </span>            : 
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 : static bool GetInternalKey(Slice* input, InternalKey* dst) {</span>
+<span class="lineNum">      87 </span><span class="lineNoCov">          0 :   Slice str;</span>
+<span class="lineNum">      88 </span><span class="lineNoCov">          0 :   if (GetLengthPrefixedSlice(input, &amp;str)) {</span>
+<span class="lineNum">      89 </span><span class="lineNoCov">          0 :     return dst-&gt;DecodeFrom(str);</span>
+<span class="lineNum">      90 </span>            :   } else {
+<span class="lineNum">      91 </span>            :     return false;
+<span class="lineNum">      92 </span>            :   }
+<span class="lineNum">      93 </span>            : }
+<span class="lineNum">      94 </span>            : 
+<span class="lineNum">      95 </span>            : static bool GetLevel(Slice* input, int* level) {
+<span class="lineNum">      96 </span>            :   uint32_t v;
+<span class="lineNum">      97 </span><span class="lineNoCov">          0 :   if (GetVarint32(input, &amp;v) &amp;&amp; v &lt; config::kNumLevels) {</span>
+<span class="lineNum">      98 </span><span class="lineNoCov">          0 :     *level = v;</span>
+<span class="lineNum">      99 </span>            :     return true;
+<span class="lineNum">     100 </span>            :   } else {
+<span class="lineNum">     101 </span>            :     return false;
+<span class="lineNum">     102 </span>            :   }
+<a name="103"><span class="lineNum">     103 </span>            : }</a>
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span><span class="lineNoCov">          0 : Status VersionEdit::DecodeFrom(const Slice&amp; src) {</span>
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 :   Clear();</span>
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 :   Slice input = src;</span>
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :   const char* msg = nullptr;</span>
+<span class="lineNum">     109 </span>            :   uint32_t tag;
+<span class="lineNum">     110 </span>            : 
+<span class="lineNum">     111 </span>            :   // Temporary storage for parsing
+<span class="lineNum">     112 </span>            :   int level;
+<span class="lineNum">     113 </span>            :   uint64_t number;
+<span class="lineNum">     114 </span><span class="lineNoCov">          0 :   FileMetaData f;</span>
+<span class="lineNum">     115 </span><span class="lineNoCov">          0 :   Slice str;</span>
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 :   InternalKey key;</span>
+<span class="lineNum">     117 </span>            : 
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :   while (msg == nullptr &amp;&amp; GetVarint32(&amp;input, &amp;tag)) {</span>
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 :     switch (tag) {</span>
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :       case kComparator:</span>
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 :         if (GetLengthPrefixedSlice(&amp;input, &amp;str)) {</span>
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :           comparator_ = str.ToString();</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :           has_comparator_ = true;</span>
+<span class="lineNum">     124 </span>            :         } else {
+<span class="lineNum">     125 </span>            :           msg = &quot;comparator name&quot;;
+<span class="lineNum">     126 </span>            :         }
+<span class="lineNum">     127 </span>            :         break;
+<span class="lineNum">     128 </span>            : 
+<span class="lineNum">     129 </span><span class="lineNoCov">          0 :       case kLogNumber:</span>
+<span class="lineNum">     130 </span><span class="lineNoCov">          0 :         if (GetVarint64(&amp;input, &amp;log_number_)) {</span>
+<span class="lineNum">     131 </span><span class="lineNoCov">          0 :           has_log_number_ = true;</span>
+<span class="lineNum">     132 </span>            :         } else {
+<span class="lineNum">     133 </span>            :           msg = &quot;log number&quot;;
+<span class="lineNum">     134 </span>            :         }
+<span class="lineNum">     135 </span>            :         break;
+<span class="lineNum">     136 </span>            : 
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 :       case kPrevLogNumber:</span>
+<span class="lineNum">     138 </span><span class="lineNoCov">          0 :         if (GetVarint64(&amp;input, &amp;prev_log_number_)) {</span>
+<span class="lineNum">     139 </span><span class="lineNoCov">          0 :           has_prev_log_number_ = true;</span>
+<span class="lineNum">     140 </span>            :         } else {
+<span class="lineNum">     141 </span>            :           msg = &quot;previous log number&quot;;
+<span class="lineNum">     142 </span>            :         }
+<span class="lineNum">     143 </span>            :         break;
+<span class="lineNum">     144 </span>            : 
+<span class="lineNum">     145 </span><span class="lineNoCov">          0 :       case kNextFileNumber:</span>
+<span class="lineNum">     146 </span><span class="lineNoCov">          0 :         if (GetVarint64(&amp;input, &amp;next_file_number_)) {</span>
+<span class="lineNum">     147 </span><span class="lineNoCov">          0 :           has_next_file_number_ = true;</span>
+<span class="lineNum">     148 </span>            :         } else {
+<span class="lineNum">     149 </span>            :           msg = &quot;next file number&quot;;
+<span class="lineNum">     150 </span>            :         }
+<span class="lineNum">     151 </span>            :         break;
+<span class="lineNum">     152 </span>            : 
+<span class="lineNum">     153 </span><span class="lineNoCov">          0 :       case kLastSequence:</span>
+<span class="lineNum">     154 </span><span class="lineNoCov">          0 :         if (GetVarint64(&amp;input, &amp;last_sequence_)) {</span>
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :           has_last_sequence_ = true;</span>
+<span class="lineNum">     156 </span>            :         } else {
+<span class="lineNum">     157 </span>            :           msg = &quot;last sequence number&quot;;
+<span class="lineNum">     158 </span>            :         }
+<span class="lineNum">     159 </span>            :         break;
+<span class="lineNum">     160 </span>            : 
+<span class="lineNum">     161 </span><span class="lineNoCov">          0 :       case kCompactPointer:</span>
+<span class="lineNum">     162 </span><span class="lineNoCov">          0 :         if (GetLevel(&amp;input, &amp;level) &amp;&amp; GetInternalKey(&amp;input, &amp;key)) {</span>
+<span class="lineNum">     163 </span><span class="lineNoCov">          0 :           compact_pointers_.push_back(std::make_pair(level, key));</span>
+<span class="lineNum">     164 </span>            :         } else {
+<span class="lineNum">     165 </span>            :           msg = &quot;compaction pointer&quot;;
+<span class="lineNum">     166 </span>            :         }
+<span class="lineNum">     167 </span>            :         break;
+<span class="lineNum">     168 </span>            : 
+<span class="lineNum">     169 </span><span class="lineNoCov">          0 :       case kDeletedFile:</span>
+<span class="lineNum">     170 </span><span class="lineNoCov">          0 :         if (GetLevel(&amp;input, &amp;level) &amp;&amp; GetVarint64(&amp;input, &amp;number)) {</span>
+<span class="lineNum">     171 </span><span class="lineNoCov">          0 :           deleted_files_.insert(std::make_pair(level, number));</span>
+<span class="lineNum">     172 </span>            :         } else {
+<span class="lineNum">     173 </span>            :           msg = &quot;deleted file&quot;;
+<span class="lineNum">     174 </span>            :         }
+<span class="lineNum">     175 </span>            :         break;
+<span class="lineNum">     176 </span>            : 
+<span class="lineNum">     177 </span><span class="lineNoCov">          0 :       case kNewFile:</span>
+<span class="lineNum">     178 </span><span class="lineNoCov">          0 :         if (GetLevel(&amp;input, &amp;level) &amp;&amp; GetVarint64(&amp;input, &amp;f.number) &amp;&amp;</span>
+<span class="lineNum">     179 </span><span class="lineNoCov">          0 :             GetVarint64(&amp;input, &amp;f.file_size) &amp;&amp;</span>
+<span class="lineNum">     180 </span><span class="lineNoCov">          0 :             GetInternalKey(&amp;input, &amp;f.smallest) &amp;&amp;</span>
+<span class="lineNum">     181 </span><span class="lineNoCov">          0 :             GetInternalKey(&amp;input, &amp;f.largest)) {</span>
+<span class="lineNum">     182 </span><span class="lineNoCov">          0 :           new_files_.push_back(std::make_pair(level, f));</span>
+<span class="lineNum">     183 </span>            :         } else {
+<span class="lineNum">     184 </span>            :           msg = &quot;new-file entry&quot;;
+<span class="lineNum">     185 </span>            :         }
+<span class="lineNum">     186 </span>            :         break;
+<span class="lineNum">     187 </span>            : 
+<span class="lineNum">     188 </span>            :       default:
+<span class="lineNum">     189 </span>            :         msg = &quot;unknown tag&quot;;
+<span class="lineNum">     190 </span>            :         break;
+<span class="lineNum">     191 </span>            :     }
+<span class="lineNum">     192 </span>            :   }
+<span class="lineNum">     193 </span>            : 
+<span class="lineNum">     194 </span><span class="lineNoCov">          0 :   if (msg == nullptr &amp;&amp; !input.empty()) {</span>
+<span class="lineNum">     195 </span>            :     msg = &quot;invalid tag&quot;;
+<span class="lineNum">     196 </span>            :   }
+<span class="lineNum">     197 </span>            : 
+<span class="lineNum">     198 </span><span class="lineNoCov">          0 :   Status result;</span>
+<span class="lineNum">     199 </span><span class="lineNoCov">          0 :   if (msg != nullptr) {</span>
+<span class="lineNum">     200 </span><span class="lineNoCov">          0 :     result = Status::Corruption(&quot;VersionEdit&quot;, msg);</span>
+<span class="lineNum">     201 </span>            :   }
+<span class="lineNum">     202 </span><span class="lineNoCov">          0 :   return result;</span>
+<a name="203"><span class="lineNum">     203 </span>            : }</a>
+<span class="lineNum">     204 </span>            : 
+<span class="lineNum">     205 </span><span class="lineNoCov">          0 : std::string VersionEdit::DebugString() const {</span>
+<span class="lineNum">     206 </span><span class="lineNoCov">          0 :   std::string r;</span>
+<span class="lineNum">     207 </span><span class="lineNoCov">          0 :   r.append(&quot;VersionEdit {&quot;);</span>
+<span class="lineNum">     208 </span><span class="lineNoCov">          0 :   if (has_comparator_) {</span>
+<span class="lineNum">     209 </span><span class="lineNoCov">          0 :     r.append(&quot;\n  Comparator: &quot;);</span>
+<span class="lineNum">     210 </span><span class="lineNoCov">          0 :     r.append(comparator_);</span>
+<span class="lineNum">     211 </span>            :   }
+<span class="lineNum">     212 </span><span class="lineNoCov">          0 :   if (has_log_number_) {</span>
+<span class="lineNum">     213 </span><span class="lineNoCov">          0 :     r.append(&quot;\n  LogNumber: &quot;);</span>
+<span class="lineNum">     214 </span><span class="lineNoCov">          0 :     AppendNumberTo(&amp;r, log_number_);</span>
+<span class="lineNum">     215 </span>            :   }
+<span class="lineNum">     216 </span><span class="lineNoCov">          0 :   if (has_prev_log_number_) {</span>
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :     r.append(&quot;\n  PrevLogNumber: &quot;);</span>
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 :     AppendNumberTo(&amp;r, prev_log_number_);</span>
+<span class="lineNum">     219 </span>            :   }
+<span class="lineNum">     220 </span><span class="lineNoCov">          0 :   if (has_next_file_number_) {</span>
+<span class="lineNum">     221 </span><span class="lineNoCov">          0 :     r.append(&quot;\n  NextFile: &quot;);</span>
+<span class="lineNum">     222 </span><span class="lineNoCov">          0 :     AppendNumberTo(&amp;r, next_file_number_);</span>
+<span class="lineNum">     223 </span>            :   }
+<span class="lineNum">     224 </span><span class="lineNoCov">          0 :   if (has_last_sequence_) {</span>
+<span class="lineNum">     225 </span><span class="lineNoCov">          0 :     r.append(&quot;\n  LastSeq: &quot;);</span>
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 :     AppendNumberTo(&amp;r, last_sequence_);</span>
+<span class="lineNum">     227 </span>            :   }
+<span class="lineNum">     228 </span><span class="lineNoCov">          0 :   for (size_t i = 0; i &lt; compact_pointers_.size(); i++) {</span>
+<span class="lineNum">     229 </span><span class="lineNoCov">          0 :     r.append(&quot;\n  CompactPointer: &quot;);</span>
+<span class="lineNum">     230 </span><span class="lineNoCov">          0 :     AppendNumberTo(&amp;r, compact_pointers_[i].first);</span>
+<span class="lineNum">     231 </span><span class="lineNoCov">          0 :     r.append(&quot; &quot;);</span>
+<span class="lineNum">     232 </span><span class="lineNoCov">          0 :     r.append(compact_pointers_[i].second.DebugString());</span>
+<span class="lineNum">     233 </span>            :   }
+<span class="lineNum">     234 </span><span class="lineNoCov">          0 :   for (const auto&amp; deleted_files_kvp : deleted_files_) {</span>
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 :     r.append(&quot;\n  DeleteFile: &quot;);</span>
+<span class="lineNum">     236 </span><span class="lineNoCov">          0 :     AppendNumberTo(&amp;r, deleted_files_kvp.first);</span>
+<span class="lineNum">     237 </span><span class="lineNoCov">          0 :     r.append(&quot; &quot;);</span>
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 :     AppendNumberTo(&amp;r, deleted_files_kvp.second);</span>
+<span class="lineNum">     239 </span>            :   }
+<span class="lineNum">     240 </span><span class="lineNoCov">          0 :   for (size_t i = 0; i &lt; new_files_.size(); i++) {</span>
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 :     const FileMetaData&amp; f = new_files_[i].second;</span>
+<span class="lineNum">     242 </span><span class="lineNoCov">          0 :     r.append(&quot;\n  AddFile: &quot;);</span>
+<span class="lineNum">     243 </span><span class="lineNoCov">          0 :     AppendNumberTo(&amp;r, new_files_[i].first);</span>
+<span class="lineNum">     244 </span><span class="lineNoCov">          0 :     r.append(&quot; &quot;);</span>
+<span class="lineNum">     245 </span><span class="lineNoCov">          0 :     AppendNumberTo(&amp;r, f.number);</span>
+<span class="lineNum">     246 </span><span class="lineNoCov">          0 :     r.append(&quot; &quot;);</span>
+<span class="lineNum">     247 </span><span class="lineNoCov">          0 :     AppendNumberTo(&amp;r, f.file_size);</span>
+<span class="lineNum">     248 </span><span class="lineNoCov">          0 :     r.append(&quot; &quot;);</span>
+<span class="lineNum">     249 </span><span class="lineNoCov">          0 :     r.append(f.smallest.DebugString());</span>
+<span class="lineNum">     250 </span><span class="lineNoCov">          0 :     r.append(&quot; .. &quot;);</span>
+<span class="lineNum">     251 </span><span class="lineNoCov">          0 :     r.append(f.largest.DebugString());</span>
+<span class="lineNum">     252 </span>            :   }
+<span class="lineNum">     253 </span><span class="lineNoCov">          0 :   r.append(&quot;\n}\n&quot;);</span>
+<span class="lineNum">     254 </span><span class="lineNoCov">          0 :   return r;</span>
+<span class="lineNum">     255 </span>            : }
+<span class="lineNum">     256 </span>            : 
+<span class="lineNum">     257 </span>            : }  // namespace leveldb
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

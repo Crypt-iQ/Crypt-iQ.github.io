@@ -1,0 +1,1801 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - netbase_cov.info - /usr/include/boost/multi_index/hashed_index.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">usr/include/boost/multi_index</a> - hashed_index.hpp<span style="font-size: 80%;"> (source / <a href="hashed_index.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">netbase_cov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">21</td>
+            <td class="headerCovTableEntry">152</td>
+            <td class="headerCovTableEntryLo">13.8 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-23 06:26:49</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">21</td>
+            <td class="headerCovTableEntryLo">9.5 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* Copyright 2003-2015 Joaquin M Lopez Munoz.</a>
+<span class="lineNum">       2 </span>            :  * Distributed under the Boost Software License, Version 1.0.
+<span class="lineNum">       3 </span>            :  * (See accompanying file LICENSE_1_0.txt or copy at
+<span class="lineNum">       4 </span>            :  * http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       5 </span>            :  *
+<span class="lineNum">       6 </span>            :  * See http://www.boost.org/libs/multi_index for library home page.
+<span class="lineNum">       7 </span>            :  */
+<span class="lineNum">       8 </span>            : 
+<span class="lineNum">       9 </span>            : #ifndef BOOST_MULTI_INDEX_HASHED_INDEX_HPP
+<span class="lineNum">      10 </span>            : #define BOOST_MULTI_INDEX_HASHED_INDEX_HPP
+<span class="lineNum">      11 </span>            : 
+<span class="lineNum">      12 </span>            : #if defined(_MSC_VER)
+<span class="lineNum">      13 </span>            : #pragma once
+<span class="lineNum">      14 </span>            : #endif
+<span class="lineNum">      15 </span>            : 
+<span class="lineNum">      16 </span>            : #include &lt;boost/config.hpp&gt; /* keep it first to prevent nasty warns in MSVC */
+<span class="lineNum">      17 </span>            : #include &lt;algorithm&gt;
+<span class="lineNum">      18 </span>            : #include &lt;boost/call_traits.hpp&gt;
+<span class="lineNum">      19 </span>            : #include &lt;boost/detail/allocator_utilities.hpp&gt;
+<span class="lineNum">      20 </span>            : #include &lt;boost/detail/no_exceptions_support.hpp&gt;
+<span class="lineNum">      21 </span>            : #include &lt;boost/detail/workaround.hpp&gt;
+<span class="lineNum">      22 </span>            : #include &lt;boost/foreach_fwd.hpp&gt;
+<span class="lineNum">      23 </span>            : #include &lt;boost/limits.hpp&gt;
+<span class="lineNum">      24 </span>            : #include &lt;boost/move/core.hpp&gt;
+<span class="lineNum">      25 </span>            : #include &lt;boost/mpl/bool.hpp&gt;
+<span class="lineNum">      26 </span>            : #include &lt;boost/mpl/if.hpp&gt;
+<span class="lineNum">      27 </span>            : #include &lt;boost/mpl/push_front.hpp&gt;
+<span class="lineNum">      28 </span>            : #include &lt;boost/multi_index/detail/access_specifier.hpp&gt;
+<span class="lineNum">      29 </span>            : #include &lt;boost/multi_index/detail/auto_space.hpp&gt;
+<span class="lineNum">      30 </span>            : #include &lt;boost/multi_index/detail/bucket_array.hpp&gt;
+<span class="lineNum">      31 </span>            : #include &lt;boost/multi_index/detail/do_not_copy_elements_tag.hpp&gt;
+<span class="lineNum">      32 </span>            : #include &lt;boost/multi_index/detail/hash_index_iterator.hpp&gt;
+<span class="lineNum">      33 </span>            : #include &lt;boost/multi_index/detail/index_node_base.hpp&gt;
+<span class="lineNum">      34 </span>            : #include &lt;boost/multi_index/detail/modify_key_adaptor.hpp&gt;
+<span class="lineNum">      35 </span>            : #include &lt;boost/multi_index/detail/promotes_arg.hpp&gt;
+<span class="lineNum">      36 </span>            : #include &lt;boost/multi_index/detail/safe_mode.hpp&gt;
+<span class="lineNum">      37 </span>            : #include &lt;boost/multi_index/detail/scope_guard.hpp&gt;
+<span class="lineNum">      38 </span>            : #include &lt;boost/multi_index/detail/vartempl_support.hpp&gt;
+<span class="lineNum">      39 </span>            : #include &lt;boost/multi_index/hashed_index_fwd.hpp&gt;
+<span class="lineNum">      40 </span>            : #include &lt;boost/tuple/tuple.hpp&gt;
+<span class="lineNum">      41 </span>            : #include &lt;boost/type_traits/is_same.hpp&gt;
+<span class="lineNum">      42 </span>            : #include &lt;cmath&gt;
+<span class="lineNum">      43 </span>            : #include &lt;cstddef&gt;
+<span class="lineNum">      44 </span>            : #include &lt;functional&gt;
+<span class="lineNum">      45 </span>            : #include &lt;iterator&gt;
+<span class="lineNum">      46 </span>            : #include &lt;utility&gt;
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span>            : #if !defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST)
+<span class="lineNum">      49 </span>            : #include &lt;initializer_list&gt;
+<span class="lineNum">      50 </span>            : #endif
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span>            : #if !defined(BOOST_MULTI_INDEX_DISABLE_SERIALIZATION)
+<span class="lineNum">      53 </span>            : #include &lt;boost/serialization/nvp.hpp&gt;
+<span class="lineNum">      54 </span>            : #endif
+<span class="lineNum">      55 </span>            : 
+<span class="lineNum">      56 </span>            : #if defined(BOOST_MULTI_INDEX_ENABLE_INVARIANT_CHECKING)
+<span class="lineNum">      57 </span>            : #define BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT_OF(x)                 \
+<span class="lineNum">      58 </span>            :   detail::scope_guard BOOST_JOIN(check_invariant_,__LINE__)=                 \
+<span class="lineNum">      59 </span>            :     detail::make_obj_guard(x,&amp;hashed_index::check_invariant_);               \
+<span class="lineNum">      60 </span>            :   BOOST_JOIN(check_invariant_,__LINE__).touch();
+<span class="lineNum">      61 </span>            : #define BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT                       \
+<span class="lineNum">      62 </span>            :   BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT_OF(*this)
+<span class="lineNum">      63 </span>            : #else
+<span class="lineNum">      64 </span>            : #define BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT_OF(x)
+<span class="lineNum">      65 </span>            : #define BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT
+<span class="lineNum">      66 </span>            : #endif
+<span class="lineNum">      67 </span>            : 
+<span class="lineNum">      68 </span>            : namespace boost{
+<span class="lineNum">      69 </span>            : 
+<span class="lineNum">      70 </span>            : namespace multi_index{
+<span class="lineNum">      71 </span>            : 
+<span class="lineNum">      72 </span>            : namespace detail{
+<span class="lineNum">      73 </span>            : 
+<span class="lineNum">      74 </span>            : /* hashed_index adds a layer of hashed indexing to a given Super */
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span>            : /* Most of the implementation of unique and non-unique indices is
+<span class="lineNum">      77 </span>            :  * shared. We tell from one another on instantiation time by using
+<span class="lineNum">      78 </span>            :  * Category tags defined in hash_index_node.hpp.
+<span class="lineNum">      79 </span>            :  */
+<span class="lineNum">      80 </span>            : 
+<span class="lineNum">      81 </span>            : template&lt;
+<span class="lineNum">      82 </span>            :   typename KeyFromValue,typename Hash,typename Pred,
+<span class="lineNum">      83 </span>            :   typename SuperMeta,typename TagList,typename Category
+<span class="lineNum">      84 </span>            : &gt;
+<span class="lineNum">      85 </span>            : class hashed_index:
+<span class="lineNum">      86 </span>            :   BOOST_MULTI_INDEX_PROTECTED_IF_MEMBER_TEMPLATE_FRIENDS SuperMeta::type
+<span class="lineNum">      87 </span>            : 
+<span class="lineNum">      88 </span>            : #if defined(BOOST_MULTI_INDEX_ENABLE_SAFE_MODE)
+<span class="lineNum">      89 </span>            :   ,public safe_mode::safe_container&lt;
+<span class="lineNum">      90 </span>            :     hashed_index&lt;KeyFromValue,Hash,Pred,SuperMeta,TagList,Category&gt; &gt;
+<span class="lineNum">      91 </span>            : #endif
+<span class="lineNum">      92 </span>            : 
+<span class="lineNum">      93 </span>            : { 
+<span class="lineNum">      94 </span>            : #if defined(BOOST_MULTI_INDEX_ENABLE_INVARIANT_CHECKING)&amp;&amp;\
+<span class="lineNum">      95 </span>            :     BOOST_WORKAROUND(__MWERKS__,&lt;=0x3003)
+<span class="lineNum">      96 </span>            : /* The &quot;ISO C++ Template Parser&quot; option in CW8.3 has a problem with the
+<span class="lineNum">      97 </span>            :  * lifetime of const references bound to temporaries --precisely what
+<span class="lineNum">      98 </span>            :  * scopeguards are.
+<span class="lineNum">      99 </span>            :  */
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span>            : #pragma parse_mfunc_templ off
+<span class="lineNum">     102 </span>            : #endif
+<span class="lineNum">     103 </span>            : 
+<span class="lineNum">     104 </span>            :   typedef typename SuperMeta::type                   super;
+<span class="lineNum">     105 </span>            : 
+<span class="lineNum">     106 </span>            : protected:
+<span class="lineNum">     107 </span>            :   typedef hashed_index_node&lt;
+<span class="lineNum">     108 </span>            :     typename super::node_type,Category&gt;              node_type;
+<span class="lineNum">     109 </span>            : 
+<span class="lineNum">     110 </span>            : private:
+<span class="lineNum">     111 </span>            :   typedef typename node_type::node_alg               node_alg;
+<span class="lineNum">     112 </span>            :   typedef typename node_type::impl_type              node_impl_type;
+<span class="lineNum">     113 </span>            :   typedef typename node_impl_type::pointer           node_impl_pointer;
+<span class="lineNum">     114 </span>            :   typedef typename node_impl_type::base_pointer      node_impl_base_pointer;
+<span class="lineNum">     115 </span>            :   typedef bucket_array&lt;
+<span class="lineNum">     116 </span>            :     typename super::final_allocator_type&gt;            bucket_array_type;
+<span class="lineNum">     117 </span>            : 
+<span class="lineNum">     118 </span>            : public:
+<span class="lineNum">     119 </span>            :   /* types */
+<span class="lineNum">     120 </span>            : 
+<span class="lineNum">     121 </span>            :   typedef typename KeyFromValue::result_type         key_type;
+<span class="lineNum">     122 </span>            :   typedef typename node_type::value_type             value_type;
+<span class="lineNum">     123 </span>            :   typedef KeyFromValue                               key_from_value;
+<span class="lineNum">     124 </span>            :   typedef Hash                                       hasher;
+<span class="lineNum">     125 </span>            :   typedef Pred                                       key_equal;
+<span class="lineNum">     126 </span>            :   typedef tuple&lt;std::size_t,
+<span class="lineNum">     127 </span>            :     key_from_value,hasher,key_equal&gt;                 ctor_args;
+<span class="lineNum">     128 </span>            :   typedef typename super::final_allocator_type       allocator_type;
+<span class="lineNum">     129 </span>            :   typedef typename allocator_type::pointer           pointer;
+<span class="lineNum">     130 </span>            :   typedef typename allocator_type::const_pointer     const_pointer;
+<span class="lineNum">     131 </span>            :   typedef typename allocator_type::reference         reference;
+<span class="lineNum">     132 </span>            :   typedef typename allocator_type::const_reference   const_reference;
+<span class="lineNum">     133 </span>            :   typedef std::size_t                                size_type;      
+<span class="lineNum">     134 </span>            :   typedef std::ptrdiff_t                             difference_type;
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span>            : #if defined(BOOST_MULTI_INDEX_ENABLE_SAFE_MODE)
+<span class="lineNum">     137 </span>            :   typedef safe_mode::safe_iterator&lt;
+<span class="lineNum">     138 </span>            :     hashed_index_iterator&lt;
+<span class="lineNum">     139 </span>            :       node_type,bucket_array_type,
+<span class="lineNum">     140 </span>            :       hashed_index_global_iterator_tag&gt;,
+<span class="lineNum">     141 </span>            :     hashed_index&gt;                                    iterator;
+<span class="lineNum">     142 </span>            : #else
+<span class="lineNum">     143 </span>            :   typedef hashed_index_iterator&lt;
+<span class="lineNum">     144 </span>            :     node_type,bucket_array_type,
+<span class="lineNum">     145 </span>            :     hashed_index_global_iterator_tag&gt;                iterator;
+<span class="lineNum">     146 </span>            : #endif
+<span class="lineNum">     147 </span>            : 
+<span class="lineNum">     148 </span>            :   typedef iterator                                   const_iterator;
+<span class="lineNum">     149 </span>            : 
+<span class="lineNum">     150 </span>            :   typedef hashed_index_iterator&lt;
+<span class="lineNum">     151 </span>            :     node_type,bucket_array_type,
+<span class="lineNum">     152 </span>            :     hashed_index_local_iterator_tag&gt;                 local_iterator;
+<span class="lineNum">     153 </span>            :   typedef local_iterator                             const_local_iterator;
+<span class="lineNum">     154 </span>            : 
+<span class="lineNum">     155 </span>            :   typedef TagList                                    tag_list;
+<span class="lineNum">     156 </span>            : 
+<span class="lineNum">     157 </span>            : protected:
+<span class="lineNum">     158 </span>            :   typedef typename super::final_node_type     final_node_type;
+<span class="lineNum">     159 </span>            :   typedef tuples::cons&lt;
+<span class="lineNum">     160 </span>            :     ctor_args, 
+<span class="lineNum">     161 </span>            :     typename super::ctor_args_list&gt;           ctor_args_list;
+<span class="lineNum">     162 </span>            :   typedef typename mpl::push_front&lt;
+<span class="lineNum">     163 </span>            :     typename super::index_type_list,
+<span class="lineNum">     164 </span>            :     hashed_index&gt;::type                       index_type_list;
+<span class="lineNum">     165 </span>            :   typedef typename mpl::push_front&lt;
+<span class="lineNum">     166 </span>            :     typename super::iterator_type_list,
+<span class="lineNum">     167 </span>            :     iterator&gt;::type                           iterator_type_list;
+<span class="lineNum">     168 </span>            :   typedef typename mpl::push_front&lt;
+<span class="lineNum">     169 </span>            :     typename super::const_iterator_type_list,
+<span class="lineNum">     170 </span>            :     const_iterator&gt;::type                     const_iterator_type_list;
+<span class="lineNum">     171 </span>            :   typedef typename super::copy_map_type       copy_map_type;
+<span class="lineNum">     172 </span>            : 
+<span class="lineNum">     173 </span>            : #if !defined(BOOST_MULTI_INDEX_DISABLE_SERIALIZATION)
+<span class="lineNum">     174 </span>            :   typedef typename super::index_saver_type    index_saver_type;
+<span class="lineNum">     175 </span>            :   typedef typename super::index_loader_type   index_loader_type;
+<span class="lineNum">     176 </span>            : #endif
+<span class="lineNum">     177 </span>            : 
+<span class="lineNum">     178 </span>            : private:
+<span class="lineNum">     179 </span>            : #if defined(BOOST_MULTI_INDEX_ENABLE_SAFE_MODE)
+<span class="lineNum">     180 </span>            :   typedef safe_mode::safe_container&lt;
+<span class="lineNum">     181 </span>            :     hashed_index&gt;                             safe_super;
+<span class="lineNum">     182 </span>            : #endif
+<span class="lineNum">     183 </span>            : 
+<span class="lineNum">     184 </span>            :   typedef typename call_traits&lt;value_type&gt;::param_type value_param_type;
+<span class="lineNum">     185 </span>            :   typedef typename call_traits&lt;
+<span class="lineNum">     186 </span>            :     key_type&gt;::param_type                              key_param_type;
+<span class="lineNum">     187 </span>            : 
+<span class="lineNum">     188 </span>            :   /* Needed to avoid commas in BOOST_MULTI_INDEX_OVERLOADS_TO_VARTEMPL
+<span class="lineNum">     189 </span>            :    * expansion.
+<span class="lineNum">     190 </span>            :    */
+<span class="lineNum">     191 </span>            : 
+<span class="lineNum">     192 </span>            :   typedef std::pair&lt;iterator,bool&gt;                     emplace_return_type;
+<span class="lineNum">     193 </span>            : 
+<span class="lineNum">     194 </span>            : public:
+<span class="lineNum">     195 </span>            : 
+<span class="lineNum">     196 </span>            :   /* construct/destroy/copy
+<span class="lineNum">     197 </span>            :    * Default and copy ctors are in the protected section as indices are
+<span class="lineNum">     198 </span>            :    * not supposed to be created on their own. No range ctor either.
+<span class="lineNum">     199 </span>            :    */
+<span class="lineNum">     200 </span>            : 
+<span class="lineNum">     201 </span>            :   hashed_index&lt;KeyFromValue,Hash,Pred,SuperMeta,TagList,Category&gt;&amp; operator=(
+<span class="lineNum">     202 </span>            :     const hashed_index&lt;KeyFromValue,Hash,Pred,SuperMeta,TagList,Category&gt;&amp; x)
+<span class="lineNum">     203 </span>            :   {
+<span class="lineNum">     204 </span>            :     this-&gt;final()=x.final();
+<span class="lineNum">     205 </span>            :     return *this;
+<span class="lineNum">     206 </span>            :   }
+<span class="lineNum">     207 </span>            : 
+<span class="lineNum">     208 </span>            : #if !defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST)
+<span class="lineNum">     209 </span>            :   hashed_index&lt;KeyFromValue,Hash,Pred,SuperMeta,TagList,Category&gt;&amp; operator=(
+<span class="lineNum">     210 </span>            :     std::initializer_list&lt;value_type&gt; list)
+<span class="lineNum">     211 </span>            :   {
+<span class="lineNum">     212 </span>            :     this-&gt;final()=list;
+<span class="lineNum">     213 </span>            :     return *this;
+<span class="lineNum">     214 </span>            :   }
+<span class="lineNum">     215 </span>            : #endif
+<span class="lineNum">     216 </span>            : 
+<span class="lineNum">     217 </span>            :   allocator_type get_allocator()const BOOST_NOEXCEPT
+<span class="lineNum">     218 </span>            :   {
+<span class="lineNum">     219 </span><span class="lineNoCov">          0 :     return this-&gt;final().get_allocator();</span>
+<span class="lineNum">     220 </span>            :   }
+<span class="lineNum">     221 </span>            : 
+<span class="lineNum">     222 </span>            :   /* size and capacity */
+<span class="lineNum">     223 </span>            : 
+<span class="lineNum">     224 </span><span class="lineNoCov">          0 :   bool      empty()const BOOST_NOEXCEPT{return this-&gt;final_empty_();}</span>
+<span class="lineNum">     225 </span><span class="lineNoCov">          0 :   size_type size()const BOOST_NOEXCEPT{return this-&gt;final_size_();}</span>
+<span class="lineNum">     226 </span>            :   size_type max_size()const BOOST_NOEXCEPT{return this-&gt;final_max_size_();}
+<span class="lineNum">     227 </span>            : 
+<span class="lineNum">     228 </span>            :   /* iterators */
+<span class="lineNum">     229 </span>            : 
+<span class="lineNum">     230 </span>            :   iterator begin()BOOST_NOEXCEPT
+<span class="lineNum">     231 </span><span class="lineNoCov">          0 :     {return make_iterator(node_type::from_impl(header()-&gt;next()-&gt;prior()));}</span>
+<span class="lineNum">     232 </span>            :   const_iterator begin()const BOOST_NOEXCEPT
+<span class="lineNum">     233 </span><span class="lineNoCov">          0 :     {return make_iterator(node_type::from_impl(header()-&gt;next()-&gt;prior()));}</span>
+<span class="lineNum">     234 </span><span class="lineNoCov">          0 :   iterator       end()BOOST_NOEXCEPT{return make_iterator(header());}</span>
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 :   const_iterator end()const BOOST_NOEXCEPT{return make_iterator(header());}</span>
+<span class="lineNum">     236 </span>            :   const_iterator cbegin()const BOOST_NOEXCEPT{return begin();}
+<span class="lineNum">     237 </span>            :   const_iterator cend()const BOOST_NOEXCEPT{return end();}
+<span class="lineNum">     238 </span>            : 
+<span class="lineNum">     239 </span>            :   iterator iterator_to(const value_type&amp; x)
+<span class="lineNum">     240 </span>            :   {
+<span class="lineNum">     241 </span>            :     return make_iterator(node_from_value&lt;node_type&gt;(&amp;x));
+<span class="lineNum">     242 </span>            :   }
+<span class="lineNum">     243 </span>            : 
+<span class="lineNum">     244 </span>            :   const_iterator iterator_to(const value_type&amp; x)const
+<span class="lineNum">     245 </span>            :   {
+<span class="lineNum">     246 </span><span class="lineNoCov">          0 :     return make_iterator(node_from_value&lt;node_type&gt;(&amp;x));</span>
+<span class="lineNum">     247 </span>            :   }
+<span class="lineNum">     248 </span>            : 
+<span class="lineNum">     249 </span>            :   /* modifiers */
+<span class="lineNum">     250 </span>            : 
+<span class="lineNum">     251 </span>            :   BOOST_MULTI_INDEX_OVERLOADS_TO_VARTEMPL(
+<span class="lineNum">     252 </span>            :     emplace_return_type,emplace,emplace_impl)
+<span class="lineNum">     253 </span>            : 
+<span class="lineNum">     254 </span>            :   BOOST_MULTI_INDEX_OVERLOADS_TO_VARTEMPL_EXTRA_ARG(
+<span class="lineNum">     255 </span>            :     iterator,emplace_hint,emplace_hint_impl,iterator,position)
+<span class="lineNum">     256 </span>            : 
+<span class="lineNum">     257 </span>            :   std::pair&lt;iterator,bool&gt; insert(const value_type&amp; x)
+<span class="lineNum">     258 </span>            :   {
+<span class="lineNum">     259 </span>            :     BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT;
+<span class="lineNum">     260 </span><span class="lineNoCov">          0 :     std::pair&lt;final_node_type*,bool&gt; p=this-&gt;final_insert_(x);</span>
+<span class="lineNum">     261 </span><span class="lineNoCov">          0 :     return std::pair&lt;iterator,bool&gt;(make_iterator(p.first),p.second);</span>
+<span class="lineNum">     262 </span>            :   }
+<span class="lineNum">     263 </span>            : 
+<span class="lineNum">     264 </span>            :   std::pair&lt;iterator,bool&gt; insert(BOOST_RV_REF(value_type) x)
+<span class="lineNum">     265 </span>            :   {
+<span class="lineNum">     266 </span>            :     BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT;
+<span class="lineNum">     267 </span>            :     std::pair&lt;final_node_type*,bool&gt; p=this-&gt;final_insert_rv_(x);
+<span class="lineNum">     268 </span>            :     return std::pair&lt;iterator,bool&gt;(make_iterator(p.first),p.second);
+<span class="lineNum">     269 </span>            :   }
+<span class="lineNum">     270 </span>            : 
+<span class="lineNum">     271 </span>            :   iterator insert(iterator position,const value_type&amp; x)
+<span class="lineNum">     272 </span>            :   {
+<span class="lineNum">     273 </span>            :     BOOST_MULTI_INDEX_CHECK_VALID_ITERATOR(position);
+<span class="lineNum">     274 </span>            :     BOOST_MULTI_INDEX_CHECK_IS_OWNER(position,*this);
+<span class="lineNum">     275 </span>            :     BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT;
+<span class="lineNum">     276 </span>            :     std::pair&lt;final_node_type*,bool&gt; p=this-&gt;final_insert_(
+<span class="lineNum">     277 </span>            :       x,static_cast&lt;final_node_type*&gt;(position.get_node()));
+<span class="lineNum">     278 </span>            :     return make_iterator(p.first);
+<span class="lineNum">     279 </span>            :   }
+<span class="lineNum">     280 </span>            :     
+<span class="lineNum">     281 </span>            :   iterator insert(iterator position,BOOST_RV_REF(value_type) x)
+<span class="lineNum">     282 </span>            :   {
+<span class="lineNum">     283 </span>            :     BOOST_MULTI_INDEX_CHECK_VALID_ITERATOR(position);
+<span class="lineNum">     284 </span>            :     BOOST_MULTI_INDEX_CHECK_IS_OWNER(position,*this);
+<span class="lineNum">     285 </span>            :     BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT;
+<span class="lineNum">     286 </span>            :     std::pair&lt;final_node_type*,bool&gt; p=this-&gt;final_insert_rv_(
+<span class="lineNum">     287 </span>            :       x,static_cast&lt;final_node_type*&gt;(position.get_node()));
+<span class="lineNum">     288 </span>            :     return make_iterator(p.first);
+<span class="lineNum">     289 </span>            :   }
+<span class="lineNum">     290 </span>            : 
+<span class="lineNum">     291 </span>            :   template&lt;typename InputIterator&gt;
+<span class="lineNum">     292 </span>            :   void insert(InputIterator first,InputIterator last)
+<span class="lineNum">     293 </span>            :   {
+<span class="lineNum">     294 </span>            :     BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT;
+<span class="lineNum">     295 </span>            :     for(;first!=last;++first)this-&gt;final_insert_ref_(*first);
+<span class="lineNum">     296 </span>            :   }
+<span class="lineNum">     297 </span>            : 
+<span class="lineNum">     298 </span>            : #if !defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST)
+<span class="lineNum">     299 </span>            :   void insert(std::initializer_list&lt;value_type&gt; list)
+<span class="lineNum">     300 </span>            :   {
+<span class="lineNum">     301 </span>            :     insert(list.begin(),list.end());
+<span class="lineNum">     302 </span>            :   }
+<a name="303"><span class="lineNum">     303 </span>            : #endif</a>
+<span class="lineNum">     304 </span>            : 
+<span class="lineNum">     305 </span><span class="lineNoCov">          0 :   iterator erase(iterator position)</span>
+<span class="lineNum">     306 </span>            :   {
+<span class="lineNum">     307 </span>            :     BOOST_MULTI_INDEX_CHECK_VALID_ITERATOR(position);
+<span class="lineNum">     308 </span>            :     BOOST_MULTI_INDEX_CHECK_DEREFERENCEABLE_ITERATOR(position);
+<span class="lineNum">     309 </span>            :     BOOST_MULTI_INDEX_CHECK_IS_OWNER(position,*this);
+<span class="lineNum">     310 </span>            :     BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT;
+<span class="lineNum">     311 </span><span class="lineNoCov">          0 :     this-&gt;final_erase_(static_cast&lt;final_node_type*&gt;(position++.get_node()));</span>
+<span class="lineNum">     312 </span><span class="lineNoCov">          0 :     return position;</span>
+<span class="lineNum">     313 </span>            :   }
+<span class="lineNum">     314 </span>            : 
+<span class="lineNum">     315 </span>            :   size_type erase(key_param_type k)
+<span class="lineNum">     316 </span>            :   {
+<span class="lineNum">     317 </span>            :     BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT;
+<span class="lineNum">     318 </span>            : 
+<span class="lineNum">     319 </span>            :     std::size_t buc=buckets.position(hash_(k));
+<span class="lineNum">     320 </span>            :     for(node_impl_pointer x=buckets.at(buc)-&gt;prior();
+<span class="lineNum">     321 </span>            :         x!=node_impl_pointer(0);x=node_alg::next_to_inspect(x)){
+<span class="lineNum">     322 </span>            :       if(eq_(k,key(node_type::from_impl(x)-&gt;value()))){
+<span class="lineNum">     323 </span>            :         node_impl_pointer y=end_of_range(x);
+<span class="lineNum">     324 </span>            :         size_type         s=0;
+<span class="lineNum">     325 </span>            :         do{
+<span class="lineNum">     326 </span>            :           node_impl_pointer z=node_alg::after(x);
+<span class="lineNum">     327 </span>            :           this-&gt;final_erase_(
+<span class="lineNum">     328 </span>            :             static_cast&lt;final_node_type*&gt;(node_type::from_impl(x)));
+<span class="lineNum">     329 </span>            :           x=z;
+<span class="lineNum">     330 </span>            :           ++s;
+<span class="lineNum">     331 </span>            :         }while(x!=y);
+<span class="lineNum">     332 </span>            :         return s;
+<span class="lineNum">     333 </span>            :       }
+<span class="lineNum">     334 </span>            :     }
+<span class="lineNum">     335 </span>            :     return 0;
+<span class="lineNum">     336 </span>            :   }
+<span class="lineNum">     337 </span>            : 
+<span class="lineNum">     338 </span>            :   iterator erase(iterator first,iterator last)
+<span class="lineNum">     339 </span>            :   {
+<span class="lineNum">     340 </span>            :     BOOST_MULTI_INDEX_CHECK_VALID_ITERATOR(first);
+<span class="lineNum">     341 </span>            :     BOOST_MULTI_INDEX_CHECK_VALID_ITERATOR(last);
+<span class="lineNum">     342 </span>            :     BOOST_MULTI_INDEX_CHECK_IS_OWNER(first,*this);
+<span class="lineNum">     343 </span>            :     BOOST_MULTI_INDEX_CHECK_IS_OWNER(last,*this);
+<span class="lineNum">     344 </span>            :     BOOST_MULTI_INDEX_CHECK_VALID_RANGE(first,last);
+<span class="lineNum">     345 </span>            :     BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT;
+<span class="lineNum">     346 </span>            :     while(first!=last){
+<span class="lineNum">     347 </span>            :       first=erase(first);
+<span class="lineNum">     348 </span>            :     }
+<span class="lineNum">     349 </span>            :     return first;
+<span class="lineNum">     350 </span>            :   }
+<span class="lineNum">     351 </span>            : 
+<span class="lineNum">     352 </span>            :   bool replace(iterator position,const value_type&amp; x)
+<span class="lineNum">     353 </span>            :   {
+<span class="lineNum">     354 </span>            :     BOOST_MULTI_INDEX_CHECK_VALID_ITERATOR(position);
+<span class="lineNum">     355 </span>            :     BOOST_MULTI_INDEX_CHECK_DEREFERENCEABLE_ITERATOR(position);
+<span class="lineNum">     356 </span>            :     BOOST_MULTI_INDEX_CHECK_IS_OWNER(position,*this);
+<span class="lineNum">     357 </span>            :     BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT;
+<span class="lineNum">     358 </span>            :     return this-&gt;final_replace_(
+<span class="lineNum">     359 </span>            :       x,static_cast&lt;final_node_type*&gt;(position.get_node()));
+<span class="lineNum">     360 </span>            :   }
+<span class="lineNum">     361 </span>            : 
+<span class="lineNum">     362 </span>            :   bool replace(iterator position,BOOST_RV_REF(value_type) x)
+<span class="lineNum">     363 </span>            :   {
+<span class="lineNum">     364 </span>            :     BOOST_MULTI_INDEX_CHECK_VALID_ITERATOR(position);
+<span class="lineNum">     365 </span>            :     BOOST_MULTI_INDEX_CHECK_DEREFERENCEABLE_ITERATOR(position);
+<span class="lineNum">     366 </span>            :     BOOST_MULTI_INDEX_CHECK_IS_OWNER(position,*this);
+<span class="lineNum">     367 </span>            :     BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT;
+<span class="lineNum">     368 </span>            :     return this-&gt;final_replace_rv_(
+<span class="lineNum">     369 </span>            :       x,static_cast&lt;final_node_type*&gt;(position.get_node()));
+<span class="lineNum">     370 </span>            :   }
+<span class="lineNum">     371 </span>            : 
+<span class="lineNum">     372 </span>            :   template&lt;typename Modifier&gt;
+<span class="lineNum">     373 </span>            :   bool modify(iterator position,Modifier mod)
+<span class="lineNum">     374 </span>            :   {
+<span class="lineNum">     375 </span>            :     BOOST_MULTI_INDEX_CHECK_VALID_ITERATOR(position);
+<span class="lineNum">     376 </span>            :     BOOST_MULTI_INDEX_CHECK_DEREFERENCEABLE_ITERATOR(position);
+<span class="lineNum">     377 </span>            :     BOOST_MULTI_INDEX_CHECK_IS_OWNER(position,*this);
+<span class="lineNum">     378 </span>            :     BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT;
+<span class="lineNum">     379 </span>            : 
+<span class="lineNum">     380 </span>            : #if defined(BOOST_MULTI_INDEX_ENABLE_SAFE_MODE)
+<span class="lineNum">     381 </span>            :     /* MSVC++ 6.0 optimizer on safe mode code chokes if this
+<span class="lineNum">     382 </span>            :      * this is not added. Left it for all compilers as it does no
+<span class="lineNum">     383 </span>            :      * harm.
+<span class="lineNum">     384 </span>            :      */
+<span class="lineNum">     385 </span>            : 
+<span class="lineNum">     386 </span>            :     position.detach();
+<span class="lineNum">     387 </span>            : #endif
+<span class="lineNum">     388 </span>            : 
+<span class="lineNum">     389 </span>            :     return this-&gt;final_modify_(
+<span class="lineNum">     390 </span><span class="lineNoCov">          0 :       mod,static_cast&lt;final_node_type*&gt;(position.get_node()));</span>
+<span class="lineNum">     391 </span>            :   }
+<span class="lineNum">     392 </span>            : 
+<span class="lineNum">     393 </span>            :   template&lt;typename Modifier,typename Rollback&gt;
+<span class="lineNum">     394 </span>            :   bool modify(iterator position,Modifier mod,Rollback back_)
+<span class="lineNum">     395 </span>            :   {
+<span class="lineNum">     396 </span>            :     BOOST_MULTI_INDEX_CHECK_VALID_ITERATOR(position);
+<span class="lineNum">     397 </span>            :     BOOST_MULTI_INDEX_CHECK_DEREFERENCEABLE_ITERATOR(position);
+<span class="lineNum">     398 </span>            :     BOOST_MULTI_INDEX_CHECK_IS_OWNER(position,*this);
+<span class="lineNum">     399 </span>            :     BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT;
+<span class="lineNum">     400 </span>            : 
+<span class="lineNum">     401 </span>            : #if defined(BOOST_MULTI_INDEX_ENABLE_SAFE_MODE)
+<span class="lineNum">     402 </span>            :     /* MSVC++ 6.0 optimizer on safe mode code chokes if this
+<span class="lineNum">     403 </span>            :      * this is not added. Left it for all compilers as it does no
+<span class="lineNum">     404 </span>            :      * harm.
+<span class="lineNum">     405 </span>            :      */
+<span class="lineNum">     406 </span>            : 
+<span class="lineNum">     407 </span>            :     position.detach();
+<span class="lineNum">     408 </span>            : #endif
+<span class="lineNum">     409 </span>            : 
+<span class="lineNum">     410 </span>            :     return this-&gt;final_modify_(
+<span class="lineNum">     411 </span>            :       mod,back_,static_cast&lt;final_node_type*&gt;(position.get_node()));
+<span class="lineNum">     412 </span>            :   }
+<span class="lineNum">     413 </span>            : 
+<span class="lineNum">     414 </span>            :   template&lt;typename Modifier&gt;
+<span class="lineNum">     415 </span>            :   bool modify_key(iterator position,Modifier mod)
+<span class="lineNum">     416 </span>            :   {
+<span class="lineNum">     417 </span>            :     BOOST_MULTI_INDEX_CHECK_VALID_ITERATOR(position);
+<span class="lineNum">     418 </span>            :     BOOST_MULTI_INDEX_CHECK_DEREFERENCEABLE_ITERATOR(position);
+<span class="lineNum">     419 </span>            :     BOOST_MULTI_INDEX_CHECK_IS_OWNER(position,*this);
+<span class="lineNum">     420 </span>            :     BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT;
+<span class="lineNum">     421 </span>            :     return modify(
+<span class="lineNum">     422 </span>            :       position,modify_key_adaptor&lt;Modifier,value_type,KeyFromValue&gt;(mod,key));
+<span class="lineNum">     423 </span>            :   }
+<span class="lineNum">     424 </span>            : 
+<span class="lineNum">     425 </span>            :   template&lt;typename Modifier,typename Rollback&gt;
+<span class="lineNum">     426 </span>            :   bool modify_key(iterator position,Modifier mod,Rollback back_)
+<span class="lineNum">     427 </span>            :   {
+<span class="lineNum">     428 </span>            :     BOOST_MULTI_INDEX_CHECK_VALID_ITERATOR(position);
+<span class="lineNum">     429 </span>            :     BOOST_MULTI_INDEX_CHECK_DEREFERENCEABLE_ITERATOR(position);
+<span class="lineNum">     430 </span>            :     BOOST_MULTI_INDEX_CHECK_IS_OWNER(position,*this);
+<span class="lineNum">     431 </span>            :     BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT;
+<span class="lineNum">     432 </span>            :     return modify(
+<span class="lineNum">     433 </span>            :       position,
+<span class="lineNum">     434 </span>            :       modify_key_adaptor&lt;Modifier,value_type,KeyFromValue&gt;(mod,key),
+<span class="lineNum">     435 </span>            :       modify_key_adaptor&lt;Rollback,value_type,KeyFromValue&gt;(back_,key));
+<span class="lineNum">     436 </span>            :   }
+<span class="lineNum">     437 </span>            : 
+<span class="lineNum">     438 </span>            :   void clear()BOOST_NOEXCEPT
+<span class="lineNum">     439 </span>            :   {
+<span class="lineNum">     440 </span>            :     BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT;
+<span class="lineNum">     441 </span><span class="lineCov">       3844 :     this-&gt;final_clear_();</span>
+<span class="lineNum">     442 </span>            :   }
+<span class="lineNum">     443 </span>            : 
+<span class="lineNum">     444 </span>            :   void swap(hashed_index&lt;KeyFromValue,Hash,Pred,SuperMeta,TagList,Category&gt;&amp; x)
+<span class="lineNum">     445 </span>            :   {
+<span class="lineNum">     446 </span>            :     BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT;
+<span class="lineNum">     447 </span>            :     BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT_OF(x);
+<span class="lineNum">     448 </span>            :     this-&gt;final_swap_(x.final());
+<span class="lineNum">     449 </span>            :   }
+<span class="lineNum">     450 </span>            : 
+<span class="lineNum">     451 </span>            :   /* observers */
+<span class="lineNum">     452 </span>            : 
+<span class="lineNum">     453 </span>            :   key_from_value key_extractor()const{return key;}
+<span class="lineNum">     454 </span>            :   hasher         hash_function()const{return hash_;}
+<span class="lineNum">     455 </span>            :   key_equal      key_eq()const{return eq_;}
+<span class="lineNum">     456 </span>            :   
+<span class="lineNum">     457 </span>            :   /* lookup */
+<span class="lineNum">     458 </span>            : 
+<span class="lineNum">     459 </span>            :   /* Internally, these ops rely on const_iterator being the same
+<span class="lineNum">     460 </span>            :    * type as iterator.
+<span class="lineNum">     461 </span>            :    */
+<span class="lineNum">     462 </span>            : 
+<span class="lineNum">     463 </span>            :   /* Implementation note: When CompatibleKey is consistently promoted to
+<span class="lineNum">     464 </span>            :    * KeyFromValue::result_type for equality comparison, the promotion is made
+<span class="lineNum">     465 </span>            :    * once in advance to increase efficiency.
+<span class="lineNum">     466 </span>            :    */
+<span class="lineNum">     467 </span>            : 
+<span class="lineNum">     468 </span>            :   template&lt;typename CompatibleKey&gt;
+<span class="lineNum">     469 </span>            :   iterator find(const CompatibleKey&amp; k)const
+<span class="lineNum">     470 </span>            :   {
+<span class="lineNum">     471 </span><span class="lineNoCov">          0 :     return find(k,hash_,eq_);</span>
+<span class="lineNum">     472 </span>            :   }
+<span class="lineNum">     473 </span>            : 
+<span class="lineNum">     474 </span>            :   template&lt;
+<span class="lineNum">     475 </span>            :     typename CompatibleKey,typename CompatibleHash,typename CompatiblePred
+<span class="lineNum">     476 </span>            :   &gt;
+<span class="lineNum">     477 </span>            :   iterator find(
+<span class="lineNum">     478 </span>            :     const CompatibleKey&amp; k,
+<span class="lineNum">     479 </span>            :     const CompatibleHash&amp; hash,const CompatiblePred&amp; eq)const
+<span class="lineNum">     480 </span>            :   {
+<span class="lineNum">     481 </span>            :     return find(
+<span class="lineNum">     482 </span><span class="lineNoCov">          0 :       k,hash,eq,promotes_1st_arg&lt;CompatiblePred,CompatibleKey,key_type&gt;());</span>
+<span class="lineNum">     483 </span>            :   }
+<span class="lineNum">     484 </span>            : 
+<span class="lineNum">     485 </span>            :   template&lt;typename CompatibleKey&gt;
+<span class="lineNum">     486 </span>            :   size_type count(const CompatibleKey&amp; k)const
+<span class="lineNum">     487 </span>            :   {
+<span class="lineNum">     488 </span><span class="lineNoCov">          0 :     return count(k,hash_,eq_);</span>
+<span class="lineNum">     489 </span>            :   }
+<span class="lineNum">     490 </span>            : 
+<span class="lineNum">     491 </span>            :   template&lt;
+<span class="lineNum">     492 </span>            :     typename CompatibleKey,typename CompatibleHash,typename CompatiblePred
+<span class="lineNum">     493 </span>            :   &gt;
+<span class="lineNum">     494 </span>            :   size_type count(
+<span class="lineNum">     495 </span>            :     const CompatibleKey&amp; k,
+<span class="lineNum">     496 </span>            :     const CompatibleHash&amp; hash,const CompatiblePred&amp; eq)const
+<span class="lineNum">     497 </span>            :   {
+<span class="lineNum">     498 </span>            :     return count(
+<span class="lineNum">     499 </span><span class="lineNoCov">          0 :       k,hash,eq,promotes_1st_arg&lt;CompatiblePred,CompatibleKey,key_type&gt;());</span>
+<span class="lineNum">     500 </span>            :   }
+<span class="lineNum">     501 </span>            : 
+<span class="lineNum">     502 </span>            :   template&lt;typename CompatibleKey&gt;
+<span class="lineNum">     503 </span>            :   std::pair&lt;iterator,iterator&gt; equal_range(const CompatibleKey&amp; k)const
+<span class="lineNum">     504 </span>            :   {
+<span class="lineNum">     505 </span>            :     return equal_range(k,hash_,eq_);
+<span class="lineNum">     506 </span>            :   }
+<span class="lineNum">     507 </span>            : 
+<span class="lineNum">     508 </span>            :   template&lt;
+<span class="lineNum">     509 </span>            :     typename CompatibleKey,typename CompatibleHash,typename CompatiblePred
+<span class="lineNum">     510 </span>            :   &gt;
+<span class="lineNum">     511 </span>            :   std::pair&lt;iterator,iterator&gt; equal_range(
+<span class="lineNum">     512 </span>            :     const CompatibleKey&amp; k,
+<span class="lineNum">     513 </span>            :     const CompatibleHash&amp; hash,const CompatiblePred&amp; eq)const
+<span class="lineNum">     514 </span>            :   {
+<span class="lineNum">     515 </span>            :     return equal_range(
+<span class="lineNum">     516 </span>            :       k,hash,eq,promotes_1st_arg&lt;CompatiblePred,CompatibleKey,key_type&gt;());
+<span class="lineNum">     517 </span>            :   }
+<span class="lineNum">     518 </span>            : 
+<span class="lineNum">     519 </span>            :   /* bucket interface */
+<span class="lineNum">     520 </span>            : 
+<span class="lineNum">     521 </span><span class="lineCov">       3844 :   size_type bucket_count()const BOOST_NOEXCEPT{return buckets.size();}</span>
+<span class="lineNum">     522 </span>            :   size_type max_bucket_count()const BOOST_NOEXCEPT{return static_cast&lt;size_type&gt;(-1);}
+<span class="lineNum">     523 </span>            : 
+<span class="lineNum">     524 </span>            :   size_type bucket_size(size_type n)const
+<span class="lineNum">     525 </span>            :   {
+<span class="lineNum">     526 </span>            :     size_type res=0;
+<span class="lineNum">     527 </span>            :     for(node_impl_pointer x=buckets.at(n)-&gt;prior();
+<span class="lineNum">     528 </span>            :         x!=node_impl_pointer(0);x=node_alg::after_local(x)){
+<span class="lineNum">     529 </span>            :       ++res;
+<span class="lineNum">     530 </span>            :     }
+<span class="lineNum">     531 </span>            :     return res;
+<a name="532"><span class="lineNum">     532 </span>            :   }</a>
+<span class="lineNum">     533 </span>            : 
+<span class="lineNum">     534 </span><span class="lineNoCov">          0 :   size_type bucket(key_param_type k)const</span>
+<span class="lineNum">     535 </span>            :   {
+<span class="lineNum">     536 </span><span class="lineNoCov">          0 :     return buckets.position(hash_(k));</span>
+<span class="lineNum">     537 </span>            :   }
+<span class="lineNum">     538 </span>            : 
+<span class="lineNum">     539 </span>            :   local_iterator begin(size_type n)
+<span class="lineNum">     540 </span>            :   {
+<span class="lineNum">     541 </span>            :     return const_cast&lt;const hashed_index*&gt;(this)-&gt;begin(n);
+<span class="lineNum">     542 </span>            :   }
+<span class="lineNum">     543 </span>            : 
+<span class="lineNum">     544 </span>            :   const_local_iterator begin(size_type n)const
+<span class="lineNum">     545 </span>            :   {
+<span class="lineNum">     546 </span>            :     node_impl_pointer x=buckets.at(n)-&gt;prior();
+<span class="lineNum">     547 </span>            :     if(x==node_impl_pointer(0))return end(n);
+<span class="lineNum">     548 </span>            :     return make_local_iterator(node_type::from_impl(x));
+<span class="lineNum">     549 </span>            :   }
+<span class="lineNum">     550 </span>            : 
+<span class="lineNum">     551 </span>            :   local_iterator end(size_type n)
+<span class="lineNum">     552 </span>            :   {
+<span class="lineNum">     553 </span>            :     return const_cast&lt;const hashed_index*&gt;(this)-&gt;end(n);
+<span class="lineNum">     554 </span>            :   }
+<span class="lineNum">     555 </span>            : 
+<span class="lineNum">     556 </span>            :   const_local_iterator end(size_type)const
+<span class="lineNum">     557 </span>            :   {
+<span class="lineNum">     558 </span>            :     return make_local_iterator(0);
+<span class="lineNum">     559 </span>            :   }
+<span class="lineNum">     560 </span>            : 
+<span class="lineNum">     561 </span>            :   const_local_iterator cbegin(size_type n)const{return begin(n);}
+<span class="lineNum">     562 </span>            :   const_local_iterator cend(size_type n)const{return end(n);}
+<span class="lineNum">     563 </span>            : 
+<span class="lineNum">     564 </span>            :   local_iterator local_iterator_to(const value_type&amp; x)
+<span class="lineNum">     565 </span>            :   {
+<span class="lineNum">     566 </span>            :     return make_local_iterator(node_from_value&lt;node_type&gt;(&amp;x));
+<span class="lineNum">     567 </span>            :   }
+<span class="lineNum">     568 </span>            : 
+<span class="lineNum">     569 </span>            :   const_local_iterator local_iterator_to(const value_type&amp; x)const
+<span class="lineNum">     570 </span>            :   {
+<span class="lineNum">     571 </span>            :     return make_local_iterator(node_from_value&lt;node_type&gt;(&amp;x));
+<span class="lineNum">     572 </span>            :   }
+<span class="lineNum">     573 </span>            : 
+<span class="lineNum">     574 </span>            :   /* hash policy */
+<span class="lineNum">     575 </span>            : 
+<span class="lineNum">     576 </span>            :   float load_factor()const BOOST_NOEXCEPT
+<span class="lineNum">     577 </span>            :     {return static_cast&lt;float&gt;(size())/bucket_count();}
+<span class="lineNum">     578 </span>            :   float max_load_factor()const BOOST_NOEXCEPT{return mlf;}
+<span class="lineNum">     579 </span>            :   void  max_load_factor(float z){mlf=z;calculate_max_load();}
+<span class="lineNum">     580 </span>            : 
+<span class="lineNum">     581 </span>            :   void rehash(size_type n)
+<span class="lineNum">     582 </span>            :   {
+<span class="lineNum">     583 </span>            :     BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT;
+<span class="lineNum">     584 </span>            :     if(size()&lt;=max_load&amp;&amp;n&lt;=bucket_count())return;
+<span class="lineNum">     585 </span>            : 
+<span class="lineNum">     586 </span>            :     size_type bc =(std::numeric_limits&lt;size_type&gt;::max)();
+<span class="lineNum">     587 </span>            :     float     fbc=static_cast&lt;float&gt;(1+size()/mlf);
+<span class="lineNum">     588 </span>            :     if(bc&gt;fbc){
+<span class="lineNum">     589 </span>            :       bc=static_cast&lt;size_type&gt;(fbc);
+<span class="lineNum">     590 </span>            :       if(bc&lt;n)bc=n;
+<span class="lineNum">     591 </span>            :     }
+<span class="lineNum">     592 </span>            :     unchecked_rehash(bc);
+<span class="lineNum">     593 </span>            :   }
+<span class="lineNum">     594 </span>            : 
+<span class="lineNum">     595 </span>            :   void reserve(size_type n)
+<span class="lineNum">     596 </span>            :   {
+<span class="lineNum">     597 </span>            :     rehash(static_cast&lt;size_type&gt;(std::ceil(static_cast&lt;double&gt;(n)/mlf)));
+<span class="lineNum">     598 </span>            :   }
+<a name="599"><span class="lineNum">     599 </span>            : </a>
+<span class="lineNum">     600 </span>            : BOOST_MULTI_INDEX_PROTECTED_IF_MEMBER_TEMPLATE_FRIENDS:
+<span class="lineNum">     601 </span><span class="lineCov">       3844 :   hashed_index(const ctor_args_list&amp; args_list,const allocator_type&amp; al):</span>
+<span class="lineNum">     602 </span>            :     super(args_list.get_tail(),al),
+<span class="lineNum">     603 </span><span class="lineCov">       7688 :     key(tuples::get&lt;1&gt;(args_list.get_head())),</span>
+<span class="lineNum">     604 </span><span class="lineCov">       7688 :     hash_(tuples::get&lt;2&gt;(args_list.get_head())),</span>
+<span class="lineNum">     605 </span><span class="lineCov">       7688 :     eq_(tuples::get&lt;3&gt;(args_list.get_head())),</span>
+<span class="lineNum">     606 </span><span class="lineCov">       7688 :     buckets(al,header()-&gt;impl(),tuples::get&lt;0&gt;(args_list.get_head())),</span>
+<span class="lineNum">     607 </span><span class="lineCov">      26908 :     mlf(1.0f)</span>
+<span class="lineNum">     608 </span>            :   {
+<span class="lineNum">     609 </span><span class="lineCov">       3844 :     calculate_max_load();</span>
+<span class="lineNum">     610 </span><span class="lineCov">       3844 :   }</span>
+<span class="lineNum">     611 </span>            : 
+<span class="lineNum">     612 </span>            :   hashed_index(
+<span class="lineNum">     613 </span>            :     const hashed_index&lt;KeyFromValue,Hash,Pred,SuperMeta,TagList,Category&gt;&amp; x):
+<span class="lineNum">     614 </span>            :     super(x),
+<span class="lineNum">     615 </span>            : 
+<span class="lineNum">     616 </span>            : #if defined(BOOST_MULTI_INDEX_ENABLE_SAFE_MODE)
+<span class="lineNum">     617 </span>            :     safe_super(),
+<span class="lineNum">     618 </span>            : #endif
+<span class="lineNum">     619 </span>            : 
+<span class="lineNum">     620 </span>            :     key(x.key),
+<span class="lineNum">     621 </span>            :     hash_(x.hash_),
+<span class="lineNum">     622 </span>            :     eq_(x.eq_),
+<span class="lineNum">     623 </span>            :     buckets(x.get_allocator(),header()-&gt;impl(),x.buckets.size()),
+<span class="lineNum">     624 </span>            :     mlf(x.mlf),
+<span class="lineNum">     625 </span>            :     max_load(x.max_load)
+<span class="lineNum">     626 </span>            :   {
+<span class="lineNum">     627 </span>            :     /* Copy ctor just takes the internal configuration objects from x. The rest
+<span class="lineNum">     628 </span>            :      * is done in subsequent call to copy_().
+<span class="lineNum">     629 </span>            :      */
+<span class="lineNum">     630 </span>            :   }
+<span class="lineNum">     631 </span>            : 
+<span class="lineNum">     632 </span>            :   hashed_index(
+<span class="lineNum">     633 </span>            :     const hashed_index&lt;KeyFromValue,Hash,Pred,SuperMeta,TagList,Category&gt;&amp; x,
+<span class="lineNum">     634 </span>            :     do_not_copy_elements_tag):
+<span class="lineNum">     635 </span>            :     super(x,do_not_copy_elements_tag()),
+<span class="lineNum">     636 </span>            : 
+<span class="lineNum">     637 </span>            : #if defined(BOOST_MULTI_INDEX_ENABLE_SAFE_MODE)
+<span class="lineNum">     638 </span>            :     safe_super(),
+<span class="lineNum">     639 </span>            : #endif
+<span class="lineNum">     640 </span>            : 
+<span class="lineNum">     641 </span>            :     key(x.key),
+<span class="lineNum">     642 </span>            :     hash_(x.hash_),
+<span class="lineNum">     643 </span>            :     eq_(x.eq_),
+<span class="lineNum">     644 </span>            :     buckets(x.get_allocator(),header()-&gt;impl(),0),
+<span class="lineNum">     645 </span>            :     mlf(1.0f)
+<span class="lineNum">     646 </span>            :   {
+<span class="lineNum">     647 </span>            :      calculate_max_load();
+<span class="lineNum">     648 </span>            :   }
+<span class="lineNum">     649 </span>            : 
+<span class="lineNum">     650 </span>            :   ~hashed_index()
+<span class="lineNum">     651 </span>            :   {
+<span class="lineNum">     652 </span>            :     /* the container is guaranteed to be empty by now */
+<span class="lineNum">     653 </span><span class="lineCov">      11532 :   }</span>
+<span class="lineNum">     654 </span>            : 
+<span class="lineNum">     655 </span>            : #if defined(BOOST_MULTI_INDEX_ENABLE_SAFE_MODE)
+<span class="lineNum">     656 </span>            :   iterator make_iterator(node_type* node)
+<span class="lineNum">     657 </span>            :   {
+<span class="lineNum">     658 </span>            :     return iterator(node,this);
+<span class="lineNum">     659 </span>            :   }
+<span class="lineNum">     660 </span>            : 
+<span class="lineNum">     661 </span>            :   const_iterator make_iterator(node_type* node)const
+<span class="lineNum">     662 </span>            :   {
+<span class="lineNum">     663 </span>            :     return const_iterator(node,const_cast&lt;hashed_index*&gt;(this));
+<span class="lineNum">     664 </span>            :   }
+<span class="lineNum">     665 </span>            : #else
+<span class="lineNum">     666 </span>            :   iterator make_iterator(node_type* node)
+<span class="lineNum">     667 </span>            :   {
+<span class="lineNum">     668 </span><span class="lineNoCov">          0 :     return iterator(node);</span>
+<span class="lineNum">     669 </span>            :   }
+<span class="lineNum">     670 </span>            : 
+<span class="lineNum">     671 </span>            :   const_iterator make_iterator(node_type* node)const
+<span class="lineNum">     672 </span>            :   {
+<span class="lineNum">     673 </span><span class="lineNoCov">          0 :     return const_iterator(node);</span>
+<span class="lineNum">     674 </span>            :   }
+<span class="lineNum">     675 </span>            : #endif
+<span class="lineNum">     676 </span>            : 
+<span class="lineNum">     677 </span>            :   local_iterator make_local_iterator(node_type* node)
+<span class="lineNum">     678 </span>            :   {
+<span class="lineNum">     679 </span>            :     return local_iterator(node);
+<span class="lineNum">     680 </span>            :   }
+<span class="lineNum">     681 </span>            : 
+<span class="lineNum">     682 </span>            :   const_local_iterator make_local_iterator(node_type* node)const
+<span class="lineNum">     683 </span>            :   {
+<span class="lineNum">     684 </span>            :     return const_local_iterator(node);
+<span class="lineNum">     685 </span>            :   }
+<span class="lineNum">     686 </span>            : 
+<span class="lineNum">     687 </span>            :   void copy_(
+<span class="lineNum">     688 </span>            :     const hashed_index&lt;KeyFromValue,Hash,Pred,SuperMeta,TagList,Category&gt;&amp; x,
+<span class="lineNum">     689 </span>            :     const copy_map_type&amp; map)
+<span class="lineNum">     690 </span>            :   {
+<span class="lineNum">     691 </span>            :     copy_(x,map,Category());
+<span class="lineNum">     692 </span>            :   }
+<span class="lineNum">     693 </span>            : 
+<span class="lineNum">     694 </span>            :   void copy_(
+<span class="lineNum">     695 </span>            :     const hashed_index&lt;KeyFromValue,Hash,Pred,SuperMeta,TagList,Category&gt;&amp; x,
+<span class="lineNum">     696 </span>            :     const copy_map_type&amp; map,hashed_unique_tag)
+<span class="lineNum">     697 </span>            :   {
+<span class="lineNum">     698 </span>            :     if(x.size()!=0){
+<span class="lineNum">     699 </span>            :       node_impl_pointer end_org=x.header()-&gt;impl(),
+<span class="lineNum">     700 </span>            :                         org=end_org,
+<span class="lineNum">     701 </span>            :                         cpy=header()-&gt;impl();
+<span class="lineNum">     702 </span>            :       do{
+<span class="lineNum">     703 </span>            :         node_impl_pointer prev_org=org-&gt;prior(),
+<span class="lineNum">     704 </span>            :                           prev_cpy=
+<span class="lineNum">     705 </span>            :           static_cast&lt;node_type*&gt;(map.find(static_cast&lt;final_node_type*&gt;(
+<span class="lineNum">     706 </span>            :             node_type::from_impl(prev_org))))-&gt;impl();
+<span class="lineNum">     707 </span>            :         cpy-&gt;prior()=prev_cpy;
+<span class="lineNum">     708 </span>            :         if(node_alg::is_first_of_bucket(org)){
+<span class="lineNum">     709 </span>            :           node_impl_base_pointer buc_org=prev_org-&gt;next(),
+<span class="lineNum">     710 </span>            :                                  buc_cpy=
+<span class="lineNum">     711 </span>            :             buckets.begin()+(buc_org-x.buckets.begin());
+<span class="lineNum">     712 </span>            :           prev_cpy-&gt;next()=buc_cpy;
+<span class="lineNum">     713 </span>            :           buc_cpy-&gt;prior()=cpy;
+<span class="lineNum">     714 </span>            :         }
+<span class="lineNum">     715 </span>            :         else{
+<span class="lineNum">     716 </span>            :           prev_cpy-&gt;next()=node_impl_type::base_pointer_from(cpy);
+<span class="lineNum">     717 </span>            :         }
+<span class="lineNum">     718 </span>            :         org=prev_org;
+<span class="lineNum">     719 </span>            :         cpy=prev_cpy;
+<span class="lineNum">     720 </span>            :       }while(org!=end_org);
+<span class="lineNum">     721 </span>            :     }
+<span class="lineNum">     722 </span>            : 
+<span class="lineNum">     723 </span>            :     super::copy_(x,map);
+<span class="lineNum">     724 </span>            :   }
+<span class="lineNum">     725 </span>            :   
+<span class="lineNum">     726 </span>            :   void copy_(
+<span class="lineNum">     727 </span>            :     const hashed_index&lt;KeyFromValue,Hash,Pred,SuperMeta,TagList,Category&gt;&amp; x,
+<span class="lineNum">     728 </span>            :     const copy_map_type&amp; map,hashed_non_unique_tag)
+<span class="lineNum">     729 </span>            :   {
+<span class="lineNum">     730 </span>            :     if(x.size()!=0){
+<span class="lineNum">     731 </span>            :       node_impl_pointer end_org=x.header()-&gt;impl(),
+<span class="lineNum">     732 </span>            :                         org=end_org,
+<span class="lineNum">     733 </span>            :                         cpy=header()-&gt;impl();
+<span class="lineNum">     734 </span>            :       do{
+<span class="lineNum">     735 </span>            :         node_impl_pointer next_org=node_alg::after(org),
+<span class="lineNum">     736 </span>            :                           next_cpy=
+<span class="lineNum">     737 </span>            :           static_cast&lt;node_type*&gt;(map.find(static_cast&lt;final_node_type*&gt;(
+<span class="lineNum">     738 </span>            :             node_type::from_impl(next_org))))-&gt;impl();
+<span class="lineNum">     739 </span>            :         if(node_alg::is_first_of_bucket(next_org)){
+<span class="lineNum">     740 </span>            :           node_impl_base_pointer buc_org=org-&gt;next(),
+<span class="lineNum">     741 </span>            :                                  buc_cpy=
+<span class="lineNum">     742 </span>            :             buckets.begin()+(buc_org-x.buckets.begin());
+<span class="lineNum">     743 </span>            :           cpy-&gt;next()=buc_cpy;
+<span class="lineNum">     744 </span>            :           buc_cpy-&gt;prior()=next_cpy;
+<span class="lineNum">     745 </span>            :           next_cpy-&gt;prior()=cpy;
+<span class="lineNum">     746 </span>            :         }
+<span class="lineNum">     747 </span>            :         else{
+<span class="lineNum">     748 </span>            :           if(org-&gt;next()==node_impl_type::base_pointer_from(next_org)){
+<span class="lineNum">     749 </span>            :             cpy-&gt;next()=node_impl_type::base_pointer_from(next_cpy);
+<span class="lineNum">     750 </span>            :           }
+<span class="lineNum">     751 </span>            :           else{
+<span class="lineNum">     752 </span>            :             cpy-&gt;next()=
+<span class="lineNum">     753 </span>            :               node_impl_type::base_pointer_from(
+<span class="lineNum">     754 </span>            :                 static_cast&lt;node_type*&gt;(map.find(static_cast&lt;final_node_type*&gt;(
+<span class="lineNum">     755 </span>            :                   node_type::from_impl(
+<span class="lineNum">     756 </span>            :                     node_impl_type::pointer_from(org-&gt;next())))))-&gt;impl());
+<span class="lineNum">     757 </span>            :           }
+<span class="lineNum">     758 </span>            : 
+<span class="lineNum">     759 </span>            :           if(next_org-&gt;prior()!=org){
+<span class="lineNum">     760 </span>            :             next_cpy-&gt;prior()=
+<span class="lineNum">     761 </span>            :               static_cast&lt;node_type*&gt;(map.find(static_cast&lt;final_node_type*&gt;(
+<span class="lineNum">     762 </span>            :                 node_type::from_impl(next_org-&gt;prior()))))-&gt;impl();
+<span class="lineNum">     763 </span>            :           }
+<span class="lineNum">     764 </span>            :           else{
+<span class="lineNum">     765 </span>            :             next_cpy-&gt;prior()=cpy;
+<span class="lineNum">     766 </span>            :           }
+<span class="lineNum">     767 </span>            :         }
+<span class="lineNum">     768 </span>            :         org=next_org;
+<span class="lineNum">     769 </span>            :         cpy=next_cpy;
+<span class="lineNum">     770 </span>            :       }while(org!=end_org);
+<span class="lineNum">     771 </span>            :     }
+<span class="lineNum">     772 </span>            : 
+<span class="lineNum">     773 </span>            :     super::copy_(x,map);
+<span class="lineNum">     774 </span>            :   }
+<a name="775"><span class="lineNum">     775 </span>            : </a>
+<span class="lineNum">     776 </span>            :   template&lt;typename Variant&gt;
+<span class="lineNum">     777 </span><span class="lineNoCov">          0 :   final_node_type* insert_(</span>
+<span class="lineNum">     778 </span>            :     value_param_type v,final_node_type*&amp; x,Variant variant)
+<span class="lineNum">     779 </span>            :   {
+<span class="lineNum">     780 </span><span class="lineNoCov">          0 :     reserve_for_insert(size()+1);</span>
+<span class="lineNum">     781 </span>            : 
+<span class="lineNum">     782 </span><span class="lineNoCov">          0 :     std::size_t buc=find_bucket(v);</span>
+<span class="lineNum">     783 </span><span class="lineNoCov">          0 :     link_info   pos(buckets.at(buc));</span>
+<span class="lineNum">     784 </span><span class="lineNoCov">          0 :     if(!link_point(v,pos)){</span>
+<span class="lineNum">     785 </span>            :       return static_cast&lt;final_node_type*&gt;(
+<span class="lineNum">     786 </span><span class="lineNoCov">          0 :         node_type::from_impl(node_impl_type::pointer_from(pos)));</span>
+<span class="lineNum">     787 </span>            :     }
+<span class="lineNum">     788 </span>            : 
+<span class="lineNum">     789 </span><span class="lineNoCov">          0 :     final_node_type* res=super::insert_(v,x,variant);</span>
+<span class="lineNum">     790 </span><span class="lineNoCov">          0 :     if(res==x)link(static_cast&lt;node_type*&gt;(x),pos);</span>
+<span class="lineNum">     791 </span>            :     return res;
+<span class="lineNum">     792 </span>            :   }
+<span class="lineNum">     793 </span>            : 
+<span class="lineNum">     794 </span>            :   template&lt;typename Variant&gt;
+<span class="lineNum">     795 </span>            :   final_node_type* insert_(
+<span class="lineNum">     796 </span>            :     value_param_type v,node_type* position,final_node_type*&amp; x,Variant variant)
+<span class="lineNum">     797 </span>            :   {
+<span class="lineNum">     798 </span>            :     reserve_for_insert(size()+1);
+<span class="lineNum">     799 </span>            : 
+<span class="lineNum">     800 </span>            :     std::size_t buc=find_bucket(v);
+<span class="lineNum">     801 </span>            :     link_info   pos(buckets.at(buc));
+<span class="lineNum">     802 </span>            :     if(!link_point(v,pos)){
+<span class="lineNum">     803 </span>            :       return static_cast&lt;final_node_type*&gt;(
+<span class="lineNum">     804 </span>            :         node_type::from_impl(node_impl_type::pointer_from(pos)));
+<span class="lineNum">     805 </span>            :     }
+<span class="lineNum">     806 </span>            : 
+<span class="lineNum">     807 </span>            :     final_node_type* res=super::insert_(v,position,x,variant);
+<span class="lineNum">     808 </span>            :     if(res==x)link(static_cast&lt;node_type*&gt;(x),pos);
+<span class="lineNum">     809 </span>            :     return res;
+<a name="810"><span class="lineNum">     810 </span>            :   }</a>
+<span class="lineNum">     811 </span>            : 
+<span class="lineNum">     812 </span><span class="lineNoCov">          0 :   void erase_(node_type* x)</span>
+<span class="lineNum">     813 </span>            :   {
+<span class="lineNum">     814 </span><span class="lineNoCov">          0 :     unlink(x);</span>
+<span class="lineNum">     815 </span><span class="lineNoCov">          0 :     super::erase_(x);</span>
+<span class="lineNum">     816 </span>            : 
+<span class="lineNum">     817 </span>            : #if defined(BOOST_MULTI_INDEX_ENABLE_SAFE_MODE)
+<span class="lineNum">     818 </span>            :     detach_iterators(x);
+<span class="lineNum">     819 </span>            : #endif
+<span class="lineNum">     820 </span><span class="lineNoCov">          0 :   }</span>
+<span class="lineNum">     821 </span>            : 
+<span class="lineNum">     822 </span>            :   void delete_all_nodes_()
+<span class="lineNum">     823 </span>            :   {
+<span class="lineNum">     824 </span><span class="lineCov">      15376 :     delete_all_nodes_(Category());</span>
+<span class="lineNum">     825 </span>            :   }
+<span class="lineNum">     826 </span>            : 
+<span class="lineNum">     827 </span>            :   void delete_all_nodes_(hashed_unique_tag)
+<span class="lineNum">     828 </span>            :   {
+<span class="lineNum">     829 </span><span class="lineCov">      15376 :     for(node_impl_pointer x_end=header()-&gt;impl(),x=x_end-&gt;prior();x!=x_end;){</span>
+<span class="lineNum">     830 </span><span class="lineNoCov">          0 :       node_impl_pointer y=x-&gt;prior();</span>
+<span class="lineNum">     831 </span><span class="lineNoCov">          0 :       this-&gt;final_delete_node_(</span>
+<span class="lineNum">     832 </span><span class="lineNoCov">          0 :         static_cast&lt;final_node_type*&gt;(node_type::from_impl(x)));</span>
+<span class="lineNum">     833 </span><span class="lineNoCov">          0 :       x=y;</span>
+<span class="lineNum">     834 </span>            :     }
+<span class="lineNum">     835 </span>            :   }
+<span class="lineNum">     836 </span>            : 
+<span class="lineNum">     837 </span>            :   void delete_all_nodes_(hashed_non_unique_tag)
+<span class="lineNum">     838 </span>            :   {
+<span class="lineNum">     839 </span>            :     for(node_impl_pointer x_end=header()-&gt;impl(),x=x_end-&gt;prior();x!=x_end;){
+<span class="lineNum">     840 </span>            :       node_impl_pointer y=x-&gt;prior();
+<span class="lineNum">     841 </span>            :       if(y-&gt;next()!=node_impl_type::base_pointer_from(x)&amp;&amp;
+<span class="lineNum">     842 </span>            :          y-&gt;next()-&gt;prior()!=x){ /* n-1 of group */
+<span class="lineNum">     843 </span>            :         /* Make the second node prior() pointer back-linked so that it won't
+<span class="lineNum">     844 </span>            :          * refer to a deleted node when the time for its own destruction comes.
+<span class="lineNum">     845 </span>            :          */
+<span class="lineNum">     846 </span>            : 
+<span class="lineNum">     847 </span>            :         node_impl_pointer first=node_impl_type::pointer_from(y-&gt;next());
+<span class="lineNum">     848 </span>            :         first-&gt;next()-&gt;prior()=first;
+<span class="lineNum">     849 </span>            :       }
+<span class="lineNum">     850 </span>            :       this-&gt;final_delete_node_(
+<span class="lineNum">     851 </span>            :         static_cast&lt;final_node_type*&gt;(node_type::from_impl(x)));
+<span class="lineNum">     852 </span>            :       x=y;
+<span class="lineNum">     853 </span>            :     }
+<a name="854"><span class="lineNum">     854 </span>            :   }</a>
+<span class="lineNum">     855 </span>            : 
+<span class="lineNum">     856 </span><span class="lineCov">       3844 :   void clear_()</span>
+<span class="lineNum">     857 </span>            :   {
+<span class="lineNum">     858 </span><span class="lineCov">       7688 :     super::clear_();</span>
+<span class="lineNum">     859 </span><span class="lineCov">      15376 :     buckets.clear(header()-&gt;impl());</span>
+<span class="lineNum">     860 </span>            : 
+<span class="lineNum">     861 </span>            : #if defined(BOOST_MULTI_INDEX_ENABLE_SAFE_MODE)
+<span class="lineNum">     862 </span>            :     safe_super::detach_dereferenceable_iterators();
+<span class="lineNum">     863 </span>            : #endif
+<span class="lineNum">     864 </span><span class="lineCov">       3844 :   }</span>
+<span class="lineNum">     865 </span>            : 
+<span class="lineNum">     866 </span>            :   void swap_(
+<span class="lineNum">     867 </span>            :     hashed_index&lt;KeyFromValue,Hash,Pred,SuperMeta,TagList,Category&gt;&amp; x)
+<span class="lineNum">     868 </span>            :   {
+<span class="lineNum">     869 </span>            :     std::swap(key,x.key);
+<span class="lineNum">     870 </span>            :     std::swap(hash_,x.hash_);
+<span class="lineNum">     871 </span>            :     std::swap(eq_,x.eq_);
+<span class="lineNum">     872 </span>            :     buckets.swap(x.buckets);
+<span class="lineNum">     873 </span>            :     std::swap(mlf,x.mlf);
+<span class="lineNum">     874 </span>            :     std::swap(max_load,x.max_load);
+<span class="lineNum">     875 </span>            : 
+<span class="lineNum">     876 </span>            : #if defined(BOOST_MULTI_INDEX_ENABLE_SAFE_MODE)
+<span class="lineNum">     877 </span>            :     safe_super::swap(x);
+<span class="lineNum">     878 </span>            : #endif
+<span class="lineNum">     879 </span>            : 
+<span class="lineNum">     880 </span>            :     super::swap_(x);
+<span class="lineNum">     881 </span>            :   }
+<span class="lineNum">     882 </span>            : 
+<span class="lineNum">     883 </span>            :   void swap_elements_(
+<span class="lineNum">     884 </span>            :     hashed_index&lt;KeyFromValue,Hash,Pred,SuperMeta,TagList,Category&gt;&amp; x)
+<span class="lineNum">     885 </span>            :   {
+<span class="lineNum">     886 </span>            :     buckets.swap(x.buckets);
+<span class="lineNum">     887 </span>            :     std::swap(mlf,x.mlf);
+<span class="lineNum">     888 </span>            :     std::swap(max_load,x.max_load);
+<span class="lineNum">     889 </span>            : 
+<span class="lineNum">     890 </span>            : #if defined(BOOST_MULTI_INDEX_ENABLE_SAFE_MODE)
+<span class="lineNum">     891 </span>            :     safe_super::swap(x);
+<span class="lineNum">     892 </span>            : #endif
+<span class="lineNum">     893 </span>            : 
+<span class="lineNum">     894 </span>            :     super::swap_elements_(x);
+<span class="lineNum">     895 </span>            :   }
+<span class="lineNum">     896 </span>            : 
+<span class="lineNum">     897 </span>            :   template&lt;typename Variant&gt;
+<span class="lineNum">     898 </span>            :   bool replace_(value_param_type v,node_type* x,Variant variant)
+<span class="lineNum">     899 </span>            :   {
+<span class="lineNum">     900 </span>            :     if(eq_(key(v),key(x-&gt;value()))){
+<span class="lineNum">     901 </span>            :       return super::replace_(v,x,variant);
+<span class="lineNum">     902 </span>            :     }
+<span class="lineNum">     903 </span>            :       
+<span class="lineNum">     904 </span>            :     unlink_undo undo;
+<span class="lineNum">     905 </span>            :     unlink(x,undo);
+<span class="lineNum">     906 </span>            : 
+<span class="lineNum">     907 </span>            :     BOOST_TRY{
+<span class="lineNum">     908 </span>            :       std::size_t  buc=find_bucket(v);
+<span class="lineNum">     909 </span>            :       link_info    pos(buckets.at(buc));
+<span class="lineNum">     910 </span>            :       if(link_point(v,pos)&amp;&amp;super::replace_(v,x,variant)){
+<span class="lineNum">     911 </span>            :         link(x,pos);
+<span class="lineNum">     912 </span>            :         return true;
+<span class="lineNum">     913 </span>            :       }
+<span class="lineNum">     914 </span>            :       undo();
+<span class="lineNum">     915 </span>            :       return false;
+<span class="lineNum">     916 </span>            :     }
+<span class="lineNum">     917 </span>            :     BOOST_CATCH(...){
+<span class="lineNum">     918 </span>            :       undo();
+<span class="lineNum">     919 </span>            :       BOOST_RETHROW;
+<span class="lineNum">     920 </span>            :     }
+<span class="lineNum">     921 </span>            :     BOOST_CATCH_END
+<a name="922"><span class="lineNum">     922 </span>            :   }</a>
+<span class="lineNum">     923 </span>            : 
+<span class="lineNum">     924 </span><span class="lineNoCov">          0 :   bool modify_(node_type* x)</span>
+<span class="lineNum">     925 </span>            :   {
+<span class="lineNum">     926 </span>            :     std::size_t buc;
+<span class="lineNum">     927 </span>            :     bool        b; 
+<span class="lineNum">     928 </span>            :     BOOST_TRY{
+<span class="lineNum">     929 </span><span class="lineNoCov">          0 :       buc=find_bucket(x-&gt;value());</span>
+<span class="lineNum">     930 </span><span class="lineNoCov">          0 :       b=in_place(x-&gt;impl(),key(x-&gt;value()),buc);</span>
+<span class="lineNum">     931 </span>            :     }
+<span class="lineNum">     932 </span><span class="lineNoCov">          0 :     BOOST_CATCH(...){</span>
+<span class="lineNum">     933 </span><span class="lineNoCov">          0 :       erase_(x);</span>
+<span class="lineNum">     934 </span><span class="lineNoCov">          0 :       BOOST_RETHROW;</span>
+<span class="lineNum">     935 </span>            :     }
+<span class="lineNum">     936 </span>            :     BOOST_CATCH_END
+<span class="lineNum">     937 </span><span class="lineNoCov">          0 :     if(!b){</span>
+<span class="lineNum">     938 </span><span class="lineNoCov">          0 :       unlink(x);</span>
+<span class="lineNum">     939 </span>            :       BOOST_TRY{
+<span class="lineNum">     940 </span><span class="lineNoCov">          0 :         link_info pos(buckets.at(buc));</span>
+<span class="lineNum">     941 </span><span class="lineNoCov">          0 :         if(!link_point(x-&gt;value(),pos)){</span>
+<span class="lineNum">     942 </span><span class="lineNoCov">          0 :           super::erase_(x);</span>
+<span class="lineNum">     943 </span>            : 
+<span class="lineNum">     944 </span>            : #if defined(BOOST_MULTI_INDEX_ENABLE_SAFE_MODE)
+<span class="lineNum">     945 </span>            :           detach_iterators(x);
+<span class="lineNum">     946 </span>            : #endif
+<span class="lineNum">     947 </span><span class="lineNoCov">          0 :           return false;</span>
+<span class="lineNum">     948 </span>            :         }
+<span class="lineNum">     949 </span><span class="lineNoCov">          0 :         link(x,pos);</span>
+<span class="lineNum">     950 </span>            :       }
+<span class="lineNum">     951 </span>            :       BOOST_CATCH(...){
+<span class="lineNum">     952 </span>            :         super::erase_(x);
+<span class="lineNum">     953 </span>            : 
+<span class="lineNum">     954 </span>            : #if defined(BOOST_MULTI_INDEX_ENABLE_SAFE_MODE)
+<span class="lineNum">     955 </span>            :       detach_iterators(x);
+<span class="lineNum">     956 </span>            : #endif
+<span class="lineNum">     957 </span>            : 
+<span class="lineNum">     958 </span>            :         BOOST_RETHROW;
+<span class="lineNum">     959 </span>            :       }
+<span class="lineNum">     960 </span>            :       BOOST_CATCH_END
+<span class="lineNum">     961 </span>            :     }
+<span class="lineNum">     962 </span>            : 
+<span class="lineNum">     963 </span>            :     BOOST_TRY{
+<span class="lineNum">     964 </span><span class="lineNoCov">          0 :       if(!super::modify_(x)){</span>
+<span class="lineNum">     965 </span><span class="lineNoCov">          0 :         unlink(x);</span>
+<span class="lineNum">     966 </span>            : 
+<span class="lineNum">     967 </span>            : #if defined(BOOST_MULTI_INDEX_ENABLE_SAFE_MODE)
+<span class="lineNum">     968 </span>            :         detach_iterators(x);
+<span class="lineNum">     969 </span>            : #endif
+<span class="lineNum">     970 </span><span class="lineNoCov">          0 :         return false;</span>
+<span class="lineNum">     971 </span>            :       }
+<span class="lineNum">     972 </span>            :       else return true;
+<span class="lineNum">     973 </span>            :     }
+<span class="lineNum">     974 </span><span class="lineNoCov">          0 :     BOOST_CATCH(...){</span>
+<span class="lineNum">     975 </span><span class="lineNoCov">          0 :       unlink(x);</span>
+<span class="lineNum">     976 </span>            : 
+<span class="lineNum">     977 </span>            : #if defined(BOOST_MULTI_INDEX_ENABLE_SAFE_MODE)
+<span class="lineNum">     978 </span>            :       detach_iterators(x);
+<span class="lineNum">     979 </span>            : #endif
+<span class="lineNum">     980 </span>            : 
+<span class="lineNum">     981 </span><span class="lineNoCov">          0 :       BOOST_RETHROW;</span>
+<span class="lineNum">     982 </span>            :     }
+<span class="lineNum">     983 </span>            :     BOOST_CATCH_END
+<span class="lineNum">     984 </span>            :   }
+<span class="lineNum">     985 </span>            : 
+<span class="lineNum">     986 </span>            :   bool modify_rollback_(node_type* x)
+<span class="lineNum">     987 </span>            :   {
+<span class="lineNum">     988 </span>            :     std::size_t buc=find_bucket(x-&gt;value());
+<span class="lineNum">     989 </span>            :     if(in_place(x-&gt;impl(),key(x-&gt;value()),buc)){
+<span class="lineNum">     990 </span>            :       return super::modify_rollback_(x);
+<span class="lineNum">     991 </span>            :     }
+<span class="lineNum">     992 </span>            : 
+<span class="lineNum">     993 </span>            :     unlink_undo undo;
+<span class="lineNum">     994 </span>            :     unlink(x,undo);
+<span class="lineNum">     995 </span>            : 
+<span class="lineNum">     996 </span>            :     BOOST_TRY{
+<span class="lineNum">     997 </span>            :       link_info pos(buckets.at(buc));
+<span class="lineNum">     998 </span>            :       if(link_point(x-&gt;value(),pos)&amp;&amp;super::modify_rollback_(x)){
+<span class="lineNum">     999 </span>            :         link(x,pos);
+<span class="lineNum">    1000 </span>            :         return true;
+<span class="lineNum">    1001 </span>            :       }
+<span class="lineNum">    1002 </span>            :       undo();
+<span class="lineNum">    1003 </span>            :       return false;
+<span class="lineNum">    1004 </span>            :     }
+<span class="lineNum">    1005 </span>            :     BOOST_CATCH(...){
+<span class="lineNum">    1006 </span>            :       undo();
+<span class="lineNum">    1007 </span>            :       BOOST_RETHROW;
+<span class="lineNum">    1008 </span>            :     }
+<span class="lineNum">    1009 </span>            :     BOOST_CATCH_END
+<span class="lineNum">    1010 </span>            :   }
+<span class="lineNum">    1011 </span>            : 
+<span class="lineNum">    1012 </span>            :   /* comparison */
+<span class="lineNum">    1013 </span>            : 
+<span class="lineNum">    1014 </span>            : #if !defined(BOOST_NO_MEMBER_TEMPLATE_FRIENDS)
+<span class="lineNum">    1015 </span>            :   /* defect macro refers to class, not function, templates, but anyway */
+<span class="lineNum">    1016 </span>            : 
+<span class="lineNum">    1017 </span>            :   template&lt;typename K,typename H,typename P,typename S,typename T,typename C&gt;
+<span class="lineNum">    1018 </span>            :   friend bool operator==(
+<span class="lineNum">    1019 </span>            :     const hashed_index&lt;K,H,P,S,T,C&gt;&amp;,const hashed_index&lt;K,H,P,S,T,C&gt;&amp; y);
+<span class="lineNum">    1020 </span>            : #endif
+<span class="lineNum">    1021 </span>            : 
+<span class="lineNum">    1022 </span>            :   bool equals(const hashed_index&amp; x)const{return equals(x,Category());}
+<span class="lineNum">    1023 </span>            : 
+<span class="lineNum">    1024 </span>            :   bool equals(const hashed_index&amp; x,hashed_unique_tag)const
+<span class="lineNum">    1025 </span>            :   {
+<span class="lineNum">    1026 </span>            :     if(size()!=x.size())return false;
+<span class="lineNum">    1027 </span>            :     for(const_iterator it=begin(),it_end=end(),it2_end=x.end();
+<span class="lineNum">    1028 </span>            :         it!=it_end;++it){
+<span class="lineNum">    1029 </span>            :       const_iterator it2=x.find(key(*it));
+<span class="lineNum">    1030 </span>            :       if(it2==it2_end||!(*it==*it2))return false;
+<span class="lineNum">    1031 </span>            :     }
+<span class="lineNum">    1032 </span>            :     return true;
+<span class="lineNum">    1033 </span>            :   }
+<span class="lineNum">    1034 </span>            : 
+<span class="lineNum">    1035 </span>            :   bool equals(const hashed_index&amp; x,hashed_non_unique_tag)const
+<span class="lineNum">    1036 </span>            :   {
+<span class="lineNum">    1037 </span>            :     if(size()!=x.size())return false;
+<span class="lineNum">    1038 </span>            :     for(const_iterator it=begin(),it_end=end();it!=it_end;){
+<span class="lineNum">    1039 </span>            :       const_iterator it2,it2_last;
+<span class="lineNum">    1040 </span>            :       boost::tie(it2,it2_last)=x.equal_range(key(*it));
+<span class="lineNum">    1041 </span>            :       if(it2==it2_last)return false;
+<span class="lineNum">    1042 </span>            : 
+<span class="lineNum">    1043 </span>            :       const_iterator it_last=make_iterator(
+<span class="lineNum">    1044 </span>            :         node_type::from_impl(end_of_range(it.get_node()-&gt;impl())));
+<span class="lineNum">    1045 </span>            :       if(std::distance(it,it_last)!=std::distance(it2,it2_last))return false;
+<span class="lineNum">    1046 </span>            : 
+<span class="lineNum">    1047 </span>            :       /* From is_permutation code in
+<span class="lineNum">    1048 </span>            :        * http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2010/n3068.pdf
+<span class="lineNum">    1049 </span>            :        */
+<span class="lineNum">    1050 </span>            : 
+<span class="lineNum">    1051 </span>            :       for(;it!=it_last;++it,++it2){
+<span class="lineNum">    1052 </span>            :         if(!(*it==*it2))break;
+<span class="lineNum">    1053 </span>            :       }
+<span class="lineNum">    1054 </span>            :       if(it!=it_last){
+<span class="lineNum">    1055 </span>            :         for(const_iterator scan=it;scan!=it_last;++scan){
+<span class="lineNum">    1056 </span>            :           if(std::find(it,scan,*scan)!=scan)continue;
+<span class="lineNum">    1057 </span>            :           std::ptrdiff_t matches=std::count(it2,it2_last,*scan);
+<span class="lineNum">    1058 </span>            :           if(matches==0||matches!=std::count(scan,it_last,*scan))return false;
+<span class="lineNum">    1059 </span>            :         }
+<span class="lineNum">    1060 </span>            :         it=it_last;
+<span class="lineNum">    1061 </span>            :       }
+<span class="lineNum">    1062 </span>            :     }
+<span class="lineNum">    1063 </span>            :     return true;
+<span class="lineNum">    1064 </span>            :   }
+<span class="lineNum">    1065 </span>            : 
+<span class="lineNum">    1066 </span>            : #if !defined(BOOST_MULTI_INDEX_DISABLE_SERIALIZATION)
+<span class="lineNum">    1067 </span>            :   /* serialization */
+<span class="lineNum">    1068 </span>            : 
+<span class="lineNum">    1069 </span>            :   template&lt;typename Archive&gt;
+<span class="lineNum">    1070 </span>            :   void save_(
+<span class="lineNum">    1071 </span>            :     Archive&amp; ar,const unsigned int version,const index_saver_type&amp; sm)const
+<span class="lineNum">    1072 </span>            :   {
+<span class="lineNum">    1073 </span>            :     ar&lt;&lt;serialization::make_nvp(&quot;position&quot;,buckets);
+<span class="lineNum">    1074 </span>            :     super::save_(ar,version,sm);
+<span class="lineNum">    1075 </span>            :   }
+<span class="lineNum">    1076 </span>            : 
+<span class="lineNum">    1077 </span>            :   template&lt;typename Archive&gt;
+<span class="lineNum">    1078 </span>            :   void load_(Archive&amp; ar,const unsigned int version,const index_loader_type&amp; lm)
+<span class="lineNum">    1079 </span>            :   {
+<span class="lineNum">    1080 </span>            :     ar&gt;&gt;serialization::make_nvp(&quot;position&quot;,buckets);
+<span class="lineNum">    1081 </span>            :     super::load_(ar,version,lm);
+<span class="lineNum">    1082 </span>            :   }
+<span class="lineNum">    1083 </span>            : #endif
+<span class="lineNum">    1084 </span>            : 
+<span class="lineNum">    1085 </span>            : #if defined(BOOST_MULTI_INDEX_ENABLE_INVARIANT_CHECKING)
+<span class="lineNum">    1086 </span>            :   /* invariant stuff */
+<span class="lineNum">    1087 </span>            : 
+<span class="lineNum">    1088 </span>            :   bool invariant_()const
+<span class="lineNum">    1089 </span>            :   {
+<span class="lineNum">    1090 </span>            :     if(size()==0||begin()==end()){
+<span class="lineNum">    1091 </span>            :       if(size()!=0||begin()!=end())return false;
+<span class="lineNum">    1092 </span>            :     }
+<span class="lineNum">    1093 </span>            :     else{
+<span class="lineNum">    1094 </span>            :       size_type s0=0;
+<span class="lineNum">    1095 </span>            :       for(const_iterator it=begin(),it_end=end();it!=it_end;++it,++s0){}
+<span class="lineNum">    1096 </span>            :       if(s0!=size())return false;
+<span class="lineNum">    1097 </span>            : 
+<span class="lineNum">    1098 </span>            :       size_type s1=0;
+<span class="lineNum">    1099 </span>            :       for(size_type buc=0;buc&lt;bucket_count();++buc){
+<span class="lineNum">    1100 </span>            :         size_type ss1=0;
+<span class="lineNum">    1101 </span>            :         for(const_local_iterator it=begin(buc),it_end=end(buc);
+<span class="lineNum">    1102 </span>            :             it!=it_end;++it,++ss1){
+<span class="lineNum">    1103 </span>            :           if(find_bucket(*it)!=buc)return false;
+<span class="lineNum">    1104 </span>            :         }
+<span class="lineNum">    1105 </span>            :         if(ss1!=bucket_size(buc))return false;
+<span class="lineNum">    1106 </span>            :         s1+=ss1;
+<span class="lineNum">    1107 </span>            :       }
+<span class="lineNum">    1108 </span>            :       if(s1!=size())return false;
+<span class="lineNum">    1109 </span>            :     }
+<span class="lineNum">    1110 </span>            : 
+<span class="lineNum">    1111 </span>            :     return super::invariant_();
+<span class="lineNum">    1112 </span>            :   }
+<span class="lineNum">    1113 </span>            : 
+<span class="lineNum">    1114 </span>            :   /* This forwarding function eases things for the boost::mem_fn construct
+<span class="lineNum">    1115 </span>            :    * in BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT. Actually,
+<span class="lineNum">    1116 </span>            :    * final_check_invariant is already an inherited member function of index.
+<span class="lineNum">    1117 </span>            :    */
+<span class="lineNum">    1118 </span>            :   void check_invariant_()const{this-&gt;final_check_invariant_();}
+<span class="lineNum">    1119 </span>            : #endif
+<span class="lineNum">    1120 </span>            : 
+<span class="lineNum">    1121 </span>            : private:
+<span class="lineNum">    1122 </span><span class="lineCov">      15376 :   node_type* header()const{return this-&gt;final_header();}</span>
+<span class="lineNum">    1123 </span>            : 
+<span class="lineNum">    1124 </span>            :   std::size_t find_bucket(value_param_type v)const
+<span class="lineNum">    1125 </span>            :   {
+<span class="lineNum">    1126 </span><span class="lineNoCov">          0 :     return bucket(key(v));</span>
+<span class="lineNum">    1127 </span>            :   }
+<span class="lineNum">    1128 </span>            : 
+<span class="lineNum">    1129 </span>            :   struct link_info_non_unique
+<span class="lineNum">    1130 </span>            :   {
+<span class="lineNum">    1131 </span>            :     link_info_non_unique(node_impl_base_pointer pos):
+<span class="lineNum">    1132 </span>            :       first(pos),last(node_impl_base_pointer(0)){}
+<span class="lineNum">    1133 </span>            : 
+<span class="lineNum">    1134 </span>            :     operator const node_impl_base_pointer&amp;()const{return this-&gt;first;}
+<span class="lineNum">    1135 </span>            : 
+<span class="lineNum">    1136 </span>            :     node_impl_base_pointer first,last;
+<span class="lineNum">    1137 </span>            :   };
+<span class="lineNum">    1138 </span>            : 
+<span class="lineNum">    1139 </span>            :   typedef typename mpl::if_&lt;
+<span class="lineNum">    1140 </span>            :     is_same&lt;Category,hashed_unique_tag&gt;,
+<span class="lineNum">    1141 </span>            :     node_impl_base_pointer,
+<span class="lineNum">    1142 </span>            :     link_info_non_unique
+<span class="lineNum">    1143 </span>            :   &gt;::type                                link_info;
+<span class="lineNum">    1144 </span>            : 
+<span class="lineNum">    1145 </span>            :   bool link_point(value_param_type v,link_info&amp; pos)
+<span class="lineNum">    1146 </span>            :   {
+<span class="lineNum">    1147 </span><span class="lineNoCov">          0 :     return link_point(v,pos,Category());</span>
+<a name="1148"><span class="lineNum">    1148 </span>            :   }</a>
+<span class="lineNum">    1149 </span>            : 
+<span class="lineNum">    1150 </span><span class="lineNoCov">          0 :   bool link_point(</span>
+<span class="lineNum">    1151 </span>            :     value_param_type v,node_impl_base_pointer&amp; pos,hashed_unique_tag)
+<span class="lineNum">    1152 </span>            :   {
+<span class="lineNum">    1153 </span><span class="lineNoCov">          0 :     for(node_impl_pointer x=pos-&gt;prior();x!=node_impl_pointer(0);</span>
+<span class="lineNum">    1154 </span>            :         x=node_alg::after_local(x)){
+<span class="lineNum">    1155 </span><span class="lineNoCov">          0 :       if(eq_(key(v),key(node_type::from_impl(x)-&gt;value()))){</span>
+<span class="lineNum">    1156 </span><span class="lineNoCov">          0 :         pos=node_impl_type::base_pointer_from(x);</span>
+<span class="lineNum">    1157 </span>            :         return false;
+<span class="lineNum">    1158 </span>            :       }
+<span class="lineNum">    1159 </span>            :     }
+<span class="lineNum">    1160 </span>            :     return true;
+<span class="lineNum">    1161 </span>            :   }
+<span class="lineNum">    1162 </span>            : 
+<span class="lineNum">    1163 </span>            :   bool link_point(
+<span class="lineNum">    1164 </span>            :     value_param_type v,link_info_non_unique&amp; pos,hashed_non_unique_tag)
+<span class="lineNum">    1165 </span>            :   {
+<span class="lineNum">    1166 </span>            :     for(node_impl_pointer x=pos.first-&gt;prior();x!=node_impl_pointer(0);
+<span class="lineNum">    1167 </span>            :         x=node_alg::next_to_inspect(x)){
+<span class="lineNum">    1168 </span>            :       if(eq_(key(v),key(node_type::from_impl(x)-&gt;value()))){
+<span class="lineNum">    1169 </span>            :         pos.first=node_impl_type::base_pointer_from(x);
+<span class="lineNum">    1170 </span>            :         pos.last=node_impl_type::base_pointer_from(last_of_range(x));
+<span class="lineNum">    1171 </span>            :         return true;
+<span class="lineNum">    1172 </span>            :       }
+<span class="lineNum">    1173 </span>            :     }
+<span class="lineNum">    1174 </span>            :     return true;
+<span class="lineNum">    1175 </span>            :   }
+<span class="lineNum">    1176 </span>            : 
+<span class="lineNum">    1177 </span>            :   node_impl_pointer last_of_range(node_impl_pointer x)const
+<span class="lineNum">    1178 </span>            :   {
+<span class="lineNum">    1179 </span><span class="lineNoCov">          0 :     return last_of_range(x,Category());</span>
+<span class="lineNum">    1180 </span>            :   }
+<span class="lineNum">    1181 </span>            : 
+<span class="lineNum">    1182 </span>            :   node_impl_pointer last_of_range(node_impl_pointer x,hashed_unique_tag)const
+<span class="lineNum">    1183 </span>            :   {
+<span class="lineNum">    1184 </span>            :     return x;
+<span class="lineNum">    1185 </span>            :   }
+<span class="lineNum">    1186 </span>            : 
+<span class="lineNum">    1187 </span>            :   node_impl_pointer last_of_range(
+<span class="lineNum">    1188 </span>            :     node_impl_pointer x,hashed_non_unique_tag)const
+<span class="lineNum">    1189 </span>            :   {
+<span class="lineNum">    1190 </span>            :     node_impl_base_pointer y=x-&gt;next();
+<span class="lineNum">    1191 </span>            :     node_impl_pointer      z=y-&gt;prior();
+<span class="lineNum">    1192 </span>            :     if(z==x){                      /* range of size 1 or 2 */
+<span class="lineNum">    1193 </span>            :       node_impl_pointer yy=node_impl_type::pointer_from(y);
+<span class="lineNum">    1194 </span>            :       return
+<span class="lineNum">    1195 </span>            :         eq_(
+<span class="lineNum">    1196 </span>            :           key(node_type::from_impl(x)-&gt;value()),
+<span class="lineNum">    1197 </span>            :           key(node_type::from_impl(yy)-&gt;value()))?yy:x;
+<span class="lineNum">    1198 </span>            :     }
+<span class="lineNum">    1199 </span>            :     else if(z-&gt;prior()==x)               /* last of bucket */
+<span class="lineNum">    1200 </span>            :       return x;
+<span class="lineNum">    1201 </span>            :     else                                /* group of size&gt;2 */        
+<span class="lineNum">    1202 </span>            :       return z;
+<span class="lineNum">    1203 </span>            :   }
+<span class="lineNum">    1204 </span>            : 
+<span class="lineNum">    1205 </span>            :   node_impl_pointer end_of_range(node_impl_pointer x)const
+<span class="lineNum">    1206 </span>            :   {
+<span class="lineNum">    1207 </span><span class="lineNoCov">          0 :     return end_of_range(x,Category());</span>
+<span class="lineNum">    1208 </span>            :   }
+<span class="lineNum">    1209 </span>            : 
+<span class="lineNum">    1210 </span>            :   node_impl_pointer end_of_range(node_impl_pointer x,hashed_unique_tag)const
+<span class="lineNum">    1211 </span>            :   {
+<span class="lineNum">    1212 </span><span class="lineNoCov">          0 :     return node_alg::after(last_of_range(x));</span>
+<span class="lineNum">    1213 </span>            :   }
+<span class="lineNum">    1214 </span>            : 
+<span class="lineNum">    1215 </span>            :   node_impl_pointer end_of_range(
+<span class="lineNum">    1216 </span>            :     node_impl_pointer x,hashed_non_unique_tag)const
+<span class="lineNum">    1217 </span>            :   {
+<span class="lineNum">    1218 </span>            :     node_impl_base_pointer y=x-&gt;next();
+<span class="lineNum">    1219 </span>            :     node_impl_pointer      z=y-&gt;prior();
+<span class="lineNum">    1220 </span>            :     if(z==x){                      /* range of size 1 or 2 */
+<span class="lineNum">    1221 </span>            :       node_impl_pointer yy=node_impl_type::pointer_from(y);
+<span class="lineNum">    1222 </span>            :       if(!eq_(
+<span class="lineNum">    1223 </span>            :            key(node_type::from_impl(x)-&gt;value()),
+<span class="lineNum">    1224 </span>            :            key(node_type::from_impl(yy)-&gt;value())))yy=x;
+<span class="lineNum">    1225 </span>            :       return yy-&gt;next()-&gt;prior()==yy?
+<span class="lineNum">    1226 </span>            :                node_impl_type::pointer_from(yy-&gt;next()):
+<span class="lineNum">    1227 </span>            :                yy-&gt;next()-&gt;prior();
+<span class="lineNum">    1228 </span>            :     }
+<span class="lineNum">    1229 </span>            :     else if(z-&gt;prior()==x)               /* last of bucket */
+<span class="lineNum">    1230 </span>            :       return z;
+<span class="lineNum">    1231 </span>            :     else                                /* group of size&gt;2 */        
+<span class="lineNum">    1232 </span>            :       return z-&gt;next()-&gt;prior()==z?
+<span class="lineNum">    1233 </span>            :                node_impl_type::pointer_from(z-&gt;next()):
+<span class="lineNum">    1234 </span>            :                z-&gt;next()-&gt;prior();
+<span class="lineNum">    1235 </span>            :   }
+<span class="lineNum">    1236 </span>            : 
+<span class="lineNum">    1237 </span>            :   void link(node_type* x,const link_info&amp; pos)
+<span class="lineNum">    1238 </span>            :   {
+<span class="lineNum">    1239 </span><span class="lineNoCov">          0 :     link(x,pos,Category());</span>
+<span class="lineNum">    1240 </span>            :   }
+<span class="lineNum">    1241 </span>            : 
+<span class="lineNum">    1242 </span>            :   void link(node_type* x,node_impl_base_pointer pos,hashed_unique_tag)
+<span class="lineNum">    1243 </span>            :   {
+<span class="lineNum">    1244 </span><span class="lineNoCov">          0 :     node_alg::link(x-&gt;impl(),pos,header()-&gt;impl());</span>
+<span class="lineNum">    1245 </span>            :   }
+<span class="lineNum">    1246 </span>            : 
+<span class="lineNum">    1247 </span>            :   void link(node_type* x,const link_info_non_unique&amp; pos,hashed_non_unique_tag)
+<span class="lineNum">    1248 </span>            :   {
+<span class="lineNum">    1249 </span>            :     if(pos.last==node_impl_base_pointer(0)){
+<span class="lineNum">    1250 </span>            :       node_alg::link(x-&gt;impl(),pos.first,header()-&gt;impl());
+<span class="lineNum">    1251 </span>            :     }
+<span class="lineNum">    1252 </span>            :     else{
+<span class="lineNum">    1253 </span>            :       node_alg::link(
+<span class="lineNum">    1254 </span>            :         x-&gt;impl(),
+<span class="lineNum">    1255 </span>            :         node_impl_type::pointer_from(pos.first),
+<span class="lineNum">    1256 </span>            :         node_impl_type::pointer_from(pos.last));
+<span class="lineNum">    1257 </span>            :     }
+<span class="lineNum">    1258 </span>            :   }
+<span class="lineNum">    1259 </span>            : 
+<span class="lineNum">    1260 </span>            :   void unlink(node_type* x)
+<span class="lineNum">    1261 </span>            :   {
+<span class="lineNum">    1262 </span><span class="lineNoCov">          0 :     node_alg::unlink(x-&gt;impl());</span>
+<span class="lineNum">    1263 </span>            :   }
+<span class="lineNum">    1264 </span>            : 
+<span class="lineNum">    1265 </span>            :   typedef typename node_alg::unlink_undo unlink_undo;
+<span class="lineNum">    1266 </span>            : 
+<span class="lineNum">    1267 </span>            :   void unlink(node_type* x,unlink_undo&amp; undo)
+<span class="lineNum">    1268 </span>            :   {
+<span class="lineNum">    1269 </span>            :     node_alg::unlink(x-&gt;impl(),undo);
+<span class="lineNum">    1270 </span>            :   }
+<span class="lineNum">    1271 </span>            : 
+<span class="lineNum">    1272 </span>            :   void calculate_max_load()
+<span class="lineNum">    1273 </span>            :   {
+<span class="lineNum">    1274 </span><span class="lineCov">       7688 :     float fml=static_cast&lt;float&gt;(mlf*static_cast&lt;float&gt;(bucket_count()));</span>
+<span class="lineNum">    1275 </span><span class="lineCov">       3844 :     max_load=(std::numeric_limits&lt;size_type&gt;::max)();</span>
+<span class="lineNum">    1276 </span><span class="lineCov">       3844 :     if(max_load&gt;fml)max_load=static_cast&lt;size_type&gt;(fml);</span>
+<a name="1277"><span class="lineNum">    1277 </span>            :   }</a>
+<span class="lineNum">    1278 </span>            : 
+<span class="lineNum">    1279 </span><span class="lineNoCov">          0 :   void reserve_for_insert(size_type n)</span>
+<span class="lineNum">    1280 </span>            :   {
+<span class="lineNum">    1281 </span><span class="lineNoCov">          0 :     if(n&gt;max_load){</span>
+<span class="lineNum">    1282 </span><span class="lineNoCov">          0 :       size_type bc =(std::numeric_limits&lt;size_type&gt;::max)();</span>
+<span class="lineNum">    1283 </span><span class="lineNoCov">          0 :       float     fbc=static_cast&lt;float&gt;(1+static_cast&lt;double&gt;(n)/mlf);</span>
+<span class="lineNum">    1284 </span><span class="lineNoCov">          0 :       if(bc&gt;fbc)bc =static_cast&lt;size_type&gt;(fbc);</span>
+<span class="lineNum">    1285 </span>            :       unchecked_rehash(bc);
+<span class="lineNum">    1286 </span>            :     }
+<span class="lineNum">    1287 </span><span class="lineNoCov">          0 :   }</span>
+<span class="lineNum">    1288 </span>            : 
+<a name="1289"><span class="lineNum">    1289 </span><span class="lineNoCov">          0 :   void unchecked_rehash(size_type n){unchecked_rehash(n,Category());}</span></a>
+<span class="lineNum">    1290 </span>            : 
+<span class="lineNum">    1291 </span><span class="lineNoCov">          0 :   void unchecked_rehash(size_type n,hashed_unique_tag)</span>
+<span class="lineNum">    1292 </span>            :   {
+<span class="lineNum">    1293 </span>            :     node_impl_type    cpy_end_node;
+<span class="lineNum">    1294 </span><span class="lineNoCov">          0 :     node_impl_pointer cpy_end=node_impl_pointer(&amp;cpy_end_node),</span>
+<span class="lineNum">    1295 </span><span class="lineNoCov">          0 :                       end_=header()-&gt;impl();</span>
+<span class="lineNum">    1296 </span><span class="lineNoCov">          0 :     bucket_array_type buckets_cpy(get_allocator(),cpy_end,n);</span>
+<span class="lineNum">    1297 </span>            : 
+<span class="lineNum">    1298 </span><span class="lineNoCov">          0 :     if(size()!=0){</span>
+<span class="lineNum">    1299 </span>            :       auto_space&lt;
+<span class="lineNum">    1300 </span><span class="lineNoCov">          0 :         std::size_t,allocator_type&gt;       hashes(get_allocator(),size());</span>
+<span class="lineNum">    1301 </span>            :       auto_space&lt;
+<span class="lineNum">    1302 </span><span class="lineNoCov">          0 :         node_impl_pointer,allocator_type&gt; node_ptrs(get_allocator(),size());</span>
+<span class="lineNum">    1303 </span><span class="lineNoCov">          0 :       std::size_t                         i=0,size_=size();</span>
+<span class="lineNum">    1304 </span><span class="lineNoCov">          0 :       bool                                within_bucket=false;</span>
+<span class="lineNum">    1305 </span>            :       BOOST_TRY{
+<span class="lineNum">    1306 </span><span class="lineNoCov">          0 :         for(;i!=size_;++i){</span>
+<span class="lineNum">    1307 </span><span class="lineNoCov">          0 :           node_impl_pointer x=end_-&gt;prior();</span>
+<span class="lineNum">    1308 </span>            : 
+<span class="lineNum">    1309 </span>            :           /* only this can possibly throw */
+<span class="lineNum">    1310 </span><span class="lineNoCov">          0 :           std::size_t h=hash_(key(node_type::from_impl(x)-&gt;value()));</span>
+<span class="lineNum">    1311 </span>            : 
+<span class="lineNum">    1312 </span><span class="lineNoCov">          0 :           hashes.data()[i]=h;</span>
+<span class="lineNum">    1313 </span><span class="lineNoCov">          0 :           node_ptrs.data()[i]=x;</span>
+<span class="lineNum">    1314 </span><span class="lineNoCov">          0 :           within_bucket=!node_alg::unlink_last(end_);</span>
+<span class="lineNum">    1315 </span><span class="lineNoCov">          0 :           node_alg::link(x,buckets_cpy.at(buckets_cpy.position(h)),cpy_end);</span>
+<span class="lineNum">    1316 </span>            :         }
+<span class="lineNum">    1317 </span>            :       }
+<span class="lineNum">    1318 </span><span class="lineNoCov">          0 :       BOOST_CATCH(...){</span>
+<span class="lineNum">    1319 </span><span class="lineNoCov">          0 :         if(i!=0){</span>
+<span class="lineNum">    1320 </span><span class="lineNoCov">          0 :           std::size_t prev_buc=buckets.position(hashes.data()[i-1]);</span>
+<span class="lineNum">    1321 </span><span class="lineNoCov">          0 :           if(!within_bucket)prev_buc=~prev_buc;</span>
+<span class="lineNum">    1322 </span>            : 
+<span class="lineNum">    1323 </span><span class="lineNoCov">          0 :           for(std::size_t j=i;j--;){</span>
+<span class="lineNum">    1324 </span><span class="lineNoCov">          0 :             std::size_t       buc=buckets.position(hashes.data()[j]);</span>
+<span class="lineNum">    1325 </span><span class="lineNoCov">          0 :             node_impl_pointer x=node_ptrs.data()[j];</span>
+<span class="lineNum">    1326 </span><span class="lineNoCov">          0 :             if(buc==prev_buc)node_alg::append(x,end_);</span>
+<span class="lineNum">    1327 </span><span class="lineNoCov">          0 :             else node_alg::link(x,buckets.at(buc),end_);</span>
+<span class="lineNum">    1328 </span>            :             prev_buc=buc;
+<span class="lineNum">    1329 </span>            :           }
+<span class="lineNum">    1330 </span>            :         }
+<span class="lineNum">    1331 </span><span class="lineNoCov">          0 :         BOOST_RETHROW;</span>
+<span class="lineNum">    1332 </span>            :       }
+<span class="lineNum">    1333 </span>            :       BOOST_CATCH_END
+<span class="lineNum">    1334 </span>            :     }
+<span class="lineNum">    1335 </span>            : 
+<span class="lineNum">    1336 </span><span class="lineNoCov">          0 :     end_-&gt;prior()=cpy_end-&gt;prior()!=cpy_end?cpy_end-&gt;prior():end_;</span>
+<span class="lineNum">    1337 </span><span class="lineNoCov">          0 :     end_-&gt;next()=cpy_end-&gt;next();</span>
+<span class="lineNum">    1338 </span><span class="lineNoCov">          0 :     end_-&gt;prior()-&gt;next()-&gt;prior()=end_-&gt;next()-&gt;prior()-&gt;prior()=end_;</span>
+<span class="lineNum">    1339 </span><span class="lineNoCov">          0 :     buckets.swap(buckets_cpy);</span>
+<span class="lineNum">    1340 </span><span class="lineNoCov">          0 :     calculate_max_load();</span>
+<span class="lineNum">    1341 </span><span class="lineNoCov">          0 :   }</span>
+<span class="lineNum">    1342 </span>            : 
+<span class="lineNum">    1343 </span>            :   void unchecked_rehash(size_type n,hashed_non_unique_tag)
+<span class="lineNum">    1344 </span>            :   {
+<span class="lineNum">    1345 </span>            :     node_impl_type    cpy_end_node;
+<span class="lineNum">    1346 </span>            :     node_impl_pointer cpy_end=node_impl_pointer(&amp;cpy_end_node),
+<span class="lineNum">    1347 </span>            :                       end_=header()-&gt;impl();
+<span class="lineNum">    1348 </span>            :     bucket_array_type buckets_cpy(get_allocator(),cpy_end,n);
+<span class="lineNum">    1349 </span>            : 
+<span class="lineNum">    1350 </span>            :     if(size()!=0){
+<span class="lineNum">    1351 </span>            :       auto_space&lt;
+<span class="lineNum">    1352 </span>            :         std::size_t,allocator_type&gt;       hashes(get_allocator(),size());
+<span class="lineNum">    1353 </span>            :       auto_space&lt;
+<span class="lineNum">    1354 </span>            :         node_impl_pointer,allocator_type&gt; node_ptrs(get_allocator(),size());
+<span class="lineNum">    1355 </span>            :       std::size_t                         i=0;
+<span class="lineNum">    1356 </span>            :       bool                                within_bucket=false;
+<span class="lineNum">    1357 </span>            :       BOOST_TRY{
+<span class="lineNum">    1358 </span>            :         for(;;++i){
+<span class="lineNum">    1359 </span>            :           node_impl_pointer x=end_-&gt;prior();
+<span class="lineNum">    1360 </span>            :           if(x==end_)break;
+<span class="lineNum">    1361 </span>            : 
+<span class="lineNum">    1362 </span>            :           /* only this can possibly throw */
+<span class="lineNum">    1363 </span>            :           std::size_t h=hash_(key(node_type::from_impl(x)-&gt;value()));
+<span class="lineNum">    1364 </span>            : 
+<span class="lineNum">    1365 </span>            :           hashes.data()[i]=h;
+<span class="lineNum">    1366 </span>            :           node_ptrs.data()[i]=x;
+<span class="lineNum">    1367 </span>            :           std::pair&lt;node_impl_pointer,bool&gt; p=
+<span class="lineNum">    1368 </span>            :             node_alg::unlink_last_group(end_);
+<span class="lineNum">    1369 </span>            :           node_alg::link_range(
+<span class="lineNum">    1370 </span>            :             p.first,x,buckets_cpy.at(buckets_cpy.position(h)),cpy_end);
+<span class="lineNum">    1371 </span>            :           within_bucket=!(p.second);
+<span class="lineNum">    1372 </span>            :         }
+<span class="lineNum">    1373 </span>            :       }
+<span class="lineNum">    1374 </span>            :       BOOST_CATCH(...){
+<span class="lineNum">    1375 </span>            :         if(i!=0){
+<span class="lineNum">    1376 </span>            :           std::size_t prev_buc=buckets.position(hashes.data()[i-1]);
+<span class="lineNum">    1377 </span>            :           if(!within_bucket)prev_buc=~prev_buc;
+<span class="lineNum">    1378 </span>            : 
+<span class="lineNum">    1379 </span>            :           for(std::size_t j=i;j--;){
+<span class="lineNum">    1380 </span>            :             std::size_t       buc=buckets.position(hashes.data()[j]);
+<span class="lineNum">    1381 </span>            :             node_impl_pointer x=node_ptrs.data()[j],
+<span class="lineNum">    1382 </span>            :                               y=
+<span class="lineNum">    1383 </span>            :               x-&gt;prior()-&gt;next()!=node_impl_type::base_pointer_from(x)&amp;&amp;
+<span class="lineNum">    1384 </span>            :               x-&gt;prior()-&gt;next()-&gt;prior()!=x?
+<span class="lineNum">    1385 </span>            :                 node_impl_type::pointer_from(x-&gt;prior()-&gt;next()):x;
+<span class="lineNum">    1386 </span>            :             node_alg::unlink_range(y,x);
+<span class="lineNum">    1387 </span>            :             if(buc==prev_buc)node_alg::append_range(y,x,end_);
+<span class="lineNum">    1388 </span>            :             else node_alg::link_range(y,x,buckets.at(buc),end_);
+<span class="lineNum">    1389 </span>            :             prev_buc=buc;
+<span class="lineNum">    1390 </span>            :           }
+<span class="lineNum">    1391 </span>            :         }
+<span class="lineNum">    1392 </span>            :         BOOST_RETHROW;
+<span class="lineNum">    1393 </span>            :       }
+<span class="lineNum">    1394 </span>            :       BOOST_CATCH_END
+<span class="lineNum">    1395 </span>            :     }
+<span class="lineNum">    1396 </span>            : 
+<span class="lineNum">    1397 </span>            :     end_-&gt;prior()=cpy_end-&gt;prior()!=cpy_end?cpy_end-&gt;prior():end_;
+<span class="lineNum">    1398 </span>            :     end_-&gt;next()=cpy_end-&gt;next();
+<span class="lineNum">    1399 </span>            :     end_-&gt;prior()-&gt;next()-&gt;prior()=end_-&gt;next()-&gt;prior()-&gt;prior()=end_;
+<span class="lineNum">    1400 </span>            :     buckets.swap(buckets_cpy);
+<span class="lineNum">    1401 </span>            :     calculate_max_load();
+<span class="lineNum">    1402 </span>            :   }
+<span class="lineNum">    1403 </span>            : 
+<span class="lineNum">    1404 </span>            :   bool in_place(node_impl_pointer x,key_param_type k,std::size_t buc)const
+<span class="lineNum">    1405 </span>            :   {
+<span class="lineNum">    1406 </span><span class="lineNoCov">          0 :     return in_place(x,k,buc,Category());</span>
+<a name="1407"><span class="lineNum">    1407 </span>            :   }</a>
+<span class="lineNum">    1408 </span>            : 
+<span class="lineNum">    1409 </span><span class="lineNoCov">          0 :   bool in_place(</span>
+<span class="lineNum">    1410 </span>            :     node_impl_pointer x,key_param_type k,std::size_t buc,
+<span class="lineNum">    1411 </span>            :     hashed_unique_tag)const
+<span class="lineNum">    1412 </span>            :   {
+<span class="lineNum">    1413 </span><span class="lineNoCov">          0 :     bool found=false;</span>
+<span class="lineNum">    1414 </span><span class="lineNoCov">          0 :     for(node_impl_pointer y=buckets.at(buc)-&gt;prior();</span>
+<span class="lineNum">    1415 </span><span class="lineNoCov">          0 :         y!=node_impl_pointer(0);y=node_alg::after_local(y)){</span>
+<span class="lineNum">    1416 </span><span class="lineNoCov">          0 :       if(y==x)found=true;</span>
+<span class="lineNum">    1417 </span><span class="lineNoCov">          0 :       else if(eq_(k,key(node_type::from_impl(y)-&gt;value())))return false;</span>
+<span class="lineNum">    1418 </span>            :     }
+<span class="lineNum">    1419 </span>            :     return found;
+<span class="lineNum">    1420 </span>            :   }
+<span class="lineNum">    1421 </span>            : 
+<span class="lineNum">    1422 </span>            :   bool in_place(
+<span class="lineNum">    1423 </span>            :     node_impl_pointer x,key_param_type k,std::size_t buc,
+<span class="lineNum">    1424 </span>            :     hashed_non_unique_tag)const
+<span class="lineNum">    1425 </span>            :   {
+<span class="lineNum">    1426 </span>            :     bool found=false;
+<span class="lineNum">    1427 </span>            :     int  range_size=0;
+<span class="lineNum">    1428 </span>            :     for(node_impl_pointer y=buckets.at(buc)-&gt;prior();y!=node_impl_pointer(0);){
+<span class="lineNum">    1429 </span>            :       if(node_alg::is_first_of_group(y)){ /* group of 3 or more */
+<span class="lineNum">    1430 </span>            :         if(y==x){
+<span class="lineNum">    1431 </span>            :           /* in place &lt;-&gt; equal to some other member of the group */
+<span class="lineNum">    1432 </span>            :           return eq_(
+<span class="lineNum">    1433 </span>            :             k,
+<span class="lineNum">    1434 </span>            :             key(node_type::from_impl(
+<span class="lineNum">    1435 </span>            :               node_impl_type::pointer_from(y-&gt;next()))-&gt;value()));
+<span class="lineNum">    1436 </span>            :         }
+<span class="lineNum">    1437 </span>            :         else{
+<span class="lineNum">    1438 </span>            :           node_impl_pointer z=
+<span class="lineNum">    1439 </span>            :             node_alg::after_local(y-&gt;next()-&gt;prior()); /* end of range */
+<span class="lineNum">    1440 </span>            :           if(eq_(k,key(node_type::from_impl(y)-&gt;value()))){
+<span class="lineNum">    1441 </span>            :             if(found)return false; /* x lies outside */
+<span class="lineNum">    1442 </span>            :             do{
+<span class="lineNum">    1443 </span>            :               if(y==x)return true;
+<span class="lineNum">    1444 </span>            :               y=node_alg::after_local(y);
+<span class="lineNum">    1445 </span>            :             }while(y!=z);
+<span class="lineNum">    1446 </span>            :             return false; /* x not found */
+<span class="lineNum">    1447 </span>            :           }
+<span class="lineNum">    1448 </span>            :           else{
+<span class="lineNum">    1449 </span>            :             if(range_size==1&amp;&amp;!found)return false;
+<span class="lineNum">    1450 </span>            :             if(range_size==2)return found;
+<span class="lineNum">    1451 </span>            :             range_size=0;
+<span class="lineNum">    1452 </span>            :             y=z; /* skip range (and potentially x, too, which is fine) */
+<span class="lineNum">    1453 </span>            :           }
+<span class="lineNum">    1454 </span>            :         }
+<span class="lineNum">    1455 </span>            :       }
+<span class="lineNum">    1456 </span>            :       else{ /* group of 1 or 2 */
+<span class="lineNum">    1457 </span>            :         if(y==x){
+<span class="lineNum">    1458 </span>            :           if(range_size==1)return true;
+<span class="lineNum">    1459 </span>            :           range_size=1;
+<span class="lineNum">    1460 </span>            :           found=true;
+<span class="lineNum">    1461 </span>            :         }
+<span class="lineNum">    1462 </span>            :         else if(eq_(k,key(node_type::from_impl(y)-&gt;value()))){
+<span class="lineNum">    1463 </span>            :           if(range_size==0&amp;&amp;found)return false;
+<span class="lineNum">    1464 </span>            :           if(range_size==1&amp;&amp;!found)return false;
+<span class="lineNum">    1465 </span>            :           if(range_size==2)return false;
+<span class="lineNum">    1466 </span>            :           ++range_size;
+<span class="lineNum">    1467 </span>            :         }
+<span class="lineNum">    1468 </span>            :         else{
+<span class="lineNum">    1469 </span>            :           if(range_size==1&amp;&amp;!found)return false;
+<span class="lineNum">    1470 </span>            :           if(range_size==2)return found;
+<span class="lineNum">    1471 </span>            :           range_size=0;
+<span class="lineNum">    1472 </span>            :         }
+<span class="lineNum">    1473 </span>            :         y=node_alg::after_local(y);
+<span class="lineNum">    1474 </span>            :       }
+<span class="lineNum">    1475 </span>            :     }
+<span class="lineNum">    1476 </span>            :     return found;
+<span class="lineNum">    1477 </span>            :   }
+<span class="lineNum">    1478 </span>            : 
+<span class="lineNum">    1479 </span>            : #if defined(BOOST_MULTI_INDEX_ENABLE_SAFE_MODE)
+<span class="lineNum">    1480 </span>            :   void detach_iterators(node_type* x)
+<span class="lineNum">    1481 </span>            :   {
+<span class="lineNum">    1482 </span>            :     iterator it=make_iterator(x);
+<span class="lineNum">    1483 </span>            :     safe_mode::detach_equivalent_iterators(it);
+<span class="lineNum">    1484 </span>            :   }
+<span class="lineNum">    1485 </span>            : #endif
+<span class="lineNum">    1486 </span>            : 
+<span class="lineNum">    1487 </span>            :   template&lt;BOOST_MULTI_INDEX_TEMPLATE_PARAM_PACK&gt;
+<span class="lineNum">    1488 </span>            :   std::pair&lt;iterator,bool&gt; emplace_impl(BOOST_MULTI_INDEX_FUNCTION_PARAM_PACK)
+<span class="lineNum">    1489 </span>            :   {
+<span class="lineNum">    1490 </span>            :     BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT;
+<span class="lineNum">    1491 </span>            :     std::pair&lt;final_node_type*,bool&gt;p=
+<span class="lineNum">    1492 </span>            :       this-&gt;final_emplace_(BOOST_MULTI_INDEX_FORWARD_PARAM_PACK);
+<span class="lineNum">    1493 </span>            :     return std::pair&lt;iterator,bool&gt;(make_iterator(p.first),p.second);
+<span class="lineNum">    1494 </span>            :   }
+<span class="lineNum">    1495 </span>            : 
+<span class="lineNum">    1496 </span>            :   template&lt;BOOST_MULTI_INDEX_TEMPLATE_PARAM_PACK&gt;
+<span class="lineNum">    1497 </span>            :   iterator emplace_hint_impl(
+<span class="lineNum">    1498 </span>            :     iterator position,BOOST_MULTI_INDEX_FUNCTION_PARAM_PACK)
+<span class="lineNum">    1499 </span>            :   {
+<span class="lineNum">    1500 </span>            :     BOOST_MULTI_INDEX_CHECK_VALID_ITERATOR(position);
+<span class="lineNum">    1501 </span>            :     BOOST_MULTI_INDEX_CHECK_IS_OWNER(position,*this);
+<span class="lineNum">    1502 </span>            :     BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT;
+<span class="lineNum">    1503 </span>            :     std::pair&lt;final_node_type*,bool&gt;p=
+<span class="lineNum">    1504 </span>            :       this-&gt;final_emplace_hint_(
+<span class="lineNum">    1505 </span>            :         static_cast&lt;final_node_type*&gt;(position.get_node()),
+<span class="lineNum">    1506 </span>            :         BOOST_MULTI_INDEX_FORWARD_PARAM_PACK);
+<span class="lineNum">    1507 </span>            :     return make_iterator(p.first);
+<span class="lineNum">    1508 </span>            :   }
+<span class="lineNum">    1509 </span>            : 
+<span class="lineNum">    1510 </span>            :   template&lt;
+<span class="lineNum">    1511 </span>            :     typename CompatibleHash,typename CompatiblePred
+<span class="lineNum">    1512 </span>            :   &gt;
+<span class="lineNum">    1513 </span>            :   iterator find(
+<span class="lineNum">    1514 </span>            :     const key_type&amp; k,
+<span class="lineNum">    1515 </span>            :     const CompatibleHash&amp; hash,const CompatiblePred&amp; eq,mpl::true_)const
+<span class="lineNum">    1516 </span>            :   {
+<span class="lineNum">    1517 </span>            :     return find(k,hash,eq,mpl::false_());
+<span class="lineNum">    1518 </span>            :   }
+<span class="lineNum">    1519 </span>            : 
+<span class="lineNum">    1520 </span>            :   template&lt;
+<a name="1521"><span class="lineNum">    1521 </span>            :     typename CompatibleKey,typename CompatibleHash,typename CompatiblePred</a>
+<span class="lineNum">    1522 </span>            :   &gt;
+<span class="lineNum">    1523 </span><span class="lineNoCov">          0 :   iterator find(</span>
+<span class="lineNum">    1524 </span>            :     const CompatibleKey&amp; k,
+<span class="lineNum">    1525 </span>            :     const CompatibleHash&amp; hash,const CompatiblePred&amp; eq,mpl::false_)const
+<span class="lineNum">    1526 </span>            :   {
+<span class="lineNum">    1527 </span><span class="lineNoCov">          0 :     std::size_t buc=buckets.position(hash(k));</span>
+<span class="lineNum">    1528 </span><span class="lineNoCov">          0 :     for(node_impl_pointer x=buckets.at(buc)-&gt;prior();</span>
+<span class="lineNum">    1529 </span><span class="lineNoCov">          0 :         x!=node_impl_pointer(0);x=node_alg::next_to_inspect(x)){</span>
+<span class="lineNum">    1530 </span><span class="lineNoCov">          0 :       if(eq(k,key(node_type::from_impl(x)-&gt;value()))){</span>
+<span class="lineNum">    1531 </span><span class="lineNoCov">          0 :         return make_iterator(node_type::from_impl(x));</span>
+<span class="lineNum">    1532 </span>            :       }
+<span class="lineNum">    1533 </span>            :     }
+<span class="lineNum">    1534 </span>            :     return end();
+<span class="lineNum">    1535 </span>            :   }
+<span class="lineNum">    1536 </span>            : 
+<span class="lineNum">    1537 </span>            :   template&lt;
+<span class="lineNum">    1538 </span>            :     typename CompatibleHash,typename CompatiblePred
+<span class="lineNum">    1539 </span>            :   &gt;
+<span class="lineNum">    1540 </span>            :   size_type count(
+<span class="lineNum">    1541 </span>            :     const key_type&amp; k,
+<span class="lineNum">    1542 </span>            :     const CompatibleHash&amp; hash,const CompatiblePred&amp; eq,mpl::true_)const
+<span class="lineNum">    1543 </span>            :   {
+<span class="lineNum">    1544 </span>            :     return count(k,hash,eq,mpl::false_());
+<span class="lineNum">    1545 </span>            :   }
+<span class="lineNum">    1546 </span>            : 
+<span class="lineNum">    1547 </span>            :   template&lt;
+<a name="1548"><span class="lineNum">    1548 </span>            :     typename CompatibleKey,typename CompatibleHash,typename CompatiblePred</a>
+<span class="lineNum">    1549 </span>            :   &gt;
+<span class="lineNum">    1550 </span><span class="lineNoCov">          0 :   size_type count(</span>
+<span class="lineNum">    1551 </span>            :     const CompatibleKey&amp; k,
+<span class="lineNum">    1552 </span>            :     const CompatibleHash&amp; hash,const CompatiblePred&amp; eq,mpl::false_)const
+<span class="lineNum">    1553 </span>            :   {
+<span class="lineNum">    1554 </span><span class="lineNoCov">          0 :     std::size_t buc=buckets.position(hash(k));</span>
+<span class="lineNum">    1555 </span><span class="lineNoCov">          0 :     for(node_impl_pointer x=buckets.at(buc)-&gt;prior();</span>
+<span class="lineNum">    1556 </span><span class="lineNoCov">          0 :         x!=node_impl_pointer(0);x=node_alg::next_to_inspect(x)){</span>
+<span class="lineNum">    1557 </span><span class="lineNoCov">          0 :       if(eq(k,key(node_type::from_impl(x)-&gt;value()))){</span>
+<span class="lineNum">    1558 </span><span class="lineNoCov">          0 :         size_type         res=0;</span>
+<span class="lineNum">    1559 </span><span class="lineNoCov">          0 :         node_impl_pointer y=end_of_range(x);</span>
+<span class="lineNum">    1560 </span>            :         do{
+<span class="lineNum">    1561 </span><span class="lineNoCov">          0 :           ++res;</span>
+<span class="lineNum">    1562 </span><span class="lineNoCov">          0 :           x=node_alg::after(x);</span>
+<span class="lineNum">    1563 </span><span class="lineNoCov">          0 :         }while(x!=y);</span>
+<span class="lineNum">    1564 </span>            :         return res;
+<span class="lineNum">    1565 </span>            :       }
+<span class="lineNum">    1566 </span>            :     }
+<span class="lineNum">    1567 </span>            :     return 0;
+<span class="lineNum">    1568 </span>            :   }
+<span class="lineNum">    1569 </span>            : 
+<span class="lineNum">    1570 </span>            :   template&lt;
+<span class="lineNum">    1571 </span>            :     typename CompatibleHash,typename CompatiblePred
+<span class="lineNum">    1572 </span>            :   &gt;
+<span class="lineNum">    1573 </span>            :   std::pair&lt;iterator,iterator&gt; equal_range(
+<span class="lineNum">    1574 </span>            :     const key_type&amp; k,
+<span class="lineNum">    1575 </span>            :     const CompatibleHash&amp; hash,const CompatiblePred&amp; eq,mpl::true_)const
+<span class="lineNum">    1576 </span>            :   {
+<span class="lineNum">    1577 </span>            :     return equal_range(k,hash,eq,mpl::false_());
+<span class="lineNum">    1578 </span>            :   }
+<span class="lineNum">    1579 </span>            : 
+<span class="lineNum">    1580 </span>            :   template&lt;
+<span class="lineNum">    1581 </span>            :     typename CompatibleKey,typename CompatibleHash,typename CompatiblePred
+<span class="lineNum">    1582 </span>            :   &gt;
+<span class="lineNum">    1583 </span>            :   std::pair&lt;iterator,iterator&gt; equal_range(
+<span class="lineNum">    1584 </span>            :     const CompatibleKey&amp; k,
+<span class="lineNum">    1585 </span>            :     const CompatibleHash&amp; hash,const CompatiblePred&amp; eq,mpl::false_)const
+<span class="lineNum">    1586 </span>            :   {
+<span class="lineNum">    1587 </span>            :     std::size_t buc=buckets.position(hash(k));
+<span class="lineNum">    1588 </span>            :     for(node_impl_pointer x=buckets.at(buc)-&gt;prior();
+<span class="lineNum">    1589 </span>            :         x!=node_impl_pointer(0);x=node_alg::next_to_inspect(x)){
+<span class="lineNum">    1590 </span>            :       if(eq(k,key(node_type::from_impl(x)-&gt;value()))){
+<span class="lineNum">    1591 </span>            :         return std::pair&lt;iterator,iterator&gt;(
+<span class="lineNum">    1592 </span>            :           make_iterator(node_type::from_impl(x)),
+<span class="lineNum">    1593 </span>            :           make_iterator(node_type::from_impl(end_of_range(x))));
+<span class="lineNum">    1594 </span>            :       }
+<span class="lineNum">    1595 </span>            :     }
+<span class="lineNum">    1596 </span>            :     return std::pair&lt;iterator,iterator&gt;(end(),end());
+<span class="lineNum">    1597 </span>            :   }
+<span class="lineNum">    1598 </span>            : 
+<span class="lineNum">    1599 </span>            :   key_from_value               key;
+<span class="lineNum">    1600 </span>            :   hasher                       hash_;
+<span class="lineNum">    1601 </span>            :   key_equal                    eq_;
+<span class="lineNum">    1602 </span>            :   bucket_array_type            buckets;
+<span class="lineNum">    1603 </span>            :   float                        mlf;
+<span class="lineNum">    1604 </span>            :   size_type                    max_load;
+<span class="lineNum">    1605 </span>            :       
+<span class="lineNum">    1606 </span>            : #if defined(BOOST_MULTI_INDEX_ENABLE_INVARIANT_CHECKING)&amp;&amp;\
+<span class="lineNum">    1607 </span>            :     BOOST_WORKAROUND(__MWERKS__,&lt;=0x3003)
+<span class="lineNum">    1608 </span>            : #pragma parse_mfunc_templ reset
+<span class="lineNum">    1609 </span>            : #endif
+<span class="lineNum">    1610 </span>            : };
+<span class="lineNum">    1611 </span>            : 
+<span class="lineNum">    1612 </span>            : /* comparison */
+<span class="lineNum">    1613 </span>            : 
+<span class="lineNum">    1614 </span>            : template&lt;
+<span class="lineNum">    1615 </span>            :   typename KeyFromValue,typename Hash,typename Pred,
+<span class="lineNum">    1616 </span>            :   typename SuperMeta,typename TagList,typename Category
+<span class="lineNum">    1617 </span>            : &gt;
+<span class="lineNum">    1618 </span>            : bool operator==(
+<span class="lineNum">    1619 </span>            :   const hashed_index&lt;KeyFromValue,Hash,Pred,SuperMeta,TagList,Category&gt;&amp; x,
+<span class="lineNum">    1620 </span>            :   const hashed_index&lt;KeyFromValue,Hash,Pred,SuperMeta,TagList,Category&gt;&amp; y)
+<span class="lineNum">    1621 </span>            : {
+<span class="lineNum">    1622 </span>            :   return x.equals(y);
+<span class="lineNum">    1623 </span>            : }
+<span class="lineNum">    1624 </span>            : 
+<span class="lineNum">    1625 </span>            : template&lt;
+<span class="lineNum">    1626 </span>            :   typename KeyFromValue,typename Hash,typename Pred,
+<span class="lineNum">    1627 </span>            :   typename SuperMeta,typename TagList,typename Category
+<span class="lineNum">    1628 </span>            : &gt;
+<span class="lineNum">    1629 </span>            : bool operator!=(
+<span class="lineNum">    1630 </span>            :   const hashed_index&lt;KeyFromValue,Hash,Pred,SuperMeta,TagList,Category&gt;&amp; x,
+<span class="lineNum">    1631 </span>            :   const hashed_index&lt;KeyFromValue,Hash,Pred,SuperMeta,TagList,Category&gt;&amp; y)
+<span class="lineNum">    1632 </span>            : {
+<span class="lineNum">    1633 </span>            :   return !(x==y);
+<span class="lineNum">    1634 </span>            : }
+<span class="lineNum">    1635 </span>            : 
+<span class="lineNum">    1636 </span>            : /*  specialized algorithms */
+<span class="lineNum">    1637 </span>            : 
+<span class="lineNum">    1638 </span>            : template&lt;
+<span class="lineNum">    1639 </span>            :   typename KeyFromValue,typename Hash,typename Pred,
+<span class="lineNum">    1640 </span>            :   typename SuperMeta,typename TagList,typename Category
+<span class="lineNum">    1641 </span>            : &gt;
+<span class="lineNum">    1642 </span>            : void swap(
+<span class="lineNum">    1643 </span>            :   hashed_index&lt;KeyFromValue,Hash,Pred,SuperMeta,TagList,Category&gt;&amp; x,
+<span class="lineNum">    1644 </span>            :   hashed_index&lt;KeyFromValue,Hash,Pred,SuperMeta,TagList,Category&gt;&amp; y)
+<span class="lineNum">    1645 </span>            : {
+<span class="lineNum">    1646 </span>            :   x.swap(y);
+<span class="lineNum">    1647 </span>            : }
+<span class="lineNum">    1648 </span>            : 
+<span class="lineNum">    1649 </span>            : } /* namespace multi_index::detail */
+<span class="lineNum">    1650 </span>            : 
+<span class="lineNum">    1651 </span>            : /* hashed index specifiers */
+<span class="lineNum">    1652 </span>            : 
+<span class="lineNum">    1653 </span>            : template&lt;typename Arg1,typename Arg2,typename Arg3,typename Arg4&gt;
+<span class="lineNum">    1654 </span>            : struct hashed_unique
+<span class="lineNum">    1655 </span>            : {
+<span class="lineNum">    1656 </span>            :   typedef typename detail::hashed_index_args&lt;
+<span class="lineNum">    1657 </span>            :     Arg1,Arg2,Arg3,Arg4&gt;                           index_args;
+<span class="lineNum">    1658 </span>            :   typedef typename index_args::tag_list_type::type tag_list_type;
+<span class="lineNum">    1659 </span>            :   typedef typename index_args::key_from_value_type key_from_value_type;
+<span class="lineNum">    1660 </span>            :   typedef typename index_args::hash_type           hash_type;
+<span class="lineNum">    1661 </span>            :   typedef typename index_args::pred_type           pred_type;
+<span class="lineNum">    1662 </span>            : 
+<span class="lineNum">    1663 </span>            :   template&lt;typename Super&gt;
+<span class="lineNum">    1664 </span>            :   struct node_class
+<span class="lineNum">    1665 </span>            :   {
+<span class="lineNum">    1666 </span>            :     typedef detail::hashed_index_node&lt;Super,detail::hashed_unique_tag&gt; type;
+<span class="lineNum">    1667 </span>            :   };
+<span class="lineNum">    1668 </span>            : 
+<span class="lineNum">    1669 </span>            :   template&lt;typename SuperMeta&gt;
+<span class="lineNum">    1670 </span>            :   struct index_class
+<span class="lineNum">    1671 </span>            :   {
+<span class="lineNum">    1672 </span>            :     typedef detail::hashed_index&lt;
+<span class="lineNum">    1673 </span>            :       key_from_value_type,hash_type,pred_type,
+<span class="lineNum">    1674 </span>            :       SuperMeta,tag_list_type,detail::hashed_unique_tag&gt; type;
+<span class="lineNum">    1675 </span>            :   };
+<span class="lineNum">    1676 </span>            : };
+<span class="lineNum">    1677 </span>            : 
+<span class="lineNum">    1678 </span>            : template&lt;typename Arg1,typename Arg2,typename Arg3,typename Arg4&gt;
+<span class="lineNum">    1679 </span>            : struct hashed_non_unique
+<span class="lineNum">    1680 </span>            : {
+<span class="lineNum">    1681 </span>            :   typedef typename detail::hashed_index_args&lt;
+<span class="lineNum">    1682 </span>            :     Arg1,Arg2,Arg3,Arg4&gt;                           index_args;
+<span class="lineNum">    1683 </span>            :   typedef typename index_args::tag_list_type::type tag_list_type;
+<span class="lineNum">    1684 </span>            :   typedef typename index_args::key_from_value_type key_from_value_type;
+<span class="lineNum">    1685 </span>            :   typedef typename index_args::hash_type           hash_type;
+<span class="lineNum">    1686 </span>            :   typedef typename index_args::pred_type           pred_type;
+<span class="lineNum">    1687 </span>            : 
+<span class="lineNum">    1688 </span>            :   template&lt;typename Super&gt;
+<span class="lineNum">    1689 </span>            :   struct node_class
+<span class="lineNum">    1690 </span>            :   {
+<span class="lineNum">    1691 </span>            :     typedef detail::hashed_index_node&lt;
+<span class="lineNum">    1692 </span>            :       Super,detail::hashed_non_unique_tag&gt; type;
+<span class="lineNum">    1693 </span>            :   };
+<span class="lineNum">    1694 </span>            : 
+<span class="lineNum">    1695 </span>            :   template&lt;typename SuperMeta&gt;
+<span class="lineNum">    1696 </span>            :   struct index_class
+<span class="lineNum">    1697 </span>            :   {
+<span class="lineNum">    1698 </span>            :     typedef detail::hashed_index&lt;
+<span class="lineNum">    1699 </span>            :       key_from_value_type,hash_type,pred_type,
+<span class="lineNum">    1700 </span>            :       SuperMeta,tag_list_type,detail::hashed_non_unique_tag&gt; type;
+<span class="lineNum">    1701 </span>            :   };
+<span class="lineNum">    1702 </span>            : };
+<span class="lineNum">    1703 </span>            : 
+<span class="lineNum">    1704 </span>            : } /* namespace multi_index */
+<span class="lineNum">    1705 </span>            : 
+<span class="lineNum">    1706 </span>            : } /* namespace boost */
+<span class="lineNum">    1707 </span>            : 
+<span class="lineNum">    1708 </span>            : /* Boost.Foreach compatibility */
+<span class="lineNum">    1709 </span>            : 
+<span class="lineNum">    1710 </span>            : template&lt;
+<span class="lineNum">    1711 </span>            :   typename KeyFromValue,typename Hash,typename Pred,
+<span class="lineNum">    1712 </span>            :   typename SuperMeta,typename TagList,typename Category
+<span class="lineNum">    1713 </span>            : &gt;
+<span class="lineNum">    1714 </span>            : inline boost::mpl::true_* boost_foreach_is_noncopyable(
+<span class="lineNum">    1715 </span>            :   boost::multi_index::detail::hashed_index&lt;
+<span class="lineNum">    1716 </span>            :     KeyFromValue,Hash,Pred,SuperMeta,TagList,Category&gt;*&amp;,
+<span class="lineNum">    1717 </span>            :   boost_foreach_argument_dependent_lookup_hack)
+<span class="lineNum">    1718 </span>            : {
+<span class="lineNum">    1719 </span>            :   return 0;
+<span class="lineNum">    1720 </span>            : }
+<span class="lineNum">    1721 </span>            : 
+<span class="lineNum">    1722 </span>            : #undef BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT
+<span class="lineNum">    1723 </span>            : #undef BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT_OF
+<span class="lineNum">    1724 </span>            : 
+<span class="lineNum">    1725 </span>            : #endif
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

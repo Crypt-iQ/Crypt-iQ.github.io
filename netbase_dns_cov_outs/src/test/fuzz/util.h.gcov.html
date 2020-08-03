@@ -1,0 +1,343 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - netbase_cov.info - src/test/fuzz/util.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">src/test/fuzz</a> - util.h<span style="font-size: 80%;"> (source / <a href="util.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">netbase_cov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntry">21</td>
+            <td class="headerCovTableEntryMed">76.2 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-23 06:26:49</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryLo">33.3 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2009-2020 The Bitcoin Core developers</a>
+<span class="lineNum">       2 </span>            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       3 </span>            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       4 </span>            : 
+<span class="lineNum">       5 </span>            : #ifndef BITCOIN_TEST_FUZZ_UTIL_H
+<span class="lineNum">       6 </span>            : #define BITCOIN_TEST_FUZZ_UTIL_H
+<span class="lineNum">       7 </span>            : 
+<span class="lineNum">       8 </span>            : #include &lt;amount.h&gt;
+<span class="lineNum">       9 </span>            : #include &lt;arith_uint256.h&gt;
+<span class="lineNum">      10 </span>            : #include &lt;attributes.h&gt;
+<span class="lineNum">      11 </span>            : #include &lt;chainparamsbase.h&gt;
+<span class="lineNum">      12 </span>            : #include &lt;coins.h&gt;
+<span class="lineNum">      13 </span>            : #include &lt;consensus/consensus.h&gt;
+<span class="lineNum">      14 </span>            : #include &lt;netaddress.h&gt;
+<span class="lineNum">      15 </span>            : #include &lt;netbase.h&gt;
+<span class="lineNum">      16 </span>            : #include &lt;primitives/transaction.h&gt;
+<span class="lineNum">      17 </span>            : #include &lt;script/script.h&gt;
+<span class="lineNum">      18 </span>            : #include &lt;script/standard.h&gt;
+<span class="lineNum">      19 </span>            : #include &lt;serialize.h&gt;
+<span class="lineNum">      20 </span>            : #include &lt;streams.h&gt;
+<span class="lineNum">      21 </span>            : #include &lt;test/fuzz/FuzzedDataProvider.h&gt;
+<span class="lineNum">      22 </span>            : #include &lt;test/fuzz/fuzz.h&gt;
+<span class="lineNum">      23 </span>            : #include &lt;test/util/setup_common.h&gt;
+<span class="lineNum">      24 </span>            : #include &lt;txmempool.h&gt;
+<span class="lineNum">      25 </span>            : #include &lt;uint256.h&gt;
+<span class="lineNum">      26 </span>            : #include &lt;version.h&gt;
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            : #include &lt;algorithm&gt;
+<span class="lineNum">      29 </span>            : #include &lt;cstdint&gt;
+<span class="lineNum">      30 </span>            : #include &lt;optional&gt;
+<span class="lineNum">      31 </span>            : #include &lt;string&gt;
+<span class="lineNum">      32 </span>            : #include &lt;vector&gt;
+<span class="lineNum">      33 </span>            : 
+<span class="lineNum">      34 </span>            : NODISCARD inline std::vector&lt;uint8_t&gt; ConsumeRandomLengthByteVector(FuzzedDataProvider&amp; fuzzed_data_provider, const size_t max_length = 4096) noexcept
+<span class="lineNum">      35 </span>            : {
+<span class="lineNum">      36 </span>            :     const std::string s = fuzzed_data_provider.ConsumeRandomLengthString(max_length);
+<span class="lineNum">      37 </span>            :     return {s.begin(), s.end()};
+<span class="lineNum">      38 </span>            : }
+<span class="lineNum">      39 </span>            : 
+<span class="lineNum">      40 </span>            : NODISCARD inline CDataStream ConsumeDataStream(FuzzedDataProvider&amp; fuzzed_data_provider, const size_t max_length = 4096) noexcept
+<span class="lineNum">      41 </span>            : {
+<span class="lineNum">      42 </span>            :     return {ConsumeRandomLengthByteVector(fuzzed_data_provider, max_length), SER_NETWORK, INIT_PROTO_VERSION};
+<span class="lineNum">      43 </span>            : }
+<span class="lineNum">      44 </span>            : 
+<span class="lineNum">      45 </span>            : NODISCARD inline std::vector&lt;std::string&gt; ConsumeRandomLengthStringVector(FuzzedDataProvider&amp; fuzzed_data_provider, const size_t max_vector_size = 16, const size_t max_string_length = 16) noexcept
+<span class="lineNum">      46 </span>            : {
+<span class="lineNum">      47 </span>            :     const size_t n_elements = fuzzed_data_provider.ConsumeIntegralInRange&lt;size_t&gt;(0, max_vector_size);
+<span class="lineNum">      48 </span>            :     std::vector&lt;std::string&gt; r;
+<span class="lineNum">      49 </span>            :     for (size_t i = 0; i &lt; n_elements; ++i) {
+<span class="lineNum">      50 </span>            :         r.push_back(fuzzed_data_provider.ConsumeRandomLengthString(max_string_length));
+<span class="lineNum">      51 </span>            :     }
+<span class="lineNum">      52 </span>            :     return r;
+<span class="lineNum">      53 </span>            : }
+<span class="lineNum">      54 </span>            : 
+<span class="lineNum">      55 </span>            : template &lt;typename T&gt;
+<span class="lineNum">      56 </span>            : NODISCARD inline std::vector&lt;T&gt; ConsumeRandomLengthIntegralVector(FuzzedDataProvider&amp; fuzzed_data_provider, const size_t max_vector_size = 16) noexcept
+<span class="lineNum">      57 </span>            : {
+<span class="lineNum">      58 </span>            :     const size_t n_elements = fuzzed_data_provider.ConsumeIntegralInRange&lt;size_t&gt;(0, max_vector_size);
+<span class="lineNum">      59 </span>            :     std::vector&lt;T&gt; r;
+<span class="lineNum">      60 </span>            :     for (size_t i = 0; i &lt; n_elements; ++i) {
+<span class="lineNum">      61 </span>            :         r.push_back(fuzzed_data_provider.ConsumeIntegral&lt;T&gt;());
+<span class="lineNum">      62 </span>            :     }
+<span class="lineNum">      63 </span>            :     return r;
+<span class="lineNum">      64 </span>            : }
+<span class="lineNum">      65 </span>            : 
+<span class="lineNum">      66 </span>            : template &lt;typename T&gt;
+<span class="lineNum">      67 </span>            : NODISCARD inline std::optional&lt;T&gt; ConsumeDeserializable(FuzzedDataProvider&amp; fuzzed_data_provider, const size_t max_length = 4096) noexcept
+<span class="lineNum">      68 </span>            : {
+<span class="lineNum">      69 </span>            :     const std::vector&lt;uint8_t&gt; buffer = ConsumeRandomLengthByteVector(fuzzed_data_provider, max_length);
+<span class="lineNum">      70 </span>            :     CDataStream ds{buffer, SER_NETWORK, INIT_PROTO_VERSION};
+<span class="lineNum">      71 </span>            :     T obj;
+<span class="lineNum">      72 </span>            :     try {
+<span class="lineNum">      73 </span>            :         ds &gt;&gt; obj;
+<span class="lineNum">      74 </span>            :     } catch (const std::ios_base::failure&amp;) {
+<span class="lineNum">      75 </span>            :         return std::nullopt;
+<span class="lineNum">      76 </span>            :     }
+<span class="lineNum">      77 </span>            :     return obj;
+<span class="lineNum">      78 </span>            : }
+<span class="lineNum">      79 </span>            : 
+<span class="lineNum">      80 </span>            : NODISCARD inline opcodetype ConsumeOpcodeType(FuzzedDataProvider&amp; fuzzed_data_provider) noexcept
+<span class="lineNum">      81 </span>            : {
+<span class="lineNum">      82 </span>            :     return static_cast&lt;opcodetype&gt;(fuzzed_data_provider.ConsumeIntegralInRange&lt;uint32_t&gt;(0, MAX_OPCODE));
+<span class="lineNum">      83 </span>            : }
+<span class="lineNum">      84 </span>            : 
+<span class="lineNum">      85 </span>            : NODISCARD inline CAmount ConsumeMoney(FuzzedDataProvider&amp; fuzzed_data_provider) noexcept
+<span class="lineNum">      86 </span>            : {
+<span class="lineNum">      87 </span>            :     return fuzzed_data_provider.ConsumeIntegralInRange&lt;CAmount&gt;(0, MAX_MONEY);
+<span class="lineNum">      88 </span>            : }
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span>            : NODISCARD inline CScript ConsumeScript(FuzzedDataProvider&amp; fuzzed_data_provider) noexcept
+<span class="lineNum">      91 </span>            : {
+<span class="lineNum">      92 </span>            :     const std::vector&lt;uint8_t&gt; b = ConsumeRandomLengthByteVector(fuzzed_data_provider);
+<span class="lineNum">      93 </span>            :     return {b.begin(), b.end()};
+<span class="lineNum">      94 </span>            : }
+<span class="lineNum">      95 </span>            : 
+<span class="lineNum">      96 </span>            : NODISCARD inline CScriptNum ConsumeScriptNum(FuzzedDataProvider&amp; fuzzed_data_provider) noexcept
+<span class="lineNum">      97 </span>            : {
+<span class="lineNum">      98 </span>            :     return CScriptNum{fuzzed_data_provider.ConsumeIntegral&lt;int64_t&gt;()};
+<span class="lineNum">      99 </span>            : }
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span>            : NODISCARD inline uint160 ConsumeUInt160(FuzzedDataProvider&amp; fuzzed_data_provider) noexcept
+<span class="lineNum">     102 </span>            : {
+<span class="lineNum">     103 </span>            :     const std::vector&lt;uint8_t&gt; v160 = fuzzed_data_provider.ConsumeBytes&lt;uint8_t&gt;(160 / 8);
+<span class="lineNum">     104 </span>            :     if (v160.size() != 160 / 8) {
+<span class="lineNum">     105 </span>            :         return {};
+<span class="lineNum">     106 </span>            :     }
+<span class="lineNum">     107 </span>            :     return uint160{v160};
+<span class="lineNum">     108 </span>            : }
+<span class="lineNum">     109 </span>            : 
+<span class="lineNum">     110 </span>            : NODISCARD inline uint256 ConsumeUInt256(FuzzedDataProvider&amp; fuzzed_data_provider) noexcept
+<span class="lineNum">     111 </span>            : {
+<span class="lineNum">     112 </span>            :     const std::vector&lt;uint8_t&gt; v256 = fuzzed_data_provider.ConsumeBytes&lt;uint8_t&gt;(256 / 8);
+<span class="lineNum">     113 </span>            :     if (v256.size() != 256 / 8) {
+<span class="lineNum">     114 </span>            :         return {};
+<span class="lineNum">     115 </span>            :     }
+<span class="lineNum">     116 </span>            :     return uint256{v256};
+<span class="lineNum">     117 </span>            : }
+<span class="lineNum">     118 </span>            : 
+<span class="lineNum">     119 </span>            : NODISCARD inline arith_uint256 ConsumeArithUInt256(FuzzedDataProvider&amp; fuzzed_data_provider) noexcept
+<span class="lineNum">     120 </span>            : {
+<span class="lineNum">     121 </span>            :     return UintToArith256(ConsumeUInt256(fuzzed_data_provider));
+<span class="lineNum">     122 </span>            : }
+<span class="lineNum">     123 </span>            : 
+<span class="lineNum">     124 </span>            : NODISCARD inline CTxMemPoolEntry ConsumeTxMemPoolEntry(FuzzedDataProvider&amp; fuzzed_data_provider, const CTransaction&amp; tx) noexcept
+<span class="lineNum">     125 </span>            : {
+<span class="lineNum">     126 </span>            :     // Avoid:
+<span class="lineNum">     127 </span>            :     // policy/feerate.cpp:28:34: runtime error: signed integer overflow: 34873208148477500 * 1000 cannot be represented in type 'long'
+<span class="lineNum">     128 </span>            :     //
+<span class="lineNum">     129 </span>            :     // Reproduce using CFeeRate(348732081484775, 10).GetFeePerK()
+<span class="lineNum">     130 </span>            :     const CAmount fee = std::min&lt;CAmount&gt;(ConsumeMoney(fuzzed_data_provider), std::numeric_limits&lt;CAmount&gt;::max() / static_cast&lt;CAmount&gt;(100000));
+<span class="lineNum">     131 </span>            :     assert(MoneyRange(fee));
+<span class="lineNum">     132 </span>            :     const int64_t time = fuzzed_data_provider.ConsumeIntegral&lt;int64_t&gt;();
+<span class="lineNum">     133 </span>            :     const unsigned int entry_height = fuzzed_data_provider.ConsumeIntegral&lt;unsigned int&gt;();
+<span class="lineNum">     134 </span>            :     const bool spends_coinbase = fuzzed_data_provider.ConsumeBool();
+<span class="lineNum">     135 </span>            :     const unsigned int sig_op_cost = fuzzed_data_provider.ConsumeIntegralInRange&lt;unsigned int&gt;(0, MAX_BLOCK_SIGOPS_COST);
+<span class="lineNum">     136 </span>            :     return CTxMemPoolEntry{MakeTransactionRef(tx), fee, time, entry_height, spends_coinbase, sig_op_cost, {}};
+<span class="lineNum">     137 </span>            : }
+<span class="lineNum">     138 </span>            : 
+<span class="lineNum">     139 </span>            : NODISCARD inline CTxDestination ConsumeTxDestination(FuzzedDataProvider&amp; fuzzed_data_provider) noexcept
+<span class="lineNum">     140 </span>            : {
+<span class="lineNum">     141 </span>            :     CTxDestination tx_destination;
+<span class="lineNum">     142 </span>            :     switch (fuzzed_data_provider.ConsumeIntegralInRange&lt;int&gt;(0, 5)) {
+<span class="lineNum">     143 </span>            :     case 0: {
+<span class="lineNum">     144 </span>            :         tx_destination = CNoDestination{};
+<span class="lineNum">     145 </span>            :         break;
+<span class="lineNum">     146 </span>            :     }
+<span class="lineNum">     147 </span>            :     case 1: {
+<span class="lineNum">     148 </span>            :         tx_destination = PKHash{ConsumeUInt160(fuzzed_data_provider)};
+<span class="lineNum">     149 </span>            :         break;
+<span class="lineNum">     150 </span>            :     }
+<span class="lineNum">     151 </span>            :     case 2: {
+<span class="lineNum">     152 </span>            :         tx_destination = ScriptHash{ConsumeUInt160(fuzzed_data_provider)};
+<span class="lineNum">     153 </span>            :         break;
+<span class="lineNum">     154 </span>            :     }
+<span class="lineNum">     155 </span>            :     case 3: {
+<span class="lineNum">     156 </span>            :         tx_destination = WitnessV0ScriptHash{ConsumeUInt256(fuzzed_data_provider)};
+<span class="lineNum">     157 </span>            :         break;
+<span class="lineNum">     158 </span>            :     }
+<span class="lineNum">     159 </span>            :     case 4: {
+<span class="lineNum">     160 </span>            :         tx_destination = WitnessV0KeyHash{ConsumeUInt160(fuzzed_data_provider)};
+<span class="lineNum">     161 </span>            :         break;
+<span class="lineNum">     162 </span>            :     }
+<span class="lineNum">     163 </span>            :     case 5: {
+<span class="lineNum">     164 </span>            :         WitnessUnknown witness_unknown{};
+<span class="lineNum">     165 </span>            :         witness_unknown.version = fuzzed_data_provider.ConsumeIntegral&lt;int&gt;();
+<span class="lineNum">     166 </span>            :         const std::vector&lt;uint8_t&gt; witness_unknown_program_1 = fuzzed_data_provider.ConsumeBytes&lt;uint8_t&gt;(40);
+<span class="lineNum">     167 </span>            :         witness_unknown.length = witness_unknown_program_1.size();
+<span class="lineNum">     168 </span>            :         std::copy(witness_unknown_program_1.begin(), witness_unknown_program_1.end(), witness_unknown.program);
+<span class="lineNum">     169 </span>            :         tx_destination = witness_unknown;
+<span class="lineNum">     170 </span>            :         break;
+<span class="lineNum">     171 </span>            :     }
+<span class="lineNum">     172 </span>            :     }
+<span class="lineNum">     173 </span>            :     return tx_destination;
+<span class="lineNum">     174 </span>            : }
+<span class="lineNum">     175 </span>            : 
+<span class="lineNum">     176 </span>            : template &lt;typename T&gt;
+<span class="lineNum">     177 </span>            : NODISCARD bool MultiplicationOverflow(const T i, const T j) noexcept
+<span class="lineNum">     178 </span>            : {
+<span class="lineNum">     179 </span>            :     static_assert(std::is_integral&lt;T&gt;::value, &quot;Integral required.&quot;);
+<span class="lineNum">     180 </span>            :     if (std::numeric_limits&lt;T&gt;::is_signed) {
+<span class="lineNum">     181 </span>            :         if (i &gt; 0) {
+<span class="lineNum">     182 </span>            :             if (j &gt; 0) {
+<span class="lineNum">     183 </span>            :                 return i &gt; (std::numeric_limits&lt;T&gt;::max() / j);
+<span class="lineNum">     184 </span>            :             } else {
+<span class="lineNum">     185 </span>            :                 return j &lt; (std::numeric_limits&lt;T&gt;::min() / i);
+<span class="lineNum">     186 </span>            :             }
+<span class="lineNum">     187 </span>            :         } else {
+<span class="lineNum">     188 </span>            :             if (j &gt; 0) {
+<span class="lineNum">     189 </span>            :                 return i &lt; (std::numeric_limits&lt;T&gt;::min() / j);
+<span class="lineNum">     190 </span>            :             } else {
+<span class="lineNum">     191 </span>            :                 return i != 0 &amp;&amp; (j &lt; (std::numeric_limits&lt;T&gt;::max() / i));
+<span class="lineNum">     192 </span>            :             }
+<span class="lineNum">     193 </span>            :         }
+<span class="lineNum">     194 </span>            :     } else {
+<span class="lineNum">     195 </span>            :         return j != 0 &amp;&amp; i &gt; std::numeric_limits&lt;T&gt;::max() / j;
+<span class="lineNum">     196 </span>            :     }
+<span class="lineNum">     197 </span>            : }
+<span class="lineNum">     198 </span>            : 
+<span class="lineNum">     199 </span>            : template &lt;class T&gt;
+<span class="lineNum">     200 </span>            : NODISCARD bool AdditionOverflow(const T i, const T j) noexcept
+<span class="lineNum">     201 </span>            : {
+<span class="lineNum">     202 </span>            :     static_assert(std::is_integral&lt;T&gt;::value, &quot;Integral required.&quot;);
+<span class="lineNum">     203 </span>            :     if (std::numeric_limits&lt;T&gt;::is_signed) {
+<span class="lineNum">     204 </span>            :         return (i &gt; 0 &amp;&amp; j &gt; std::numeric_limits&lt;T&gt;::max() - i) ||
+<span class="lineNum">     205 </span>            :                (i &lt; 0 &amp;&amp; j &lt; std::numeric_limits&lt;T&gt;::min() - i);
+<span class="lineNum">     206 </span>            :     }
+<span class="lineNum">     207 </span>            :     return std::numeric_limits&lt;T&gt;::max() - i &lt; j;
+<span class="lineNum">     208 </span>            : }
+<span class="lineNum">     209 </span>            : 
+<span class="lineNum">     210 </span>            : NODISCARD inline bool ContainsSpentInput(const CTransaction&amp; tx, const CCoinsViewCache&amp; inputs) noexcept
+<span class="lineNum">     211 </span>            : {
+<span class="lineNum">     212 </span>            :     for (const CTxIn&amp; tx_in : tx.vin) {
+<span class="lineNum">     213 </span>            :         const Coin&amp; coin = inputs.AccessCoin(tx_in.prevout);
+<span class="lineNum">     214 </span>            :         if (coin.IsSpent()) {
+<span class="lineNum">     215 </span>            :             return true;
+<span class="lineNum">     216 </span>            :         }
+<span class="lineNum">     217 </span>            :     }
+<span class="lineNum">     218 </span>            :     return false;
+<span class="lineNum">     219 </span>            : }
+<span class="lineNum">     220 </span>            : 
+<span class="lineNum">     221 </span>            : /**
+<span class="lineNum">     222 </span>            :  * Returns a byte vector of specified size regardless of the number of remaining bytes available
+<span class="lineNum">     223 </span>            :  * from the fuzzer. Pads with zero value bytes if needed to achieve the specified size.
+<span class="lineNum">     224 </span>            :  */
+<span class="lineNum">     225 </span>            : NODISCARD inline std::vector&lt;uint8_t&gt; ConsumeFixedLengthByteVector(FuzzedDataProvider&amp; fuzzed_data_provider, const size_t length) noexcept
+<span class="lineNum">     226 </span>            : {
+<span class="lineNum">     227 </span>            :     std::vector&lt;uint8_t&gt; result(length);
+<span class="lineNum">     228 </span>            :     const std::vector&lt;uint8_t&gt; random_bytes = fuzzed_data_provider.ConsumeBytes&lt;uint8_t&gt;(length);
+<span class="lineNum">     229 </span>            :     if (!random_bytes.empty()) {
+<span class="lineNum">     230 </span>            :         std::memcpy(result.data(), random_bytes.data(), random_bytes.size());
+<span class="lineNum">     231 </span>            :     }
+<span class="lineNum">     232 </span>            :     return result;
+<span class="lineNum">     233 </span>            : }
+<span class="lineNum">     234 </span>            : 
+<span class="lineNum">     235 </span><span class="lineCov">      37176 : CNetAddr ConsumeNetAddr(FuzzedDataProvider&amp; fuzzed_data_provider) noexcept</span>
+<span class="lineNum">     236 </span>            : {
+<span class="lineNum">     237 </span><span class="lineCov">      37176 :     const Network network = fuzzed_data_provider.PickValueInArray({Network::NET_IPV4, Network::NET_IPV6, Network::NET_INTERNAL, Network::NET_ONION});</span>
+<span class="lineNum">     238 </span><span class="lineCov">      37176 :     CNetAddr net_addr;</span>
+<span class="lineNum">     239 </span><span class="lineCov">      37176 :     if (network == Network::NET_IPV4) {</span>
+<span class="lineNum">     240 </span>            :         const in_addr v4_addr = {
+<span class="lineNum">     241 </span><span class="lineCov">       5344 :             .s_addr = fuzzed_data_provider.ConsumeIntegral&lt;uint32_t&gt;()};</span>
+<span class="lineNum">     242 </span><span class="lineCov">       5344 :         net_addr = CNetAddr{v4_addr};</span>
+<span class="lineNum">     243 </span><span class="lineCov">      31832 :     } else if (network == Network::NET_IPV6) {</span>
+<span class="lineNum">     244 </span><span class="lineCov">      18912 :         if (fuzzed_data_provider.remaining_bytes() &gt;= 16) {</span>
+<span class="lineNum">     245 </span><span class="lineCov">      15040 :             in6_addr v6_addr = {};</span>
+<span class="lineNum">     246 </span><span class="lineCov">      45120 :             memcpy(v6_addr.s6_addr, fuzzed_data_provider.ConsumeBytes&lt;uint8_t&gt;(16).data(), 16);</span>
+<span class="lineNum">     247 </span><span class="lineCov">      15040 :             net_addr = CNetAddr{v6_addr, fuzzed_data_provider.ConsumeIntegral&lt;uint32_t&gt;()};</span>
+<span class="lineNum">     248 </span>            :         }
+<span class="lineNum">     249 </span><span class="lineCov">      12920 :     } else if (network == Network::NET_INTERNAL) {</span>
+<span class="lineNum">     250 </span><span class="lineCov">       2800 :         net_addr.SetInternal(fuzzed_data_provider.ConsumeBytesAsString(32));</span>
+<span class="lineNum">     251 </span><span class="lineCov">      10120 :     } else if (network == Network::NET_ONION) {</span>
+<span class="lineNum">     252 </span><span class="lineCov">      10120 :         net_addr.SetSpecial(fuzzed_data_provider.ConsumeBytesAsString(32));</span>
+<span class="lineNum">     253 </span>            :     }
+<span class="lineNum">     254 </span><span class="lineCov">      37176 :     return net_addr;</span>
+<a name="255"><span class="lineNum">     255 </span>            : }</a>
+<span class="lineNum">     256 </span>            : 
+<span class="lineNum">     257 </span><span class="lineNoCov">          0 : CSubNet ConsumeSubNet(FuzzedDataProvider&amp; fuzzed_data_provider) noexcept</span>
+<span class="lineNum">     258 </span>            : {
+<span class="lineNum">     259 </span><span class="lineNoCov">          0 :     return {ConsumeNetAddr(fuzzed_data_provider), fuzzed_data_provider.ConsumeIntegral&lt;int32_t&gt;()};</span>
+<span class="lineNum">     260 </span>            : }
+<span class="lineNum">     261 </span>            : 
+<span class="lineNum">     262 </span><span class="lineNoCov">          0 : void InitializeFuzzingContext(const std::string&amp; chain_name = CBaseChainParams::REGTEST)</span>
+<span class="lineNum">     263 </span>            : {
+<span class="lineNum">     264 </span><span class="lineNoCov">          0 :     static const BasicTestingSetup basic_testing_setup{chain_name, {&quot;-nodebuglogfile&quot;}};</span>
+<span class="lineNum">     265 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     266 </span>            : 
+<span class="lineNum">     267 </span>            : #endif // BITCOIN_TEST_FUZZ_UTIL_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

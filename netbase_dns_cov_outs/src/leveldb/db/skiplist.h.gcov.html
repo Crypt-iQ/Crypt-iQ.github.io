@@ -1,0 +1,458 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - netbase_cov.info - src/leveldb/db/skiplist.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">src/leveldb/db</a> - skiplist.h<span style="font-size: 80%;"> (source / <a href="skiplist.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">netbase_cov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">88</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-23 06:26:49</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2011 The LevelDB Authors. All rights reserved.</a>
+<span class="lineNum">       2 </span>            : // Use of this source code is governed by a BSD-style license that can be
+<span class="lineNum">       3 </span>            : // found in the LICENSE file. See the AUTHORS file for names of contributors.
+<span class="lineNum">       4 </span>            : 
+<span class="lineNum">       5 </span>            : #ifndef STORAGE_LEVELDB_DB_SKIPLIST_H_
+<span class="lineNum">       6 </span>            : #define STORAGE_LEVELDB_DB_SKIPLIST_H_
+<span class="lineNum">       7 </span>            : 
+<span class="lineNum">       8 </span>            : // Thread safety
+<span class="lineNum">       9 </span>            : // -------------
+<span class="lineNum">      10 </span>            : //
+<span class="lineNum">      11 </span>            : // Writes require external synchronization, most likely a mutex.
+<span class="lineNum">      12 </span>            : // Reads require a guarantee that the SkipList will not be destroyed
+<span class="lineNum">      13 </span>            : // while the read is in progress.  Apart from that, reads progress
+<span class="lineNum">      14 </span>            : // without any internal locking or synchronization.
+<span class="lineNum">      15 </span>            : //
+<span class="lineNum">      16 </span>            : // Invariants:
+<span class="lineNum">      17 </span>            : //
+<span class="lineNum">      18 </span>            : // (1) Allocated nodes are never deleted until the SkipList is
+<span class="lineNum">      19 </span>            : // destroyed.  This is trivially guaranteed by the code since we
+<span class="lineNum">      20 </span>            : // never delete any skip list nodes.
+<span class="lineNum">      21 </span>            : //
+<span class="lineNum">      22 </span>            : // (2) The contents of a Node except for the next/prev pointers are
+<span class="lineNum">      23 </span>            : // immutable after the Node has been linked into the SkipList.
+<span class="lineNum">      24 </span>            : // Only Insert() modifies the list, and it is careful to initialize
+<span class="lineNum">      25 </span>            : // a node and use release-stores to publish the nodes in one or
+<span class="lineNum">      26 </span>            : // more lists.
+<span class="lineNum">      27 </span>            : //
+<span class="lineNum">      28 </span>            : // ... prev vs. next pointer ordering ...
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : #include &lt;atomic&gt;
+<span class="lineNum">      31 </span>            : #include &lt;cassert&gt;
+<span class="lineNum">      32 </span>            : #include &lt;cstdlib&gt;
+<span class="lineNum">      33 </span>            : 
+<span class="lineNum">      34 </span>            : #include &quot;util/arena.h&quot;
+<span class="lineNum">      35 </span>            : #include &quot;util/random.h&quot;
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span>            : namespace leveldb {
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            : class Arena;
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span>            : template &lt;typename Key, class Comparator&gt;
+<span class="lineNum">      42 </span><span class="lineNoCov">          0 : class SkipList {</span>
+<span class="lineNum">      43 </span>            :  private:
+<span class="lineNum">      44 </span>            :   struct Node;
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span>            :  public:
+<span class="lineNum">      47 </span>            :   // Create a new SkipList object that will use &quot;cmp&quot; for comparing keys,
+<span class="lineNum">      48 </span>            :   // and will allocate memory using &quot;*arena&quot;.  Objects allocated in the arena
+<span class="lineNum">      49 </span>            :   // must remain allocated for the lifetime of the skiplist object.
+<span class="lineNum">      50 </span>            :   explicit SkipList(Comparator cmp, Arena* arena);
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span>            :   SkipList(const SkipList&amp;) = delete;
+<span class="lineNum">      53 </span>            :   SkipList&amp; operator=(const SkipList&amp;) = delete;
+<span class="lineNum">      54 </span>            : 
+<span class="lineNum">      55 </span>            :   // Insert key into the list.
+<span class="lineNum">      56 </span>            :   // REQUIRES: nothing that compares equal to key is currently in the list.
+<span class="lineNum">      57 </span>            :   void Insert(const Key&amp; key);
+<span class="lineNum">      58 </span>            : 
+<span class="lineNum">      59 </span>            :   // Returns true iff an entry that compares equal to key is in the list.
+<span class="lineNum">      60 </span>            :   bool Contains(const Key&amp; key) const;
+<span class="lineNum">      61 </span>            : 
+<span class="lineNum">      62 </span>            :   // Iteration over the contents of a skip list
+<span class="lineNum">      63 </span>            :   class Iterator {
+<span class="lineNum">      64 </span>            :    public:
+<span class="lineNum">      65 </span>            :     // Initialize an iterator over the specified list.
+<span class="lineNum">      66 </span>            :     // The returned iterator is not valid.
+<span class="lineNum">      67 </span>            :     explicit Iterator(const SkipList* list);
+<span class="lineNum">      68 </span>            : 
+<span class="lineNum">      69 </span>            :     // Returns true iff the iterator is positioned at a valid node.
+<span class="lineNum">      70 </span>            :     bool Valid() const;
+<span class="lineNum">      71 </span>            : 
+<span class="lineNum">      72 </span>            :     // Returns the key at the current position.
+<span class="lineNum">      73 </span>            :     // REQUIRES: Valid()
+<span class="lineNum">      74 </span>            :     const Key&amp; key() const;
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span>            :     // Advances to the next position.
+<span class="lineNum">      77 </span>            :     // REQUIRES: Valid()
+<span class="lineNum">      78 </span>            :     void Next();
+<span class="lineNum">      79 </span>            : 
+<span class="lineNum">      80 </span>            :     // Advances to the previous position.
+<span class="lineNum">      81 </span>            :     // REQUIRES: Valid()
+<span class="lineNum">      82 </span>            :     void Prev();
+<span class="lineNum">      83 </span>            : 
+<span class="lineNum">      84 </span>            :     // Advance to the first entry with a key &gt;= target
+<span class="lineNum">      85 </span>            :     void Seek(const Key&amp; target);
+<span class="lineNum">      86 </span>            : 
+<span class="lineNum">      87 </span>            :     // Position at the first entry in list.
+<span class="lineNum">      88 </span>            :     // Final state of iterator is Valid() iff list is not empty.
+<span class="lineNum">      89 </span>            :     void SeekToFirst();
+<span class="lineNum">      90 </span>            : 
+<span class="lineNum">      91 </span>            :     // Position at the last entry in list.
+<span class="lineNum">      92 </span>            :     // Final state of iterator is Valid() iff list is not empty.
+<span class="lineNum">      93 </span>            :     void SeekToLast();
+<span class="lineNum">      94 </span>            : 
+<span class="lineNum">      95 </span>            :    private:
+<span class="lineNum">      96 </span>            :     const SkipList* list_;
+<span class="lineNum">      97 </span>            :     Node* node_;
+<span class="lineNum">      98 </span>            :     // Intentionally copyable
+<span class="lineNum">      99 </span>            :   };
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span>            :  private:
+<span class="lineNum">     102 </span>            :   enum { kMaxHeight = 12 };
+<span class="lineNum">     103 </span>            : 
+<span class="lineNum">     104 </span>            :   inline int GetMaxHeight() const {
+<span class="lineNum">     105 </span><span class="lineNoCov">          0 :     return max_height_.load(std::memory_order_relaxed);</span>
+<span class="lineNum">     106 </span>            :   }
+<span class="lineNum">     107 </span>            : 
+<span class="lineNum">     108 </span>            :   Node* NewNode(const Key&amp; key, int height);
+<span class="lineNum">     109 </span>            :   int RandomHeight();
+<span class="lineNum">     110 </span><span class="lineNoCov">          0 :   bool Equal(const Key&amp; a, const Key&amp; b) const { return (compare_(a, b) == 0); }</span>
+<span class="lineNum">     111 </span>            : 
+<span class="lineNum">     112 </span>            :   // Return true if key is greater than the data stored in &quot;n&quot;
+<span class="lineNum">     113 </span>            :   bool KeyIsAfterNode(const Key&amp; key, Node* n) const;
+<span class="lineNum">     114 </span>            : 
+<span class="lineNum">     115 </span>            :   // Return the earliest node that comes at or after key.
+<span class="lineNum">     116 </span>            :   // Return nullptr if there is no such node.
+<span class="lineNum">     117 </span>            :   //
+<span class="lineNum">     118 </span>            :   // If prev is non-null, fills prev[level] with pointer to previous
+<span class="lineNum">     119 </span>            :   // node at &quot;level&quot; for every level in [0..max_height_-1].
+<span class="lineNum">     120 </span>            :   Node* FindGreaterOrEqual(const Key&amp; key, Node** prev) const;
+<span class="lineNum">     121 </span>            : 
+<span class="lineNum">     122 </span>            :   // Return the latest node with a key &lt; key.
+<span class="lineNum">     123 </span>            :   // Return head_ if there is no such node.
+<span class="lineNum">     124 </span>            :   Node* FindLessThan(const Key&amp; key) const;
+<span class="lineNum">     125 </span>            : 
+<span class="lineNum">     126 </span>            :   // Return the last node in the list.
+<span class="lineNum">     127 </span>            :   // Return head_ if list is empty.
+<span class="lineNum">     128 </span>            :   Node* FindLast() const;
+<span class="lineNum">     129 </span>            : 
+<span class="lineNum">     130 </span>            :   // Immutable after construction
+<span class="lineNum">     131 </span>            :   Comparator const compare_;
+<span class="lineNum">     132 </span>            :   Arena* const arena_;  // Arena used for allocations of nodes
+<span class="lineNum">     133 </span>            : 
+<span class="lineNum">     134 </span>            :   Node* const head_;
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span>            :   // Modified only by Insert().  Read racily by readers, but stale
+<span class="lineNum">     137 </span>            :   // values are ok.
+<span class="lineNum">     138 </span>            :   std::atomic&lt;int&gt; max_height_;  // Height of the entire list
+<span class="lineNum">     139 </span>            : 
+<span class="lineNum">     140 </span>            :   // Read/written only by Insert().
+<span class="lineNum">     141 </span>            :   Random rnd_;
+<span class="lineNum">     142 </span>            : };
+<span class="lineNum">     143 </span>            : 
+<span class="lineNum">     144 </span>            : // Implementation details follow
+<span class="lineNum">     145 </span>            : template &lt;typename Key, class Comparator&gt;
+<span class="lineNum">     146 </span>            : struct SkipList&lt;Key, Comparator&gt;::Node {
+<span class="lineNum">     147 </span><span class="lineNoCov">          0 :   explicit Node(const Key&amp; k) : key(k) {}</span>
+<span class="lineNum">     148 </span>            : 
+<span class="lineNum">     149 </span>            :   Key const key;
+<span class="lineNum">     150 </span>            : 
+<a name="151"><span class="lineNum">     151 </span>            :   // Accessors/mutators for links.  Wrapped in methods so we can</a>
+<span class="lineNum">     152 </span>            :   // add the appropriate barriers as necessary.
+<span class="lineNum">     153 </span><span class="lineNoCov">          0 :   Node* Next(int n) {</span>
+<span class="lineNum">     154 </span><span class="lineNoCov">          0 :     assert(n &gt;= 0);</span>
+<span class="lineNum">     155 </span>            :     // Use an 'acquire load' so that we observe a fully initialized
+<span class="lineNum">     156 </span>            :     // version of the returned Node.
+<a name="157"><span class="lineNum">     157 </span><span class="lineNoCov">          0 :     return next_[n].load(std::memory_order_acquire);</span></a>
+<span class="lineNum">     158 </span>            :   }
+<span class="lineNum">     159 </span><span class="lineNoCov">          0 :   void SetNext(int n, Node* x) {</span>
+<span class="lineNum">     160 </span><span class="lineNoCov">          0 :     assert(n &gt;= 0);</span>
+<span class="lineNum">     161 </span>            :     // Use a 'release store' so that anybody who reads through this
+<span class="lineNum">     162 </span>            :     // pointer observes a fully initialized version of the inserted node.
+<span class="lineNum">     163 </span><span class="lineNoCov">          0 :     next_[n].store(x, std::memory_order_release);</span>
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :   }</span>
+<a name="165"><span class="lineNum">     165 </span>            : </a>
+<span class="lineNum">     166 </span>            :   // No-barrier variants that can be safely used in a few locations.
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 :   Node* NoBarrier_Next(int n) {</span>
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 :     assert(n &gt;= 0);</span>
+<a name="169"><span class="lineNum">     169 </span><span class="lineNoCov">          0 :     return next_[n].load(std::memory_order_relaxed);</span></a>
+<span class="lineNum">     170 </span>            :   }
+<span class="lineNum">     171 </span><span class="lineNoCov">          0 :   void NoBarrier_SetNext(int n, Node* x) {</span>
+<span class="lineNum">     172 </span><span class="lineNoCov">          0 :     assert(n &gt;= 0);</span>
+<span class="lineNum">     173 </span><span class="lineNoCov">          0 :     next_[n].store(x, std::memory_order_relaxed);</span>
+<span class="lineNum">     174 </span><span class="lineNoCov">          0 :   }</span>
+<span class="lineNum">     175 </span>            : 
+<span class="lineNum">     176 </span>            :  private:
+<span class="lineNum">     177 </span>            :   // Array of length equal to the node height.  next_[0] is lowest level link.
+<span class="lineNum">     178 </span>            :   std::atomic&lt;Node*&gt; next_[1];
+<span class="lineNum">     179 </span>            : };
+<span class="lineNum">     180 </span>            : 
+<span class="lineNum">     181 </span>            : template &lt;typename Key, class Comparator&gt;
+<span class="lineNum">     182 </span>            : typename SkipList&lt;Key, Comparator&gt;::Node* SkipList&lt;Key, Comparator&gt;::NewNode(
+<span class="lineNum">     183 </span>            :     const Key&amp; key, int height) {
+<span class="lineNum">     184 </span><span class="lineNoCov">          0 :   char* const node_memory = arena_-&gt;AllocateAligned(</span>
+<span class="lineNum">     185 </span><span class="lineNoCov">          0 :       sizeof(Node) + sizeof(std::atomic&lt;Node*&gt;) * (height - 1));</span>
+<span class="lineNum">     186 </span><span class="lineNoCov">          0 :   return new (node_memory) Node(key);</span>
+<span class="lineNum">     187 </span>            : }
+<span class="lineNum">     188 </span>            : 
+<span class="lineNum">     189 </span>            : template &lt;typename Key, class Comparator&gt;
+<span class="lineNum">     190 </span><span class="lineNoCov">          0 : inline SkipList&lt;Key, Comparator&gt;::Iterator::Iterator(const SkipList* list) {</span>
+<span class="lineNum">     191 </span><span class="lineNoCov">          0 :   list_ = list;</span>
+<span class="lineNum">     192 </span><span class="lineNoCov">          0 :   node_ = nullptr;</span>
+<span class="lineNum">     193 </span>            : }
+<span class="lineNum">     194 </span>            : 
+<span class="lineNum">     195 </span>            : template &lt;typename Key, class Comparator&gt;
+<span class="lineNum">     196 </span>            : inline bool SkipList&lt;Key, Comparator&gt;::Iterator::Valid() const {
+<span class="lineNum">     197 </span><span class="lineNoCov">          0 :   return node_ != nullptr;</span>
+<span class="lineNum">     198 </span>            : }
+<span class="lineNum">     199 </span>            : 
+<span class="lineNum">     200 </span>            : template &lt;typename Key, class Comparator&gt;
+<span class="lineNum">     201 </span>            : inline const Key&amp; SkipList&lt;Key, Comparator&gt;::Iterator::key() const {
+<span class="lineNum">     202 </span><span class="lineNoCov">          0 :   assert(Valid());</span>
+<span class="lineNum">     203 </span>            :   return node_-&gt;key;
+<span class="lineNum">     204 </span>            : }
+<a name="205"><span class="lineNum">     205 </span>            : </a>
+<span class="lineNum">     206 </span>            : template &lt;typename Key, class Comparator&gt;
+<span class="lineNum">     207 </span><span class="lineNoCov">          0 : inline void SkipList&lt;Key, Comparator&gt;::Iterator::Next() {</span>
+<span class="lineNum">     208 </span><span class="lineNoCov">          0 :   assert(Valid());</span>
+<span class="lineNum">     209 </span><span class="lineNoCov">          0 :   node_ = node_-&gt;Next(0);</span>
+<span class="lineNum">     210 </span><span class="lineNoCov">          0 : }</span>
+<a name="211"><span class="lineNum">     211 </span>            : </a>
+<span class="lineNum">     212 </span>            : template &lt;typename Key, class Comparator&gt;
+<span class="lineNum">     213 </span><span class="lineNoCov">          0 : inline void SkipList&lt;Key, Comparator&gt;::Iterator::Prev() {</span>
+<span class="lineNum">     214 </span>            :   // Instead of using explicit &quot;prev&quot; links, we just search for the
+<span class="lineNum">     215 </span>            :   // last node that falls before key.
+<span class="lineNum">     216 </span><span class="lineNoCov">          0 :   assert(Valid());</span>
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :   node_ = list_-&gt;FindLessThan(node_-&gt;key);</span>
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 :   if (node_ == list_-&gt;head_) {</span>
+<span class="lineNum">     219 </span><span class="lineNoCov">          0 :     node_ = nullptr;</span>
+<span class="lineNum">     220 </span>            :   }
+<span class="lineNum">     221 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     222 </span>            : 
+<span class="lineNum">     223 </span>            : template &lt;typename Key, class Comparator&gt;
+<span class="lineNum">     224 </span>            : inline void SkipList&lt;Key, Comparator&gt;::Iterator::Seek(const Key&amp; target) {
+<span class="lineNum">     225 </span><span class="lineNoCov">          0 :   node_ = list_-&gt;FindGreaterOrEqual(target, nullptr);</span>
+<span class="lineNum">     226 </span>            : }
+<span class="lineNum">     227 </span>            : 
+<span class="lineNum">     228 </span>            : template &lt;typename Key, class Comparator&gt;
+<span class="lineNum">     229 </span>            : inline void SkipList&lt;Key, Comparator&gt;::Iterator::SeekToFirst() {
+<span class="lineNum">     230 </span><span class="lineNoCov">          0 :   node_ = list_-&gt;head_-&gt;Next(0);</span>
+<span class="lineNum">     231 </span>            : }
+<span class="lineNum">     232 </span>            : 
+<span class="lineNum">     233 </span>            : template &lt;typename Key, class Comparator&gt;
+<span class="lineNum">     234 </span>            : inline void SkipList&lt;Key, Comparator&gt;::Iterator::SeekToLast() {
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 :   node_ = list_-&gt;FindLast();</span>
+<span class="lineNum">     236 </span><span class="lineNoCov">          0 :   if (node_ == list_-&gt;head_) {</span>
+<span class="lineNum">     237 </span><span class="lineNoCov">          0 :     node_ = nullptr;</span>
+<span class="lineNum">     238 </span>            :   }
+<span class="lineNum">     239 </span>            : }
+<span class="lineNum">     240 </span>            : 
+<span class="lineNum">     241 </span>            : template &lt;typename Key, class Comparator&gt;
+<span class="lineNum">     242 </span>            : int SkipList&lt;Key, Comparator&gt;::RandomHeight() {
+<span class="lineNum">     243 </span>            :   // Increase height with probability 1 in kBranching
+<span class="lineNum">     244 </span>            :   static const unsigned int kBranching = 4;
+<span class="lineNum">     245 </span>            :   int height = 1;
+<span class="lineNum">     246 </span><span class="lineNoCov">          0 :   while (height &lt; kMaxHeight &amp;&amp; ((rnd_.Next() % kBranching) == 0)) {</span>
+<span class="lineNum">     247 </span><span class="lineNoCov">          0 :     height++;</span>
+<span class="lineNum">     248 </span>            :   }
+<span class="lineNum">     249 </span>            :   assert(height &gt; 0);
+<span class="lineNum">     250 </span>            :   assert(height &lt;= kMaxHeight);
+<span class="lineNum">     251 </span>            :   return height;
+<span class="lineNum">     252 </span>            : }
+<span class="lineNum">     253 </span>            : 
+<span class="lineNum">     254 </span>            : template &lt;typename Key, class Comparator&gt;
+<span class="lineNum">     255 </span>            : bool SkipList&lt;Key, Comparator&gt;::KeyIsAfterNode(const Key&amp; key, Node* n) const {
+<span class="lineNum">     256 </span>            :   // null n is considered infinite
+<span class="lineNum">     257 </span><span class="lineNoCov">          0 :   return (n != nullptr) &amp;&amp; (compare_(n-&gt;key, key) &lt; 0);</span>
+<span class="lineNum">     258 </span>            : }
+<span class="lineNum">     259 </span>            : 
+<a name="260"><span class="lineNum">     260 </span>            : template &lt;typename Key, class Comparator&gt;</a>
+<span class="lineNum">     261 </span>            : typename SkipList&lt;Key, Comparator&gt;::Node*
+<span class="lineNum">     262 </span><span class="lineNoCov">          0 : SkipList&lt;Key, Comparator&gt;::FindGreaterOrEqual(const Key&amp; key,</span>
+<span class="lineNum">     263 </span>            :                                               Node** prev) const {
+<span class="lineNum">     264 </span><span class="lineNoCov">          0 :   Node* x = head_;</span>
+<span class="lineNum">     265 </span><span class="lineNoCov">          0 :   int level = GetMaxHeight() - 1;</span>
+<span class="lineNum">     266 </span>            :   while (true) {
+<span class="lineNum">     267 </span><span class="lineNoCov">          0 :     Node* next = x-&gt;Next(level);</span>
+<span class="lineNum">     268 </span>            :     if (KeyIsAfterNode(key, next)) {
+<span class="lineNum">     269 </span>            :       // Keep searching in this list
+<span class="lineNum">     270 </span>            :       x = next;
+<span class="lineNum">     271 </span>            :     } else {
+<span class="lineNum">     272 </span><span class="lineNoCov">          0 :       if (prev != nullptr) prev[level] = x;</span>
+<span class="lineNum">     273 </span><span class="lineNoCov">          0 :       if (level == 0) {</span>
+<span class="lineNum">     274 </span><span class="lineNoCov">          0 :         return next;</span>
+<span class="lineNum">     275 </span>            :       } else {
+<span class="lineNum">     276 </span>            :         // Switch to next list
+<span class="lineNum">     277 </span><span class="lineNoCov">          0 :         level--;</span>
+<span class="lineNum">     278 </span>            :       }
+<span class="lineNum">     279 </span>            :     }
+<span class="lineNum">     280 </span>            :   }
+<span class="lineNum">     281 </span>            : }
+<span class="lineNum">     282 </span>            : 
+<a name="283"><span class="lineNum">     283 </span>            : template &lt;typename Key, class Comparator&gt;</a>
+<span class="lineNum">     284 </span>            : typename SkipList&lt;Key, Comparator&gt;::Node*
+<span class="lineNum">     285 </span><span class="lineNoCov">          0 : SkipList&lt;Key, Comparator&gt;::FindLessThan(const Key&amp; key) const {</span>
+<span class="lineNum">     286 </span><span class="lineNoCov">          0 :   Node* x = head_;</span>
+<span class="lineNum">     287 </span><span class="lineNoCov">          0 :   int level = GetMaxHeight() - 1;</span>
+<span class="lineNum">     288 </span>            :   while (true) {
+<span class="lineNum">     289 </span><span class="lineNoCov">          0 :     assert(x == head_ || compare_(x-&gt;key, key) &lt; 0);</span>
+<span class="lineNum">     290 </span><span class="lineNoCov">          0 :     Node* next = x-&gt;Next(level);</span>
+<span class="lineNum">     291 </span><span class="lineNoCov">          0 :     if (next == nullptr || compare_(next-&gt;key, key) &gt;= 0) {</span>
+<span class="lineNum">     292 </span><span class="lineNoCov">          0 :       if (level == 0) {</span>
+<span class="lineNum">     293 </span><span class="lineNoCov">          0 :         return x;</span>
+<span class="lineNum">     294 </span>            :       } else {
+<span class="lineNum">     295 </span>            :         // Switch to next list
+<span class="lineNum">     296 </span><span class="lineNoCov">          0 :         level--;</span>
+<span class="lineNum">     297 </span>            :       }
+<span class="lineNum">     298 </span>            :     } else {
+<span class="lineNum">     299 </span>            :       x = next;
+<span class="lineNum">     300 </span>            :     }
+<span class="lineNum">     301 </span>            :   }
+<span class="lineNum">     302 </span>            : }
+<a name="303"><span class="lineNum">     303 </span>            : </a>
+<span class="lineNum">     304 </span>            : template &lt;typename Key, class Comparator&gt;
+<span class="lineNum">     305 </span><span class="lineNoCov">          0 : typename SkipList&lt;Key, Comparator&gt;::Node* SkipList&lt;Key, Comparator&gt;::FindLast()</span>
+<span class="lineNum">     306 </span>            :     const {
+<span class="lineNum">     307 </span><span class="lineNoCov">          0 :   Node* x = head_;</span>
+<span class="lineNum">     308 </span><span class="lineNoCov">          0 :   int level = GetMaxHeight() - 1;</span>
+<span class="lineNum">     309 </span>            :   while (true) {
+<span class="lineNum">     310 </span><span class="lineNoCov">          0 :     Node* next = x-&gt;Next(level);</span>
+<span class="lineNum">     311 </span><span class="lineNoCov">          0 :     if (next == nullptr) {</span>
+<span class="lineNum">     312 </span><span class="lineNoCov">          0 :       if (level == 0) {</span>
+<span class="lineNum">     313 </span><span class="lineNoCov">          0 :         return x;</span>
+<span class="lineNum">     314 </span>            :       } else {
+<span class="lineNum">     315 </span>            :         // Switch to next list
+<span class="lineNum">     316 </span><span class="lineNoCov">          0 :         level--;</span>
+<span class="lineNum">     317 </span>            :       }
+<span class="lineNum">     318 </span>            :     } else {
+<span class="lineNum">     319 </span>            :       x = next;
+<span class="lineNum">     320 </span>            :     }
+<span class="lineNum">     321 </span>            :   }
+<span class="lineNum">     322 </span>            : }
+<a name="323"><span class="lineNum">     323 </span>            : </a>
+<span class="lineNum">     324 </span>            : template &lt;typename Key, class Comparator&gt;
+<span class="lineNum">     325 </span><span class="lineNoCov">          0 : SkipList&lt;Key, Comparator&gt;::SkipList(Comparator cmp, Arena* arena)</span>
+<span class="lineNum">     326 </span>            :     : compare_(cmp),
+<span class="lineNum">     327 </span>            :       arena_(arena),
+<span class="lineNum">     328 </span><span class="lineNoCov">          0 :       head_(NewNode(0 /* any key will do */, kMaxHeight)),</span>
+<span class="lineNum">     329 </span>            :       max_height_(1),
+<span class="lineNum">     330 </span><span class="lineNoCov">          0 :       rnd_(0xdeadbeef) {</span>
+<span class="lineNum">     331 </span><span class="lineNoCov">          0 :   for (int i = 0; i &lt; kMaxHeight; i++) {</span>
+<span class="lineNum">     332 </span><span class="lineNoCov">          0 :     head_-&gt;SetNext(i, nullptr);</span>
+<span class="lineNum">     333 </span>            :   }
+<span class="lineNum">     334 </span><span class="lineNoCov">          0 : }</span>
+<a name="335"><span class="lineNum">     335 </span>            : </a>
+<span class="lineNum">     336 </span>            : template &lt;typename Key, class Comparator&gt;
+<span class="lineNum">     337 </span><span class="lineNoCov">          0 : void SkipList&lt;Key, Comparator&gt;::Insert(const Key&amp; key) {</span>
+<span class="lineNum">     338 </span>            :   // TODO(opt): We can use a barrier-free variant of FindGreaterOrEqual()
+<span class="lineNum">     339 </span>            :   // here since Insert() is externally synchronized.
+<span class="lineNum">     340 </span>            :   Node* prev[kMaxHeight];
+<span class="lineNum">     341 </span><span class="lineNoCov">          0 :   Node* x = FindGreaterOrEqual(key, prev);</span>
+<span class="lineNum">     342 </span>            : 
+<span class="lineNum">     343 </span>            :   // Our data structure does not allow duplicate insertion
+<span class="lineNum">     344 </span><span class="lineNoCov">          0 :   assert(x == nullptr || !Equal(key, x-&gt;key));</span>
+<span class="lineNum">     345 </span>            : 
+<span class="lineNum">     346 </span><span class="lineNoCov">          0 :   int height = RandomHeight();</span>
+<span class="lineNum">     347 </span><span class="lineNoCov">          0 :   if (height &gt; GetMaxHeight()) {</span>
+<span class="lineNum">     348 </span><span class="lineNoCov">          0 :     for (int i = GetMaxHeight(); i &lt; height; i++) {</span>
+<span class="lineNum">     349 </span><span class="lineNoCov">          0 :       prev[i] = head_;</span>
+<span class="lineNum">     350 </span>            :     }
+<span class="lineNum">     351 </span>            :     // It is ok to mutate max_height_ without any synchronization
+<span class="lineNum">     352 </span>            :     // with concurrent readers.  A concurrent reader that observes
+<span class="lineNum">     353 </span>            :     // the new value of max_height_ will see either the old value of
+<span class="lineNum">     354 </span>            :     // new level pointers from head_ (nullptr), or a new value set in
+<span class="lineNum">     355 </span>            :     // the loop below.  In the former case the reader will
+<span class="lineNum">     356 </span>            :     // immediately drop to the next level since nullptr sorts after all
+<span class="lineNum">     357 </span>            :     // keys.  In the latter case the reader will use the new node.
+<span class="lineNum">     358 </span><span class="lineNoCov">          0 :     max_height_.store(height, std::memory_order_relaxed);</span>
+<span class="lineNum">     359 </span>            :   }
+<span class="lineNum">     360 </span>            : 
+<span class="lineNum">     361 </span><span class="lineNoCov">          0 :   x = NewNode(key, height);</span>
+<span class="lineNum">     362 </span><span class="lineNoCov">          0 :   for (int i = 0; i &lt; height; i++) {</span>
+<span class="lineNum">     363 </span>            :     // NoBarrier_SetNext() suffices since we will add a barrier when
+<span class="lineNum">     364 </span>            :     // we publish a pointer to &quot;x&quot; in prev[i].
+<span class="lineNum">     365 </span><span class="lineNoCov">          0 :     x-&gt;NoBarrier_SetNext(i, prev[i]-&gt;NoBarrier_Next(i));</span>
+<span class="lineNum">     366 </span><span class="lineNoCov">          0 :     prev[i]-&gt;SetNext(i, x);</span>
+<span class="lineNum">     367 </span>            :   }
+<span class="lineNum">     368 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     369 </span>            : 
+<span class="lineNum">     370 </span>            : template &lt;typename Key, class Comparator&gt;
+<span class="lineNum">     371 </span>            : bool SkipList&lt;Key, Comparator&gt;::Contains(const Key&amp; key) const {
+<span class="lineNum">     372 </span>            :   Node* x = FindGreaterOrEqual(key, nullptr);
+<span class="lineNum">     373 </span>            :   if (x != nullptr &amp;&amp; Equal(key, x-&gt;key)) {
+<span class="lineNum">     374 </span>            :     return true;
+<span class="lineNum">     375 </span>            :   } else {
+<span class="lineNum">     376 </span>            :     return false;
+<span class="lineNum">     377 </span>            :   }
+<span class="lineNum">     378 </span>            : }
+<span class="lineNum">     379 </span>            : 
+<span class="lineNum">     380 </span>            : }  // namespace leveldb
+<span class="lineNum">     381 </span>            : 
+<span class="lineNum">     382 </span>            : #endif  // STORAGE_LEVELDB_DB_SKIPLIST_H_
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

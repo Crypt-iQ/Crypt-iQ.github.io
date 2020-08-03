@@ -1,0 +1,267 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - netbase_cov.info - src/leveldb/table/merger.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">src/leveldb/table</a> - merger.cc<span style="font-size: 80%;"> (source / <a href="merger.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">netbase_cov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">94</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-23 06:26:49</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">15</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2011 The LevelDB Authors. All rights reserved.</a>
+<span class="lineNum">       2 </span>            : // Use of this source code is governed by a BSD-style license that can be
+<span class="lineNum">       3 </span>            : // found in the LICENSE file. See the AUTHORS file for names of contributors.
+<span class="lineNum">       4 </span>            : 
+<span class="lineNum">       5 </span>            : #include &quot;table/merger.h&quot;
+<span class="lineNum">       6 </span>            : 
+<span class="lineNum">       7 </span>            : #include &quot;leveldb/comparator.h&quot;
+<span class="lineNum">       8 </span>            : #include &quot;leveldb/iterator.h&quot;
+<span class="lineNum">       9 </span>            : #include &quot;table/iterator_wrapper.h&quot;
+<span class="lineNum">      10 </span>            : 
+<span class="lineNum">      11 </span>            : namespace leveldb {
+<span class="lineNum">      12 </span>            : 
+<span class="lineNum">      13 </span>            : namespace {
+<a name="14"><span class="lineNum">      14 </span>            : class MergingIterator : public Iterator {</a>
+<span class="lineNum">      15 </span>            :  public:
+<span class="lineNum">      16 </span><span class="lineNoCov">          0 :   MergingIterator(const Comparator* comparator, Iterator** children, int n)</span>
+<span class="lineNum">      17 </span><span class="lineNoCov">          0 :       : comparator_(comparator),</span>
+<span class="lineNum">      18 </span><span class="lineNoCov">          0 :         children_(new IteratorWrapper[n]),</span>
+<span class="lineNum">      19 </span>            :         n_(n),
+<span class="lineNum">      20 </span>            :         current_(nullptr),
+<span class="lineNum">      21 </span><span class="lineNoCov">          0 :         direction_(kForward) {</span>
+<span class="lineNum">      22 </span><span class="lineNoCov">          0 :     for (int i = 0; i &lt; n; i++) {</span>
+<span class="lineNum">      23 </span><span class="lineNoCov">          0 :       children_[i].Set(children[i]);</span>
+<span class="lineNum">      24 </span>            :     }
+<a name="25"><span class="lineNum">      25 </span><span class="lineNoCov">          0 :   }</span></a>
+<span class="lineNum">      26 </span>            : 
+<a name="27"><span class="lineNum">      27 </span><span class="lineNoCov">          0 :   ~MergingIterator() override { delete[] children_; }</span></a>
+<span class="lineNum">      28 </span>            : 
+<a name="29"><span class="lineNum">      29 </span><span class="lineNoCov">          0 :   bool Valid() const override { return (current_ != nullptr); }</span></a>
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span><span class="lineNoCov">          0 :   void SeekToFirst() override {</span>
+<span class="lineNum">      32 </span><span class="lineNoCov">          0 :     for (int i = 0; i &lt; n_; i++) {</span>
+<span class="lineNum">      33 </span><span class="lineNoCov">          0 :       children_[i].SeekToFirst();</span>
+<span class="lineNum">      34 </span>            :     }
+<span class="lineNum">      35 </span><span class="lineNoCov">          0 :     FindSmallest();</span>
+<span class="lineNum">      36 </span><span class="lineNoCov">          0 :     direction_ = kForward;</span>
+<a name="37"><span class="lineNum">      37 </span><span class="lineNoCov">          0 :   }</span></a>
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span><span class="lineNoCov">          0 :   void SeekToLast() override {</span>
+<span class="lineNum">      40 </span><span class="lineNoCov">          0 :     for (int i = 0; i &lt; n_; i++) {</span>
+<span class="lineNum">      41 </span><span class="lineNoCov">          0 :       children_[i].SeekToLast();</span>
+<span class="lineNum">      42 </span>            :     }
+<span class="lineNum">      43 </span><span class="lineNoCov">          0 :     FindLargest();</span>
+<span class="lineNum">      44 </span><span class="lineNoCov">          0 :     direction_ = kReverse;</span>
+<a name="45"><span class="lineNum">      45 </span><span class="lineNoCov">          0 :   }</span></a>
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span><span class="lineNoCov">          0 :   void Seek(const Slice&amp; target) override {</span>
+<span class="lineNum">      48 </span><span class="lineNoCov">          0 :     for (int i = 0; i &lt; n_; i++) {</span>
+<span class="lineNum">      49 </span><span class="lineNoCov">          0 :       children_[i].Seek(target);</span>
+<span class="lineNum">      50 </span>            :     }
+<span class="lineNum">      51 </span><span class="lineNoCov">          0 :     FindSmallest();</span>
+<span class="lineNum">      52 </span><span class="lineNoCov">          0 :     direction_ = kForward;</span>
+<a name="53"><span class="lineNum">      53 </span><span class="lineNoCov">          0 :   }</span></a>
+<span class="lineNum">      54 </span>            : 
+<span class="lineNum">      55 </span><span class="lineNoCov">          0 :   void Next() override {</span>
+<span class="lineNum">      56 </span><span class="lineNoCov">          0 :     assert(Valid());</span>
+<span class="lineNum">      57 </span>            : 
+<span class="lineNum">      58 </span>            :     // Ensure that all children are positioned after key().
+<span class="lineNum">      59 </span>            :     // If we are moving in the forward direction, it is already
+<span class="lineNum">      60 </span>            :     // true for all of the non-current_ children since current_ is
+<span class="lineNum">      61 </span>            :     // the smallest child and key() == current_-&gt;key().  Otherwise,
+<span class="lineNum">      62 </span>            :     // we explicitly position the non-current_ children.
+<span class="lineNum">      63 </span><span class="lineNoCov">          0 :     if (direction_ != kForward) {</span>
+<span class="lineNum">      64 </span><span class="lineNoCov">          0 :       for (int i = 0; i &lt; n_; i++) {</span>
+<span class="lineNum">      65 </span><span class="lineNoCov">          0 :         IteratorWrapper* child = &amp;children_[i];</span>
+<span class="lineNum">      66 </span><span class="lineNoCov">          0 :         if (child != current_) {</span>
+<span class="lineNum">      67 </span><span class="lineNoCov">          0 :           child-&gt;Seek(key());</span>
+<span class="lineNum">      68 </span><span class="lineNoCov">          0 :           if (child-&gt;Valid() &amp;&amp;</span>
+<span class="lineNum">      69 </span><span class="lineNoCov">          0 :               comparator_-&gt;Compare(key(), child-&gt;key()) == 0) {</span>
+<span class="lineNum">      70 </span><span class="lineNoCov">          0 :             child-&gt;Next();</span>
+<span class="lineNum">      71 </span>            :           }
+<span class="lineNum">      72 </span>            :         }
+<span class="lineNum">      73 </span>            :       }
+<span class="lineNum">      74 </span><span class="lineNoCov">          0 :       direction_ = kForward;</span>
+<span class="lineNum">      75 </span>            :     }
+<span class="lineNum">      76 </span>            : 
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 :     current_-&gt;Next();</span>
+<span class="lineNum">      78 </span><span class="lineNoCov">          0 :     FindSmallest();</span>
+<a name="79"><span class="lineNum">      79 </span><span class="lineNoCov">          0 :   }</span></a>
+<span class="lineNum">      80 </span>            : 
+<span class="lineNum">      81 </span><span class="lineNoCov">          0 :   void Prev() override {</span>
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 :     assert(Valid());</span>
+<span class="lineNum">      83 </span>            : 
+<span class="lineNum">      84 </span>            :     // Ensure that all children are positioned before key().
+<span class="lineNum">      85 </span>            :     // If we are moving in the reverse direction, it is already
+<span class="lineNum">      86 </span>            :     // true for all of the non-current_ children since current_ is
+<span class="lineNum">      87 </span>            :     // the largest child and key() == current_-&gt;key().  Otherwise,
+<span class="lineNum">      88 </span>            :     // we explicitly position the non-current_ children.
+<span class="lineNum">      89 </span><span class="lineNoCov">          0 :     if (direction_ != kReverse) {</span>
+<span class="lineNum">      90 </span><span class="lineNoCov">          0 :       for (int i = 0; i &lt; n_; i++) {</span>
+<span class="lineNum">      91 </span><span class="lineNoCov">          0 :         IteratorWrapper* child = &amp;children_[i];</span>
+<span class="lineNum">      92 </span><span class="lineNoCov">          0 :         if (child != current_) {</span>
+<span class="lineNum">      93 </span><span class="lineNoCov">          0 :           child-&gt;Seek(key());</span>
+<span class="lineNum">      94 </span><span class="lineNoCov">          0 :           if (child-&gt;Valid()) {</span>
+<span class="lineNum">      95 </span>            :             // Child is at first entry &gt;= key().  Step back one to be &lt; key()
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :             child-&gt;Prev();</span>
+<span class="lineNum">      97 </span>            :           } else {
+<span class="lineNum">      98 </span>            :             // Child has no entries &gt;= key().  Position at last entry.
+<span class="lineNum">      99 </span><span class="lineNoCov">          0 :             child-&gt;SeekToLast();</span>
+<span class="lineNum">     100 </span>            :           }
+<span class="lineNum">     101 </span>            :         }
+<span class="lineNum">     102 </span>            :       }
+<span class="lineNum">     103 </span><span class="lineNoCov">          0 :       direction_ = kReverse;</span>
+<span class="lineNum">     104 </span>            :     }
+<span class="lineNum">     105 </span>            : 
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 :     current_-&gt;Prev();</span>
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 :     FindLargest();</span>
+<a name="108"><span class="lineNum">     108 </span><span class="lineNoCov">          0 :   }</span></a>
+<span class="lineNum">     109 </span>            : 
+<span class="lineNum">     110 </span><span class="lineNoCov">          0 :   Slice key() const override {</span>
+<span class="lineNum">     111 </span><span class="lineNoCov">          0 :     assert(Valid());</span>
+<span class="lineNum">     112 </span><span class="lineNoCov">          0 :     return current_-&gt;key();</span>
+<a name="113"><span class="lineNum">     113 </span>            :   }</a>
+<span class="lineNum">     114 </span>            : 
+<span class="lineNum">     115 </span><span class="lineNoCov">          0 :   Slice value() const override {</span>
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 :     assert(Valid());</span>
+<span class="lineNum">     117 </span><span class="lineNoCov">          0 :     return current_-&gt;value();</span>
+<a name="118"><span class="lineNum">     118 </span>            :   }</a>
+<span class="lineNum">     119 </span>            : 
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :   Status status() const override {</span>
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 :     Status status;</span>
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :     for (int i = 0; i &lt; n_; i++) {</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :       status = children_[i].status();</span>
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :       if (!status.ok()) {</span>
+<span class="lineNum">     125 </span>            :         break;
+<span class="lineNum">     126 </span>            :       }
+<span class="lineNum">     127 </span>            :     }
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :     return status;</span>
+<span class="lineNum">     129 </span>            :   }
+<span class="lineNum">     130 </span>            : 
+<span class="lineNum">     131 </span>            :  private:
+<span class="lineNum">     132 </span>            :   // Which direction is the iterator moving?
+<span class="lineNum">     133 </span>            :   enum Direction { kForward, kReverse };
+<span class="lineNum">     134 </span>            : 
+<span class="lineNum">     135 </span>            :   void FindSmallest();
+<span class="lineNum">     136 </span>            :   void FindLargest();
+<span class="lineNum">     137 </span>            : 
+<span class="lineNum">     138 </span>            :   // We might want to use a heap in case there are lots of children.
+<span class="lineNum">     139 </span>            :   // For now we use a simple array since we expect a very small number
+<span class="lineNum">     140 </span>            :   // of children in leveldb.
+<span class="lineNum">     141 </span>            :   const Comparator* comparator_;
+<span class="lineNum">     142 </span>            :   IteratorWrapper* children_;
+<span class="lineNum">     143 </span>            :   int n_;
+<span class="lineNum">     144 </span>            :   IteratorWrapper* current_;
+<span class="lineNum">     145 </span>            :   Direction direction_;
+<a name="146"><span class="lineNum">     146 </span>            : };</a>
+<span class="lineNum">     147 </span>            : 
+<span class="lineNum">     148 </span><span class="lineNoCov">          0 : void MergingIterator::FindSmallest() {</span>
+<span class="lineNum">     149 </span><span class="lineNoCov">          0 :   IteratorWrapper* smallest = nullptr;</span>
+<span class="lineNum">     150 </span><span class="lineNoCov">          0 :   for (int i = 0; i &lt; n_; i++) {</span>
+<span class="lineNum">     151 </span><span class="lineNoCov">          0 :     IteratorWrapper* child = &amp;children_[i];</span>
+<span class="lineNum">     152 </span><span class="lineNoCov">          0 :     if (child-&gt;Valid()) {</span>
+<span class="lineNum">     153 </span><span class="lineNoCov">          0 :       if (smallest == nullptr) {</span>
+<span class="lineNum">     154 </span>            :         smallest = child;
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :       } else if (comparator_-&gt;Compare(child-&gt;key(), smallest-&gt;key()) &lt; 0) {</span>
+<span class="lineNum">     156 </span><span class="lineNoCov">          0 :         smallest = child;</span>
+<span class="lineNum">     157 </span>            :       }
+<span class="lineNum">     158 </span>            :     }
+<span class="lineNum">     159 </span>            :   }
+<span class="lineNum">     160 </span><span class="lineNoCov">          0 :   current_ = smallest;</span>
+<a name="161"><span class="lineNum">     161 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     162 </span>            : 
+<span class="lineNum">     163 </span><span class="lineNoCov">          0 : void MergingIterator::FindLargest() {</span>
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :   IteratorWrapper* largest = nullptr;</span>
+<span class="lineNum">     165 </span><span class="lineNoCov">          0 :   for (int i = n_ - 1; i &gt;= 0; i--) {</span>
+<span class="lineNum">     166 </span><span class="lineNoCov">          0 :     IteratorWrapper* child = &amp;children_[i];</span>
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 :     if (child-&gt;Valid()) {</span>
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 :       if (largest == nullptr) {</span>
+<span class="lineNum">     169 </span>            :         largest = child;
+<span class="lineNum">     170 </span><span class="lineNoCov">          0 :       } else if (comparator_-&gt;Compare(child-&gt;key(), largest-&gt;key()) &gt; 0) {</span>
+<span class="lineNum">     171 </span><span class="lineNoCov">          0 :         largest = child;</span>
+<span class="lineNum">     172 </span>            :       }
+<span class="lineNum">     173 </span>            :     }
+<span class="lineNum">     174 </span>            :   }
+<span class="lineNum">     175 </span><span class="lineNoCov">          0 :   current_ = largest;</span>
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 : }</span>
+<a name="177"><span class="lineNum">     177 </span>            : }  // namespace</a>
+<span class="lineNum">     178 </span>            : 
+<span class="lineNum">     179 </span><span class="lineNoCov">          0 : Iterator* NewMergingIterator(const Comparator* comparator, Iterator** children,</span>
+<span class="lineNum">     180 </span>            :                              int n) {
+<span class="lineNum">     181 </span><span class="lineNoCov">          0 :   assert(n &gt;= 0);</span>
+<span class="lineNum">     182 </span><span class="lineNoCov">          0 :   if (n == 0) {</span>
+<span class="lineNum">     183 </span><span class="lineNoCov">          0 :     return NewEmptyIterator();</span>
+<span class="lineNum">     184 </span><span class="lineNoCov">          0 :   } else if (n == 1) {</span>
+<span class="lineNum">     185 </span><span class="lineNoCov">          0 :     return children[0];</span>
+<span class="lineNum">     186 </span>            :   } else {
+<span class="lineNum">     187 </span><span class="lineNoCov">          0 :     return new MergingIterator(comparator, children, n);</span>
+<span class="lineNum">     188 </span>            :   }
+<span class="lineNum">     189 </span>            : }
+<span class="lineNum">     190 </span>            : 
+<span class="lineNum">     191 </span>            : }  // namespace leveldb
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

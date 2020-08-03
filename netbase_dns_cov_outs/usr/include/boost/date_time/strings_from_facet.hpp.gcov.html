@@ -1,0 +1,201 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - netbase_cov.info - /usr/include/boost/date_time/strings_from_facet.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">usr/include/boost/date_time</a> - strings_from_facet.hpp<span style="font-size: 80%;"> (source / <a href="strings_from_facet.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">netbase_cov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">30</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-23 06:26:49</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : #ifndef DATE_TIME_STRINGS_FROM_FACET__HPP___</a>
+<span class="lineNum">       2 </span>            : #define DATE_TIME_STRINGS_FROM_FACET__HPP___
+<span class="lineNum">       3 </span>            : 
+<span class="lineNum">       4 </span>            : /* Copyright (c) 2004 CrystalClear Software, Inc.
+<span class="lineNum">       5 </span>            :  * Use, modification and distribution is subject to the
+<span class="lineNum">       6 </span>            :  * Boost Software License, Version 1.0. (See accompanying
+<span class="lineNum">       7 </span>            :  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       8 </span>            :  * Author: Jeff Garland
+<span class="lineNum">       9 </span>            :  * $Date$
+<span class="lineNum">      10 </span>            :  */
+<span class="lineNum">      11 </span>            : 
+<span class="lineNum">      12 </span>            : #include &lt;sstream&gt;
+<span class="lineNum">      13 </span>            : #include &lt;string&gt;
+<span class="lineNum">      14 </span>            : #include &lt;vector&gt;
+<span class="lineNum">      15 </span>            : #include &lt;locale&gt;
+<span class="lineNum">      16 </span>            : 
+<span class="lineNum">      17 </span>            : namespace boost { namespace date_time {
+<span class="lineNum">      18 </span>            : 
+<span class="lineNum">      19 </span>            : //! This function gathers up all the month strings from a std::locale
+<span class="lineNum">      20 </span>            : /*! Using the time_put facet, this function creates a collection of
+<span class="lineNum">      21 </span>            :  *  all the month strings from a locale.  This is handy when building
+<span class="lineNum">      22 </span>            :  *  custom date parsers or formatters that need to be localized.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  *@param charT The type of char to use when gathering typically char
+<span class="lineNum">      25 </span>            :  *             or wchar_t.
+<span class="lineNum">      26 </span>            :  *@param locale The locale to use when gathering the strings
+<span class="lineNum">      27 </span>            :  *@param short_strings True(default) to gather short strings,
+<span class="lineNum">      28 </span>            :  *                     false for long strings.
+<span class="lineNum">      29 </span>            :  *@return A vector of strings containing the strings in order. eg:
+<span class="lineNum">      30 </span>            :  *        Jan, Feb, Mar, etc.
+<span class="lineNum">      31 </span>            :  */
+<a name="32"><span class="lineNum">      32 </span>            : template&lt;typename charT&gt;</a>
+<span class="lineNum">      33 </span>            : std::vector&lt;std::basic_string&lt;charT&gt; &gt;
+<span class="lineNum">      34 </span><span class="lineNoCov">          0 : gather_month_strings(const std::locale&amp; locale, bool short_strings=true)</span>
+<span class="lineNum">      35 </span>            : {
+<span class="lineNum">      36 </span>            :   typedef std::basic_string&lt;charT&gt; string_type;
+<span class="lineNum">      37 </span>            :   typedef std::vector&lt;string_type&gt; collection_type;
+<span class="lineNum">      38 </span>            :   typedef std::ostreambuf_iterator&lt;charT&gt; ostream_iter_type;
+<span class="lineNum">      39 </span>            :   typedef std::basic_ostringstream&lt;charT&gt; stringstream_type;
+<span class="lineNum">      40 </span>            :   typedef std::time_put&lt;charT&gt;           time_put_facet_type;
+<span class="lineNum">      41 </span><span class="lineNoCov">          0 :   charT short_fmt[3] = { '%', 'b' };</span>
+<span class="lineNum">      42 </span><span class="lineNoCov">          0 :   charT long_fmt[3]  = { '%', 'B' };</span>
+<span class="lineNum">      43 </span><span class="lineNoCov">          0 :   collection_type months;</span>
+<span class="lineNum">      44 </span><span class="lineNoCov">          0 :   string_type outfmt(short_fmt);</span>
+<span class="lineNum">      45 </span><span class="lineNoCov">          0 :   if (!short_strings) {</span>
+<span class="lineNum">      46 </span>            :     outfmt = long_fmt;
+<span class="lineNum">      47 </span>            :   }
+<span class="lineNum">      48 </span>            :   {
+<span class="lineNum">      49 </span>            :     //grab the needed strings by using the locale to
+<span class="lineNum">      50 </span>            :     //output each month
+<span class="lineNum">      51 </span><span class="lineNoCov">          0 :     const charT* p_outfmt = outfmt.c_str(), *p_outfmt_end = p_outfmt + outfmt.size();</span>
+<span class="lineNum">      52 </span>            :     tm tm_value;
+<span class="lineNum">      53 </span><span class="lineNoCov">          0 :     memset(&amp;tm_value, 0, sizeof(tm_value));</span>
+<span class="lineNum">      54 </span><span class="lineNoCov">          0 :     for (int m=0; m &lt; 12; m++) {</span>
+<span class="lineNum">      55 </span><span class="lineNoCov">          0 :       tm_value.tm_mon = m;</span>
+<span class="lineNum">      56 </span><span class="lineNoCov">          0 :       stringstream_type ss;</span>
+<span class="lineNum">      57 </span><span class="lineNoCov">          0 :       ostream_iter_type oitr(ss);</span>
+<span class="lineNum">      58 </span><span class="lineNoCov">          0 :       std::use_facet&lt;time_put_facet_type&gt;(locale).put(oitr, ss, ss.fill(),</span>
+<span class="lineNum">      59 </span>            :                                                       &amp;tm_value,
+<span class="lineNum">      60 </span>            :                                                       p_outfmt,
+<span class="lineNum">      61 </span>            :                                                       p_outfmt_end);
+<span class="lineNum">      62 </span><span class="lineNoCov">          0 :       months.push_back(ss.str());</span>
+<span class="lineNum">      63 </span>            :     }
+<span class="lineNum">      64 </span>            :   }
+<span class="lineNum">      65 </span><span class="lineNoCov">          0 :   return months;</span>
+<span class="lineNum">      66 </span>            : }
+<span class="lineNum">      67 </span>            : 
+<span class="lineNum">      68 </span>            : //! This function gathers up all the weekday strings from a std::locale
+<span class="lineNum">      69 </span>            : /*! Using the time_put facet, this function creates a collection of
+<span class="lineNum">      70 </span>            :  *  all the weekday strings from a locale starting with the string for
+<span class="lineNum">      71 </span>            :  *  'Sunday'.  This is handy when building custom date parsers or
+<span class="lineNum">      72 </span>            :  *  formatters that need to be localized.
+<span class="lineNum">      73 </span>            :  *
+<span class="lineNum">      74 </span>            :  *@param charT The type of char to use when gathering typically char
+<span class="lineNum">      75 </span>            :  *             or wchar_t.
+<span class="lineNum">      76 </span>            :  *@param locale The locale to use when gathering the strings
+<span class="lineNum">      77 </span>            :  *@param short_strings True(default) to gather short strings,
+<span class="lineNum">      78 </span>            :  *                     false for long strings.
+<span class="lineNum">      79 </span>            :  *@return A vector of strings containing the weekdays in order. eg:
+<span class="lineNum">      80 </span>            :  *        Sun, Mon, Tue, Wed, Thu, Fri, Sat
+<span class="lineNum">      81 </span>            :  */
+<a name="82"><span class="lineNum">      82 </span>            : template&lt;typename charT&gt;</a>
+<span class="lineNum">      83 </span>            : std::vector&lt;std::basic_string&lt;charT&gt; &gt;
+<span class="lineNum">      84 </span><span class="lineNoCov">          0 : gather_weekday_strings(const std::locale&amp; locale, bool short_strings=true)</span>
+<span class="lineNum">      85 </span>            : {
+<span class="lineNum">      86 </span>            :   typedef std::basic_string&lt;charT&gt; string_type;
+<span class="lineNum">      87 </span>            :   typedef std::vector&lt;string_type&gt; collection_type;
+<span class="lineNum">      88 </span>            :   typedef std::ostreambuf_iterator&lt;charT&gt; ostream_iter_type;
+<span class="lineNum">      89 </span>            :   typedef std::basic_ostringstream&lt;charT&gt; stringstream_type;
+<span class="lineNum">      90 </span>            :   typedef std::time_put&lt;charT&gt;           time_put_facet_type;
+<span class="lineNum">      91 </span><span class="lineNoCov">          0 :   charT short_fmt[3] = { '%', 'a' };</span>
+<span class="lineNum">      92 </span><span class="lineNoCov">          0 :   charT long_fmt[3]  = { '%', 'A' };</span>
+<span class="lineNum">      93 </span>            : 
+<span class="lineNum">      94 </span><span class="lineNoCov">          0 :   collection_type weekdays;</span>
+<span class="lineNum">      95 </span>            : 
+<span class="lineNum">      96 </span>            : 
+<span class="lineNum">      97 </span><span class="lineNoCov">          0 :   string_type outfmt(short_fmt);</span>
+<span class="lineNum">      98 </span><span class="lineNoCov">          0 :   if (!short_strings) {</span>
+<span class="lineNum">      99 </span>            :     outfmt = long_fmt;
+<span class="lineNum">     100 </span>            :   }
+<span class="lineNum">     101 </span>            :   {
+<span class="lineNum">     102 </span>            :     //grab the needed strings by using the locale to
+<span class="lineNum">     103 </span>            :     //output each month / weekday
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 :     const charT* p_outfmt = outfmt.c_str(), *p_outfmt_end = p_outfmt + outfmt.size();</span>
+<span class="lineNum">     105 </span>            :     tm tm_value;
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 :     memset(&amp;tm_value, 0, sizeof(tm_value));</span>
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 :     for (int i=0; i &lt; 7; i++) {</span>
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :       tm_value.tm_wday = i;</span>
+<span class="lineNum">     109 </span><span class="lineNoCov">          0 :       stringstream_type ss;</span>
+<span class="lineNum">     110 </span><span class="lineNoCov">          0 :       ostream_iter_type oitr(ss);</span>
+<span class="lineNum">     111 </span><span class="lineNoCov">          0 :       std::use_facet&lt;time_put_facet_type&gt;(locale).put(oitr, ss, ss.fill(),</span>
+<span class="lineNum">     112 </span>            :                                                       &amp;tm_value,
+<span class="lineNum">     113 </span>            :                                                       p_outfmt,
+<span class="lineNum">     114 </span>            :                                                       p_outfmt_end);
+<span class="lineNum">     115 </span>            : 
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 :       weekdays.push_back(ss.str());</span>
+<span class="lineNum">     117 </span>            :     }
+<span class="lineNum">     118 </span>            :   }
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 :   return weekdays;</span>
+<span class="lineNum">     120 </span>            : }
+<span class="lineNum">     121 </span>            : 
+<span class="lineNum">     122 </span>            : } } //namespace
+<span class="lineNum">     123 </span>            : 
+<span class="lineNum">     124 </span>            : 
+<span class="lineNum">     125 </span>            : #endif
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
