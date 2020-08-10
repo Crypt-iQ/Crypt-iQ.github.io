@@ -1,0 +1,263 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - fuzz_coverage.info - src/util/asmap.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">src/util</a> - asmap.cpp<span style="font-size: 80%;"> (source / <a href="asmap.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">fuzz_coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">118</td>
+            <td class="headerCovTableEntry">119</td>
+            <td class="headerCovTableEntryHi">99.2 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-08-10 06:23:20</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2019-2020 The Bitcoin Core developers</a>
+<span class="lineNum">       2 </span>            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       3 </span>            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       4 </span>            : 
+<span class="lineNum">       5 </span>            : #include &lt;map&gt;
+<span class="lineNum">       6 </span>            : #include &lt;vector&gt;
+<span class="lineNum">       7 </span>            : #include &lt;assert.h&gt;
+<span class="lineNum">       8 </span>            : #include &lt;crypto/common.h&gt;
+<span class="lineNum">       9 </span>            : 
+<span class="lineNum">      10 </span>            : namespace {
+<span class="lineNum">      11 </span>            : 
+<a name="12"><span class="lineNum">      12 </span>            : constexpr uint32_t INVALID = 0xFFFFFFFF;</a>
+<span class="lineNum">      13 </span>            : 
+<span class="lineNum">      14 </span><span class="lineCov">     240951 : uint32_t DecodeBits(std::vector&lt;bool&gt;::const_iterator&amp; bitpos, const std::vector&lt;bool&gt;::const_iterator&amp; endpos, uint8_t minval, const std::vector&lt;uint8_t&gt; &amp;bit_sizes)</span>
+<span class="lineNum">      15 </span>            : {
+<span class="lineNum">      16 </span><span class="lineCov">     240951 :     uint32_t val = minval;</span>
+<span class="lineNum">      17 </span>            :     bool bit;
+<span class="lineNum">      18 </span><span class="lineCov">     635439 :     for (std::vector&lt;uint8_t&gt;::const_iterator bit_sizes_it = bit_sizes.begin();</span>
+<span class="lineNum">      19 </span><span class="lineCov">     394488 :         bit_sizes_it != bit_sizes.end(); ++bit_sizes_it) {</span>
+<span class="lineNum">      20 </span><span class="lineCov">     394488 :         if (bit_sizes_it + 1 != bit_sizes.end()) {</span>
+<span class="lineNum">      21 </span><span class="lineCov">     363474 :             if (bitpos == endpos) break;</span>
+<span class="lineNum">      22 </span><span class="lineCov">     361683 :             bit = *bitpos;</span>
+<span class="lineNum">      23 </span><span class="lineCov">     361683 :             bitpos++;</span>
+<span class="lineNum">      24 </span><span class="lineCov">     361683 :         } else {</span>
+<span class="lineNum">      25 </span>            :             bit = 0;
+<span class="lineNum">      26 </span>            :         }
+<span class="lineNum">      27 </span><span class="lineCov">     392697 :         if (bit) {</span>
+<span class="lineNum">      28 </span><span class="lineCov">     153537 :             val += (1 &lt;&lt; *bit_sizes_it);</span>
+<span class="lineNum">      29 </span>            :         } else {
+<span class="lineNum">      30 </span><span class="lineCov">    1265894 :             for (int b = 0; b &lt; *bit_sizes_it; b++) {</span>
+<span class="lineNum">      31 </span><span class="lineCov">    1031920 :                 if (bitpos == endpos) return INVALID; // Reached EOF in mantissa</span>
+<span class="lineNum">      32 </span><span class="lineCov">    1026734 :                 bit = *bitpos;</span>
+<span class="lineNum">      33 </span><span class="lineCov">    1026734 :                 bitpos++;</span>
+<span class="lineNum">      34 </span><span class="lineCov">    1026734 :                 val += bit &lt;&lt; (*bit_sizes_it - 1 - b);</span>
+<span class="lineNum">      35 </span>            :             }
+<span class="lineNum">      36 </span><span class="lineCov">     233974 :             return val;</span>
+<span class="lineNum">      37 </span>            :         }
+<span class="lineNum">      38 </span>            :     }
+<span class="lineNum">      39 </span><span class="lineCov">       1791 :     return INVALID; // Reached EOF in exponent</span>
+<span class="lineNum">      40 </span><span class="lineCov">     240951 : }</span>
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span>            : enum class Instruction : uint32_t
+<span class="lineNum">      43 </span>            : {
+<span class="lineNum">      44 </span>            :     RETURN = 0,
+<span class="lineNum">      45 </span>            :     JUMP = 1,
+<span class="lineNum">      46 </span>            :     MATCH = 2,
+<span class="lineNum">      47 </span>            :     DEFAULT = 3,
+<a name="48"><span class="lineNum">      48 </span>            : };</a>
+<a name="49"><span class="lineNum">      49 </span>            : </a>
+<span class="lineNum">      50 </span><span class="lineCov">         98 : const std::vector&lt;uint8_t&gt; TYPE_BIT_SIZES{0, 0, 1};</span>
+<span class="lineNum">      51 </span><span class="lineCov">     120906 : Instruction DecodeType(std::vector&lt;bool&gt;::const_iterator&amp; bitpos, const std::vector&lt;bool&gt;::const_iterator&amp; endpos)</span>
+<span class="lineNum">      52 </span>            : {
+<span class="lineNum">      53 </span><span class="lineCov">     120906 :     return Instruction(DecodeBits(bitpos, endpos, 0, TYPE_BIT_SIZES));</span>
+<a name="54"><span class="lineNum">      54 </span>            : }</a>
+<a name="55"><span class="lineNum">      55 </span>            : </a>
+<span class="lineNum">      56 </span><span class="lineCov">         98 : const std::vector&lt;uint8_t&gt; ASN_BIT_SIZES{15, 16, 17, 18, 19, 20, 21, 22, 23, 24};</span>
+<span class="lineNum">      57 </span><span class="lineCov">      48362 : uint32_t DecodeASN(std::vector&lt;bool&gt;::const_iterator&amp; bitpos, const std::vector&lt;bool&gt;::const_iterator&amp; endpos)</span>
+<span class="lineNum">      58 </span>            : {
+<span class="lineNum">      59 </span><span class="lineCov">      48362 :     return DecodeBits(bitpos, endpos, 1, ASN_BIT_SIZES);</span>
+<span class="lineNum">      60 </span>            : }
+<a name="61"><span class="lineNum">      61 </span>            : </a>
+<a name="62"><span class="lineNum">      62 </span>            : </a>
+<span class="lineNum">      63 </span><span class="lineCov">         98 : const std::vector&lt;uint8_t&gt; MATCH_BIT_SIZES{1, 2, 3, 4, 5, 6, 7, 8};</span>
+<span class="lineNum">      64 </span><span class="lineCov">      22239 : uint32_t DecodeMatch(std::vector&lt;bool&gt;::const_iterator&amp; bitpos, const std::vector&lt;bool&gt;::const_iterator&amp; endpos)</span>
+<span class="lineNum">      65 </span>            : {
+<span class="lineNum">      66 </span><span class="lineCov">      22239 :     return DecodeBits(bitpos, endpos, 2, MATCH_BIT_SIZES);</span>
+<span class="lineNum">      67 </span>            : }
+<a name="68"><span class="lineNum">      68 </span>            : </a>
+<a name="69"><span class="lineNum">      69 </span>            : </a>
+<span class="lineNum">      70 </span><span class="lineCov">         98 : const std::vector&lt;uint8_t&gt; JUMP_BIT_SIZES{5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30};</span>
+<span class="lineNum">      71 </span><span class="lineCov">      49444 : uint32_t DecodeJump(std::vector&lt;bool&gt;::const_iterator&amp; bitpos, const std::vector&lt;bool&gt;::const_iterator&amp; endpos)</span>
+<span class="lineNum">      72 </span>            : {
+<span class="lineNum">      73 </span><span class="lineCov">      49444 :     return DecodeBits(bitpos, endpos, 17, JUMP_BIT_SIZES);</span>
+<span class="lineNum">      74 </span>            : }
+<span class="lineNum">      75 </span>            : 
+<a name="76"><span class="lineNum">      76 </span>            : }</a>
+<span class="lineNum">      77 </span>            : 
+<span class="lineNum">      78 </span><span class="lineCov">        207 : uint32_t Interpret(const std::vector&lt;bool&gt; &amp;asmap, const std::vector&lt;bool&gt; &amp;ip)</span>
+<span class="lineNum">      79 </span>            : {
+<span class="lineNum">      80 </span><span class="lineCov">        207 :     std::vector&lt;bool&gt;::const_iterator pos = asmap.begin();</span>
+<span class="lineNum">      81 </span><span class="lineCov">        207 :     const std::vector&lt;bool&gt;::const_iterator endpos = asmap.end();</span>
+<span class="lineNum">      82 </span><span class="lineCov">        207 :     uint8_t bits = ip.size();</span>
+<span class="lineNum">      83 </span><span class="lineCov">       1167 :     uint32_t default_asn = 0;</span>
+<span class="lineNum">      84 </span>            :     uint32_t jump, match, matchlen;
+<span class="lineNum">      85 </span>            :     Instruction opcode;
+<span class="lineNum">      86 </span><span class="lineCov">       1167 :     while (pos != endpos) {</span>
+<span class="lineNum">      87 </span><span class="lineCov">       1167 :         opcode = DecodeType(pos, endpos);</span>
+<span class="lineNum">      88 </span><span class="lineCov">       1167 :         if (opcode == Instruction::RETURN) {</span>
+<span class="lineNum">      89 </span><span class="lineCov">        133 :             default_asn = DecodeASN(pos, endpos);</span>
+<span class="lineNum">      90 </span><span class="lineCov">        133 :             if (default_asn == INVALID) break; // ASN straddles EOF</span>
+<span class="lineNum">      91 </span><span class="lineCov">        133 :             return default_asn;</span>
+<span class="lineNum">      92 </span><span class="lineCov">       1034 :         } else if (opcode == Instruction::JUMP) {</span>
+<span class="lineNum">      93 </span><span class="lineCov">        193 :             jump = DecodeJump(pos, endpos);</span>
+<span class="lineNum">      94 </span><span class="lineCov">        193 :             if (jump == INVALID) break; // Jump offset straddles EOF</span>
+<span class="lineNum">      95 </span><span class="lineCov">        193 :             if (bits == 0) break; // No input bits left</span>
+<span class="lineNum">      96 </span><span class="lineCov">        193 :             if (pos + jump &lt; pos) break; // overflow</span>
+<span class="lineNum">      97 </span><span class="lineCov">        193 :             if (pos + jump &gt;= endpos) break; // Jumping past EOF</span>
+<span class="lineNum">      98 </span><span class="lineCov">        193 :             if (ip[ip.size() - bits]) {</span>
+<span class="lineNum">      99 </span><span class="lineCov">        146 :                 pos += jump;</span>
+<span class="lineNum">     100 </span><span class="lineCov">        146 :             }</span>
+<span class="lineNum">     101 </span><span class="lineCov">        193 :             bits--;</span>
+<span class="lineNum">     102 </span><span class="lineCov">       1034 :         } else if (opcode == Instruction::MATCH) {</span>
+<span class="lineNum">     103 </span><span class="lineCov">        754 :             match = DecodeMatch(pos, endpos);</span>
+<span class="lineNum">     104 </span><span class="lineCov">        754 :             if (match == INVALID) break; // Match bits straddle EOF</span>
+<span class="lineNum">     105 </span><span class="lineCov">        754 :             matchlen = CountBits(match) - 1;</span>
+<span class="lineNum">     106 </span><span class="lineCov">        754 :             if (bits &lt; matchlen) break; // Not enough input bits</span>
+<span class="lineNum">     107 </span><span class="lineCov">       5669 :             for (uint32_t bit = 0; bit &lt; matchlen; bit++) {</span>
+<span class="lineNum">     108 </span><span class="lineCov">       4989 :                 if ((ip[ip.size() - bits]) != ((match &gt;&gt; (matchlen - 1 - bit)) &amp; 1)) {</span>
+<span class="lineNum">     109 </span><span class="lineCov">         74 :                     return default_asn;</span>
+<span class="lineNum">     110 </span>            :                 }
+<span class="lineNum">     111 </span><span class="lineCov">       4915 :                 bits--;</span>
+<span class="lineNum">     112 </span>            :             }
+<span class="lineNum">     113 </span><span class="lineCov">         87 :         } else if (opcode == Instruction::DEFAULT) {</span>
+<span class="lineNum">     114 </span><span class="lineCov">         87 :             default_asn = DecodeASN(pos, endpos);</span>
+<span class="lineNum">     115 </span><span class="lineCov">         87 :             if (default_asn == INVALID) break; // ASN straddles EOF</span>
+<span class="lineNum">     116 </span>            :         } else {
+<span class="lineNum">     117 </span>            :             break; // Instruction straddles EOF
+<span class="lineNum">     118 </span>            :         }
+<span class="lineNum">     119 </span>            :     }
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :     assert(false); // Reached EOF without RETURN, or aborted (see any of the breaks above) - should have been caught by SanityCheckASMap below</span>
+<span class="lineNum">     121 </span>            :     return 0; // 0 is not a valid ASN
+<a name="122"><span class="lineNum">     122 </span><span class="lineCov">        207 : }</span></a>
+<span class="lineNum">     123 </span>            : 
+<span class="lineNum">     124 </span><span class="lineCov">      13908 : bool SanityCheckASMap(const std::vector&lt;bool&gt;&amp; asmap, int bits)</span>
+<span class="lineNum">     125 </span>            : {
+<span class="lineNum">     126 </span><span class="lineCov">      13908 :     const std::vector&lt;bool&gt;::const_iterator begin = asmap.begin(), endpos = asmap.end();</span>
+<span class="lineNum">     127 </span><span class="lineCov">      13908 :     std::vector&lt;bool&gt;::const_iterator pos = begin;</span>
+<span class="lineNum">     128 </span><span class="lineCov">      13908 :     std::vector&lt;std::pair&lt;uint32_t, int&gt;&gt; jumps; // All future positions we may jump to (bit offset in asmap -&gt; bits to consume left)</span>
+<span class="lineNum">     129 </span><span class="lineCov">      13908 :     jumps.reserve(bits);</span>
+<span class="lineNum">     130 </span><span class="lineCov">     133651 :     Instruction prevopcode = Instruction::JUMP;</span>
+<span class="lineNum">     131 </span><span class="lineCov">     133651 :     bool had_incomplete_match = false;</span>
+<span class="lineNum">     132 </span><span class="lineCov">     120477 :     while (pos != endpos) {</span>
+<span class="lineNum">     133 </span><span class="lineCov">     119743 :         uint32_t offset = pos - begin;</span>
+<span class="lineNum">     134 </span><span class="lineCov">     119743 :         if (!jumps.empty() &amp;&amp; offset &gt;= jumps.back().first) return false; // There was a jump into the middle of the previous instruction</span>
+<span class="lineNum">     135 </span><span class="lineCov">     119739 :         Instruction opcode = DecodeType(pos, endpos);</span>
+<span class="lineNum">     136 </span><span class="lineCov">     119739 :         if (opcode == Instruction::RETURN) {</span>
+<span class="lineNum">     137 </span><span class="lineCov">      43899 :             if (prevopcode == Instruction::DEFAULT) return false; // There should not be any RETURN immediately after a DEFAULT (could be combined into just RETURN)</span>
+<span class="lineNum">     138 </span><span class="lineCov">      43886 :             uint32_t asn = DecodeASN(pos, endpos);</span>
+<span class="lineNum">     139 </span><span class="lineCov">      43886 :             if (asn == INVALID) return false; // ASN straddles EOF</span>
+<span class="lineNum">     140 </span><span class="lineCov">      41704 :             if (jumps.empty()) {</span>
+<span class="lineNum">     141 </span>            :                 // Nothing to execute anymore
+<span class="lineNum">     142 </span><span class="lineCov">        321 :                 if (endpos - pos &gt; 7) return false; // Excessive padding</span>
+<span class="lineNum">     143 </span><span class="lineCov">        800 :                 while (pos != endpos) {</span>
+<span class="lineNum">     144 </span><span class="lineCov">        552 :                     if (*pos) return false; // Nonzero padding bit</span>
+<span class="lineNum">     145 </span><span class="lineCov">        526 :                     ++pos;</span>
+<span class="lineNum">     146 </span>            :                 }
+<span class="lineNum">     147 </span><span class="lineCov">        248 :                 return true; // Sanely reached EOF</span>
+<span class="lineNum">     148 </span>            :             } else {
+<span class="lineNum">     149 </span>            :                 // Continue by pretending we jumped to the next instruction
+<span class="lineNum">     150 </span><span class="lineCov">      41383 :                 offset = pos - begin;</span>
+<span class="lineNum">     151 </span><span class="lineCov">      41383 :                 if (offset != jumps.back().first) return false; // Unreachable code</span>
+<span class="lineNum">     152 </span><span class="lineCov">      41373 :                 bits = jumps.back().second; // Restore the number of bits we would have had left after this jump</span>
+<span class="lineNum">     153 </span><span class="lineCov">      41373 :                 jumps.pop_back();</span>
+<span class="lineNum">     154 </span>            :                 prevopcode = Instruction::JUMP;
+<span class="lineNum">     155 </span>            :             }
+<span class="lineNum">     156 </span><span class="lineCov">     117213 :         } else if (opcode == Instruction::JUMP) {</span>
+<span class="lineNum">     157 </span><span class="lineCov">      49251 :             uint32_t jump = DecodeJump(pos, endpos);</span>
+<span class="lineNum">     158 </span><span class="lineCov">      49251 :             if (jump == INVALID) return false; // Jump offset straddles EOF</span>
+<span class="lineNum">     159 </span><span class="lineCov">      47311 :             if (pos + jump &lt; pos) return false; // overflow</span>
+<span class="lineNum">     160 </span><span class="lineCov">      47311 :             if (pos + jump &gt; endpos) return false; // Jump out of range</span>
+<span class="lineNum">     161 </span><span class="lineCov">      41531 :             if (bits == 0) return false; // Consuming bits past the end of the input</span>
+<span class="lineNum">     162 </span><span class="lineCov">      41526 :             --bits;</span>
+<span class="lineNum">     163 </span><span class="lineCov">      41526 :             uint32_t jump_offset = pos - begin + jump;</span>
+<span class="lineNum">     164 </span><span class="lineCov">      41526 :             if (!jumps.empty() &amp;&amp; jump_offset &gt;= jumps.back().first) return false; // Intersecting jumps</span>
+<span class="lineNum">     165 </span><span class="lineCov">      41492 :             jumps.emplace_back(jump_offset, bits);</span>
+<span class="lineNum">     166 </span>            :             prevopcode = Instruction::JUMP;
+<span class="lineNum">     167 </span><span class="lineCov">      68115 :         } else if (opcode == Instruction::MATCH) {</span>
+<span class="lineNum">     168 </span><span class="lineCov">      21485 :             uint32_t match = DecodeMatch(pos, endpos);</span>
+<span class="lineNum">     169 </span><span class="lineCov">      21485 :             if (match == INVALID) return false; // Match bits straddle EOF</span>
+<span class="lineNum">     170 </span><span class="lineCov">      20650 :             int matchlen = CountBits(match) - 1;</span>
+<span class="lineNum">     171 </span><span class="lineCov">      20650 :             if (prevopcode != Instruction::MATCH) had_incomplete_match = false;</span>
+<span class="lineNum">     172 </span><span class="lineCov">      20650 :             if (matchlen &lt; 8 &amp;&amp; had_incomplete_match) return false; // Within a sequence of matches only at most one should be incomplete</span>
+<span class="lineNum">     173 </span><span class="lineCov">      20640 :             had_incomplete_match = (matchlen &lt; 8);</span>
+<span class="lineNum">     174 </span><span class="lineCov">      20640 :             if (bits &lt; matchlen) return false; // Consuming bits past the end of the input</span>
+<span class="lineNum">     175 </span><span class="lineCov">      20629 :             bits -= matchlen;</span>
+<span class="lineNum">     176 </span>            :             prevopcode = Instruction::MATCH;
+<span class="lineNum">     177 </span><span class="lineCov">      25733 :         } else if (opcode == Instruction::DEFAULT) {</span>
+<span class="lineNum">     178 </span><span class="lineCov">       4265 :             if (prevopcode == Instruction::DEFAULT) return false; // There should not be two successive DEFAULTs (they could be combined into one)</span>
+<span class="lineNum">     179 </span><span class="lineCov">       4256 :             uint32_t asn = DecodeASN(pos, endpos);</span>
+<span class="lineNum">     180 </span><span class="lineCov">       4256 :             if (asn == INVALID) return false; // ASN straddles EOF</span>
+<span class="lineNum">     181 </span>            :             prevopcode = Instruction::DEFAULT;
+<span class="lineNum">     182 </span><span class="lineCov">       3075 :         } else {</span>
+<span class="lineNum">     183 </span><span class="lineCov">        839 :             return false; // Instruction straddles EOF</span>
+<span class="lineNum">     184 </span>            :         }
+<span class="lineNum">     185 </span><span class="lineCov">     106569 :     }</span>
+<span class="lineNum">     186 </span><span class="lineCov">        734 :     return false; // Reached EOF without RETURN instruction</span>
+<span class="lineNum">     187 </span><span class="lineCov">      13908 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

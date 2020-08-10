@@ -1,0 +1,278 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - fuzz_coverage.info - src/scheduler.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">src</a> - scheduler.cpp<span style="font-size: 80%;"> (source / <a href="scheduler.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">fuzz_coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">90</td>
+            <td class="headerCovTableEntry">114</td>
+            <td class="headerCovTableEntryMed">78.9 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-08-10 06:23:20</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntry">24</td>
+            <td class="headerCovTableEntryLo">66.7 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2015-2020 The Bitcoin Core developers</a>
+<span class="lineNum">       2 </span>            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       3 </span>            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       4 </span>            : 
+<span class="lineNum">       5 </span>            : #include &lt;scheduler.h&gt;
+<span class="lineNum">       6 </span>            : 
+<span class="lineNum">       7 </span>            : #include &lt;random.h&gt;
+<span class="lineNum">       8 </span>            : 
+<span class="lineNum">       9 </span>            : #include &lt;assert.h&gt;
+<a name="10"><span class="lineNum">      10 </span>            : #include &lt;utility&gt;</a>
+<span class="lineNum">      11 </span>            : 
+<span class="lineNum">      12 </span><span class="lineCov">         26 : CScheduler::CScheduler()</span>
+<span class="lineNum">      13 </span>            : {
+<a name="14"><span class="lineNum">      14 </span><span class="lineCov">         26 : }</span></a>
+<span class="lineNum">      15 </span>            : 
+<span class="lineNum">      16 </span><span class="lineCov">         26 : CScheduler::~CScheduler()</span>
+<span class="lineNum">      17 </span>            : {
+<span class="lineNum">      18 </span><span class="lineCov">         26 :     assert(nThreadsServicingQueue == 0);</span>
+<span class="lineNum">      19 </span><span class="lineCov">         26 :     if (stopWhenEmpty) assert(taskQueue.empty());</span>
+<span class="lineNum">      20 </span><span class="lineCov">         26 : }</span>
+<a name="21"><span class="lineNum">      21 </span>            : </a>
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span><span class="lineCov">         26 : void CScheduler::serviceQueue()</span>
+<span class="lineNum">      24 </span>            : {
+<span class="lineNum">      25 </span><span class="lineCov">         26 :     WAIT_LOCK(newTaskMutex, lock);</span>
+<span class="lineNum">      26 </span><span class="lineCov">         26 :     ++nThreadsServicingQueue;</span>
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            :     // newTaskMutex is locked throughout this loop EXCEPT
+<span class="lineNum">      29 </span>            :     // when the thread is waiting or when the user's function
+<span class="lineNum">      30 </span>            :     // is called.
+<span class="lineNum">      31 </span><span class="lineCov">      31633 :     while (!shouldStop()) {</span>
+<span class="lineNum">      32 </span>            :         try {
+<span class="lineNum">      33 </span><span class="lineCov">      31655 :             while (!shouldStop() &amp;&amp; taskQueue.empty()) {</span>
+<span class="lineNum">      34 </span>            :                 // Wait until there is something to do.
+<span class="lineNum">      35 </span><span class="lineCov">         48 :                 newTaskScheduled.wait(lock);</span>
+<span class="lineNum">      36 </span>            :             }
+<span class="lineNum">      37 </span>            : 
+<span class="lineNum">      38 </span>            :             // Wait until either there is a new task, or until
+<span class="lineNum">      39 </span>            :             // the time of the first item on the queue:
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span><span class="lineCov">      52750 :             while (!shouldStop() &amp;&amp; !taskQueue.empty()) {</span>
+<span class="lineNum">      42 </span><span class="lineCov">      52724 :                 std::chrono::system_clock::time_point timeToWaitFor = taskQueue.begin()-&gt;first;</span>
+<span class="lineNum">      43 </span><span class="lineCov">      52724 :                 if (newTaskScheduled.wait_until(lock, timeToWaitFor) == std::cv_status::timeout) {</span>
+<span class="lineNum">      44 </span><span class="lineCov">      31581 :                     break; // Exit loop after timeout, it means we reached the time of the event</span>
+<span class="lineNum">      45 </span>            :                 }
+<span class="lineNum">      46 </span><span class="lineCov">      52724 :             }</span>
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span>            :             // If there are multiple threads, the queue can empty while we're waiting (another
+<span class="lineNum">      49 </span>            :             // thread may service the task we were waiting on).
+<span class="lineNum">      50 </span><span class="lineCov">      31607 :             if (shouldStop() || taskQueue.empty())</span>
+<span class="lineNum">      51 </span><span class="lineCov">         26 :                 continue;</span>
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span><span class="lineCov">      31581 :             Function f = taskQueue.begin()-&gt;second;</span>
+<span class="lineNum">      54 </span><span class="lineCov">      31581 :             taskQueue.erase(taskQueue.begin());</span>
+<span class="lineNum">      55 </span>            : 
+<span class="lineNum">      56 </span>            :             {
+<span class="lineNum">      57 </span>            :                 // Unlock before calling f, so it can reschedule itself or another task
+<span class="lineNum">      58 </span>            :                 // without deadlocking:
+<span class="lineNum">      59 </span><span class="lineCov">      31581 :                 REVERSE_LOCK(lock);</span>
+<span class="lineNum">      60 </span><span class="lineCov">      31581 :                 f();</span>
+<span class="lineNum">      61 </span><span class="lineCov">      31581 :             }</span>
+<span class="lineNum">      62 </span><span class="lineCov">      31581 :         } catch (...) {</span>
+<span class="lineNum">      63 </span><span class="lineNoCov">          0 :             --nThreadsServicingQueue;</span>
+<span class="lineNum">      64 </span><span class="lineNoCov">          0 :             throw;</span>
+<span class="lineNum">      65 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">      66 </span>            :     }
+<span class="lineNum">      67 </span><span class="lineCov">         26 :     --nThreadsServicingQueue;</span>
+<span class="lineNum">      68 </span><span class="lineCov">         26 :     newTaskScheduled.notify_one();</span>
+<a name="69"><span class="lineNum">      69 </span><span class="lineCov">         26 : }</span></a>
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span><span class="lineCov">      31633 : void CScheduler::schedule(CScheduler::Function f, std::chrono::system_clock::time_point t)</span>
+<span class="lineNum">      72 </span>            : {
+<span class="lineNum">      73 </span>            :     {
+<span class="lineNum">      74 </span><span class="lineCov">      31633 :         LOCK(newTaskMutex);</span>
+<span class="lineNum">      75 </span><span class="lineCov">      31633 :         taskQueue.insert(std::make_pair(t, f));</span>
+<span class="lineNum">      76 </span><span class="lineCov">      31633 :     }</span>
+<span class="lineNum">      77 </span><span class="lineCov">      31633 :     newTaskScheduled.notify_one();</span>
+<a name="78"><span class="lineNum">      78 </span><span class="lineCov">      31633 : }</span></a>
+<span class="lineNum">      79 </span>            : 
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 : void CScheduler::MockForward(std::chrono::seconds delta_seconds)</span>
+<span class="lineNum">      81 </span>            : {
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 :     assert(delta_seconds.count() &gt; 0 &amp;&amp; delta_seconds &lt; std::chrono::hours{1});</span>
+<span class="lineNum">      83 </span>            : 
+<span class="lineNum">      84 </span>            :     {
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 :         LOCK(newTaskMutex);</span>
+<span class="lineNum">      86 </span>            : 
+<span class="lineNum">      87 </span>            :         // use temp_queue to maintain updated schedule
+<span class="lineNum">      88 </span><span class="lineNoCov">          0 :         std::multimap&lt;std::chrono::system_clock::time_point, Function&gt; temp_queue;</span>
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span><span class="lineNoCov">          0 :         for (const auto&amp; element : taskQueue) {</span>
+<span class="lineNum">      91 </span><span class="lineNoCov">          0 :             temp_queue.emplace_hint(temp_queue.cend(), element.first - delta_seconds, element.second);</span>
+<span class="lineNum">      92 </span>            :         }
+<span class="lineNum">      93 </span>            : 
+<span class="lineNum">      94 </span>            :         // point taskQueue to temp_queue
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 :         taskQueue = std::move(temp_queue);</span>
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">      97 </span><span class="lineCov">         26 : </span>
+<span class="lineNum">      98 </span><span class="lineCov">         26 :     // notify that the taskQueue needs to be processed</span>
+<span class="lineNum">      99 </span><span class="lineCov">         26 :     newTaskScheduled.notify_one();</span>
+<a name="100"><span class="lineNum">     100 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     101 </span>            : 
+<span class="lineNum">     102 </span><span class="lineNoCov">          0 : static void Repeat(CScheduler&amp; s, CScheduler::Function f, std::chrono::milliseconds delta)</span>
+<a name="103"><span class="lineNum">     103 </span>            : {</a>
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 :     f();</span>
+<span class="lineNum">     105 </span><span class="lineNoCov">          0 :     s.scheduleFromNow([=, &amp;s] { Repeat(s, f, delta); }, delta);</span>
+<a name="106"><span class="lineNum">     106 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     107 </span>            : 
+<a name="108"><span class="lineNum">     108 </span><span class="lineCov">         26 : void CScheduler::scheduleEvery(CScheduler::Function f, std::chrono::milliseconds delta)</span></a>
+<span class="lineNum">     109 </span>            : {
+<span class="lineNum">     110 </span><span class="lineCov">        156 :     scheduleFromNow([=] { Repeat(*this, f, delta); }, delta);</span>
+<a name="111"><span class="lineNum">     111 </span><span class="lineCov">         26 : }</span></a>
+<span class="lineNum">     112 </span>            : 
+<span class="lineNum">     113 </span><span class="lineNoCov">          0 : size_t CScheduler::getQueueInfo(std::chrono::system_clock::time_point&amp; first,</span>
+<span class="lineNum">     114 </span>            :                                 std::chrono::system_clock::time_point&amp; last) const
+<span class="lineNum">     115 </span>            : {
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 :     LOCK(newTaskMutex);</span>
+<span class="lineNum">     117 </span><span class="lineNoCov">          0 :     size_t result = taskQueue.size();</span>
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :     if (!taskQueue.empty()) {</span>
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 :         first = taskQueue.begin()-&gt;first;</span>
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :         last = taskQueue.rbegin()-&gt;first;</span>
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     122 </span>            :     return result;
+<a name="123"><span class="lineNum">     123 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     124 </span>            : 
+<span class="lineNum">     125 </span><span class="lineCov">         26 : bool CScheduler::AreThreadsServicingQueue() const</span>
+<span class="lineNum">     126 </span>            : {
+<span class="lineNum">     127 </span><span class="lineCov">         26 :     LOCK(newTaskMutex);</span>
+<span class="lineNum">     128 </span><span class="lineCov">         26 :     return nThreadsServicingQueue;</span>
+<span class="lineNum">     129 </span><span class="lineCov">         26 : }</span>
+<a name="130"><span class="lineNum">     130 </span>            : </a>
+<span class="lineNum">     131 </span>            : 
+<span class="lineNum">     132 </span><span class="lineCov">      52742 : void SingleThreadedSchedulerClient::MaybeScheduleProcessQueue()</span>
+<span class="lineNum">     133 </span>            : {
+<span class="lineNum">     134 </span>            :     {
+<span class="lineNum">     135 </span><span class="lineCov">      52742 :         LOCK(m_cs_callbacks_pending);</span>
+<span class="lineNum">     136 </span>            :         // Try to avoid scheduling too many copies here, but if we
+<span class="lineNum">     137 </span>            :         // accidentally have two ProcessQueue's scheduled at once its
+<span class="lineNum">     138 </span>            :         // not a big deal.
+<span class="lineNum">     139 </span><span class="lineCov">      52742 :         if (m_are_callbacks_running) return;</span>
+<span class="lineNum">     140 </span><span class="lineCov">      52741 :         if (m_callbacks_pending.empty()) return;</span>
+<span class="lineNum">     141 </span><span class="lineCov">      52742 :     }</span>
+<span class="lineNum">     142 </span><span class="lineCov">      31581 :     m_pscheduler-&gt;schedule(std::bind(&amp;SingleThreadedSchedulerClient::ProcessQueue, this), std::chrono::system_clock::now());</span>
+<a name="143"><span class="lineNum">     143 </span><span class="lineCov">      52742 : }</span></a>
+<span class="lineNum">     144 </span>            : 
+<span class="lineNum">     145 </span><span class="lineCov">      31607 : void SingleThreadedSchedulerClient::ProcessQueue()</span>
+<span class="lineNum">     146 </span>            : {
+<span class="lineNum">     147 </span><span class="lineCov">      31607 :     std::function&lt;void()&gt; callback;</span>
+<span class="lineNum">     148 </span>            :     {
+<span class="lineNum">     149 </span><span class="lineCov">      31607 :         LOCK(m_cs_callbacks_pending);</span>
+<span class="lineNum">     150 </span><span class="lineCov">      31607 :         if (m_are_callbacks_running) return;</span>
+<span class="lineNum">     151 </span><span class="lineCov">      31607 :         if (m_callbacks_pending.empty()) return;</span>
+<span class="lineNum">     152 </span><span class="lineCov">      26371 :         m_are_callbacks_running = true;</span>
+<span class="lineNum">     153 </span>            : 
+<span class="lineNum">     154 </span><span class="lineCov">      26371 :         callback = std::move(m_callbacks_pending.front());</span>
+<span class="lineNum">     155 </span><span class="lineCov">      26371 :         m_callbacks_pending.pop_front();</span>
+<span class="lineNum">     156 </span><span class="lineCov">      31607 :     }</span>
+<span class="lineNum">     157 </span>            : 
+<span class="lineNum">     158 </span>            :     // RAII the setting of fCallbacksRunning and calling MaybeScheduleProcessQueue
+<span class="lineNum">     159 </span>            :     // to ensure both happen safely even if callback() throws.
+<a name="160"><span class="lineNum">     160 </span><span class="lineCov">      26371 :     struct RAIICallbacksRunning {</span></a>
+<a name="161"><span class="lineNum">     161 </span>            :         SingleThreadedSchedulerClient* instance;</a>
+<span class="lineNum">     162 </span><span class="lineCov">      26371 :         explicit RAIICallbacksRunning(SingleThreadedSchedulerClient* _instance) : instance(_instance) {}</span>
+<span class="lineNum">     163 </span><span class="lineCov">      26371 :         ~RAIICallbacksRunning()</span>
+<span class="lineNum">     164 </span>            :         {
+<span class="lineNum">     165 </span>            :             {
+<span class="lineNum">     166 </span><span class="lineCov">      26371 :                 LOCK(instance-&gt;m_cs_callbacks_pending);</span>
+<span class="lineNum">     167 </span><span class="lineCov">      26371 :                 instance-&gt;m_are_callbacks_running = false;</span>
+<span class="lineNum">     168 </span><span class="lineCov">      26371 :             }</span>
+<span class="lineNum">     169 </span><span class="lineCov">      26371 :             instance-&gt;MaybeScheduleProcessQueue();</span>
+<span class="lineNum">     170 </span><span class="lineCov">      26371 :         }</span>
+<span class="lineNum">     171 </span><span class="lineCov">      26371 :     } raiicallbacksrunning(this);</span>
+<span class="lineNum">     172 </span>            : 
+<span class="lineNum">     173 </span><span class="lineCov">      26371 :     callback();</span>
+<a name="174"><span class="lineNum">     174 </span><span class="lineCov">      31607 : }</span></a>
+<span class="lineNum">     175 </span>            : 
+<span class="lineNum">     176 </span><span class="lineCov">      26371 : void SingleThreadedSchedulerClient::AddToProcessQueue(std::function&lt;void()&gt; func)</span>
+<span class="lineNum">     177 </span>            : {
+<span class="lineNum">     178 </span><span class="lineCov">      26371 :     assert(m_pscheduler);</span>
+<span class="lineNum">     179 </span>            : 
+<span class="lineNum">     180 </span>            :     {
+<span class="lineNum">     181 </span><span class="lineCov">      26371 :         LOCK(m_cs_callbacks_pending);</span>
+<span class="lineNum">     182 </span><span class="lineCov">      26371 :         m_callbacks_pending.emplace_back(std::move(func));</span>
+<span class="lineNum">     183 </span><span class="lineCov">      26371 :     }</span>
+<span class="lineNum">     184 </span><span class="lineCov">      26371 :     MaybeScheduleProcessQueue();</span>
+<a name="185"><span class="lineNum">     185 </span><span class="lineCov">      26371 : }</span></a>
+<span class="lineNum">     186 </span>            : 
+<span class="lineNum">     187 </span><span class="lineCov">         26 : void SingleThreadedSchedulerClient::EmptyQueue()</span>
+<span class="lineNum">     188 </span>            : {
+<span class="lineNum">     189 </span><span class="lineCov">         26 :     assert(!m_pscheduler-&gt;AreThreadsServicingQueue());</span>
+<span class="lineNum">     190 </span>            :     bool should_continue = true;
+<span class="lineNum">     191 </span><span class="lineCov">         52 :     while (should_continue) {</span>
+<span class="lineNum">     192 </span><span class="lineCov">         26 :         ProcessQueue();</span>
+<span class="lineNum">     193 </span><span class="lineCov">         26 :         LOCK(m_cs_callbacks_pending);</span>
+<span class="lineNum">     194 </span><span class="lineCov">         26 :         should_continue = !m_callbacks_pending.empty();</span>
+<span class="lineNum">     195 </span><span class="lineCov">         26 :     }</span>
+<a name="196"><span class="lineNum">     196 </span><span class="lineCov">         26 : }</span></a>
+<span class="lineNum">     197 </span>            : 
+<span class="lineNum">     198 </span><span class="lineCov">       6733 : size_t SingleThreadedSchedulerClient::CallbacksPending()</span>
+<span class="lineNum">     199 </span>            : {
+<span class="lineNum">     200 </span><span class="lineCov">       6733 :     LOCK(m_cs_callbacks_pending);</span>
+<span class="lineNum">     201 </span><span class="lineCov">       6733 :     return m_callbacks_pending.size();</span>
+<span class="lineNum">     202 </span><span class="lineCov">       6733 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
