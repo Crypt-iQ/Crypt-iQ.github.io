@@ -1,0 +1,524 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - test_bitcoin_coverage.info - src/test/streams_tests.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">src/test</a> - streams_tests.cpp<span style="font-size: 80%;"> (source / <a href="streams_tests.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">test_bitcoin_coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">282</td>
+            <td class="headerCovTableEntry">286</td>
+            <td class="headerCovTableEntryHi">98.6 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-08-14 02:46:54</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">26</td>
+            <td class="headerCovTableEntry">26</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2012-2019 The Bitcoin Core developers</a>
+<span class="lineNum">       2 </span>            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       3 </span>            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       4 </span>            : 
+<span class="lineNum">       5 </span>            : #include &lt;streams.h&gt;
+<span class="lineNum">       6 </span>            : #include &lt;test/util/setup_common.h&gt;
+<span class="lineNum">       7 </span>            : 
+<a name="8"><span class="lineNum">       8 </span>            : #include &lt;boost/test/unit_test.hpp&gt;</a>
+<span class="lineNum">       9 </span>            : 
+<a name="10"><span class="lineNum">      10 </span><span class="lineCov">         88 : BOOST_FIXTURE_TEST_SUITE(streams_tests, BasicTestingSetup)</span></a>
+<span class="lineNum">      11 </span>            : 
+<span class="lineNum">      12 </span><span class="lineCov">         91 : BOOST_AUTO_TEST_CASE(streams_vector_writer)</span>
+<span class="lineNum">      13 </span>            : {
+<span class="lineNum">      14 </span><span class="lineCov">          1 :     unsigned char a(1);</span>
+<span class="lineNum">      15 </span><span class="lineCov">          1 :     unsigned char b(2);</span>
+<span class="lineNum">      16 </span><span class="lineCov">          1 :     unsigned char bytes[] = { 3, 4, 5, 6 };</span>
+<span class="lineNum">      17 </span><span class="lineCov">          1 :     std::vector&lt;unsigned char&gt; vch;</span>
+<span class="lineNum">      18 </span>            : 
+<span class="lineNum">      19 </span>            :     // Each test runs twice. Serializing a second time at the same starting
+<span class="lineNum">      20 </span>            :     // point should yield the same results, even if the first test grew the
+<span class="lineNum">      21 </span>            :     // vector.
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span><span class="lineCov">          1 :     CVectorWriter(SER_NETWORK, INIT_PROTO_VERSION, vch, 0, a, b);</span>
+<span class="lineNum">      24 </span><span class="lineCov">          1 :     BOOST_CHECK((vch == std::vector&lt;unsigned char&gt;{{1, 2}}));</span>
+<span class="lineNum">      25 </span><span class="lineCov">          1 :     CVectorWriter(SER_NETWORK, INIT_PROTO_VERSION, vch, 0, a, b);</span>
+<span class="lineNum">      26 </span><span class="lineCov">          1 :     BOOST_CHECK((vch == std::vector&lt;unsigned char&gt;{{1, 2}}));</span>
+<span class="lineNum">      27 </span><span class="lineCov">          1 :     vch.clear();</span>
+<span class="lineNum">      28 </span>            : 
+<span class="lineNum">      29 </span><span class="lineCov">          1 :     CVectorWriter(SER_NETWORK, INIT_PROTO_VERSION, vch, 2, a, b);</span>
+<span class="lineNum">      30 </span><span class="lineCov">          1 :     BOOST_CHECK((vch == std::vector&lt;unsigned char&gt;{{0, 0, 1, 2}}));</span>
+<span class="lineNum">      31 </span><span class="lineCov">          1 :     CVectorWriter(SER_NETWORK, INIT_PROTO_VERSION, vch, 2, a, b);</span>
+<span class="lineNum">      32 </span><span class="lineCov">          1 :     BOOST_CHECK((vch == std::vector&lt;unsigned char&gt;{{0, 0, 1, 2}}));</span>
+<span class="lineNum">      33 </span><span class="lineCov">          1 :     vch.clear();</span>
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span><span class="lineCov">          1 :     vch.resize(5, 0);</span>
+<span class="lineNum">      36 </span><span class="lineCov">          1 :     CVectorWriter(SER_NETWORK, INIT_PROTO_VERSION, vch, 2, a, b);</span>
+<span class="lineNum">      37 </span><span class="lineCov">          1 :     BOOST_CHECK((vch == std::vector&lt;unsigned char&gt;{{0, 0, 1, 2, 0}}));</span>
+<span class="lineNum">      38 </span><span class="lineCov">          1 :     CVectorWriter(SER_NETWORK, INIT_PROTO_VERSION, vch, 2, a, b);</span>
+<span class="lineNum">      39 </span><span class="lineCov">          1 :     BOOST_CHECK((vch == std::vector&lt;unsigned char&gt;{{0, 0, 1, 2, 0}}));</span>
+<span class="lineNum">      40 </span><span class="lineCov">          1 :     vch.clear();</span>
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span><span class="lineCov">          1 :     vch.resize(4, 0);</span>
+<span class="lineNum">      43 </span><span class="lineCov">          1 :     CVectorWriter(SER_NETWORK, INIT_PROTO_VERSION, vch, 3, a, b);</span>
+<span class="lineNum">      44 </span><span class="lineCov">          1 :     BOOST_CHECK((vch == std::vector&lt;unsigned char&gt;{{0, 0, 0, 1, 2}}));</span>
+<span class="lineNum">      45 </span><span class="lineCov">          1 :     CVectorWriter(SER_NETWORK, INIT_PROTO_VERSION, vch, 3, a, b);</span>
+<span class="lineNum">      46 </span><span class="lineCov">          1 :     BOOST_CHECK((vch == std::vector&lt;unsigned char&gt;{{0, 0, 0, 1, 2}}));</span>
+<span class="lineNum">      47 </span><span class="lineCov">          1 :     vch.clear();</span>
+<span class="lineNum">      48 </span>            : 
+<span class="lineNum">      49 </span><span class="lineCov">          1 :     vch.resize(4, 0);</span>
+<span class="lineNum">      50 </span><span class="lineCov">          1 :     CVectorWriter(SER_NETWORK, INIT_PROTO_VERSION, vch, 4, a, b);</span>
+<span class="lineNum">      51 </span><span class="lineCov">          1 :     BOOST_CHECK((vch == std::vector&lt;unsigned char&gt;{{0, 0, 0, 0, 1, 2}}));</span>
+<span class="lineNum">      52 </span><span class="lineCov">          1 :     CVectorWriter(SER_NETWORK, INIT_PROTO_VERSION, vch, 4, a, b);</span>
+<span class="lineNum">      53 </span><span class="lineCov">          1 :     BOOST_CHECK((vch == std::vector&lt;unsigned char&gt;{{0, 0, 0, 0, 1, 2}}));</span>
+<span class="lineNum">      54 </span><span class="lineCov">          1 :     vch.clear();</span>
+<span class="lineNum">      55 </span>            : 
+<span class="lineNum">      56 </span><span class="lineCov">          1 :     CVectorWriter(SER_NETWORK, INIT_PROTO_VERSION, vch, 0, bytes);</span>
+<span class="lineNum">      57 </span><span class="lineCov">          1 :     BOOST_CHECK((vch == std::vector&lt;unsigned char&gt;{{3, 4, 5, 6}}));</span>
+<span class="lineNum">      58 </span><span class="lineCov">          1 :     CVectorWriter(SER_NETWORK, INIT_PROTO_VERSION, vch, 0, bytes);</span>
+<span class="lineNum">      59 </span><span class="lineCov">          1 :     BOOST_CHECK((vch == std::vector&lt;unsigned char&gt;{{3, 4, 5, 6}}));</span>
+<span class="lineNum">      60 </span><span class="lineCov">          1 :     vch.clear();</span>
+<span class="lineNum">      61 </span>            : 
+<span class="lineNum">      62 </span><span class="lineCov">          1 :     vch.resize(4, 8);</span>
+<span class="lineNum">      63 </span><span class="lineCov">          1 :     CVectorWriter(SER_NETWORK, INIT_PROTO_VERSION, vch, 2, a, bytes, b);</span>
+<span class="lineNum">      64 </span><span class="lineCov">          1 :     BOOST_CHECK((vch == std::vector&lt;unsigned char&gt;{{8, 8, 1, 3, 4, 5, 6, 2}}));</span>
+<span class="lineNum">      65 </span><span class="lineCov">          1 :     CVectorWriter(SER_NETWORK, INIT_PROTO_VERSION, vch, 2, a, bytes, b);</span>
+<span class="lineNum">      66 </span><span class="lineCov">          1 :     BOOST_CHECK((vch == std::vector&lt;unsigned char&gt;{{8, 8, 1, 3, 4, 5, 6, 2}}));</span>
+<span class="lineNum">      67 </span><span class="lineCov">          1 :     vch.clear();</span>
+<a name="68"><span class="lineNum">      68 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">      69 </span>            : 
+<span class="lineNum">      70 </span><span class="lineCov">         91 : BOOST_AUTO_TEST_CASE(streams_vector_reader)</span>
+<span class="lineNum">      71 </span>            : {
+<span class="lineNum">      72 </span><span class="lineCov">          1 :     std::vector&lt;unsigned char&gt; vch = {1, 255, 3, 4, 5, 6};</span>
+<span class="lineNum">      73 </span>            : 
+<span class="lineNum">      74 </span><span class="lineCov">          1 :     VectorReader reader(SER_NETWORK, INIT_PROTO_VERSION, vch, 0);</span>
+<span class="lineNum">      75 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(reader.size(), 6U);</span>
+<span class="lineNum">      76 </span><span class="lineCov">          1 :     BOOST_CHECK(!reader.empty());</span>
+<span class="lineNum">      77 </span>            : 
+<span class="lineNum">      78 </span>            :     // Read a single byte as an unsigned char.
+<span class="lineNum">      79 </span><span class="lineCov">          1 :     unsigned char a;</span>
+<span class="lineNum">      80 </span><span class="lineCov">          1 :     reader &gt;&gt; a;</span>
+<span class="lineNum">      81 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(a, 1);</span>
+<span class="lineNum">      82 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(reader.size(), 5U);</span>
+<span class="lineNum">      83 </span><span class="lineCov">          1 :     BOOST_CHECK(!reader.empty());</span>
+<span class="lineNum">      84 </span>            : 
+<span class="lineNum">      85 </span>            :     // Read a single byte as a signed char.
+<span class="lineNum">      86 </span><span class="lineCov">          1 :     signed char b;</span>
+<span class="lineNum">      87 </span><span class="lineCov">          1 :     reader &gt;&gt; b;</span>
+<span class="lineNum">      88 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(b, -1);</span>
+<span class="lineNum">      89 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(reader.size(), 4U);</span>
+<span class="lineNum">      90 </span><span class="lineCov">          1 :     BOOST_CHECK(!reader.empty());</span>
+<span class="lineNum">      91 </span>            : 
+<span class="lineNum">      92 </span>            :     // Read a 4 bytes as an unsigned int.
+<span class="lineNum">      93 </span><span class="lineCov">          1 :     unsigned int c;</span>
+<span class="lineNum">      94 </span><span class="lineCov">          1 :     reader &gt;&gt; c;</span>
+<span class="lineNum">      95 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(c, 100992003U); // 3,4,5,6 in little-endian base-256</span>
+<span class="lineNum">      96 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(reader.size(), 0U);</span>
+<span class="lineNum">      97 </span><span class="lineCov">          1 :     BOOST_CHECK(reader.empty());</span>
+<span class="lineNum">      98 </span>            : 
+<span class="lineNum">      99 </span>            :     // Reading after end of byte vector throws an error.
+<span class="lineNum">     100 </span><span class="lineCov">          1 :     signed int d;</span>
+<span class="lineNum">     101 </span><span class="lineCov">          2 :     BOOST_CHECK_THROW(reader &gt;&gt; d, std::ios_base::failure);</span>
+<span class="lineNum">     102 </span>            : 
+<span class="lineNum">     103 </span>            :     // Read a 4 bytes as a signed int from the beginning of the buffer.
+<span class="lineNum">     104 </span><span class="lineCov">          1 :     VectorReader new_reader(SER_NETWORK, INIT_PROTO_VERSION, vch, 0);</span>
+<span class="lineNum">     105 </span><span class="lineCov">          1 :     new_reader &gt;&gt; d;</span>
+<span class="lineNum">     106 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(d, 67370753); // 1,255,3,4 in little-endian base-256</span>
+<span class="lineNum">     107 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(new_reader.size(), 2U);</span>
+<span class="lineNum">     108 </span><span class="lineCov">          1 :     BOOST_CHECK(!new_reader.empty());</span>
+<span class="lineNum">     109 </span>            : 
+<span class="lineNum">     110 </span>            :     // Reading after end of byte vector throws an error even if the reader is
+<span class="lineNum">     111 </span>            :     // not totally empty.
+<span class="lineNum">     112 </span><span class="lineCov">          2 :     BOOST_CHECK_THROW(new_reader &gt;&gt; d, std::ios_base::failure);</span>
+<a name="113"><span class="lineNum">     113 </span><span class="lineCov">          3 : }</span></a>
+<span class="lineNum">     114 </span>            : 
+<span class="lineNum">     115 </span><span class="lineCov">         91 : BOOST_AUTO_TEST_CASE(bitstream_reader_writer)</span>
+<span class="lineNum">     116 </span>            : {
+<span class="lineNum">     117 </span><span class="lineCov">          1 :     CDataStream data(SER_NETWORK, INIT_PROTO_VERSION);</span>
+<span class="lineNum">     118 </span>            : 
+<span class="lineNum">     119 </span><span class="lineCov">          1 :     BitStreamWriter&lt;CDataStream&gt; bit_writer(data);</span>
+<span class="lineNum">     120 </span><span class="lineCov">          1 :     bit_writer.Write(0, 1);</span>
+<span class="lineNum">     121 </span><span class="lineCov">          1 :     bit_writer.Write(2, 2);</span>
+<span class="lineNum">     122 </span><span class="lineCov">          1 :     bit_writer.Write(6, 3);</span>
+<span class="lineNum">     123 </span><span class="lineCov">          1 :     bit_writer.Write(11, 4);</span>
+<span class="lineNum">     124 </span><span class="lineCov">          1 :     bit_writer.Write(1, 5);</span>
+<span class="lineNum">     125 </span><span class="lineCov">          1 :     bit_writer.Write(32, 6);</span>
+<span class="lineNum">     126 </span><span class="lineCov">          1 :     bit_writer.Write(7, 7);</span>
+<span class="lineNum">     127 </span><span class="lineCov">          1 :     bit_writer.Write(30497, 16);</span>
+<span class="lineNum">     128 </span><span class="lineCov">          1 :     bit_writer.Flush();</span>
+<span class="lineNum">     129 </span>            : 
+<span class="lineNum">     130 </span><span class="lineCov">          1 :     CDataStream data_copy(data);</span>
+<span class="lineNum">     131 </span><span class="lineCov">          1 :     uint32_t serialized_int1;</span>
+<span class="lineNum">     132 </span><span class="lineCov">          1 :     data &gt;&gt; serialized_int1;</span>
+<span class="lineNum">     133 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(serialized_int1, (uint32_t)0x7700C35A); // NOTE: Serialized as LE</span>
+<span class="lineNum">     134 </span><span class="lineCov">          1 :     uint16_t serialized_int2;</span>
+<span class="lineNum">     135 </span><span class="lineCov">          1 :     data &gt;&gt; serialized_int2;</span>
+<span class="lineNum">     136 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(serialized_int2, (uint16_t)0x1072); // NOTE: Serialized as LE</span>
+<span class="lineNum">     137 </span>            : 
+<span class="lineNum">     138 </span><span class="lineCov">          1 :     BitStreamReader&lt;CDataStream&gt; bit_reader(data_copy);</span>
+<span class="lineNum">     139 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(bit_reader.Read(1), 0U);</span>
+<span class="lineNum">     140 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(bit_reader.Read(2), 2U);</span>
+<span class="lineNum">     141 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(bit_reader.Read(3), 6U);</span>
+<span class="lineNum">     142 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(bit_reader.Read(4), 11U);</span>
+<span class="lineNum">     143 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(bit_reader.Read(5), 1U);</span>
+<span class="lineNum">     144 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(bit_reader.Read(6), 32U);</span>
+<span class="lineNum">     145 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(bit_reader.Read(7), 7U);</span>
+<span class="lineNum">     146 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(bit_reader.Read(16), 30497U);</span>
+<span class="lineNum">     147 </span><span class="lineCov">          2 :     BOOST_CHECK_THROW(bit_reader.Read(8), std::ios_base::failure);</span>
+<a name="148"><span class="lineNum">     148 </span><span class="lineCov">          2 : }</span></a>
+<span class="lineNum">     149 </span>            : 
+<span class="lineNum">     150 </span><span class="lineCov">         91 : BOOST_AUTO_TEST_CASE(streams_serializedata_xor)</span>
+<span class="lineNum">     151 </span>            : {
+<span class="lineNum">     152 </span><span class="lineCov">          1 :     std::vector&lt;char&gt; in;</span>
+<span class="lineNum">     153 </span><span class="lineCov">          1 :     std::vector&lt;char&gt; expected_xor;</span>
+<span class="lineNum">     154 </span><span class="lineCov">          1 :     std::vector&lt;unsigned char&gt; key;</span>
+<span class="lineNum">     155 </span><span class="lineCov">          1 :     CDataStream ds(in, 0, 0);</span>
+<span class="lineNum">     156 </span>            : 
+<span class="lineNum">     157 </span>            :     // Degenerate case
+<span class="lineNum">     158 </span>            : 
+<span class="lineNum">     159 </span><span class="lineCov">          1 :     key.push_back('\x00');</span>
+<span class="lineNum">     160 </span><span class="lineCov">          1 :     key.push_back('\x00');</span>
+<span class="lineNum">     161 </span><span class="lineCov">          1 :     ds.Xor(key);</span>
+<span class="lineNum">     162 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(</span>
+<span class="lineNum">     163 </span>            :             std::string(expected_xor.begin(), expected_xor.end()),
+<span class="lineNum">     164 </span>            :             std::string(ds.begin(), ds.end()));
+<span class="lineNum">     165 </span>            : 
+<span class="lineNum">     166 </span><span class="lineCov">          1 :     in.push_back('\x0f');</span>
+<span class="lineNum">     167 </span><span class="lineCov">          1 :     in.push_back('\xf0');</span>
+<span class="lineNum">     168 </span><span class="lineCov">          1 :     expected_xor.push_back('\xf0');</span>
+<span class="lineNum">     169 </span><span class="lineCov">          1 :     expected_xor.push_back('\x0f');</span>
+<span class="lineNum">     170 </span>            : 
+<span class="lineNum">     171 </span>            :     // Single character key
+<span class="lineNum">     172 </span>            : 
+<span class="lineNum">     173 </span><span class="lineCov">          1 :     ds.clear();</span>
+<span class="lineNum">     174 </span><span class="lineCov">          1 :     ds.insert(ds.begin(), in.begin(), in.end());</span>
+<span class="lineNum">     175 </span><span class="lineCov">          1 :     key.clear();</span>
+<span class="lineNum">     176 </span>            : 
+<span class="lineNum">     177 </span><span class="lineCov">          1 :     key.push_back('\xff');</span>
+<span class="lineNum">     178 </span><span class="lineCov">          1 :     ds.Xor(key);</span>
+<span class="lineNum">     179 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(</span>
+<span class="lineNum">     180 </span>            :             std::string(expected_xor.begin(), expected_xor.end()),
+<span class="lineNum">     181 </span>            :             std::string(ds.begin(), ds.end()));
+<span class="lineNum">     182 </span>            : 
+<span class="lineNum">     183 </span>            :     // Multi character key
+<span class="lineNum">     184 </span>            : 
+<span class="lineNum">     185 </span><span class="lineCov">          1 :     in.clear();</span>
+<span class="lineNum">     186 </span><span class="lineCov">          1 :     expected_xor.clear();</span>
+<span class="lineNum">     187 </span><span class="lineCov">          1 :     in.push_back('\xf0');</span>
+<span class="lineNum">     188 </span><span class="lineCov">          1 :     in.push_back('\x0f');</span>
+<span class="lineNum">     189 </span><span class="lineCov">          1 :     expected_xor.push_back('\x0f');</span>
+<span class="lineNum">     190 </span><span class="lineCov">          1 :     expected_xor.push_back('\x00');</span>
+<span class="lineNum">     191 </span>            : 
+<span class="lineNum">     192 </span><span class="lineCov">          1 :     ds.clear();</span>
+<span class="lineNum">     193 </span><span class="lineCov">          1 :     ds.insert(ds.begin(), in.begin(), in.end());</span>
+<span class="lineNum">     194 </span>            : 
+<span class="lineNum">     195 </span><span class="lineCov">          1 :     key.clear();</span>
+<span class="lineNum">     196 </span><span class="lineCov">          1 :     key.push_back('\xff');</span>
+<span class="lineNum">     197 </span><span class="lineCov">          1 :     key.push_back('\x0f');</span>
+<span class="lineNum">     198 </span>            : 
+<span class="lineNum">     199 </span><span class="lineCov">          1 :     ds.Xor(key);</span>
+<span class="lineNum">     200 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(</span>
+<span class="lineNum">     201 </span>            :             std::string(expected_xor.begin(), expected_xor.end()),
+<span class="lineNum">     202 </span>            :             std::string(ds.begin(), ds.end()));
+<a name="203"><span class="lineNum">     203 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     204 </span>            : 
+<span class="lineNum">     205 </span><span class="lineCov">         91 : BOOST_AUTO_TEST_CASE(streams_buffered_file)</span>
+<span class="lineNum">     206 </span>            : {
+<span class="lineNum">     207 </span><span class="lineCov">          1 :     FILE* file = fsbridge::fopen(&quot;streams_test_tmp&quot;, &quot;w+b&quot;);</span>
+<span class="lineNum">     208 </span>            :     // The value at each offset is the offset.
+<span class="lineNum">     209 </span><span class="lineCov">         41 :     for (uint8_t j = 0; j &lt; 40; ++j) {</span>
+<span class="lineNum">     210 </span><span class="lineCov">         40 :         fwrite(&amp;j, 1, 1, file);</span>
+<span class="lineNum">     211 </span>            :     }
+<span class="lineNum">     212 </span><span class="lineCov">          1 :     rewind(file);</span>
+<span class="lineNum">     213 </span>            : 
+<span class="lineNum">     214 </span>            :     // The buffer size (second arg) must be greater than the rewind
+<span class="lineNum">     215 </span>            :     // amount (third arg).
+<span class="lineNum">     216 </span>            :     try {
+<span class="lineNum">     217 </span><span class="lineCov">          1 :         CBufferedFile bfbad(file, 25, 25, 222, 333);</span>
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 :         BOOST_CHECK(false);</span>
+<span class="lineNum">     219 </span><span class="lineCov">          1 :     } catch (const std::exception&amp; e) {</span>
+<span class="lineNum">     220 </span><span class="lineCov">          1 :         BOOST_CHECK(strstr(e.what(),</span>
+<span class="lineNum">     221 </span>            :                         &quot;Rewind limit must be less than buffer size&quot;) != nullptr);
+<span class="lineNum">     222 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">     223 </span>            : 
+<span class="lineNum">     224 </span>            :     // The buffer is 25 bytes, allow rewinding 10 bytes.
+<span class="lineNum">     225 </span><span class="lineCov">          1 :     CBufferedFile bf(file, 25, 10, 222, 333);</span>
+<span class="lineNum">     226 </span><span class="lineCov">          1 :     BOOST_CHECK(!bf.eof());</span>
+<span class="lineNum">     227 </span>            : 
+<span class="lineNum">     228 </span>            :     // These two members have no functional effect.
+<span class="lineNum">     229 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(bf.GetType(), 222);</span>
+<span class="lineNum">     230 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(bf.GetVersion(), 333);</span>
+<span class="lineNum">     231 </span>            : 
+<span class="lineNum">     232 </span><span class="lineCov">          1 :     uint8_t i;</span>
+<span class="lineNum">     233 </span><span class="lineCov">          1 :     bf &gt;&gt; i;</span>
+<span class="lineNum">     234 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(i, 0);</span>
+<span class="lineNum">     235 </span><span class="lineCov">          1 :     bf &gt;&gt; i;</span>
+<span class="lineNum">     236 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(i, 1);</span>
+<span class="lineNum">     237 </span>            : 
+<span class="lineNum">     238 </span>            :     // After reading bytes 0 and 1, we're positioned at 2.
+<span class="lineNum">     239 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(bf.GetPos(), 2U);</span>
+<span class="lineNum">     240 </span>            : 
+<span class="lineNum">     241 </span>            :     // Rewind to offset 0, ok (within the 10 byte window).
+<span class="lineNum">     242 </span><span class="lineCov">          1 :     BOOST_CHECK(bf.SetPos(0));</span>
+<span class="lineNum">     243 </span><span class="lineCov">          1 :     bf &gt;&gt; i;</span>
+<span class="lineNum">     244 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(i, 0);</span>
+<span class="lineNum">     245 </span>            : 
+<span class="lineNum">     246 </span>            :     // We can go forward to where we've been, but beyond may fail.
+<span class="lineNum">     247 </span><span class="lineCov">          1 :     BOOST_CHECK(bf.SetPos(2));</span>
+<span class="lineNum">     248 </span><span class="lineCov">          1 :     bf &gt;&gt; i;</span>
+<span class="lineNum">     249 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(i, 2);</span>
+<span class="lineNum">     250 </span>            : 
+<span class="lineNum">     251 </span>            :     // If you know the maximum number of bytes that should be
+<span class="lineNum">     252 </span>            :     // read to deserialize the variable, you can limit the read
+<span class="lineNum">     253 </span>            :     // extent. The current file offset is 3, so the following
+<span class="lineNum">     254 </span>            :     // SetLimit() allows zero bytes to be read.
+<span class="lineNum">     255 </span><span class="lineCov">          1 :     BOOST_CHECK(bf.SetLimit(3));</span>
+<span class="lineNum">     256 </span>            :     try {
+<span class="lineNum">     257 </span><span class="lineCov">          1 :         bf &gt;&gt; i;</span>
+<span class="lineNum">     258 </span><span class="lineNoCov">          0 :         BOOST_CHECK(false);</span>
+<span class="lineNum">     259 </span><span class="lineCov">          1 :     } catch (const std::exception&amp; e) {</span>
+<span class="lineNum">     260 </span><span class="lineCov">          1 :         BOOST_CHECK(strstr(e.what(),</span>
+<span class="lineNum">     261 </span>            :                         &quot;Read attempted past buffer limit&quot;) != nullptr);
+<span class="lineNum">     262 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">     263 </span>            :     // The default argument removes the limit completely.
+<span class="lineNum">     264 </span><span class="lineCov">          1 :     BOOST_CHECK(bf.SetLimit());</span>
+<span class="lineNum">     265 </span>            :     // The read position should still be at 3 (no change).
+<span class="lineNum">     266 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(bf.GetPos(), 3U);</span>
+<span class="lineNum">     267 </span>            : 
+<span class="lineNum">     268 </span>            :     // Read from current offset, 3, forward until position 10.
+<span class="lineNum">     269 </span><span class="lineCov">          8 :     for (uint8_t j = 3; j &lt; 10; ++j) {</span>
+<span class="lineNum">     270 </span><span class="lineCov">          7 :         bf &gt;&gt; i;</span>
+<span class="lineNum">     271 </span><span class="lineCov">          7 :         BOOST_CHECK_EQUAL(i, j);</span>
+<span class="lineNum">     272 </span>            :     }
+<span class="lineNum">     273 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(bf.GetPos(), 10U);</span>
+<span class="lineNum">     274 </span>            : 
+<span class="lineNum">     275 </span>            :     // We're guaranteed (just barely) to be able to rewind to zero.
+<span class="lineNum">     276 </span><span class="lineCov">          1 :     BOOST_CHECK(bf.SetPos(0));</span>
+<span class="lineNum">     277 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(bf.GetPos(), 0U);</span>
+<span class="lineNum">     278 </span><span class="lineCov">          1 :     bf &gt;&gt; i;</span>
+<span class="lineNum">     279 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(i, 0);</span>
+<span class="lineNum">     280 </span>            : 
+<span class="lineNum">     281 </span>            :     // We can set the position forward again up to the farthest
+<span class="lineNum">     282 </span>            :     // into the stream we've been, but no farther. (Attempting
+<span class="lineNum">     283 </span>            :     // to go farther may succeed, but it's not guaranteed.)
+<span class="lineNum">     284 </span><span class="lineCov">          1 :     BOOST_CHECK(bf.SetPos(10));</span>
+<span class="lineNum">     285 </span><span class="lineCov">          1 :     bf &gt;&gt; i;</span>
+<span class="lineNum">     286 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(i, 10);</span>
+<span class="lineNum">     287 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(bf.GetPos(), 11U);</span>
+<span class="lineNum">     288 </span>            : 
+<span class="lineNum">     289 </span>            :     // Now it's only guaranteed that we can rewind to offset 1
+<span class="lineNum">     290 </span>            :     // (current read position, 11, minus rewind amount, 10).
+<span class="lineNum">     291 </span><span class="lineCov">          1 :     BOOST_CHECK(bf.SetPos(1));</span>
+<span class="lineNum">     292 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(bf.GetPos(), 1U);</span>
+<span class="lineNum">     293 </span><span class="lineCov">          1 :     bf &gt;&gt; i;</span>
+<span class="lineNum">     294 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(i, 1);</span>
+<span class="lineNum">     295 </span>            : 
+<span class="lineNum">     296 </span>            :     // We can stream into large variables, even larger than
+<span class="lineNum">     297 </span>            :     // the buffer size.
+<span class="lineNum">     298 </span><span class="lineCov">          1 :     BOOST_CHECK(bf.SetPos(11));</span>
+<span class="lineNum">     299 </span>            :     {
+<span class="lineNum">     300 </span><span class="lineCov">          1 :         uint8_t a[40 - 11];</span>
+<span class="lineNum">     301 </span><span class="lineCov">          1 :         bf &gt;&gt; a;</span>
+<span class="lineNum">     302 </span><span class="lineCov">         30 :         for (uint8_t j = 0; j &lt; sizeof(a); ++j) {</span>
+<span class="lineNum">     303 </span><span class="lineCov">         29 :             BOOST_CHECK_EQUAL(a[j], 11 + j);</span>
+<span class="lineNum">     304 </span>            :         }
+<span class="lineNum">     305 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">     306 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(bf.GetPos(), 40U);</span>
+<span class="lineNum">     307 </span>            : 
+<span class="lineNum">     308 </span>            :     // We've read the entire file, the next read should throw.
+<span class="lineNum">     309 </span>            :     try {
+<span class="lineNum">     310 </span><span class="lineCov">          1 :         bf &gt;&gt; i;</span>
+<span class="lineNum">     311 </span><span class="lineNoCov">          0 :         BOOST_CHECK(false);</span>
+<span class="lineNum">     312 </span><span class="lineCov">          1 :     } catch (const std::exception&amp; e) {</span>
+<span class="lineNum">     313 </span><span class="lineCov">          1 :         BOOST_CHECK(strstr(e.what(),</span>
+<span class="lineNum">     314 </span>            :                         &quot;CBufferedFile::Fill: end of file&quot;) != nullptr);
+<span class="lineNum">     315 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">     316 </span>            :     // Attempting to read beyond the end sets the EOF indicator.
+<span class="lineNum">     317 </span><span class="lineCov">          1 :     BOOST_CHECK(bf.eof());</span>
+<span class="lineNum">     318 </span>            : 
+<span class="lineNum">     319 </span>            :     // Still at offset 40, we can go back 10, to 30.
+<span class="lineNum">     320 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(bf.GetPos(), 40U);</span>
+<span class="lineNum">     321 </span><span class="lineCov">          1 :     BOOST_CHECK(bf.SetPos(30));</span>
+<span class="lineNum">     322 </span><span class="lineCov">          1 :     bf &gt;&gt; i;</span>
+<span class="lineNum">     323 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(i, 30);</span>
+<span class="lineNum">     324 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(bf.GetPos(), 31U);</span>
+<span class="lineNum">     325 </span>            : 
+<span class="lineNum">     326 </span>            :     // We're too far to rewind to position zero.
+<span class="lineNum">     327 </span><span class="lineCov">          1 :     BOOST_CHECK(!bf.SetPos(0));</span>
+<span class="lineNum">     328 </span>            :     // But we should now be positioned at least as far back as allowed
+<span class="lineNum">     329 </span>            :     // by the rewind window (relative to our farthest read position, 40).
+<span class="lineNum">     330 </span><span class="lineCov">          1 :     BOOST_CHECK(bf.GetPos() &lt;= 30);</span>
+<span class="lineNum">     331 </span>            : 
+<span class="lineNum">     332 </span>            :     // We can explicitly close the file, or the destructor will do it.
+<span class="lineNum">     333 </span><span class="lineCov">          1 :     bf.fclose();</span>
+<span class="lineNum">     334 </span>            : 
+<span class="lineNum">     335 </span><span class="lineCov">          1 :     fs::remove(&quot;streams_test_tmp&quot;);</span>
+<a name="336"><span class="lineNum">     336 </span><span class="lineCov">          4 : }</span></a>
+<span class="lineNum">     337 </span>            : 
+<span class="lineNum">     338 </span><span class="lineCov">         91 : BOOST_AUTO_TEST_CASE(streams_buffered_file_rand)</span>
+<span class="lineNum">     339 </span>            : {
+<span class="lineNum">     340 </span>            :     // Make this test deterministic.
+<span class="lineNum">     341 </span><span class="lineCov">          1 :     SeedInsecureRand(SeedRand::ZEROS);</span>
+<span class="lineNum">     342 </span>            : 
+<span class="lineNum">     343 </span><span class="lineCov">         51 :     for (int rep = 0; rep &lt; 50; ++rep) {</span>
+<span class="lineNum">     344 </span><span class="lineCov">         50 :         FILE* file = fsbridge::fopen(&quot;streams_test_tmp&quot;, &quot;w+b&quot;);</span>
+<span class="lineNum">     345 </span><span class="lineCov">         50 :         size_t fileSize = InsecureRandRange(256);</span>
+<span class="lineNum">     346 </span><span class="lineCov">       5796 :         for (uint8_t i = 0; i &lt; fileSize; ++i) {</span>
+<span class="lineNum">     347 </span><span class="lineCov">       5746 :             fwrite(&amp;i, 1, 1, file);</span>
+<span class="lineNum">     348 </span>            :         }
+<span class="lineNum">     349 </span><span class="lineCov">         50 :         rewind(file);</span>
+<span class="lineNum">     350 </span>            : 
+<span class="lineNum">     351 </span><span class="lineCov">         50 :         size_t bufSize = InsecureRandRange(300) + 1;</span>
+<span class="lineNum">     352 </span><span class="lineCov">         50 :         size_t rewindSize = InsecureRandRange(bufSize);</span>
+<span class="lineNum">     353 </span><span class="lineCov">         50 :         CBufferedFile bf(file, bufSize, rewindSize, 222, 333);</span>
+<span class="lineNum">     354 </span><span class="lineCov">         50 :         size_t currentPos = 0;</span>
+<span class="lineNum">     355 </span>            :         size_t maxPos = 0;
+<span class="lineNum">     356 </span><span class="lineCov">       3722 :         for (int step = 0; step &lt; 100; ++step) {</span>
+<span class="lineNum">     357 </span><span class="lineCov">       3694 :             if (currentPos &gt;= fileSize)</span>
+<span class="lineNum">     358 </span><span class="lineCov">         22 :                 break;</span>
+<span class="lineNum">     359 </span>            : 
+<span class="lineNum">     360 </span>            :             // We haven't read to the end of the file yet.
+<span class="lineNum">     361 </span><span class="lineCov">       3672 :             BOOST_CHECK(!bf.eof());</span>
+<span class="lineNum">     362 </span><span class="lineCov">       3672 :             BOOST_CHECK_EQUAL(bf.GetPos(), currentPos);</span>
+<span class="lineNum">     363 </span>            : 
+<span class="lineNum">     364 </span>            :             // Pretend the file consists of a series of objects of varying
+<span class="lineNum">     365 </span>            :             // sizes; the boundaries of the objects can interact arbitrarily
+<span class="lineNum">     366 </span>            :             // with the CBufferFile's internal buffer. These first three
+<span class="lineNum">     367 </span>            :             // cases simulate objects of various sizes (1, 2, 5 bytes).
+<span class="lineNum">     368 </span><span class="lineCov">       3672 :             switch (InsecureRandRange(5)) {</span>
+<span class="lineNum">     369 </span>            :             case 0: {
+<span class="lineNum">     370 </span><span class="lineCov">        757 :                 uint8_t a[1];</span>
+<span class="lineNum">     371 </span><span class="lineCov">        757 :                 if (currentPos + 1 &gt; fileSize)</span>
+<span class="lineNum">     372 </span><span class="lineNoCov">          0 :                     continue;</span>
+<span class="lineNum">     373 </span><span class="lineCov">        757 :                 bf.SetLimit(currentPos + 1);</span>
+<span class="lineNum">     374 </span><span class="lineCov">        757 :                 bf &gt;&gt; a;</span>
+<span class="lineNum">     375 </span><span class="lineCov">       1514 :                 for (uint8_t i = 0; i &lt; 1; ++i) {</span>
+<span class="lineNum">     376 </span><span class="lineCov">        757 :                     BOOST_CHECK_EQUAL(a[i], currentPos);</span>
+<span class="lineNum">     377 </span><span class="lineCov">        757 :                     currentPos++;</span>
+<span class="lineNum">     378 </span>            :                 }
+<span class="lineNum">     379 </span><span class="lineCov">        757 :                 break;</span>
+<span class="lineNum">     380 </span><span class="lineCov">        757 :             }</span>
+<span class="lineNum">     381 </span>            :             case 1: {
+<span class="lineNum">     382 </span><span class="lineCov">        723 :                 uint8_t a[2];</span>
+<span class="lineNum">     383 </span><span class="lineCov">        723 :                 if (currentPos + 2 &gt; fileSize)</span>
+<span class="lineNum">     384 </span><span class="lineCov">          3 :                     continue;</span>
+<span class="lineNum">     385 </span><span class="lineCov">        720 :                 bf.SetLimit(currentPos + 2);</span>
+<span class="lineNum">     386 </span><span class="lineCov">        720 :                 bf &gt;&gt; a;</span>
+<span class="lineNum">     387 </span><span class="lineCov">       2160 :                 for (uint8_t i = 0; i &lt; 2; ++i) {</span>
+<span class="lineNum">     388 </span><span class="lineCov">       1440 :                     BOOST_CHECK_EQUAL(a[i], currentPos);</span>
+<span class="lineNum">     389 </span><span class="lineCov">       1440 :                     currentPos++;</span>
+<span class="lineNum">     390 </span>            :                 }
+<span class="lineNum">     391 </span><span class="lineCov">        720 :                 break;</span>
+<span class="lineNum">     392 </span><span class="lineCov">        723 :             }</span>
+<span class="lineNum">     393 </span>            :             case 2: {
+<span class="lineNum">     394 </span><span class="lineCov">        756 :                 uint8_t a[5];</span>
+<span class="lineNum">     395 </span><span class="lineCov">        756 :                 if (currentPos + 5 &gt; fileSize)</span>
+<span class="lineNum">     396 </span><span class="lineCov">         11 :                     continue;</span>
+<span class="lineNum">     397 </span><span class="lineCov">        745 :                 bf.SetLimit(currentPos + 5);</span>
+<span class="lineNum">     398 </span><span class="lineCov">        745 :                 bf &gt;&gt; a;</span>
+<span class="lineNum">     399 </span><span class="lineCov">       4470 :                 for (uint8_t i = 0; i &lt; 5; ++i) {</span>
+<span class="lineNum">     400 </span><span class="lineCov">       3725 :                     BOOST_CHECK_EQUAL(a[i], currentPos);</span>
+<span class="lineNum">     401 </span><span class="lineCov">       3725 :                     currentPos++;</span>
+<span class="lineNum">     402 </span>            :                 }
+<span class="lineNum">     403 </span><span class="lineCov">        745 :                 break;</span>
+<span class="lineNum">     404 </span><span class="lineCov">        756 :             }</span>
+<span class="lineNum">     405 </span>            :             case 3: {
+<span class="lineNum">     406 </span>            :                 // Find a byte value (that is at or ahead of the current position).
+<span class="lineNum">     407 </span><span class="lineCov">        746 :                 size_t find = currentPos + InsecureRandRange(8);</span>
+<span class="lineNum">     408 </span><span class="lineCov">        746 :                 if (find &gt;= fileSize)</span>
+<span class="lineNum">     409 </span><span class="lineCov">          5 :                     find = fileSize - 1;</span>
+<span class="lineNum">     410 </span><span class="lineCov">        746 :                 bf.FindByte(static_cast&lt;char&gt;(find));</span>
+<span class="lineNum">     411 </span>            :                 // The value at each offset is the offset.
+<span class="lineNum">     412 </span><span class="lineCov">        746 :                 BOOST_CHECK_EQUAL(bf.GetPos(), find);</span>
+<span class="lineNum">     413 </span><span class="lineCov">        746 :                 currentPos = find;</span>
+<span class="lineNum">     414 </span>            : 
+<span class="lineNum">     415 </span><span class="lineCov">        746 :                 bf.SetLimit(currentPos + 1);</span>
+<span class="lineNum">     416 </span><span class="lineCov">        746 :                 uint8_t i;</span>
+<span class="lineNum">     417 </span><span class="lineCov">        746 :                 bf &gt;&gt; i;</span>
+<span class="lineNum">     418 </span><span class="lineCov">        746 :                 BOOST_CHECK_EQUAL(i, currentPos);</span>
+<span class="lineNum">     419 </span><span class="lineCov">        746 :                 currentPos++;</span>
+<span class="lineNum">     420 </span>            :                 break;
+<span class="lineNum">     421 </span><span class="lineCov">        746 :             }</span>
+<span class="lineNum">     422 </span>            :             case 4: {
+<span class="lineNum">     423 </span><span class="lineCov">        690 :                 size_t requestPos = InsecureRandRange(maxPos + 4);</span>
+<span class="lineNum">     424 </span><span class="lineCov">        690 :                 bool okay = bf.SetPos(requestPos);</span>
+<span class="lineNum">     425 </span>            :                 // The new position may differ from the requested position
+<span class="lineNum">     426 </span>            :                 // because we may not be able to rewind beyond the rewind
+<span class="lineNum">     427 </span>            :                 // window, and we may not be able to move forward beyond the
+<span class="lineNum">     428 </span>            :                 // farthest position we've reached so far.
+<span class="lineNum">     429 </span><span class="lineCov">        690 :                 currentPos = bf.GetPos();</span>
+<span class="lineNum">     430 </span><span class="lineCov">        690 :                 BOOST_CHECK_EQUAL(okay, currentPos == requestPos);</span>
+<span class="lineNum">     431 </span>            :                 // Check that we can position within the rewind window.
+<span class="lineNum">     432 </span><span class="lineCov">        926 :                 if (requestPos &lt;= maxPos &amp;&amp;</span>
+<span class="lineNum">     433 </span><span class="lineCov">        623 :                     maxPos &gt; rewindSize &amp;&amp;</span>
+<span class="lineNum">     434 </span><span class="lineCov">        236 :                     requestPos &gt;= maxPos - rewindSize) {</span>
+<span class="lineNum">     435 </span>            :                     // We requested a position within the rewind window.
+<span class="lineNum">     436 </span><span class="lineCov">        110 :                     BOOST_CHECK(okay);</span>
+<span class="lineNum">     437 </span>            :                 }
+<span class="lineNum">     438 </span>            :                 break;
+<span class="lineNum">     439 </span><span class="lineCov">        690 :             }</span>
+<span class="lineNum">     440 </span>            :             }
+<span class="lineNum">     441 </span><span class="lineCov">       3658 :             if (maxPos &lt; currentPos)</span>
+<span class="lineNum">     442 </span><span class="lineCov">       1384 :                 maxPos = currentPos;</span>
+<span class="lineNum">     443 </span>            :         }
+<span class="lineNum">     444 </span><span class="lineCov">         50 :     }</span>
+<span class="lineNum">     445 </span><span class="lineCov">          1 :     fs::remove(&quot;streams_test_tmp&quot;);</span>
+<a name="446"><span class="lineNum">     446 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     447 </span>            : 
+<span class="lineNum">     448 </span><span class="lineCov">         88 : BOOST_AUTO_TEST_SUITE_END()</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

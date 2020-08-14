@@ -1,0 +1,199 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - total_coverage.info - src/wallet/walletutil.h</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">src/wallet</a> - walletutil.h<span style="font-size: 80%;"> (source / <a href="walletutil.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">total_coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">24</td>
+            <td class="headerCovTableEntry">24</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-08-14 02:59:33</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">23</td>
+            <td class="headerCovTableEntry">23</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2017-2019 The Bitcoin Core developers</a>
+<span class="lineNum">       2 </span>            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       3 </span>            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       4 </span>            : 
+<span class="lineNum">       5 </span>            : #ifndef BITCOIN_WALLET_WALLETUTIL_H
+<span class="lineNum">       6 </span>            : #define BITCOIN_WALLET_WALLETUTIL_H
+<span class="lineNum">       7 </span>            : 
+<span class="lineNum">       8 </span>            : #include &lt;fs.h&gt;
+<span class="lineNum">       9 </span>            : #include &lt;script/descriptor.h&gt;
+<span class="lineNum">      10 </span>            : 
+<span class="lineNum">      11 </span>            : #include &lt;vector&gt;
+<span class="lineNum">      12 </span>            : 
+<span class="lineNum">      13 </span>            : /** (client) version numbers for particular wallet features */
+<span class="lineNum">      14 </span>            : enum WalletFeature
+<span class="lineNum">      15 </span>            : {
+<span class="lineNum">      16 </span>            :     FEATURE_BASE = 10500, // the earliest version new wallets supports (only useful for getwalletinfo's clientversion output)
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            :     FEATURE_WALLETCRYPT = 40000, // wallet encryption
+<span class="lineNum">      19 </span>            :     FEATURE_COMPRPUBKEY = 60000, // compressed public keys
+<span class="lineNum">      20 </span>            : 
+<span class="lineNum">      21 </span>            :     FEATURE_HD = 130000, // Hierarchical key derivation after BIP32 (HD Wallet)
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            :     FEATURE_HD_SPLIT = 139900, // Wallet with HD chain split (change outputs will use m/0'/1'/k)
+<span class="lineNum">      24 </span>            : 
+<span class="lineNum">      25 </span>            :     FEATURE_NO_DEFAULT_KEY = 159900, // Wallet without a default key written
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span>            :     FEATURE_PRE_SPLIT_KEYPOOL = 169900, // Upgraded to HD SPLIT and can have a pre-split keypool
+<span class="lineNum">      28 </span>            : 
+<span class="lineNum">      29 </span>            :     FEATURE_LATEST = FEATURE_PRE_SPLIT_KEYPOOL
+<span class="lineNum">      30 </span>            : };
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            : 
+<span class="lineNum">      34 </span>            : enum WalletFlags : uint64_t {
+<span class="lineNum">      35 </span>            :     // wallet flags in the upper section (&gt; 1 &lt;&lt; 31) will lead to not opening the wallet if flag is unknown
+<span class="lineNum">      36 </span>            :     // unknown wallet flags in the lower section &lt;= (1 &lt;&lt; 31) will be tolerated
+<span class="lineNum">      37 </span>            : 
+<span class="lineNum">      38 </span>            :     // will categorize coins as clean (not reused) and dirty (reused), and handle
+<span class="lineNum">      39 </span>            :     // them with privacy considerations in mind
+<span class="lineNum">      40 </span>            :     WALLET_FLAG_AVOID_REUSE = (1ULL &lt;&lt; 0),
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span>            :     // Indicates that the metadata has already been upgraded to contain key origins
+<span class="lineNum">      43 </span>            :     WALLET_FLAG_KEY_ORIGIN_METADATA = (1ULL &lt;&lt; 1),
+<span class="lineNum">      44 </span>            : 
+<span class="lineNum">      45 </span>            :     // will enforce the rule that the wallet can't contain any private keys (only watch-only/pubkeys)
+<span class="lineNum">      46 </span>            :     WALLET_FLAG_DISABLE_PRIVATE_KEYS = (1ULL &lt;&lt; 32),
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span>            :     //! Flag set when a wallet contains no HD seed and no private keys, scripts,
+<span class="lineNum">      49 </span>            :     //! addresses, and other watch only things, and is therefore &quot;blank.&quot;
+<span class="lineNum">      50 </span>            :     //!
+<span class="lineNum">      51 </span>            :     //! The only function this flag serves is to distinguish a blank wallet from
+<span class="lineNum">      52 </span>            :     //! a newly created wallet when the wallet database is loaded, to avoid
+<span class="lineNum">      53 </span>            :     //! initialization that should only happen on first run.
+<span class="lineNum">      54 </span>            :     //!
+<span class="lineNum">      55 </span>            :     //! This flag is also a mandatory flag to prevent previous versions of
+<span class="lineNum">      56 </span>            :     //! bitcoin from opening the wallet, thinking it was newly created, and
+<span class="lineNum">      57 </span>            :     //! then improperly reinitializing it.
+<span class="lineNum">      58 </span>            :     WALLET_FLAG_BLANK_WALLET = (1ULL &lt;&lt; 33),
+<span class="lineNum">      59 </span>            : 
+<span class="lineNum">      60 </span>            :     //! Indicate that this wallet supports DescriptorScriptPubKeyMan
+<span class="lineNum">      61 </span>            :     WALLET_FLAG_DESCRIPTORS = (1ULL &lt;&lt; 34),
+<span class="lineNum">      62 </span>            : };
+<span class="lineNum">      63 </span>            : 
+<span class="lineNum">      64 </span>            : //! Get the path of the wallet directory.
+<span class="lineNum">      65 </span>            : fs::path GetWalletDir();
+<span class="lineNum">      66 </span>            : 
+<span class="lineNum">      67 </span>            : //! Get wallets in wallet directory.
+<span class="lineNum">      68 </span>            : std::vector&lt;fs::path&gt; ListWalletDir();
+<a name="69"><span class="lineNum">      69 </span>            : </a>
+<span class="lineNum">      70 </span>            : //! The WalletLocation class provides wallet information.
+<span class="lineNum">      71 </span><span class="lineCov">       2878 : class WalletLocation final</span>
+<span class="lineNum">      72 </span>            : {
+<span class="lineNum">      73 </span>            :     std::string m_name;
+<span class="lineNum">      74 </span>            :     fs::path m_path;
+<a name="75"><span class="lineNum">      75 </span>            : </a>
+<span class="lineNum">      76 </span>            : public:
+<span class="lineNum">      77 </span><span class="lineCov">        136 :     explicit WalletLocation() {}</span>
+<span class="lineNum">      78 </span>            :     explicit WalletLocation(const std::string&amp; name);
+<a name="79"><span class="lineNum">      79 </span>            : </a>
+<span class="lineNum">      80 </span>            :     //! Get wallet name.
+<span class="lineNum">      81 </span><span class="lineCov">     216860 :     const std::string&amp; GetName() const { return m_name; }</span>
+<a name="82"><span class="lineNum">      82 </span>            : </a>
+<span class="lineNum">      83 </span>            :     //! Get wallet absolute path.
+<span class="lineNum">      84 </span><span class="lineCov">       2676 :     const fs::path&amp; GetPath() const { return m_path; }</span>
+<span class="lineNum">      85 </span>            : 
+<span class="lineNum">      86 </span>            :     //! Return whether the wallet exists.
+<span class="lineNum">      87 </span>            :     bool Exists() const;
+<span class="lineNum">      88 </span>            : };
+<a name="89"><span class="lineNum">      89 </span>            : </a>
+<span class="lineNum">      90 </span>            : /** Descriptor with some wallet metadata */
+<span class="lineNum">      91 </span><span class="lineCov">       1748 : class WalletDescriptor</span>
+<span class="lineNum">      92 </span>            : {
+<span class="lineNum">      93 </span>            : public:
+<span class="lineNum">      94 </span>            :     std::shared_ptr&lt;Descriptor&gt; descriptor;
+<span class="lineNum">      95 </span><span class="lineCov">        474 :     uint64_t creation_time = 0;</span>
+<span class="lineNum">      96 </span><span class="lineCov">        474 :     int32_t range_start = 0; // First item in range; start of range, inclusive, i.e. [range_start, range_end). This never changes.</span>
+<span class="lineNum">      97 </span><span class="lineCov">        474 :     int32_t range_end = 0; // Item after the last; end of range, exclusive, i.e. [range_start, range_end). This will increment with each TopUp()</span>
+<span class="lineNum">      98 </span><span class="lineCov">        474 :     int32_t next_index = 0; // Position of the next item to generate</span>
+<a name="99"><span class="lineNum">      99 </span>            :     DescriptorCache cache;</a>
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span><span class="lineCov">        270 :     void DeserializeDescriptor(const std::string&amp; str)</span>
+<span class="lineNum">     102 </span>            :     {
+<span class="lineNum">     103 </span><span class="lineCov">        270 :         std::string error;</span>
+<span class="lineNum">     104 </span><span class="lineCov">        270 :         FlatSigningProvider keys;</span>
+<span class="lineNum">     105 </span><span class="lineCov">        270 :         descriptor = Parse(str, keys, error, true);</span>
+<span class="lineNum">     106 </span><span class="lineCov">        270 :         if (!descriptor) {</span>
+<span class="lineNum">     107 </span><span class="lineCov">          1 :             throw std::ios_base::failure(&quot;Invalid descriptor: &quot; + error);</span>
+<span class="lineNum">     108 </span>            :         }
+<a name="109"><span class="lineNum">     109 </span><span class="lineCov">        270 :     }</span></a>
+<span class="lineNum">     110 </span>            : 
+<span class="lineNum">     111 </span><span class="lineCov">      24771 :     SERIALIZE_METHODS(WalletDescriptor, obj)</span>
+<a name="112"><span class="lineNum">     112 </span>            :     {</a>
+<span class="lineNum">     113 </span><span class="lineCov">       8257 :         std::string descriptor_str;</span>
+<a name="114"><span class="lineNum">     114 </span><span class="lineCov">      16244 :         SER_WRITE(obj, descriptor_str = obj.descriptor-&gt;ToString());</span></a>
+<span class="lineNum">     115 </span><span class="lineCov">       8257 :         READWRITE(descriptor_str, obj.creation_time, obj.next_index, obj.range_start, obj.range_end);</span>
+<span class="lineNum">     116 </span><span class="lineCov">       8527 :         SER_READ(obj, obj.DeserializeDescriptor(descriptor_str));</span>
+<a name="117"><span class="lineNum">     117 </span><span class="lineCov">       8257 :     }</span></a>
+<a name="118"><span class="lineNum">     118 </span>            : </a>
+<span class="lineNum">     119 </span><span class="lineCov">        474 :     WalletDescriptor() {}</span>
+<span class="lineNum">     120 </span><span class="lineCov">        296 :     WalletDescriptor(std::shared_ptr&lt;Descriptor&gt; descriptor, uint64_t creation_time, int32_t range_start, int32_t range_end, int32_t next_index) : descriptor(descriptor), creation_time(creation_time), range_start(range_start), range_end(range_end), next_index(next_index) {}</span>
+<span class="lineNum">     121 </span>            : };
+<span class="lineNum">     122 </span>            : 
+<span class="lineNum">     123 </span>            : #endif // BITCOIN_WALLET_WALLETUTIL_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

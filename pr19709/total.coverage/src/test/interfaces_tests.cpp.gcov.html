@@ -1,0 +1,239 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - total_coverage.info - src/test/interfaces_tests.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">src/test</a> - interfaces_tests.cpp<span style="font-size: 80%;"> (source / <a href="interfaces_tests.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">total_coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">120</td>
+            <td class="headerCovTableEntry">120</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-08-14 02:59:33</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">30</td>
+            <td class="headerCovTableEntry">30</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2020 The Bitcoin Core developers</a>
+<span class="lineNum">       2 </span>            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       3 </span>            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       4 </span>            : 
+<span class="lineNum">       5 </span>            : #include &lt;chainparams.h&gt;
+<span class="lineNum">       6 </span>            : #include &lt;consensus/validation.h&gt;
+<span class="lineNum">       7 </span>            : #include &lt;interfaces/chain.h&gt;
+<span class="lineNum">       8 </span>            : #include &lt;script/standard.h&gt;
+<span class="lineNum">       9 </span>            : #include &lt;test/util/setup_common.h&gt;
+<span class="lineNum">      10 </span>            : #include &lt;validation.h&gt;
+<span class="lineNum">      11 </span>            : 
+<span class="lineNum">      12 </span>            : #include &lt;boost/test/unit_test.hpp&gt;
+<span class="lineNum">      13 </span>            : 
+<a name="14"><span class="lineNum">      14 </span>            : using interfaces::FoundBlock;</a>
+<span class="lineNum">      15 </span>            : 
+<a name="16"><span class="lineNum">      16 </span><span class="lineCov">         88 : BOOST_FIXTURE_TEST_SUITE(interfaces_tests, TestChain100Setup)</span></a>
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span><span class="lineCov">         91 : BOOST_AUTO_TEST_CASE(findBlock)</span>
+<span class="lineNum">      19 </span>            : {
+<span class="lineNum">      20 </span><span class="lineCov">          1 :     auto chain = interfaces::MakeChain(m_node);</span>
+<span class="lineNum">      21 </span><span class="lineCov">          1 :     auto&amp; active = ChainActive();</span>
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span><span class="lineCov">          1 :     uint256 hash;</span>
+<span class="lineNum">      24 </span><span class="lineCov">          1 :     BOOST_CHECK(chain-&gt;findBlock(active[10]-&gt;GetBlockHash(), FoundBlock().hash(hash)));</span>
+<span class="lineNum">      25 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(hash, active[10]-&gt;GetBlockHash());</span>
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span><span class="lineCov">          1 :     int height = -1;</span>
+<span class="lineNum">      28 </span><span class="lineCov">          1 :     BOOST_CHECK(chain-&gt;findBlock(active[20]-&gt;GetBlockHash(), FoundBlock().height(height)));</span>
+<span class="lineNum">      29 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(height, active[20]-&gt;nHeight);</span>
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span><span class="lineCov">          1 :     CBlock data;</span>
+<span class="lineNum">      32 </span><span class="lineCov">          1 :     BOOST_CHECK(chain-&gt;findBlock(active[30]-&gt;GetBlockHash(), FoundBlock().data(data)));</span>
+<span class="lineNum">      33 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(data.GetHash(), active[30]-&gt;GetBlockHash());</span>
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span><span class="lineCov">          1 :     int64_t time = -1;</span>
+<span class="lineNum">      36 </span><span class="lineCov">          1 :     BOOST_CHECK(chain-&gt;findBlock(active[40]-&gt;GetBlockHash(), FoundBlock().time(time)));</span>
+<span class="lineNum">      37 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(time, active[40]-&gt;GetBlockTime());</span>
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span><span class="lineCov">          1 :     int64_t max_time = -1;</span>
+<span class="lineNum">      40 </span><span class="lineCov">          1 :     BOOST_CHECK(chain-&gt;findBlock(active[50]-&gt;GetBlockHash(), FoundBlock().maxTime(max_time)));</span>
+<span class="lineNum">      41 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(max_time, active[50]-&gt;GetBlockTimeMax());</span>
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span><span class="lineCov">          1 :     int64_t mtp_time = -1;</span>
+<span class="lineNum">      44 </span><span class="lineCov">          1 :     BOOST_CHECK(chain-&gt;findBlock(active[60]-&gt;GetBlockHash(), FoundBlock().mtpTime(mtp_time)));</span>
+<span class="lineNum">      45 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(mtp_time, active[60]-&gt;GetMedianTimePast());</span>
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span><span class="lineCov">          1 :     BOOST_CHECK(!chain-&gt;findBlock({}, FoundBlock()));</span>
+<a name="48"><span class="lineNum">      48 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">      49 </span>            : 
+<span class="lineNum">      50 </span><span class="lineCov">         91 : BOOST_AUTO_TEST_CASE(findFirstBlockWithTimeAndHeight)</span>
+<span class="lineNum">      51 </span>            : {
+<span class="lineNum">      52 </span><span class="lineCov">          1 :     auto chain = interfaces::MakeChain(m_node);</span>
+<span class="lineNum">      53 </span><span class="lineCov">          1 :     auto&amp; active = ChainActive();</span>
+<span class="lineNum">      54 </span><span class="lineCov">          1 :     uint256 hash;</span>
+<span class="lineNum">      55 </span><span class="lineCov">          1 :     int height;</span>
+<span class="lineNum">      56 </span><span class="lineCov">          1 :     BOOST_CHECK(chain-&gt;findFirstBlockWithTimeAndHeight(/* min_time= */ 0, /* min_height= */ 5, FoundBlock().hash(hash).height(height)));</span>
+<span class="lineNum">      57 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(hash, active[5]-&gt;GetBlockHash());</span>
+<span class="lineNum">      58 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(height, 5);</span>
+<span class="lineNum">      59 </span><span class="lineCov">          1 :     BOOST_CHECK(!chain-&gt;findFirstBlockWithTimeAndHeight(/* min_time= */ active.Tip()-&gt;GetBlockTimeMax() + 1, /* min_height= */ 0));</span>
+<a name="60"><span class="lineNum">      60 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">      61 </span>            : 
+<span class="lineNum">      62 </span><span class="lineCov">         91 : BOOST_AUTO_TEST_CASE(findNextBlock)</span>
+<span class="lineNum">      63 </span>            : {
+<span class="lineNum">      64 </span><span class="lineCov">          1 :     auto chain = interfaces::MakeChain(m_node);</span>
+<span class="lineNum">      65 </span><span class="lineCov">          1 :     auto&amp; active = ChainActive();</span>
+<span class="lineNum">      66 </span><span class="lineCov">          1 :     bool reorg;</span>
+<span class="lineNum">      67 </span><span class="lineCov">          1 :     uint256 hash;</span>
+<span class="lineNum">      68 </span><span class="lineCov">          1 :     BOOST_CHECK(chain-&gt;findNextBlock(active[20]-&gt;GetBlockHash(), 20, FoundBlock().hash(hash), &amp;reorg));</span>
+<span class="lineNum">      69 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(hash, active[21]-&gt;GetBlockHash());</span>
+<span class="lineNum">      70 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(reorg, false);</span>
+<span class="lineNum">      71 </span><span class="lineCov">          1 :     BOOST_CHECK(!chain-&gt;findNextBlock(uint256(), 20, {}, &amp;reorg));</span>
+<span class="lineNum">      72 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(reorg, true);</span>
+<span class="lineNum">      73 </span><span class="lineCov">          1 :     BOOST_CHECK(!chain-&gt;findNextBlock(active.Tip()-&gt;GetBlockHash(), active.Height(), {}, &amp;reorg));</span>
+<span class="lineNum">      74 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(reorg, false);</span>
+<a name="75"><span class="lineNum">      75 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">      76 </span>            : 
+<span class="lineNum">      77 </span><span class="lineCov">         91 : BOOST_AUTO_TEST_CASE(findAncestorByHeight)</span>
+<span class="lineNum">      78 </span>            : {
+<span class="lineNum">      79 </span><span class="lineCov">          1 :     auto chain = interfaces::MakeChain(m_node);</span>
+<span class="lineNum">      80 </span><span class="lineCov">          1 :     auto&amp; active = ChainActive();</span>
+<span class="lineNum">      81 </span><span class="lineCov">          1 :     uint256 hash;</span>
+<span class="lineNum">      82 </span><span class="lineCov">          1 :     BOOST_CHECK(chain-&gt;findAncestorByHeight(active[20]-&gt;GetBlockHash(), 10, FoundBlock().hash(hash)));</span>
+<span class="lineNum">      83 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(hash, active[10]-&gt;GetBlockHash());</span>
+<span class="lineNum">      84 </span><span class="lineCov">          1 :     BOOST_CHECK(!chain-&gt;findAncestorByHeight(active[10]-&gt;GetBlockHash(), 20));</span>
+<a name="85"><span class="lineNum">      85 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">      86 </span>            : 
+<span class="lineNum">      87 </span><span class="lineCov">         91 : BOOST_AUTO_TEST_CASE(findAncestorByHash)</span>
+<span class="lineNum">      88 </span>            : {
+<span class="lineNum">      89 </span><span class="lineCov">          1 :     auto chain = interfaces::MakeChain(m_node);</span>
+<span class="lineNum">      90 </span><span class="lineCov">          1 :     auto&amp; active = ChainActive();</span>
+<span class="lineNum">      91 </span><span class="lineCov">          1 :     int height = -1;</span>
+<span class="lineNum">      92 </span><span class="lineCov">          1 :     BOOST_CHECK(chain-&gt;findAncestorByHash(active[20]-&gt;GetBlockHash(), active[10]-&gt;GetBlockHash(), FoundBlock().height(height)));</span>
+<span class="lineNum">      93 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(height, 10);</span>
+<span class="lineNum">      94 </span><span class="lineCov">          1 :     BOOST_CHECK(!chain-&gt;findAncestorByHash(active[10]-&gt;GetBlockHash(), active[20]-&gt;GetBlockHash()));</span>
+<a name="95"><span class="lineNum">      95 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">      96 </span>            : 
+<span class="lineNum">      97 </span><span class="lineCov">         91 : BOOST_AUTO_TEST_CASE(findCommonAncestor)</span>
+<span class="lineNum">      98 </span>            : {
+<span class="lineNum">      99 </span><span class="lineCov">          1 :     auto chain = interfaces::MakeChain(m_node);</span>
+<span class="lineNum">     100 </span><span class="lineCov">          1 :     auto&amp; active = ChainActive();</span>
+<span class="lineNum">     101 </span><span class="lineCov">          1 :     auto* orig_tip = active.Tip();</span>
+<span class="lineNum">     102 </span><span class="lineCov">         11 :     for (int i = 0; i &lt; 10; ++i) {</span>
+<span class="lineNum">     103 </span><span class="lineCov">         10 :         BlockValidationState state;</span>
+<span class="lineNum">     104 </span><span class="lineCov">         10 :         ChainstateActive().InvalidateBlock(state, Params(), active.Tip());</span>
+<span class="lineNum">     105 </span><span class="lineCov">         10 :     }</span>
+<span class="lineNum">     106 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(active.Height(), orig_tip-&gt;nHeight - 10);</span>
+<span class="lineNum">     107 </span><span class="lineCov">          1 :     coinbaseKey.MakeNewKey(true);</span>
+<span class="lineNum">     108 </span><span class="lineCov">         21 :     for (int i = 0; i &lt; 20; ++i) {</span>
+<span class="lineNum">     109 </span><span class="lineCov">         20 :         CreateAndProcessBlock({}, GetScriptForRawPubKey(coinbaseKey.GetPubKey()));</span>
+<span class="lineNum">     110 </span>            :     }
+<span class="lineNum">     111 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(active.Height(), orig_tip-&gt;nHeight + 10);</span>
+<span class="lineNum">     112 </span><span class="lineCov">          1 :     uint256 fork_hash;</span>
+<span class="lineNum">     113 </span><span class="lineCov">          1 :     int fork_height;</span>
+<span class="lineNum">     114 </span><span class="lineCov">          1 :     int orig_height;</span>
+<span class="lineNum">     115 </span><span class="lineCov">          1 :     BOOST_CHECK(chain-&gt;findCommonAncestor(orig_tip-&gt;GetBlockHash(), active.Tip()-&gt;GetBlockHash(), FoundBlock().height(fork_height).hash(fork_hash), FoundBlock().height(orig_height)));</span>
+<span class="lineNum">     116 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(orig_height, orig_tip-&gt;nHeight);</span>
+<span class="lineNum">     117 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(fork_height, orig_tip-&gt;nHeight - 10);</span>
+<span class="lineNum">     118 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(fork_hash, active[fork_height]-&gt;GetBlockHash());</span>
+<span class="lineNum">     119 </span>            : 
+<span class="lineNum">     120 </span><span class="lineCov">          1 :     uint256 active_hash, orig_hash;</span>
+<span class="lineNum">     121 </span><span class="lineCov">          1 :     BOOST_CHECK(!chain-&gt;findCommonAncestor(active.Tip()-&gt;GetBlockHash(), {}, {}, FoundBlock().hash(active_hash), {}));</span>
+<span class="lineNum">     122 </span><span class="lineCov">          1 :     BOOST_CHECK(!chain-&gt;findCommonAncestor({}, orig_tip-&gt;GetBlockHash(), {}, {}, FoundBlock().hash(orig_hash)));</span>
+<span class="lineNum">     123 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(active_hash, active.Tip()-&gt;GetBlockHash());</span>
+<span class="lineNum">     124 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(orig_hash, orig_tip-&gt;GetBlockHash());</span>
+<a name="125"><span class="lineNum">     125 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     126 </span>            : 
+<span class="lineNum">     127 </span><span class="lineCov">         91 : BOOST_AUTO_TEST_CASE(hasBlocks)</span>
+<span class="lineNum">     128 </span>            : {
+<span class="lineNum">     129 </span><span class="lineCov">          1 :     auto chain = interfaces::MakeChain(m_node);</span>
+<span class="lineNum">     130 </span><span class="lineCov">          1 :     auto&amp; active = ChainActive();</span>
+<span class="lineNum">     131 </span>            : 
+<span class="lineNum">     132 </span>            :     // Test ranges
+<span class="lineNum">     133 </span><span class="lineCov">          1 :     BOOST_CHECK(chain-&gt;hasBlocks(active.Tip()-&gt;GetBlockHash(), 10, 90));</span>
+<span class="lineNum">     134 </span><span class="lineCov">          1 :     BOOST_CHECK(chain-&gt;hasBlocks(active.Tip()-&gt;GetBlockHash(), 10, {}));</span>
+<span class="lineNum">     135 </span><span class="lineCov">          1 :     BOOST_CHECK(chain-&gt;hasBlocks(active.Tip()-&gt;GetBlockHash(), 0, 90));</span>
+<span class="lineNum">     136 </span><span class="lineCov">          1 :     BOOST_CHECK(chain-&gt;hasBlocks(active.Tip()-&gt;GetBlockHash(), 0, {}));</span>
+<span class="lineNum">     137 </span><span class="lineCov">          1 :     BOOST_CHECK(chain-&gt;hasBlocks(active.Tip()-&gt;GetBlockHash(), -1000, 1000));</span>
+<span class="lineNum">     138 </span><span class="lineCov">          1 :     active[5]-&gt;nStatus &amp;= ~BLOCK_HAVE_DATA;</span>
+<span class="lineNum">     139 </span><span class="lineCov">          1 :     BOOST_CHECK(chain-&gt;hasBlocks(active.Tip()-&gt;GetBlockHash(), 10, 90));</span>
+<span class="lineNum">     140 </span><span class="lineCov">          1 :     BOOST_CHECK(chain-&gt;hasBlocks(active.Tip()-&gt;GetBlockHash(), 10, {}));</span>
+<span class="lineNum">     141 </span><span class="lineCov">          1 :     BOOST_CHECK(!chain-&gt;hasBlocks(active.Tip()-&gt;GetBlockHash(), 0, 90));</span>
+<span class="lineNum">     142 </span><span class="lineCov">          1 :     BOOST_CHECK(!chain-&gt;hasBlocks(active.Tip()-&gt;GetBlockHash(), 0, {}));</span>
+<span class="lineNum">     143 </span><span class="lineCov">          1 :     BOOST_CHECK(!chain-&gt;hasBlocks(active.Tip()-&gt;GetBlockHash(), -1000, 1000));</span>
+<span class="lineNum">     144 </span><span class="lineCov">          1 :     active[95]-&gt;nStatus &amp;= ~BLOCK_HAVE_DATA;</span>
+<span class="lineNum">     145 </span><span class="lineCov">          1 :     BOOST_CHECK(chain-&gt;hasBlocks(active.Tip()-&gt;GetBlockHash(), 10, 90));</span>
+<span class="lineNum">     146 </span><span class="lineCov">          1 :     BOOST_CHECK(!chain-&gt;hasBlocks(active.Tip()-&gt;GetBlockHash(), 10, {}));</span>
+<span class="lineNum">     147 </span><span class="lineCov">          1 :     BOOST_CHECK(!chain-&gt;hasBlocks(active.Tip()-&gt;GetBlockHash(), 0, 90));</span>
+<span class="lineNum">     148 </span><span class="lineCov">          1 :     BOOST_CHECK(!chain-&gt;hasBlocks(active.Tip()-&gt;GetBlockHash(), 0, {}));</span>
+<span class="lineNum">     149 </span><span class="lineCov">          1 :     BOOST_CHECK(!chain-&gt;hasBlocks(active.Tip()-&gt;GetBlockHash(), -1000, 1000));</span>
+<span class="lineNum">     150 </span><span class="lineCov">          1 :     active[50]-&gt;nStatus &amp;= ~BLOCK_HAVE_DATA;</span>
+<span class="lineNum">     151 </span><span class="lineCov">          1 :     BOOST_CHECK(!chain-&gt;hasBlocks(active.Tip()-&gt;GetBlockHash(), 10, 90));</span>
+<span class="lineNum">     152 </span><span class="lineCov">          1 :     BOOST_CHECK(!chain-&gt;hasBlocks(active.Tip()-&gt;GetBlockHash(), 10, {}));</span>
+<span class="lineNum">     153 </span><span class="lineCov">          1 :     BOOST_CHECK(!chain-&gt;hasBlocks(active.Tip()-&gt;GetBlockHash(), 0, 90));</span>
+<span class="lineNum">     154 </span><span class="lineCov">          1 :     BOOST_CHECK(!chain-&gt;hasBlocks(active.Tip()-&gt;GetBlockHash(), 0, {}));</span>
+<span class="lineNum">     155 </span><span class="lineCov">          1 :     BOOST_CHECK(!chain-&gt;hasBlocks(active.Tip()-&gt;GetBlockHash(), -1000, 1000));</span>
+<span class="lineNum">     156 </span>            : 
+<span class="lineNum">     157 </span>            :     // Test edge cases
+<span class="lineNum">     158 </span><span class="lineCov">          1 :     BOOST_CHECK(chain-&gt;hasBlocks(active.Tip()-&gt;GetBlockHash(), 6, 49));</span>
+<span class="lineNum">     159 </span><span class="lineCov">          1 :     BOOST_CHECK(!chain-&gt;hasBlocks(active.Tip()-&gt;GetBlockHash(), 5, 49));</span>
+<span class="lineNum">     160 </span><span class="lineCov">          1 :     BOOST_CHECK(!chain-&gt;hasBlocks(active.Tip()-&gt;GetBlockHash(), 6, 50));</span>
+<a name="161"><span class="lineNum">     161 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     162 </span>            : 
+<span class="lineNum">     163 </span><span class="lineCov">         88 : BOOST_AUTO_TEST_SUITE_END()</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

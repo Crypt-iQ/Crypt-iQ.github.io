@@ -1,0 +1,171 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - total_coverage.info - src/test/system_tests.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">src/test</a> - system_tests.cpp<span style="font-size: 80%;"> (source / <a href="system_tests.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">total_coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-08-14 02:59:33</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2019 The Bitcoin Core developers</a>
+<span class="lineNum">       2 </span>            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       3 </span>            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       4 </span>            : //
+<span class="lineNum">       5 </span>            : #include &lt;test/util/setup_common.h&gt;
+<span class="lineNum">       6 </span>            : #include &lt;util/system.h&gt;
+<span class="lineNum">       7 </span>            : #include &lt;univalue.h&gt;
+<span class="lineNum">       8 </span>            : 
+<span class="lineNum">       9 </span>            : #ifdef HAVE_BOOST_PROCESS
+<span class="lineNum">      10 </span>            : #include &lt;boost/process.hpp&gt;
+<span class="lineNum">      11 </span>            : #endif // HAVE_BOOST_PROCESS
+<span class="lineNum">      12 </span>            : 
+<a name="13"><span class="lineNum">      13 </span>            : #include &lt;boost/test/unit_test.hpp&gt;</a>
+<span class="lineNum">      14 </span>            : 
+<span class="lineNum">      15 </span><span class="lineCov">         88 : BOOST_FIXTURE_TEST_SUITE(system_tests, BasicTestingSetup)</span>
+<span class="lineNum">      16 </span>            : 
+<a name="17"><span class="lineNum">      17 </span>            : // At least one test is required (in case HAVE_BOOST_PROCESS is not defined).</a>
+<span class="lineNum">      18 </span>            : // Workaround for https://github.com/bitcoin/bitcoin/issues/19128
+<span class="lineNum">      19 </span><span class="lineCov">         91 : BOOST_AUTO_TEST_CASE(dummy)</span>
+<span class="lineNum">      20 </span>            : {
+<span class="lineNum">      21 </span><span class="lineCov">          1 :     BOOST_CHECK(true);</span>
+<span class="lineNum">      22 </span><span class="lineCov">          1 : }</span>
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span>            : #ifdef HAVE_BOOST_PROCESS
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : bool checkMessage(const std::runtime_error&amp; ex)
+<span class="lineNum">      27 </span>            : {
+<span class="lineNum">      28 </span>            :     // On Linux &amp; Mac: &quot;No such file or directory&quot;
+<span class="lineNum">      29 </span>            :     // On Windows: &quot;The system cannot find the file specified.&quot;
+<span class="lineNum">      30 </span>            :     const std::string what(ex.what());
+<span class="lineNum">      31 </span>            :     BOOST_CHECK(what.find(&quot;file&quot;) != std::string::npos);
+<span class="lineNum">      32 </span>            :     return true;
+<span class="lineNum">      33 </span>            : }
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : bool checkMessageFalse(const std::runtime_error&amp; ex)
+<span class="lineNum">      36 </span>            : {
+<span class="lineNum">      37 </span>            :     BOOST_CHECK_EQUAL(ex.what(), std::string(&quot;RunCommandParseJSON error: process(false) returned 1: \n&quot;));
+<span class="lineNum">      38 </span>            :     return true;
+<span class="lineNum">      39 </span>            : }
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span>            : bool checkMessageStdErr(const std::runtime_error&amp; ex)
+<span class="lineNum">      42 </span>            : {
+<span class="lineNum">      43 </span>            :     const std::string what(ex.what());
+<span class="lineNum">      44 </span>            :     BOOST_CHECK(what.find(&quot;RunCommandParseJSON error:&quot;) != std::string::npos);
+<span class="lineNum">      45 </span>            :     return checkMessage(ex);
+<span class="lineNum">      46 </span>            : }
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span>            : BOOST_AUTO_TEST_CASE(run_command)
+<span class="lineNum">      49 </span>            : {
+<span class="lineNum">      50 </span>            :     {
+<span class="lineNum">      51 </span>            :         const UniValue result = RunCommandParseJSON(&quot;&quot;);
+<span class="lineNum">      52 </span>            :         BOOST_CHECK(result.isNull());
+<span class="lineNum">      53 </span>            :     }
+<span class="lineNum">      54 </span>            :     {
+<span class="lineNum">      55 </span>            : #ifdef WIN32
+<span class="lineNum">      56 </span>            :         // Windows requires single quotes to prevent escaping double quotes from the JSON...
+<span class="lineNum">      57 </span>            :         const UniValue result = RunCommandParseJSON(&quot;echo '{\&quot;success\&quot;: true}'&quot;);
+<span class="lineNum">      58 </span>            : #else
+<span class="lineNum">      59 </span>            :         // ... but Linux and macOS echo a single quote if it's used
+<span class="lineNum">      60 </span>            :         const UniValue result = RunCommandParseJSON(&quot;echo \&quot;{\&quot;success\&quot;: true}\&quot;&quot;);
+<span class="lineNum">      61 </span>            : #endif
+<span class="lineNum">      62 </span>            :         BOOST_CHECK(result.isObject());
+<span class="lineNum">      63 </span>            :         const UniValue&amp; success = find_value(result, &quot;success&quot;);
+<span class="lineNum">      64 </span>            :         BOOST_CHECK(!success.isNull());
+<span class="lineNum">      65 </span>            :         BOOST_CHECK_EQUAL(success.getBool(), true);
+<span class="lineNum">      66 </span>            :     }
+<span class="lineNum">      67 </span>            :     {
+<span class="lineNum">      68 </span>            :         // An invalid command is handled by Boost
+<span class="lineNum">      69 </span>            :         BOOST_CHECK_EXCEPTION(RunCommandParseJSON(&quot;invalid_command&quot;), boost::process::process_error, checkMessage); // Command failed
+<span class="lineNum">      70 </span>            :     }
+<span class="lineNum">      71 </span>            :     {
+<span class="lineNum">      72 </span>            :         // Return non-zero exit code, no output to stderr
+<span class="lineNum">      73 </span>            :         BOOST_CHECK_EXCEPTION(RunCommandParseJSON(&quot;false&quot;), std::runtime_error, checkMessageFalse);
+<span class="lineNum">      74 </span>            :     }
+<span class="lineNum">      75 </span>            :     {
+<span class="lineNum">      76 </span>            :         // Return non-zero exit code, with error message for stderr
+<span class="lineNum">      77 </span>            :         BOOST_CHECK_EXCEPTION(RunCommandParseJSON(&quot;ls nosuchfile&quot;), std::runtime_error, checkMessageStdErr);
+<span class="lineNum">      78 </span>            :     }
+<span class="lineNum">      79 </span>            :     {
+<span class="lineNum">      80 </span>            :         BOOST_REQUIRE_THROW(RunCommandParseJSON(&quot;echo \&quot;{\&quot;&quot;), std::runtime_error); // Unable to parse JSON
+<span class="lineNum">      81 </span>            :     }
+<span class="lineNum">      82 </span>            :     // Test std::in, except for Windows
+<span class="lineNum">      83 </span>            : #ifndef WIN32
+<span class="lineNum">      84 </span>            :     {
+<span class="lineNum">      85 </span>            :         const UniValue result = RunCommandParseJSON(&quot;cat&quot;, &quot;{\&quot;success\&quot;: true}&quot;);
+<span class="lineNum">      86 </span>            :         BOOST_CHECK(result.isObject());
+<span class="lineNum">      87 </span>            :         const UniValue&amp; success = find_value(result, &quot;success&quot;);
+<span class="lineNum">      88 </span>            :         BOOST_CHECK(!success.isNull());
+<span class="lineNum">      89 </span>            :         BOOST_CHECK_EQUAL(success.getBool(), true);
+<span class="lineNum">      90 </span>            :     }
+<span class="lineNum">      91 </span>            : #endif
+<span class="lineNum">      92 </span>            : }
+<a name="93"><span class="lineNum">      93 </span>            : #endif // HAVE_BOOST_PROCESS</a>
+<span class="lineNum">      94 </span>            : 
+<span class="lineNum">      95 </span><span class="lineCov">         88 : BOOST_AUTO_TEST_SUITE_END()</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

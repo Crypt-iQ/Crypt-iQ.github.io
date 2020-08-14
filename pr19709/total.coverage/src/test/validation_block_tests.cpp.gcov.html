@@ -1,0 +1,451 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - total_coverage.info - src/test/validation_block_tests.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">src/test</a> - validation_block_tests.cpp<span style="font-size: 80%;"> (source / <a href="validation_block_tests.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">total_coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">196</td>
+            <td class="headerCovTableEntry">198</td>
+            <td class="headerCovTableEntryHi">99.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-08-14 02:59:33</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">34</td>
+            <td class="headerCovTableEntry">34</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2018-2020 The Bitcoin Core developers</a>
+<span class="lineNum">       2 </span>            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       3 </span>            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       4 </span>            : 
+<span class="lineNum">       5 </span>            : #include &lt;boost/test/unit_test.hpp&gt;
+<span class="lineNum">       6 </span>            : 
+<span class="lineNum">       7 </span>            : #include &lt;chainparams.h&gt;
+<span class="lineNum">       8 </span>            : #include &lt;consensus/merkle.h&gt;
+<span class="lineNum">       9 </span>            : #include &lt;consensus/validation.h&gt;
+<span class="lineNum">      10 </span>            : #include &lt;miner.h&gt;
+<span class="lineNum">      11 </span>            : #include &lt;pow.h&gt;
+<span class="lineNum">      12 </span>            : #include &lt;random.h&gt;
+<span class="lineNum">      13 </span>            : #include &lt;script/standard.h&gt;
+<span class="lineNum">      14 </span>            : #include &lt;test/util/setup_common.h&gt;
+<span class="lineNum">      15 </span>            : #include &lt;util/time.h&gt;
+<span class="lineNum">      16 </span>            : #include &lt;validation.h&gt;
+<span class="lineNum">      17 </span>            : #include &lt;validationinterface.h&gt;
+<span class="lineNum">      18 </span>            : 
+<a name="19"><span class="lineNum">      19 </span>            : #include &lt;thread&gt;</a>
+<span class="lineNum">      20 </span>            : 
+<span class="lineNum">      21 </span><span class="lineCov">         88 : static const std::vector&lt;unsigned char&gt; V_OP_TRUE{OP_TRUE};</span>
+<a name="22"><span class="lineNum">      22 </span>            : </a>
+<span class="lineNum">      23 </span>            : namespace validation_block_tests {
+<span class="lineNum">      24 </span><span class="lineCov">          3 : struct MinerTestingSetup : public RegTestingSetup {</span>
+<span class="lineNum">      25 </span>            :     std::shared_ptr&lt;CBlock&gt; Block(const uint256&amp; prev_hash);
+<span class="lineNum">      26 </span>            :     std::shared_ptr&lt;const CBlock&gt; GoodBlock(const uint256&amp; prev_hash);
+<span class="lineNum">      27 </span>            :     std::shared_ptr&lt;const CBlock&gt; BadBlock(const uint256&amp; prev_hash);
+<span class="lineNum">      28 </span>            :     std::shared_ptr&lt;CBlock&gt; FinalizeBlock(std::shared_ptr&lt;CBlock&gt; pblock);
+<span class="lineNum">      29 </span>            :     void BuildChain(const uint256&amp; root, int height, const unsigned int invalid_rate, const unsigned int branch_rate, const unsigned int max_size, std::vector&lt;std::shared_ptr&lt;const CBlock&gt;&gt;&amp; blocks);
+<span class="lineNum">      30 </span>            : };
+<a name="31"><span class="lineNum">      31 </span>            : } // namespace validation_block_tests</a>
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span><span class="lineCov">         88 : BOOST_FIXTURE_TEST_SUITE(validation_block_tests, MinerTestingSetup)</span>
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : struct TestSubscriber final : public CValidationInterface {
+<a name="36"><span class="lineNum">      36 </span>            :     uint256 m_expected_tip;</a>
+<span class="lineNum">      37 </span>            : 
+<a name="38"><span class="lineNum">      38 </span><span class="lineCov">          1 :     explicit TestSubscriber(uint256 tip) : m_expected_tip(tip) {}</span></a>
+<span class="lineNum">      39 </span>            : 
+<span class="lineNum">      40 </span><span class="lineCov">         24 :     void UpdatedBlockTip(const CBlockIndex* pindexNew, const CBlockIndex* pindexFork, bool fInitialDownload) override</span>
+<span class="lineNum">      41 </span>            :     {
+<span class="lineNum">      42 </span><span class="lineCov">         24 :         BOOST_CHECK_EQUAL(m_expected_tip, pindexNew-&gt;GetBlockHash());</span>
+<a name="43"><span class="lineNum">      43 </span><span class="lineCov">         24 :     }</span></a>
+<span class="lineNum">      44 </span>            : 
+<span class="lineNum">      45 </span><span class="lineCov">         44 :     void BlockConnected(const std::shared_ptr&lt;const CBlock&gt;&amp; block, const CBlockIndex* pindex) override</span>
+<span class="lineNum">      46 </span>            :     {
+<span class="lineNum">      47 </span><span class="lineCov">         44 :         BOOST_CHECK_EQUAL(m_expected_tip, block-&gt;hashPrevBlock);</span>
+<span class="lineNum">      48 </span><span class="lineCov">         44 :         BOOST_CHECK_EQUAL(m_expected_tip, pindex-&gt;pprev-&gt;GetBlockHash());</span>
+<span class="lineNum">      49 </span>            : 
+<span class="lineNum">      50 </span><span class="lineCov">         44 :         m_expected_tip = block-&gt;GetHash();</span>
+<a name="51"><span class="lineNum">      51 </span><span class="lineCov">         44 :     }</span></a>
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span><span class="lineCov">         20 :     void BlockDisconnected(const std::shared_ptr&lt;const CBlock&gt;&amp; block, const CBlockIndex* pindex) override</span>
+<span class="lineNum">      54 </span>            :     {
+<span class="lineNum">      55 </span><span class="lineCov">         20 :         BOOST_CHECK_EQUAL(m_expected_tip, block-&gt;GetHash());</span>
+<span class="lineNum">      56 </span><span class="lineCov">         20 :         BOOST_CHECK_EQUAL(m_expected_tip, pindex-&gt;GetBlockHash());</span>
+<span class="lineNum">      57 </span>            : 
+<span class="lineNum">      58 </span><span class="lineCov">         20 :         m_expected_tip = block-&gt;hashPrevBlock;</span>
+<span class="lineNum">      59 </span><span class="lineCov">         20 :     }</span>
+<a name="60"><span class="lineNum">      60 </span>            : };</a>
+<span class="lineNum">      61 </span>            : 
+<span class="lineNum">      62 </span><span class="lineCov">        799 : std::shared_ptr&lt;CBlock&gt; MinerTestingSetup::Block(const uint256&amp; prev_hash)</span>
+<span class="lineNum">      63 </span>            : {
+<span class="lineNum">      64 </span>            :     static int i = 0;
+<span class="lineNum">      65 </span><span class="lineCov">        799 :     static uint64_t time = Params().GenesisBlock().nTime;</span>
+<span class="lineNum">      66 </span>            : 
+<span class="lineNum">      67 </span><span class="lineCov">        799 :     CScript pubKey;</span>
+<span class="lineNum">      68 </span><span class="lineCov">        799 :     pubKey &lt;&lt; i++ &lt;&lt; OP_TRUE;</span>
+<span class="lineNum">      69 </span>            : 
+<span class="lineNum">      70 </span><span class="lineCov">        799 :     auto ptemplate = BlockAssembler(*m_node.mempool, Params()).CreateNewBlock(pubKey);</span>
+<span class="lineNum">      71 </span><span class="lineCov">        799 :     auto pblock = std::make_shared&lt;CBlock&gt;(ptemplate-&gt;block);</span>
+<span class="lineNum">      72 </span><span class="lineCov">        799 :     pblock-&gt;hashPrevBlock = prev_hash;</span>
+<span class="lineNum">      73 </span><span class="lineCov">        799 :     pblock-&gt;nTime = ++time;</span>
+<span class="lineNum">      74 </span>            : 
+<span class="lineNum">      75 </span><span class="lineCov">        799 :     pubKey.clear();</span>
+<span class="lineNum">      76 </span>            :     {
+<span class="lineNum">      77 </span><span class="lineCov">        799 :         WitnessV0ScriptHash witness_program;</span>
+<span class="lineNum">      78 </span><span class="lineCov">        799 :         CSHA256().Write(&amp;V_OP_TRUE[0], V_OP_TRUE.size()).Finalize(witness_program.begin());</span>
+<span class="lineNum">      79 </span><span class="lineCov">        799 :         pubKey &lt;&lt; OP_0 &lt;&lt; ToByteVector(witness_program);</span>
+<span class="lineNum">      80 </span><span class="lineCov">        799 :     }</span>
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span>            :     // Make the coinbase transaction with two outputs:
+<span class="lineNum">      83 </span>            :     // One zero-value one that has a unique pubkey to make sure that blocks at the same height can have a different hash
+<span class="lineNum">      84 </span>            :     // Another one that has the coinbase reward in a P2WSH with OP_TRUE as witness program to make it easy to spend
+<span class="lineNum">      85 </span><span class="lineCov">        799 :     CMutableTransaction txCoinbase(*pblock-&gt;vtx[0]);</span>
+<span class="lineNum">      86 </span><span class="lineCov">        799 :     txCoinbase.vout.resize(2);</span>
+<span class="lineNum">      87 </span><span class="lineCov">        799 :     txCoinbase.vout[1].scriptPubKey = pubKey;</span>
+<span class="lineNum">      88 </span><span class="lineCov">        799 :     txCoinbase.vout[1].nValue = txCoinbase.vout[0].nValue;</span>
+<span class="lineNum">      89 </span><span class="lineCov">        799 :     txCoinbase.vout[0].nValue = 0;</span>
+<span class="lineNum">      90 </span><span class="lineCov">        799 :     txCoinbase.vin[0].scriptWitness.SetNull();</span>
+<span class="lineNum">      91 </span><span class="lineCov">        799 :     pblock-&gt;vtx[0] = MakeTransactionRef(std::move(txCoinbase));</span>
+<span class="lineNum">      92 </span>            : 
+<span class="lineNum">      93 </span>            :     return pblock;
+<a name="94"><span class="lineNum">      94 </span><span class="lineCov">        799 : }</span></a>
+<span class="lineNum">      95 </span>            : 
+<span class="lineNum">      96 </span><span class="lineCov">        799 : std::shared_ptr&lt;CBlock&gt; MinerTestingSetup::FinalizeBlock(std::shared_ptr&lt;CBlock&gt; pblock)</span>
+<span class="lineNum">      97 </span>            : {
+<span class="lineNum">      98 </span><span class="lineCov">        799 :     LOCK(cs_main); // For LookupBlockIndex</span>
+<span class="lineNum">      99 </span><span class="lineCov">        799 :     GenerateCoinbaseCommitment(*pblock, LookupBlockIndex(pblock-&gt;hashPrevBlock), Params().GetConsensus());</span>
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span><span class="lineCov">        799 :     pblock-&gt;hashMerkleRoot = BlockMerkleRoot(*pblock);</span>
+<span class="lineNum">     102 </span>            : 
+<span class="lineNum">     103 </span><span class="lineCov">       1578 :     while (!CheckProofOfWork(pblock-&gt;GetHash(), pblock-&gt;nBits, Params().GetConsensus())) {</span>
+<span class="lineNum">     104 </span><span class="lineCov">        779 :         ++(pblock-&gt;nNonce);</span>
+<span class="lineNum">     105 </span>            :     }
+<span class="lineNum">     106 </span>            : 
+<span class="lineNum">     107 </span><span class="lineCov">        799 :     return pblock;</span>
+<span class="lineNum">     108 </span><span class="lineCov">        799 : }</span>
+<a name="109"><span class="lineNum">     109 </span>            : </a>
+<span class="lineNum">     110 </span>            : // construct a valid block
+<span class="lineNum">     111 </span><span class="lineCov">        791 : std::shared_ptr&lt;const CBlock&gt; MinerTestingSetup::GoodBlock(const uint256&amp; prev_hash)</span>
+<span class="lineNum">     112 </span>            : {
+<span class="lineNum">     113 </span><span class="lineCov">        791 :     return FinalizeBlock(Block(prev_hash));</span>
+<span class="lineNum">     114 </span><span class="lineNoCov">          0 : }</span>
+<a name="115"><span class="lineNum">     115 </span>            : </a>
+<span class="lineNum">     116 </span>            : // construct an invalid block (but with a valid header)
+<span class="lineNum">     117 </span><span class="lineCov">          8 : std::shared_ptr&lt;const CBlock&gt; MinerTestingSetup::BadBlock(const uint256&amp; prev_hash)</span>
+<span class="lineNum">     118 </span>            : {
+<span class="lineNum">     119 </span><span class="lineCov">          8 :     auto pblock = Block(prev_hash);</span>
+<span class="lineNum">     120 </span>            : 
+<span class="lineNum">     121 </span><span class="lineCov">          8 :     CMutableTransaction coinbase_spend;</span>
+<span class="lineNum">     122 </span><span class="lineCov">          8 :     coinbase_spend.vin.push_back(CTxIn(COutPoint(pblock-&gt;vtx[0]-&gt;GetHash(), 0), CScript(), 0));</span>
+<span class="lineNum">     123 </span><span class="lineCov">          8 :     coinbase_spend.vout.push_back(pblock-&gt;vtx[0]-&gt;vout[0]);</span>
+<span class="lineNum">     124 </span>            : 
+<span class="lineNum">     125 </span><span class="lineCov">          8 :     CTransactionRef tx = MakeTransactionRef(coinbase_spend);</span>
+<span class="lineNum">     126 </span><span class="lineCov">          8 :     pblock-&gt;vtx.push_back(tx);</span>
+<span class="lineNum">     127 </span>            : 
+<span class="lineNum">     128 </span><span class="lineCov">          8 :     auto ret = FinalizeBlock(pblock);</span>
+<span class="lineNum">     129 </span><span class="lineCov">          8 :     return ret;</span>
+<a name="130"><span class="lineNum">     130 </span><span class="lineCov">          8 : }</span></a>
+<span class="lineNum">     131 </span>            : 
+<span class="lineNum">     132 </span><span class="lineCov">         53 : void MinerTestingSetup::BuildChain(const uint256&amp; root, int height, const unsigned int invalid_rate, const unsigned int branch_rate, const unsigned int max_size, std::vector&lt;std::shared_ptr&lt;const CBlock&gt;&gt;&amp; blocks)</span>
+<span class="lineNum">     133 </span>            : {
+<span class="lineNum">     134 </span><span class="lineCov">         53 :     if (height &lt;= 0 || blocks.size() &gt;= max_size) return;</span>
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span><span class="lineCov">         53 :     bool gen_invalid = InsecureRandRange(100) &lt; invalid_rate;</span>
+<span class="lineNum">     137 </span><span class="lineCov">         53 :     bool gen_fork = InsecureRandRange(100) &lt; branch_rate;</span>
+<span class="lineNum">     138 </span>            : 
+<span class="lineNum">     139 </span><span class="lineCov">         53 :     const std::shared_ptr&lt;const CBlock&gt; pblock = gen_invalid ? BadBlock(root) : GoodBlock(root);</span>
+<span class="lineNum">     140 </span><span class="lineCov">         53 :     blocks.push_back(pblock);</span>
+<span class="lineNum">     141 </span><span class="lineCov">         53 :     if (!gen_invalid) {</span>
+<span class="lineNum">     142 </span><span class="lineCov">         45 :         BuildChain(pblock-&gt;GetHash(), height - 1, invalid_rate, branch_rate, max_size, blocks);</span>
+<span class="lineNum">     143 </span><span class="lineCov">         45 :     }</span>
+<span class="lineNum">     144 </span>            : 
+<span class="lineNum">     145 </span><span class="lineCov">         53 :     if (gen_fork) {</span>
+<span class="lineNum">     146 </span><span class="lineCov">          7 :         blocks.push_back(GoodBlock(root));</span>
+<span class="lineNum">     147 </span><span class="lineCov">          7 :         BuildChain(blocks.back()-&gt;GetHash(), height - 1, invalid_rate, branch_rate, max_size, blocks);</span>
+<span class="lineNum">     148 </span><span class="lineCov">          7 :     }</span>
+<a name="149"><span class="lineNum">     149 </span><span class="lineCov">         53 : }</span></a>
+<span class="lineNum">     150 </span>            : 
+<span class="lineNum">     151 </span><span class="lineCov">         91 : BOOST_AUTO_TEST_CASE(processnewblock_signals_ordering)</span>
+<span class="lineNum">     152 </span>            : {
+<span class="lineNum">     153 </span>            :     // build a large-ish chain that's likely to have some forks
+<span class="lineNum">     154 </span><span class="lineCov">          1 :     std::vector&lt;std::shared_ptr&lt;const CBlock&gt;&gt; blocks;</span>
+<span class="lineNum">     155 </span><span class="lineCov">          2 :     while (blocks.size() &lt; 50) {</span>
+<span class="lineNum">     156 </span><span class="lineCov">          1 :         blocks.clear();</span>
+<span class="lineNum">     157 </span><span class="lineCov">          1 :         BuildChain(Params().GenesisBlock().GetHash(), 100, 15, 10, 500, blocks);</span>
+<span class="lineNum">     158 </span>            :     }
+<span class="lineNum">     159 </span>            : 
+<span class="lineNum">     160 </span><span class="lineCov">          1 :     bool ignored;</span>
+<a name="161"><span class="lineNum">     161 </span><span class="lineCov">          1 :     BlockValidationState state;</span></a>
+<span class="lineNum">     162 </span><span class="lineCov">          1 :     std::vector&lt;CBlockHeader&gt; headers;</span>
+<span class="lineNum">     163 </span><span class="lineCov">         61 :     std::transform(blocks.begin(), blocks.end(), std::back_inserter(headers), [](std::shared_ptr&lt;const CBlock&gt; b) { return b-&gt;GetBlockHeader(); });</span>
+<a name="164"><span class="lineNum">     164 </span>            : </a>
+<span class="lineNum">     165 </span>            :     // Process all the headers so we understand the toplogy of the chain
+<span class="lineNum">     166 </span><span class="lineCov">          2 :     BOOST_CHECK(Assert(m_node.chainman)-&gt;ProcessNewBlockHeaders(headers, state, Params()));</span>
+<a name="167"><span class="lineNum">     167 </span>            : </a>
+<span class="lineNum">     168 </span>            :     // Connect the genesis block and drain any outstanding events
+<span class="lineNum">     169 </span><span class="lineCov">          2 :     BOOST_CHECK(Assert(m_node.chainman)-&gt;ProcessNewBlock(Params(), std::make_shared&lt;CBlock&gt;(Params().GenesisBlock()), true, &amp;ignored));</span>
+<span class="lineNum">     170 </span><span class="lineCov">          1 :     SyncWithValidationInterfaceQueue();</span>
+<span class="lineNum">     171 </span>            : 
+<span class="lineNum">     172 </span>            :     // subscribe to events (this subscriber will validate event ordering)
+<span class="lineNum">     173 </span>            :     const CBlockIndex* initial_tip = nullptr;
+<span class="lineNum">     174 </span>            :     {
+<span class="lineNum">     175 </span><span class="lineCov">          1 :         LOCK(cs_main);</span>
+<span class="lineNum">     176 </span><span class="lineCov">          1 :         initial_tip = ::ChainActive().Tip();</span>
+<span class="lineNum">     177 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">     178 </span><span class="lineCov">          1 :     auto sub = std::make_shared&lt;TestSubscriber&gt;(initial_tip-&gt;GetBlockHash());</span>
+<span class="lineNum">     179 </span><span class="lineCov">          1 :     RegisterSharedValidationInterface(sub);</span>
+<span class="lineNum">     180 </span>            : 
+<span class="lineNum">     181 </span>            :     // create a bunch of threads that repeatedly process a block generated above at random
+<span class="lineNum">     182 </span>            :     // this will create parallelism and randomness inside validation - the ValidationInterface
+<span class="lineNum">     183 </span>            :     // will subscribe to events generated during block validation and assert on ordering invariance
+<a name="184"><span class="lineNum">     184 </span><span class="lineCov">          1 :     std::vector&lt;std::thread&gt; threads;</span></a>
+<span class="lineNum">     185 </span><span class="lineCov">         11 :     for (int i = 0; i &lt; 10; i++) {</span>
+<span class="lineNum">     186 </span><span class="lineCov">         20 :         threads.emplace_back([&amp;]() {</span>
+<span class="lineNum">     187 </span><span class="lineCov">         10 :             bool ignored;</span>
+<span class="lineNum">     188 </span><span class="lineCov">         10 :             FastRandomContext insecure;</span>
+<a name="189"><span class="lineNum">     189 </span><span class="lineCov">      10010 :             for (int i = 0; i &lt; 1000; i++) {</span></a>
+<span class="lineNum">     190 </span><span class="lineCov">      10000 :                 auto block = blocks[insecure.randrange(blocks.size() - 1)];</span>
+<span class="lineNum">     191 </span><span class="lineCov">      20000 :                 Assert(m_node.chainman)-&gt;ProcessNewBlock(Params(), block, true, &amp;ignored);</span>
+<span class="lineNum">     192 </span><span class="lineCov">      10000 :             }</span>
+<span class="lineNum">     193 </span>            : 
+<span class="lineNum">     194 </span>            :             // to make sure that eventually we process the full chain - do it here
+<a name="195"><span class="lineNum">     195 </span><span class="lineCov">        610 :             for (auto block : blocks) {</span></a>
+<span class="lineNum">     196 </span><span class="lineCov">        600 :                 if (block-&gt;vtx.size() == 1) {</span>
+<span class="lineNum">     197 </span><span class="lineCov">       1040 :                     bool processed = Assert(m_node.chainman)-&gt;ProcessNewBlock(Params(), block, true, &amp;ignored);</span>
+<span class="lineNum">     198 </span><span class="lineCov">        520 :                     assert(processed);</span>
+<span class="lineNum">     199 </span><span class="lineCov">        520 :                 }</span>
+<span class="lineNum">     200 </span><span class="lineCov">        600 :             }</span>
+<span class="lineNum">     201 </span><span class="lineCov">         10 :         });</span>
+<span class="lineNum">     202 </span>            :     }
+<span class="lineNum">     203 </span>            : 
+<span class="lineNum">     204 </span><span class="lineCov">         11 :     for (auto&amp; t : threads) {</span>
+<span class="lineNum">     205 </span><span class="lineCov">         10 :         t.join();</span>
+<span class="lineNum">     206 </span>            :     }
+<span class="lineNum">     207 </span><span class="lineCov">          1 :     SyncWithValidationInterfaceQueue();</span>
+<span class="lineNum">     208 </span>            : 
+<span class="lineNum">     209 </span><span class="lineCov">          1 :     UnregisterSharedValidationInterface(sub);</span>
+<span class="lineNum">     210 </span>            : 
+<span class="lineNum">     211 </span><span class="lineCov">          1 :     LOCK(cs_main);</span>
+<span class="lineNum">     212 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(sub-&gt;m_expected_tip, ::ChainActive().Tip()-&gt;GetBlockHash());</span>
+<span class="lineNum">     213 </span><span class="lineCov">          1 : }</span>
+<span class="lineNum">     214 </span>            : 
+<span class="lineNum">     215 </span>            : /**
+<span class="lineNum">     216 </span>            :  * Test that mempool updates happen atomically with reorgs.
+<span class="lineNum">     217 </span>            :  *
+<span class="lineNum">     218 </span>            :  * This prevents RPC clients, among others, from retrieving immediately-out-of-date mempool data
+<span class="lineNum">     219 </span>            :  * during large reorgs.
+<span class="lineNum">     220 </span>            :  *
+<span class="lineNum">     221 </span>            :  * The test verifies this by creating a chain of `num_txs` blocks, matures their coinbases, and then
+<span class="lineNum">     222 </span>            :  * submits txns spending from their coinbase to the mempool. A fork chain is then processed,
+<span class="lineNum">     223 </span>            :  * invalidating the txns and evicting them from the mempool.
+<span class="lineNum">     224 </span>            :  *
+<span class="lineNum">     225 </span>            :  * We verify that the mempool updates atomically by polling it continuously
+<span class="lineNum">     226 </span>            :  * from another thread during the reorg and checking that its size only changes
+<span class="lineNum">     227 </span>            :  * once. The size changing exactly once indicates that the polling thread's
+<span class="lineNum">     228 </span>            :  * view of the mempool is either consistent with the chain state before reorg,
+<span class="lineNum">     229 </span>            :  * or consistent with the chain state after the reorg, and not just consistent
+<a name="230"><span class="lineNum">     230 </span>            :  * with some intermediate state during the reorg.</a>
+<span class="lineNum">     231 </span>            :  */
+<span class="lineNum">     232 </span><span class="lineCov">         91 : BOOST_AUTO_TEST_CASE(mempool_locks_reorg)</span>
+<a name="233"><span class="lineNum">     233 </span>            : {</a>
+<a name="234"><span class="lineNum">     234 </span><span class="lineCov">          1 :     bool ignored;</span></a>
+<span class="lineNum">     235 </span><span class="lineCov">        741 :     auto ProcessBlock = [&amp;](std::shared_ptr&lt;const CBlock&gt; block) -&gt; bool {</span>
+<span class="lineNum">     236 </span><span class="lineCov">       1480 :         return Assert(m_node.chainman)-&gt;ProcessNewBlock(Params(), block, /* fForceProcessing */ true, /* fNewBlock */ &amp;ignored);</span>
+<span class="lineNum">     237 </span><span class="lineNoCov">          0 :     };</span>
+<span class="lineNum">     238 </span>            : 
+<span class="lineNum">     239 </span>            :     // Process all mined blocks
+<span class="lineNum">     240 </span><span class="lineCov">          1 :     BOOST_REQUIRE(ProcessBlock(std::make_shared&lt;CBlock&gt;(Params().GenesisBlock())));</span>
+<span class="lineNum">     241 </span><span class="lineCov">          1 :     auto last_mined = GoodBlock(Params().GenesisBlock().GetHash());</span>
+<span class="lineNum">     242 </span><span class="lineCov">          1 :     BOOST_REQUIRE(ProcessBlock(last_mined));</span>
+<span class="lineNum">     243 </span>            : 
+<span class="lineNum">     244 </span>            :     // Run the test multiple times
+<span class="lineNum">     245 </span><span class="lineCov">          4 :     for (int test_runs = 3; test_runs &gt; 0; --test_runs) {</span>
+<span class="lineNum">     246 </span><span class="lineCov">          3 :         BOOST_CHECK_EQUAL(last_mined-&gt;GetHash(), ::ChainActive().Tip()-&gt;GetBlockHash());</span>
+<span class="lineNum">     247 </span>            : 
+<span class="lineNum">     248 </span>            :         // Later on split from here
+<span class="lineNum">     249 </span><span class="lineCov">          3 :         const uint256 split_hash{last_mined-&gt;hashPrevBlock};</span>
+<span class="lineNum">     250 </span>            : 
+<span class="lineNum">     251 </span>            :         // Create a bunch of transactions to spend the miner rewards of the
+<span class="lineNum">     252 </span>            :         // most recent blocks
+<span class="lineNum">     253 </span><span class="lineCov">          3 :         std::vector&lt;CTransactionRef&gt; txs;</span>
+<span class="lineNum">     254 </span><span class="lineCov">         69 :         for (int num_txs = 22; num_txs &gt; 0; --num_txs) {</span>
+<span class="lineNum">     255 </span><span class="lineCov">         66 :             CMutableTransaction mtx;</span>
+<span class="lineNum">     256 </span><span class="lineCov">         66 :             mtx.vin.push_back(CTxIn{COutPoint{last_mined-&gt;vtx[0]-&gt;GetHash(), 1}, CScript{}});</span>
+<span class="lineNum">     257 </span><span class="lineCov">         66 :             mtx.vin[0].scriptWitness.stack.push_back(V_OP_TRUE);</span>
+<span class="lineNum">     258 </span><span class="lineCov">         66 :             mtx.vout.push_back(last_mined-&gt;vtx[0]-&gt;vout[1]);</span>
+<span class="lineNum">     259 </span><span class="lineCov">         66 :             mtx.vout[0].nValue -= 1000;</span>
+<span class="lineNum">     260 </span><span class="lineCov">         66 :             txs.push_back(MakeTransactionRef(mtx));</span>
+<span class="lineNum">     261 </span>            : 
+<span class="lineNum">     262 </span><span class="lineCov">         66 :             last_mined = GoodBlock(last_mined-&gt;GetHash());</span>
+<span class="lineNum">     263 </span><span class="lineCov">         66 :             BOOST_REQUIRE(ProcessBlock(last_mined));</span>
+<span class="lineNum">     264 </span><span class="lineCov">         66 :         }</span>
+<span class="lineNum">     265 </span>            : 
+<span class="lineNum">     266 </span>            :         // Mature the inputs of the txs
+<span class="lineNum">     267 </span><span class="lineCov">        303 :         for (int j = COINBASE_MATURITY; j &gt; 0; --j) {</span>
+<span class="lineNum">     268 </span><span class="lineCov">        300 :             last_mined = GoodBlock(last_mined-&gt;GetHash());</span>
+<span class="lineNum">     269 </span><span class="lineCov">        300 :             BOOST_REQUIRE(ProcessBlock(last_mined));</span>
+<span class="lineNum">     270 </span>            :         }
+<span class="lineNum">     271 </span>            : 
+<span class="lineNum">     272 </span>            :         // Mine a reorg (and hold it back) before adding the txs to the mempool
+<span class="lineNum">     273 </span><span class="lineCov">          3 :         const uint256 tip_init{last_mined-&gt;GetHash()};</span>
+<span class="lineNum">     274 </span>            : 
+<span class="lineNum">     275 </span><span class="lineCov">          3 :         std::vector&lt;std::shared_ptr&lt;const CBlock&gt;&gt; reorg;</span>
+<span class="lineNum">     276 </span><span class="lineCov">          3 :         last_mined = GoodBlock(split_hash);</span>
+<span class="lineNum">     277 </span><span class="lineCov">          3 :         reorg.push_back(last_mined);</span>
+<span class="lineNum">     278 </span><span class="lineCov">        372 :         for (size_t j = COINBASE_MATURITY + txs.size() + 1; j &gt; 0; --j) {</span>
+<span class="lineNum">     279 </span><span class="lineCov">        369 :             last_mined = GoodBlock(last_mined-&gt;GetHash());</span>
+<span class="lineNum">     280 </span><span class="lineCov">        369 :             reorg.push_back(last_mined);</span>
+<span class="lineNum">     281 </span>            :         }
+<span class="lineNum">     282 </span>            : 
+<span class="lineNum">     283 </span>            :         // Add the txs to the tx pool
+<span class="lineNum">     284 </span>            :         {
+<span class="lineNum">     285 </span><span class="lineCov">          3 :             LOCK(cs_main);</span>
+<span class="lineNum">     286 </span><span class="lineCov">          3 :             TxValidationState state;</span>
+<span class="lineNum">     287 </span><span class="lineCov">          3 :             std::list&lt;CTransactionRef&gt; plTxnReplaced;</span>
+<span class="lineNum">     288 </span><span class="lineCov">         69 :             for (const auto&amp; tx : txs) {</span>
+<span class="lineNum">     289 </span><span class="lineCov">         66 :                 BOOST_REQUIRE(AcceptToMemoryPool(</span>
+<span class="lineNum">     290 </span>            :                     *m_node.mempool,
+<span class="lineNum">     291 </span>            :                     state,
+<span class="lineNum">     292 </span>            :                     tx,
+<span class="lineNum">     293 </span>            :                     &amp;plTxnReplaced,
+<span class="lineNum">     294 </span>            :                     /* bypass_limits */ false,
+<span class="lineNum">     295 </span>            :                     /* nAbsurdFee */ 0));
+<span class="lineNum">     296 </span>            :             }
+<span class="lineNum">     297 </span><span class="lineCov">          3 :         }</span>
+<span class="lineNum">     298 </span>            : 
+<span class="lineNum">     299 </span>            :         // Check that all txs are in the pool
+<span class="lineNum">     300 </span>            :         {
+<span class="lineNum">     301 </span><span class="lineCov">          3 :             LOCK(m_node.mempool-&gt;cs);</span>
+<span class="lineNum">     302 </span><span class="lineCov">          3 :             BOOST_CHECK_EQUAL(m_node.mempool-&gt;mapTx.size(), txs.size());</span>
+<span class="lineNum">     303 </span><span class="lineCov">          3 :         }</span>
+<span class="lineNum">     304 </span>            : 
+<a name="305"><span class="lineNum">     305 </span>            :         // Run a thread that simulates an RPC caller that is polling while</a>
+<span class="lineNum">     306 </span>            :         // validation is doing a reorg
+<span class="lineNum">     307 </span><span class="lineCov">          6 :         std::thread rpc_thread{[&amp;]() {</span>
+<span class="lineNum">     308 </span>            :             // This thread is checking that the mempool either contains all of
+<span class="lineNum">     309 </span>            :             // the transactions invalidated by the reorg, or none of them, and
+<span class="lineNum">     310 </span>            :             // not some intermediate amount.
+<span class="lineNum">     311 </span><span class="lineCov">          3 :             while (true) {</span>
+<span class="lineNum">     312 </span><span class="lineCov">    5596597 :                 LOCK(m_node.mempool-&gt;cs);</span>
+<span class="lineNum">     313 </span><span class="lineCov">    5596597 :                 if (m_node.mempool-&gt;mapTx.size() == 0) {</span>
+<span class="lineNum">     314 </span>            :                     // We are done with the reorg
+<span class="lineNum">     315 </span><span class="lineCov">          3 :                     break;</span>
+<span class="lineNum">     316 </span>            :                 }
+<span class="lineNum">     317 </span>            :                 // Internally, we might be in the middle of the reorg, but
+<span class="lineNum">     318 </span>            :                 // externally the reorg to the most-proof-of-work chain should
+<span class="lineNum">     319 </span>            :                 // be atomic. So the caller assumes that the returned mempool
+<span class="lineNum">     320 </span>            :                 // is consistent. That is, it has all txs that were there
+<span class="lineNum">     321 </span>            :                 // before the reorg.
+<span class="lineNum">     322 </span><span class="lineCov">    5596594 :                 assert(m_node.mempool-&gt;mapTx.size() == txs.size());</span>
+<span class="lineNum">     323 </span><span class="lineCov">    5596594 :                 continue;</span>
+<span class="lineNum">     324 </span><span class="lineCov">    5596597 :             }</span>
+<span class="lineNum">     325 </span><span class="lineCov">          3 :             LOCK(cs_main);</span>
+<span class="lineNum">     326 </span>            :             // We are done with the reorg, so the tip must have changed
+<span class="lineNum">     327 </span><span class="lineCov">          3 :             assert(tip_init != ::ChainActive().Tip()-&gt;GetBlockHash());</span>
+<span class="lineNum">     328 </span><span class="lineCov">          3 :         }};</span>
+<span class="lineNum">     329 </span>            : 
+<span class="lineNum">     330 </span>            :         // Submit the reorg in this thread to invalidate and remove the txs from the tx pool
+<span class="lineNum">     331 </span><span class="lineCov">        375 :         for (const auto&amp; b : reorg) {</span>
+<span class="lineNum">     332 </span><span class="lineCov">        372 :             ProcessBlock(b);</span>
+<span class="lineNum">     333 </span>            :         }
+<span class="lineNum">     334 </span>            :         // Check that the reorg was eventually successful
+<span class="lineNum">     335 </span><span class="lineCov">          3 :         BOOST_CHECK_EQUAL(last_mined-&gt;GetHash(), ::ChainActive().Tip()-&gt;GetBlockHash());</span>
+<span class="lineNum">     336 </span>            : 
+<span class="lineNum">     337 </span>            :         // We can join the other thread, which returns when the reorg was successful
+<span class="lineNum">     338 </span><span class="lineCov">          3 :         rpc_thread.join();</span>
+<span class="lineNum">     339 </span><span class="lineCov">          3 :     }</span>
+<a name="340"><span class="lineNum">     340 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     341 </span>            : 
+<span class="lineNum">     342 </span><span class="lineCov">         91 : BOOST_AUTO_TEST_CASE(witness_commitment_index)</span>
+<span class="lineNum">     343 </span>            : {
+<span class="lineNum">     344 </span><span class="lineCov">          1 :     CScript pubKey;</span>
+<span class="lineNum">     345 </span><span class="lineCov">          1 :     pubKey &lt;&lt; 1 &lt;&lt; OP_TRUE;</span>
+<span class="lineNum">     346 </span><span class="lineCov">          1 :     auto ptemplate = BlockAssembler(*m_node.mempool, Params()).CreateNewBlock(pubKey);</span>
+<span class="lineNum">     347 </span><span class="lineCov">          1 :     CBlock pblock = ptemplate-&gt;block;</span>
+<span class="lineNum">     348 </span>            : 
+<span class="lineNum">     349 </span><span class="lineCov">          1 :     CTxOut witness;</span>
+<span class="lineNum">     350 </span><span class="lineCov">          1 :     witness.scriptPubKey.resize(MINIMUM_WITNESS_COMMITMENT);</span>
+<span class="lineNum">     351 </span><span class="lineCov">          1 :     witness.scriptPubKey[0] = OP_RETURN;</span>
+<span class="lineNum">     352 </span><span class="lineCov">          1 :     witness.scriptPubKey[1] = 0x24;</span>
+<span class="lineNum">     353 </span><span class="lineCov">          1 :     witness.scriptPubKey[2] = 0xaa;</span>
+<span class="lineNum">     354 </span><span class="lineCov">          1 :     witness.scriptPubKey[3] = 0x21;</span>
+<span class="lineNum">     355 </span><span class="lineCov">          1 :     witness.scriptPubKey[4] = 0xa9;</span>
+<span class="lineNum">     356 </span><span class="lineCov">          1 :     witness.scriptPubKey[5] = 0xed;</span>
+<span class="lineNum">     357 </span>            : 
+<span class="lineNum">     358 </span>            :     // A witness larger than the minimum size is still valid
+<span class="lineNum">     359 </span><span class="lineCov">          1 :     CTxOut min_plus_one = witness;</span>
+<span class="lineNum">     360 </span><span class="lineCov">          1 :     min_plus_one.scriptPubKey.resize(MINIMUM_WITNESS_COMMITMENT + 1);</span>
+<span class="lineNum">     361 </span>            : 
+<span class="lineNum">     362 </span><span class="lineCov">          1 :     CTxOut invalid = witness;</span>
+<span class="lineNum">     363 </span><span class="lineCov">          1 :     invalid.scriptPubKey[0] = OP_VERIFY;</span>
+<span class="lineNum">     364 </span>            : 
+<span class="lineNum">     365 </span><span class="lineCov">          1 :     CMutableTransaction txCoinbase(*pblock.vtx[0]);</span>
+<span class="lineNum">     366 </span><span class="lineCov">          1 :     txCoinbase.vout.resize(4);</span>
+<span class="lineNum">     367 </span><span class="lineCov">          1 :     txCoinbase.vout[0] = witness;</span>
+<span class="lineNum">     368 </span><span class="lineCov">          1 :     txCoinbase.vout[1] = witness;</span>
+<span class="lineNum">     369 </span><span class="lineCov">          1 :     txCoinbase.vout[2] = min_plus_one;</span>
+<span class="lineNum">     370 </span><span class="lineCov">          1 :     txCoinbase.vout[3] = invalid;</span>
+<span class="lineNum">     371 </span><span class="lineCov">          1 :     pblock.vtx[0] = MakeTransactionRef(std::move(txCoinbase));</span>
+<span class="lineNum">     372 </span>            : 
+<a name="373"><span class="lineNum">     373 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(GetWitnessCommitmentIndex(pblock), 2);</span></a>
+<span class="lineNum">     374 </span><span class="lineCov">          1 : }</span>
+<span class="lineNum">     375 </span><span class="lineCov">         88 : BOOST_AUTO_TEST_SUITE_END()</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

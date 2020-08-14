@@ -1,0 +1,378 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - test_bitcoin_coverage.info - src/wallet/walletdb.h</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">src/wallet</a> - walletdb.h<span style="font-size: 80%;"> (source / <a href="walletdb.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">test_bitcoin_coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">59</td>
+            <td class="headerCovTableEntry">63</td>
+            <td class="headerCovTableEntryHi">93.7 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-08-14 02:46:54</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">40</td>
+            <td class="headerCovTableEntry">52</td>
+            <td class="headerCovTableEntryMed">76.9 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2009-2010 Satoshi Nakamoto</a>
+<span class="lineNum">       2 </span>            : // Copyright (c) 2009-2020 The Bitcoin Core developers
+<span class="lineNum">       3 </span>            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       4 </span>            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       5 </span>            : 
+<span class="lineNum">       6 </span>            : #ifndef BITCOIN_WALLET_WALLETDB_H
+<span class="lineNum">       7 </span>            : #define BITCOIN_WALLET_WALLETDB_H
+<span class="lineNum">       8 </span>            : 
+<span class="lineNum">       9 </span>            : #include &lt;amount.h&gt;
+<span class="lineNum">      10 </span>            : #include &lt;script/sign.h&gt;
+<span class="lineNum">      11 </span>            : #include &lt;wallet/bdb.h&gt;
+<span class="lineNum">      12 </span>            : #include &lt;wallet/db.h&gt;
+<span class="lineNum">      13 </span>            : #include &lt;wallet/walletutil.h&gt;
+<span class="lineNum">      14 </span>            : #include &lt;key.h&gt;
+<span class="lineNum">      15 </span>            : 
+<span class="lineNum">      16 </span>            : #include &lt;stdint.h&gt;
+<span class="lineNum">      17 </span>            : #include &lt;string&gt;
+<span class="lineNum">      18 </span>            : #include &lt;vector&gt;
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : /**
+<span class="lineNum">      21 </span>            :  * Overview of wallet database classes:
+<span class="lineNum">      22 </span>            :  *
+<span class="lineNum">      23 </span>            :  * - WalletBatch is an abstract modifier object for the wallet database, and encapsulates a database
+<span class="lineNum">      24 </span>            :  *   batch update as well as methods to act on the database. It should be agnostic to the database implementation.
+<span class="lineNum">      25 </span>            :  *
+<span class="lineNum">      26 </span>            :  * The following classes are implementation specific:
+<span class="lineNum">      27 </span>            :  * - BerkeleyEnvironment is an environment in which the database exists.
+<span class="lineNum">      28 </span>            :  * - BerkeleyDatabase represents a wallet database.
+<span class="lineNum">      29 </span>            :  * - BerkeleyBatch is a low-level database batch update.
+<span class="lineNum">      30 </span>            :  */
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : static const bool DEFAULT_FLUSHWALLET = true;
+<span class="lineNum">      33 </span>            : 
+<span class="lineNum">      34 </span>            : struct CBlockLocator;
+<span class="lineNum">      35 </span>            : class CKeyPool;
+<span class="lineNum">      36 </span>            : class CMasterKey;
+<span class="lineNum">      37 </span>            : class CScript;
+<span class="lineNum">      38 </span>            : class CWallet;
+<span class="lineNum">      39 </span>            : class CWalletTx;
+<span class="lineNum">      40 </span>            : class uint160;
+<span class="lineNum">      41 </span>            : class uint256;
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : /** Error statuses for the wallet database */
+<span class="lineNum">      44 </span>            : enum class DBErrors
+<span class="lineNum">      45 </span>            : {
+<span class="lineNum">      46 </span>            :     LOAD_OK,
+<span class="lineNum">      47 </span>            :     CORRUPT,
+<span class="lineNum">      48 </span>            :     NONCRITICAL_ERROR,
+<span class="lineNum">      49 </span>            :     TOO_NEW,
+<span class="lineNum">      50 </span>            :     LOAD_FAIL,
+<span class="lineNum">      51 </span>            :     NEED_REWRITE
+<span class="lineNum">      52 </span>            : };
+<span class="lineNum">      53 </span>            : 
+<span class="lineNum">      54 </span>            : namespace DBKeys {
+<span class="lineNum">      55 </span>            : extern const std::string ACENTRY;
+<span class="lineNum">      56 </span>            : extern const std::string ACTIVEEXTERNALSPK;
+<span class="lineNum">      57 </span>            : extern const std::string ACTIVEINTERNALSPK;
+<span class="lineNum">      58 </span>            : extern const std::string BESTBLOCK;
+<span class="lineNum">      59 </span>            : extern const std::string BESTBLOCK_NOMERKLE;
+<span class="lineNum">      60 </span>            : extern const std::string CRYPTED_KEY;
+<span class="lineNum">      61 </span>            : extern const std::string CSCRIPT;
+<span class="lineNum">      62 </span>            : extern const std::string DEFAULTKEY;
+<span class="lineNum">      63 </span>            : extern const std::string DESTDATA;
+<span class="lineNum">      64 </span>            : extern const std::string FLAGS;
+<span class="lineNum">      65 </span>            : extern const std::string HDCHAIN;
+<span class="lineNum">      66 </span>            : extern const std::string KEY;
+<span class="lineNum">      67 </span>            : extern const std::string KEYMETA;
+<span class="lineNum">      68 </span>            : extern const std::string MASTER_KEY;
+<span class="lineNum">      69 </span>            : extern const std::string MINVERSION;
+<span class="lineNum">      70 </span>            : extern const std::string NAME;
+<span class="lineNum">      71 </span>            : extern const std::string OLD_KEY;
+<span class="lineNum">      72 </span>            : extern const std::string ORDERPOSNEXT;
+<span class="lineNum">      73 </span>            : extern const std::string POOL;
+<span class="lineNum">      74 </span>            : extern const std::string PURPOSE;
+<span class="lineNum">      75 </span>            : extern const std::string SETTINGS;
+<span class="lineNum">      76 </span>            : extern const std::string TX;
+<span class="lineNum">      77 </span>            : extern const std::string VERSION;
+<span class="lineNum">      78 </span>            : extern const std::string WALLETDESCRIPTOR;
+<span class="lineNum">      79 </span>            : extern const std::string WALLETDESCRIPTORCKEY;
+<span class="lineNum">      80 </span>            : extern const std::string WALLETDESCRIPTORKEY;
+<span class="lineNum">      81 </span>            : extern const std::string WATCHMETA;
+<span class="lineNum">      82 </span>            : extern const std::string WATCHS;
+<span class="lineNum">      83 </span>            : } // namespace DBKeys
+<span class="lineNum">      84 </span>            : 
+<span class="lineNum">      85 </span>            : /* simple HD chain data model */
+<span class="lineNum">      86 </span>            : class CHDChain
+<span class="lineNum">      87 </span>            : {
+<span class="lineNum">      88 </span>            : public:
+<span class="lineNum">      89 </span>            :     uint32_t nExternalChainCounter;
+<span class="lineNum">      90 </span>            :     uint32_t nInternalChainCounter;
+<span class="lineNum">      91 </span>            :     CKeyID seed_id; //!&lt; seed hash160
+<span class="lineNum">      92 </span>            : 
+<span class="lineNum">      93 </span>            :     static const int VERSION_HD_BASE        = 1;
+<span class="lineNum">      94 </span>            :     static const int VERSION_HD_CHAIN_SPLIT = 2;
+<span class="lineNum">      95 </span>            :     static const int CURRENT_VERSION        = VERSION_HD_CHAIN_SPLIT;
+<a name="96"><span class="lineNum">      96 </span>            :     int nVersion;</a>
+<span class="lineNum">      97 </span>            : 
+<a name="98"><span class="lineNum">      98 </span><span class="lineCov">       4052 :     CHDChain() { SetNull(); }</span></a>
+<span class="lineNum">      99 </span>            : 
+<span class="lineNum">     100 </span><span class="lineCov">      15015 :     SERIALIZE_METHODS(CHDChain, obj)</span>
+<span class="lineNum">     101 </span>            :     {
+<span class="lineNum">     102 </span><span class="lineCov">       5005 :         READWRITE(obj.nVersion, obj.nExternalChainCounter, obj.seed_id);</span>
+<span class="lineNum">     103 </span><span class="lineCov">       5005 :         if (obj.nVersion &gt;= VERSION_HD_CHAIN_SPLIT) {</span>
+<span class="lineNum">     104 </span><span class="lineCov">       4004 :             READWRITE(obj.nInternalChainCounter);</span>
+<span class="lineNum">     105 </span><span class="lineCov">       4004 :         }</span>
+<a name="106"><span class="lineNum">     106 </span><span class="lineCov">       5005 :     }</span></a>
+<span class="lineNum">     107 </span>            : 
+<span class="lineNum">     108 </span><span class="lineCov">       4052 :     void SetNull()</span>
+<span class="lineNum">     109 </span>            :     {
+<span class="lineNum">     110 </span><span class="lineCov">       4052 :         nVersion = CHDChain::CURRENT_VERSION;</span>
+<span class="lineNum">     111 </span><span class="lineCov">       4052 :         nExternalChainCounter = 0;</span>
+<span class="lineNum">     112 </span><span class="lineCov">       4052 :         nInternalChainCounter = 0;</span>
+<span class="lineNum">     113 </span><span class="lineCov">       4052 :         seed_id.SetNull();</span>
+<span class="lineNum">     114 </span><span class="lineCov">       4052 :     }</span>
+<span class="lineNum">     115 </span>            : 
+<span class="lineNum">     116 </span>            :     bool operator==(const CHDChain&amp; chain) const
+<span class="lineNum">     117 </span>            :     {
+<span class="lineNum">     118 </span>            :         return seed_id == chain.seed_id;
+<span class="lineNum">     119 </span>            :     }
+<a name="120"><span class="lineNum">     120 </span>            : };</a>
+<span class="lineNum">     121 </span>            : 
+<span class="lineNum">     122 </span><span class="lineCov">      51560 : class CKeyMetadata</span>
+<span class="lineNum">     123 </span>            : {
+<span class="lineNum">     124 </span>            : public:
+<span class="lineNum">     125 </span>            :     static const int VERSION_BASIC=1;
+<span class="lineNum">     126 </span>            :     static const int VERSION_WITH_HDDATA=10;
+<span class="lineNum">     127 </span>            :     static const int VERSION_WITH_KEY_ORIGIN = 12;
+<span class="lineNum">     128 </span>            :     static const int CURRENT_VERSION=VERSION_WITH_KEY_ORIGIN;
+<span class="lineNum">     129 </span>            :     int nVersion;
+<span class="lineNum">     130 </span>            :     int64_t nCreateTime; // 0 means unknown
+<span class="lineNum">     131 </span>            :     std::string hdKeypath; //optional HD/bip32 keypath. Still used to determine whether a key is a seed. Also kept for backwards compatibility
+<span class="lineNum">     132 </span>            :     CKeyID hd_seed_id; //id of the HD seed used to derive this key
+<span class="lineNum">     133 </span>            :     KeyOriginInfo key_origin; // Key origin info with path and fingerprint
+<a name="134"><span class="lineNum">     134 </span><span class="lineCov">      32505 :     bool has_key_origin = false; //!&lt; Whether the key_origin is useful</span></a>
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span><span class="lineCov">      18500 :     CKeyMetadata()</span>
+<span class="lineNum">     137 </span>            :     {
+<a name="138"><span class="lineNum">     138 </span><span class="lineCov">      18500 :         SetNull();</span></a>
+<span class="lineNum">     139 </span><span class="lineCov">      18500 :     }</span>
+<span class="lineNum">     140 </span><span class="lineCov">      14005 :     explicit CKeyMetadata(int64_t nCreateTime_)</span>
+<span class="lineNum">     141 </span>            :     {
+<span class="lineNum">     142 </span><span class="lineCov">      14005 :         SetNull();</span>
+<span class="lineNum">     143 </span><span class="lineCov">      14005 :         nCreateTime = nCreateTime_;</span>
+<a name="144"><span class="lineNum">     144 </span><span class="lineCov">      14005 :     }</span></a>
+<span class="lineNum">     145 </span>            : 
+<span class="lineNum">     146 </span><span class="lineCov">      42147 :     SERIALIZE_METHODS(CKeyMetadata, obj)</span>
+<span class="lineNum">     147 </span>            :     {
+<span class="lineNum">     148 </span><span class="lineCov">      14049 :         READWRITE(obj.nVersion, obj.nCreateTime);</span>
+<span class="lineNum">     149 </span><span class="lineCov">      14049 :         if (obj.nVersion &gt;= VERSION_WITH_HDDATA) {</span>
+<span class="lineNum">     150 </span><span class="lineCov">      14049 :             READWRITE(obj.hdKeypath, obj.hd_seed_id);</span>
+<span class="lineNum">     151 </span><span class="lineCov">      14049 :         }</span>
+<span class="lineNum">     152 </span><span class="lineCov">      14049 :         if (obj.nVersion &gt;= VERSION_WITH_KEY_ORIGIN)</span>
+<span class="lineNum">     153 </span>            :         {
+<span class="lineNum">     154 </span><span class="lineCov">      14049 :             READWRITE(obj.key_origin);</span>
+<span class="lineNum">     155 </span><span class="lineCov">      14049 :             READWRITE(obj.has_key_origin);</span>
+<span class="lineNum">     156 </span><span class="lineCov">      14049 :         }</span>
+<a name="157"><span class="lineNum">     157 </span><span class="lineCov">      14049 :     }</span></a>
+<span class="lineNum">     158 </span>            : 
+<span class="lineNum">     159 </span><span class="lineCov">      32505 :     void SetNull()</span>
+<span class="lineNum">     160 </span>            :     {
+<span class="lineNum">     161 </span><span class="lineCov">      32505 :         nVersion = CKeyMetadata::CURRENT_VERSION;</span>
+<span class="lineNum">     162 </span><span class="lineCov">      32505 :         nCreateTime = 0;</span>
+<span class="lineNum">     163 </span><span class="lineCov">      32505 :         hdKeypath.clear();</span>
+<span class="lineNum">     164 </span><span class="lineCov">      32505 :         hd_seed_id.SetNull();</span>
+<span class="lineNum">     165 </span><span class="lineCov">      32505 :         key_origin.clear();</span>
+<span class="lineNum">     166 </span><span class="lineCov">      32505 :         has_key_origin = false;</span>
+<span class="lineNum">     167 </span><span class="lineCov">      32505 :     }</span>
+<span class="lineNum">     168 </span>            : };
+<span class="lineNum">     169 </span>            : 
+<span class="lineNum">     170 </span>            : /** Access to the wallet database.
+<span class="lineNum">     171 </span>            :  * Opens the database and provides read and write access to it. Each read and write is its own transaction.
+<span class="lineNum">     172 </span>            :  * Multiple operation transactions can be started using TxnBegin() and committed using TxnCommit()
+<span class="lineNum">     173 </span>            :  * Otherwise the transaction will be committed when the object goes out of scope.
+<span class="lineNum">     174 </span>            :  * Optionally (on by default) it will flush to disk on close.
+<a name="175"><span class="lineNum">     175 </span>            :  * Every 1000 writes will automatically trigger a flush to disk.</a>
+<span class="lineNum">     176 </span>            :  */
+<span class="lineNum">     177 </span><span class="lineCov">     110986 : class WalletBatch</span>
+<span class="lineNum">     178 </span>            : {
+<a name="179"><span class="lineNum">     179 </span>            : private:</a>
+<span class="lineNum">     180 </span>            :     template &lt;typename K, typename T&gt;
+<span class="lineNum">     181 </span><span class="lineCov">     256814 :     bool WriteIC(const K&amp; key, const T&amp; value, bool fOverwrite = true)</span>
+<span class="lineNum">     182 </span>            :     {
+<span class="lineNum">     183 </span><span class="lineCov">     256814 :         if (!m_batch-&gt;Write(key, value, fOverwrite)) {</span>
+<span class="lineNum">     184 </span><span class="lineNoCov">          0 :             return false;</span>
+<span class="lineNum">     185 </span>            :         }
+<span class="lineNum">     186 </span><span class="lineCov">     256814 :         m_database.IncrementUpdateCounter();</span>
+<span class="lineNum">     187 </span><span class="lineCov">     256814 :         if (m_database.nUpdateCounter % 1000 == 0) {</span>
+<span class="lineNum">     188 </span><span class="lineCov">        254 :             m_batch-&gt;Flush();</span>
+<span class="lineNum">     189 </span><span class="lineCov">        254 :         }</span>
+<span class="lineNum">     190 </span><span class="lineCov">     256814 :         return true;</span>
+<span class="lineNum">     191 </span><span class="lineCov">     256814 :     }</span>
+<a name="192"><span class="lineNum">     192 </span>            : </a>
+<span class="lineNum">     193 </span>            :     template &lt;typename K&gt;
+<span class="lineNum">     194 </span><span class="lineCov">         18 :     bool EraseIC(const K&amp; key)</span>
+<span class="lineNum">     195 </span>            :     {
+<span class="lineNum">     196 </span><span class="lineCov">         18 :         if (!m_batch-&gt;Erase(key)) {</span>
+<span class="lineNum">     197 </span><span class="lineNoCov">          0 :             return false;</span>
+<span class="lineNum">     198 </span>            :         }
+<span class="lineNum">     199 </span><span class="lineCov">         18 :         m_database.IncrementUpdateCounter();</span>
+<span class="lineNum">     200 </span><span class="lineCov">         18 :         if (m_database.nUpdateCounter % 1000 == 0) {</span>
+<span class="lineNum">     201 </span><span class="lineNoCov">          0 :             m_batch-&gt;Flush();</span>
+<span class="lineNum">     202 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     203 </span><span class="lineCov">         18 :         return true;</span>
+<span class="lineNum">     204 </span><span class="lineCov">         18 :     }</span>
+<a name="205"><span class="lineNum">     205 </span>            : </a>
+<span class="lineNum">     206 </span>            : public:
+<span class="lineNum">     207 </span><span class="lineCov">     110986 :     explicit WalletBatch(WalletDatabase&amp; database, const char* pszMode = &quot;r+&quot;, bool _fFlushOnClose = true) :</span>
+<span class="lineNum">     208 </span><span class="lineCov">     110986 :         m_batch(database.MakeBatch(pszMode, _fFlushOnClose)),</span>
+<span class="lineNum">     209 </span><span class="lineCov">     110986 :         m_database(database)</span>
+<span class="lineNum">     210 </span>            :     {
+<span class="lineNum">     211 </span><span class="lineCov">     110986 :     }</span>
+<span class="lineNum">     212 </span>            :     WalletBatch(const WalletBatch&amp;) = delete;
+<span class="lineNum">     213 </span>            :     WalletBatch&amp; operator=(const WalletBatch&amp;) = delete;
+<span class="lineNum">     214 </span>            : 
+<span class="lineNum">     215 </span>            :     bool WriteName(const std::string&amp; strAddress, const std::string&amp; strName);
+<span class="lineNum">     216 </span>            :     bool EraseName(const std::string&amp; strAddress);
+<span class="lineNum">     217 </span>            : 
+<span class="lineNum">     218 </span>            :     bool WritePurpose(const std::string&amp; strAddress, const std::string&amp; purpose);
+<span class="lineNum">     219 </span>            :     bool ErasePurpose(const std::string&amp; strAddress);
+<span class="lineNum">     220 </span>            : 
+<span class="lineNum">     221 </span>            :     bool WriteTx(const CWalletTx&amp; wtx);
+<span class="lineNum">     222 </span>            :     bool EraseTx(uint256 hash);
+<span class="lineNum">     223 </span>            : 
+<span class="lineNum">     224 </span>            :     bool WriteKeyMetadata(const CKeyMetadata&amp; meta, const CPubKey&amp; pubkey, const bool overwrite);
+<span class="lineNum">     225 </span>            :     bool WriteKey(const CPubKey&amp; vchPubKey, const CPrivKey&amp; vchPrivKey, const CKeyMetadata &amp;keyMeta);
+<span class="lineNum">     226 </span>            :     bool WriteCryptedKey(const CPubKey&amp; vchPubKey, const std::vector&lt;unsigned char&gt;&amp; vchCryptedSecret, const CKeyMetadata &amp;keyMeta);
+<span class="lineNum">     227 </span>            :     bool WriteMasterKey(unsigned int nID, const CMasterKey&amp; kMasterKey);
+<span class="lineNum">     228 </span>            : 
+<span class="lineNum">     229 </span>            :     bool WriteCScript(const uint160&amp; hash, const CScript&amp; redeemScript);
+<span class="lineNum">     230 </span>            : 
+<span class="lineNum">     231 </span>            :     bool WriteWatchOnly(const CScript &amp;script, const CKeyMetadata &amp;keymeta);
+<span class="lineNum">     232 </span>            :     bool EraseWatchOnly(const CScript &amp;script);
+<span class="lineNum">     233 </span>            : 
+<span class="lineNum">     234 </span>            :     bool WriteBestBlock(const CBlockLocator&amp; locator);
+<span class="lineNum">     235 </span>            :     bool ReadBestBlock(CBlockLocator&amp; locator);
+<span class="lineNum">     236 </span>            : 
+<span class="lineNum">     237 </span>            :     bool WriteOrderPosNext(int64_t nOrderPosNext);
+<span class="lineNum">     238 </span>            : 
+<span class="lineNum">     239 </span>            :     bool ReadPool(int64_t nPool, CKeyPool&amp; keypool);
+<span class="lineNum">     240 </span>            :     bool WritePool(int64_t nPool, const CKeyPool&amp; keypool);
+<span class="lineNum">     241 </span>            :     bool ErasePool(int64_t nPool);
+<span class="lineNum">     242 </span>            : 
+<span class="lineNum">     243 </span>            :     bool WriteMinVersion(int nVersion);
+<span class="lineNum">     244 </span>            : 
+<span class="lineNum">     245 </span>            :     bool WriteDescriptorKey(const uint256&amp; desc_id, const CPubKey&amp; pubkey, const CPrivKey&amp; privkey);
+<span class="lineNum">     246 </span>            :     bool WriteCryptedDescriptorKey(const uint256&amp; desc_id, const CPubKey&amp; pubkey, const std::vector&lt;unsigned char&gt;&amp; secret);
+<span class="lineNum">     247 </span>            :     bool WriteDescriptor(const uint256&amp; desc_id, const WalletDescriptor&amp; descriptor);
+<span class="lineNum">     248 </span>            :     bool WriteDescriptorDerivedCache(const CExtPubKey&amp; xpub, const uint256&amp; desc_id, uint32_t key_exp_index, uint32_t der_index);
+<span class="lineNum">     249 </span>            :     bool WriteDescriptorParentCache(const CExtPubKey&amp; xpub, const uint256&amp; desc_id, uint32_t key_exp_index);
+<span class="lineNum">     250 </span>            : 
+<span class="lineNum">     251 </span>            :     /// Write destination data key,value tuple to database
+<span class="lineNum">     252 </span>            :     bool WriteDestData(const std::string &amp;address, const std::string &amp;key, const std::string &amp;value);
+<span class="lineNum">     253 </span>            :     /// Erase destination data tuple from wallet database
+<span class="lineNum">     254 </span>            :     bool EraseDestData(const std::string &amp;address, const std::string &amp;key);
+<span class="lineNum">     255 </span>            : 
+<span class="lineNum">     256 </span>            :     bool WriteActiveScriptPubKeyMan(uint8_t type, const uint256&amp; id, bool internal);
+<span class="lineNum">     257 </span>            : 
+<span class="lineNum">     258 </span>            :     DBErrors LoadWallet(CWallet* pwallet);
+<span class="lineNum">     259 </span>            :     DBErrors FindWalletTx(std::vector&lt;uint256&gt;&amp; vTxHash, std::list&lt;CWalletTx&gt;&amp; vWtx);
+<span class="lineNum">     260 </span>            :     DBErrors ZapWalletTx(std::list&lt;CWalletTx&gt;&amp; vWtx);
+<span class="lineNum">     261 </span>            :     DBErrors ZapSelectTx(std::vector&lt;uint256&gt;&amp; vHashIn, std::vector&lt;uint256&gt;&amp; vHashOut);
+<span class="lineNum">     262 </span>            :     /* Function to determine if a certain KV/key-type is a key (cryptographical key) type */
+<span class="lineNum">     263 </span>            :     static bool IsKeyType(const std::string&amp; strType);
+<span class="lineNum">     264 </span>            :     /* verifies the database environment */
+<span class="lineNum">     265 </span>            :     static bool VerifyEnvironment(const fs::path&amp; wallet_path, bilingual_str&amp; errorStr);
+<span class="lineNum">     266 </span>            :     /* verifies the database file */
+<span class="lineNum">     267 </span>            :     static bool VerifyDatabaseFile(const fs::path&amp; wallet_path, bilingual_str&amp; errorStr);
+<span class="lineNum">     268 </span>            : 
+<span class="lineNum">     269 </span>            :     //! write the hdchain model (external chain child index counter)
+<span class="lineNum">     270 </span>            :     bool WriteHDChain(const CHDChain&amp; chain);
+<span class="lineNum">     271 </span>            : 
+<span class="lineNum">     272 </span>            :     bool WriteWalletFlags(const uint64_t flags);
+<span class="lineNum">     273 </span>            :     //! Begin a new transaction
+<span class="lineNum">     274 </span>            :     bool TxnBegin();
+<span class="lineNum">     275 </span>            :     //! Commit current transaction
+<span class="lineNum">     276 </span>            :     bool TxnCommit();
+<span class="lineNum">     277 </span>            :     //! Abort current transaction
+<span class="lineNum">     278 </span>            :     bool TxnAbort();
+<span class="lineNum">     279 </span>            : private:
+<span class="lineNum">     280 </span>            :     std::unique_ptr&lt;DatabaseBatch&gt; m_batch;
+<span class="lineNum">     281 </span>            :     WalletDatabase&amp; m_database;
+<span class="lineNum">     282 </span>            : };
+<span class="lineNum">     283 </span>            : 
+<span class="lineNum">     284 </span>            : //! Compacts BDB state so that wallet.dat is self-contained (if there are changes)
+<span class="lineNum">     285 </span>            : void MaybeCompactWalletDB();
+<span class="lineNum">     286 </span>            : 
+<span class="lineNum">     287 </span>            : //! Unserialize a given Key-Value pair and load it into the wallet
+<span class="lineNum">     288 </span>            : bool ReadKeyValue(CWallet* pwallet, CDataStream&amp; ssKey, CDataStream&amp; ssValue, std::string&amp; strType, std::string&amp; strErr);
+<span class="lineNum">     289 </span>            : 
+<span class="lineNum">     290 </span>            : /** Return whether a wallet database is currently loaded. */
+<span class="lineNum">     291 </span>            : bool IsWalletLoaded(const fs::path&amp; wallet_path);
+<span class="lineNum">     292 </span>            : 
+<span class="lineNum">     293 </span>            : /** Return object for accessing database at specified path. */
+<span class="lineNum">     294 </span>            : std::unique_ptr&lt;WalletDatabase&gt; CreateWalletDatabase(const fs::path&amp; path);
+<span class="lineNum">     295 </span>            : 
+<span class="lineNum">     296 </span>            : /** Return object for accessing dummy database with no read/write capabilities. */
+<span class="lineNum">     297 </span>            : std::unique_ptr&lt;WalletDatabase&gt; CreateDummyWalletDatabase();
+<span class="lineNum">     298 </span>            : 
+<span class="lineNum">     299 </span>            : /** Return object for accessing temporary in-memory database. */
+<span class="lineNum">     300 </span>            : std::unique_ptr&lt;WalletDatabase&gt; CreateMockWalletDatabase();
+<span class="lineNum">     301 </span>            : 
+<span class="lineNum">     302 </span>            : #endif // BITCOIN_WALLET_WALLETDB_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

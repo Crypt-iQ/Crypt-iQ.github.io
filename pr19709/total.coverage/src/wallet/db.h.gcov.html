@@ -1,0 +1,274 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - total_coverage.info - src/wallet/db.h</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">src/wallet</a> - db.h<span style="font-size: 80%;"> (source / <a href="db.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">total_coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">41</td>
+            <td class="headerCovTableEntry">63</td>
+            <td class="headerCovTableEntryLo">65.1 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-08-14 02:59:33</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">44</td>
+            <td class="headerCovTableEntry">68</td>
+            <td class="headerCovTableEntryLo">64.7 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2009-2010 Satoshi Nakamoto</a>
+<span class="lineNum">       2 </span>            : // Copyright (c) 2009-2020 The Bitcoin Core developers
+<span class="lineNum">       3 </span>            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       4 </span>            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       5 </span>            : 
+<span class="lineNum">       6 </span>            : #ifndef BITCOIN_WALLET_DB_H
+<span class="lineNum">       7 </span>            : #define BITCOIN_WALLET_DB_H
+<span class="lineNum">       8 </span>            : 
+<span class="lineNum">       9 </span>            : #include &lt;clientversion.h&gt;
+<span class="lineNum">      10 </span>            : #include &lt;fs.h&gt;
+<span class="lineNum">      11 </span>            : #include &lt;streams.h&gt;
+<span class="lineNum">      12 </span>            : #include &lt;util/memory.h&gt;
+<span class="lineNum">      13 </span>            : 
+<span class="lineNum">      14 </span>            : #include &lt;atomic&gt;
+<span class="lineNum">      15 </span>            : #include &lt;memory&gt;
+<span class="lineNum">      16 </span>            : #include &lt;string&gt;
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : struct bilingual_str;
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : /** Given a wallet directory path or legacy file path, return path to main data file in the wallet database. */
+<span class="lineNum">      21 </span>            : fs::path WalletDataFilePath(const fs::path&amp; wallet_path);
+<span class="lineNum">      22 </span>            : void SplitWalletPath(const fs::path&amp; wallet_path, fs::path&amp; env_directory, std::string&amp; database_filename);
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span>            : /** RAII class that provides access to a WalletDatabase */
+<span class="lineNum">      25 </span>            : class DatabaseBatch
+<span class="lineNum">      26 </span>            : {
+<span class="lineNum">      27 </span>            : private:
+<span class="lineNum">      28 </span>            :     virtual bool ReadKey(CDataStream&amp;&amp; key, CDataStream&amp; value) = 0;
+<span class="lineNum">      29 </span>            :     virtual bool WriteKey(CDataStream&amp;&amp; key, CDataStream&amp;&amp; value, bool overwrite=true) = 0;
+<span class="lineNum">      30 </span>            :     virtual bool EraseKey(CDataStream&amp;&amp; key) = 0;
+<span class="lineNum">      31 </span>            :     virtual bool HasKey(CDataStream&amp;&amp; key) = 0;
+<a name="32"><span class="lineNum">      32 </span>            : </a>
+<a name="33"><span class="lineNum">      33 </span>            : public:</a>
+<span class="lineNum">      34 </span><span class="lineCov">     231594 :     explicit DatabaseBatch() {}</span>
+<span class="lineNum">      35 </span><span class="lineCov">     231594 :     virtual ~DatabaseBatch() {}</span>
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span>            :     DatabaseBatch(const DatabaseBatch&amp;) = delete;
+<span class="lineNum">      38 </span>            :     DatabaseBatch&amp; operator=(const DatabaseBatch&amp;) = delete;
+<span class="lineNum">      39 </span>            : 
+<span class="lineNum">      40 </span>            :     virtual void Flush() = 0;
+<span class="lineNum">      41 </span>            :     virtual void Close() = 0;
+<a name="42"><span class="lineNum">      42 </span>            : </a>
+<span class="lineNum">      43 </span>            :     template &lt;typename K, typename T&gt;
+<span class="lineNum">      44 </span><span class="lineCov">      13053 :     bool Read(const K&amp; key, T&amp; value)</span>
+<span class="lineNum">      45 </span>            :     {
+<span class="lineNum">      46 </span><span class="lineCov">      13053 :         CDataStream ssKey(SER_DISK, CLIENT_VERSION);</span>
+<span class="lineNum">      47 </span><span class="lineCov">      13053 :         ssKey.reserve(1000);</span>
+<span class="lineNum">      48 </span><span class="lineCov">      13053 :         ssKey &lt;&lt; key;</span>
+<span class="lineNum">      49 </span>            : 
+<span class="lineNum">      50 </span><span class="lineCov">      13053 :         CDataStream ssValue(SER_DISK, CLIENT_VERSION);</span>
+<span class="lineNum">      51 </span><span class="lineCov">      13053 :         if (!ReadKey(std::move(ssKey), ssValue)) return false;</span>
+<span class="lineNum">      52 </span>            :         try {
+<span class="lineNum">      53 </span><span class="lineCov">      12634 :             ssValue &gt;&gt; value;</span>
+<span class="lineNum">      54 </span><span class="lineCov">      12634 :             return true;</span>
+<span class="lineNum">      55 </span><span class="lineNoCov">          0 :         } catch (const std::exception&amp;) {</span>
+<span class="lineNum">      56 </span>            :             return false;
+<span class="lineNum">      57 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">      58 </span><span class="lineCov">      13053 :     }</span>
+<a name="59"><span class="lineNum">      59 </span>            : </a>
+<span class="lineNum">      60 </span>            :     template &lt;typename K, typename T&gt;
+<span class="lineNum">      61 </span><span class="lineCov">     432177 :     bool Write(const K&amp; key, const T&amp; value, bool fOverwrite = true)</span>
+<span class="lineNum">      62 </span>            :     {
+<span class="lineNum">      63 </span><span class="lineCov">     432177 :         CDataStream ssKey(SER_DISK, CLIENT_VERSION);</span>
+<span class="lineNum">      64 </span><span class="lineCov">     432177 :         ssKey.reserve(1000);</span>
+<span class="lineNum">      65 </span><span class="lineCov">     432177 :         ssKey &lt;&lt; key;</span>
+<span class="lineNum">      66 </span>            : 
+<span class="lineNum">      67 </span><span class="lineCov">     432177 :         CDataStream ssValue(SER_DISK, CLIENT_VERSION);</span>
+<span class="lineNum">      68 </span><span class="lineCov">     432177 :         ssValue.reserve(10000);</span>
+<span class="lineNum">      69 </span><span class="lineCov">     432177 :         ssValue &lt;&lt; value;</span>
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span><span class="lineCov">     432177 :         return WriteKey(std::move(ssKey), std::move(ssValue), fOverwrite);</span>
+<span class="lineNum">      72 </span><span class="lineCov">     432177 :     }</span>
+<a name="73"><span class="lineNum">      73 </span>            : </a>
+<span class="lineNum">      74 </span>            :     template &lt;typename K&gt;
+<span class="lineNum">      75 </span><span class="lineCov">      10827 :     bool Erase(const K&amp; key)</span>
+<span class="lineNum">      76 </span>            :     {
+<span class="lineNum">      77 </span><span class="lineCov">      10827 :         CDataStream ssKey(SER_DISK, CLIENT_VERSION);</span>
+<span class="lineNum">      78 </span><span class="lineCov">      10827 :         ssKey.reserve(1000);</span>
+<span class="lineNum">      79 </span><span class="lineCov">      10827 :         ssKey &lt;&lt; key;</span>
+<span class="lineNum">      80 </span>            : 
+<span class="lineNum">      81 </span><span class="lineCov">      10827 :         return EraseKey(std::move(ssKey));</span>
+<span class="lineNum">      82 </span><span class="lineCov">      10827 :     }</span>
+<a name="83"><span class="lineNum">      83 </span>            : </a>
+<span class="lineNum">      84 </span>            :     template &lt;typename K&gt;
+<span class="lineNum">      85 </span><span class="lineCov">        741 :     bool Exists(const K&amp; key)</span>
+<span class="lineNum">      86 </span>            :     {
+<span class="lineNum">      87 </span><span class="lineCov">        741 :         CDataStream ssKey(SER_DISK, CLIENT_VERSION);</span>
+<span class="lineNum">      88 </span><span class="lineCov">        741 :         ssKey.reserve(1000);</span>
+<span class="lineNum">      89 </span><span class="lineCov">        741 :         ssKey &lt;&lt; key;</span>
+<span class="lineNum">      90 </span>            : 
+<span class="lineNum">      91 </span><span class="lineCov">        741 :         return HasKey(std::move(ssKey));</span>
+<span class="lineNum">      92 </span><span class="lineCov">        741 :     }</span>
+<span class="lineNum">      93 </span>            : 
+<span class="lineNum">      94 </span>            :     virtual bool StartCursor() = 0;
+<span class="lineNum">      95 </span>            :     virtual bool ReadAtCursor(CDataStream&amp; ssKey, CDataStream&amp; ssValue, bool&amp; complete) = 0;
+<span class="lineNum">      96 </span>            :     virtual void CloseCursor() = 0;
+<span class="lineNum">      97 </span>            :     virtual bool TxnBegin() = 0;
+<span class="lineNum">      98 </span>            :     virtual bool TxnCommit() = 0;
+<span class="lineNum">      99 </span>            :     virtual bool TxnAbort() = 0;
+<span class="lineNum">     100 </span>            : };
+<span class="lineNum">     101 </span>            : 
+<span class="lineNum">     102 </span>            : /** An instance of this class represents one database.
+<span class="lineNum">     103 </span>            :  **/
+<span class="lineNum">     104 </span>            : class WalletDatabase
+<span class="lineNum">     105 </span>            : {
+<a name="106"><span class="lineNum">     106 </span>            : public:</a>
+<a name="107"><span class="lineNum">     107 </span>            :     /** Create dummy DB handle */</a>
+<span class="lineNum">     108 </span><span class="lineCov">       1594 :     WalletDatabase() : nUpdateCounter(0), nLastSeen(0), nLastFlushed(0), nLastWalletUpdate(0) {}</span>
+<span class="lineNum">     109 </span><span class="lineCov">       1595 :     virtual ~WalletDatabase() {};</span>
+<span class="lineNum">     110 </span>            : 
+<span class="lineNum">     111 </span>            :     /** Open the database if it is not already opened. */
+<span class="lineNum">     112 </span>            :     virtual void Open(const char* mode) = 0;
+<span class="lineNum">     113 </span>            : 
+<span class="lineNum">     114 </span>            :     //! Counts the number of active database users to be sure that the database is not closed while someone is using it
+<span class="lineNum">     115 </span><span class="lineCov">       1594 :     std::atomic&lt;int&gt; m_refcount{0};</span>
+<span class="lineNum">     116 </span>            :     /** Indicate the a new database user has began using the database. Increments m_refcount */
+<span class="lineNum">     117 </span>            :     virtual void AddRef() = 0;
+<span class="lineNum">     118 </span>            :     /** Indicate that database user has stopped using the database and that it could be flushed or closed. Decrement m_refcount */
+<span class="lineNum">     119 </span>            :     virtual void RemoveRef() = 0;
+<span class="lineNum">     120 </span>            : 
+<span class="lineNum">     121 </span>            :     /** Rewrite the entire database on disk, with the exception of key pszSkip if non-zero
+<span class="lineNum">     122 </span>            :      */
+<span class="lineNum">     123 </span>            :     virtual bool Rewrite(const char* pszSkip=nullptr) = 0;
+<span class="lineNum">     124 </span>            : 
+<span class="lineNum">     125 </span>            :     /** Back up the entire database to a file.
+<span class="lineNum">     126 </span>            :      */
+<span class="lineNum">     127 </span>            :     virtual bool Backup(const std::string&amp; strDest) const = 0;
+<span class="lineNum">     128 </span>            : 
+<span class="lineNum">     129 </span>            :     /** Make sure all changes are flushed to database file.
+<span class="lineNum">     130 </span>            :      */
+<span class="lineNum">     131 </span>            :     virtual void Flush() = 0;
+<span class="lineNum">     132 </span>            :     /** Flush to the database file and close the database.
+<span class="lineNum">     133 </span>            :      *  Also close the environment if no other databases are open in it.
+<span class="lineNum">     134 </span>            :      */
+<span class="lineNum">     135 </span>            :     virtual void Close() = 0;
+<span class="lineNum">     136 </span>            :     /* flush the wallet passively (TRY_LOCK)
+<span class="lineNum">     137 </span>            :        ideal to be called periodically */
+<span class="lineNum">     138 </span>            :     virtual bool PeriodicFlush() = 0;
+<span class="lineNum">     139 </span>            : 
+<span class="lineNum">     140 </span>            :     virtual void IncrementUpdateCounter() = 0;
+<span class="lineNum">     141 </span>            : 
+<span class="lineNum">     142 </span>            :     virtual void ReloadDbEnv() = 0;
+<span class="lineNum">     143 </span>            : 
+<span class="lineNum">     144 </span>            :     std::atomic&lt;unsigned int&gt; nUpdateCounter;
+<span class="lineNum">     145 </span>            :     unsigned int nLastSeen;
+<span class="lineNum">     146 </span>            :     unsigned int nLastFlushed;
+<span class="lineNum">     147 </span>            :     int64_t nLastWalletUpdate;
+<span class="lineNum">     148 </span>            : 
+<span class="lineNum">     149 </span>            :     /** Verifies the environment and database file */
+<span class="lineNum">     150 </span>            :     virtual bool Verify(bilingual_str&amp; error) = 0;
+<span class="lineNum">     151 </span>            : 
+<span class="lineNum">     152 </span>            :     std::string m_file_path;
+<span class="lineNum">     153 </span>            : 
+<span class="lineNum">     154 </span>            :     /** Make a DatabaseBatch connected to this database */
+<span class="lineNum">     155 </span>            :     virtual std::unique_ptr&lt;DatabaseBatch&gt; MakeBatch(const char* mode = &quot;r+&quot;, bool flush_on_close = true) = 0;
+<span class="lineNum">     156 </span>            : };
+<a name="157"><span class="lineNum">     157 </span>            : </a>
+<span class="lineNum">     158 </span>            : /** RAII class that provides access to a DummyDatabase. Never fails. */
+<span class="lineNum">     159 </span><span class="lineCov">     220122 : class DummyBatch : public DatabaseBatch</span>
+<a name="160"><span class="lineNum">     160 </span>            : {</a>
+<a name="161"><span class="lineNum">     161 </span>            : private:</a>
+<a name="162"><span class="lineNum">     162 </span><span class="lineNoCov">          0 :     bool ReadKey(CDataStream&amp;&amp; key, CDataStream&amp; value) override { return true; }</span></a>
+<a name="163"><span class="lineNum">     163 </span><span class="lineCov">     220108 :     bool WriteKey(CDataStream&amp;&amp; key, CDataStream&amp;&amp; value, bool overwrite=true) override { return true; }</span></a>
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :     bool EraseKey(CDataStream&amp;&amp; key) override { return true; }</span>
+<span class="lineNum">     165 </span><span class="lineNoCov">          0 :     bool HasKey(CDataStream&amp;&amp; key) override { return true; }</span>
+<a name="166"><span class="lineNum">     166 </span>            : </a>
+<a name="167"><span class="lineNum">     167 </span>            : public:</a>
+<span class="lineNum">     168 </span><span class="lineCov">        219 :     void Flush() override {}</span>
+<a name="169"><span class="lineNum">     169 </span><span class="lineNoCov">          0 :     void Close() override {}</span></a>
+<a name="170"><span class="lineNum">     170 </span>            : </a>
+<a name="171"><span class="lineNum">     171 </span><span class="lineNoCov">          0 :     bool StartCursor() override { return true; }</span></a>
+<a name="172"><span class="lineNum">     172 </span><span class="lineNoCov">          0 :     bool ReadAtCursor(CDataStream&amp; ssKey, CDataStream&amp; ssValue, bool&amp; complete) override { return true; }</span></a>
+<a name="173"><span class="lineNum">     173 </span><span class="lineNoCov">          0 :     void CloseCursor() override {}</span></a>
+<a name="174"><span class="lineNum">     174 </span><span class="lineNoCov">          0 :     bool TxnBegin() override { return true; }</span></a>
+<span class="lineNum">     175 </span><span class="lineNoCov">          0 :     bool TxnCommit() override { return true; }</span>
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 :     bool TxnAbort() override { return true; }</span>
+<span class="lineNum">     177 </span>            : };
+<span class="lineNum">     178 </span>            : 
+<a name="179"><span class="lineNum">     179 </span>            : /** A dummy WalletDatabase that does nothing and never fails. Only used by unit tests.</a>
+<span class="lineNum">     180 </span>            :  **/
+<span class="lineNum">     181 </span><span class="lineCov">        243 : class DummyDatabase : public WalletDatabase</span>
+<a name="182"><span class="lineNum">     182 </span>            : {</a>
+<a name="183"><span class="lineNum">     183 </span>            : public:</a>
+<a name="184"><span class="lineNum">     184 </span><span class="lineNoCov">          0 :     void Open(const char* mode) override {};</span></a>
+<a name="185"><span class="lineNum">     185 </span><span class="lineNoCov">          0 :     void AddRef() override {}</span></a>
+<a name="186"><span class="lineNum">     186 </span><span class="lineNoCov">          0 :     void RemoveRef() override {}</span></a>
+<a name="187"><span class="lineNum">     187 </span><span class="lineNoCov">          0 :     bool Rewrite(const char* pszSkip=nullptr) override { return true; }</span></a>
+<a name="188"><span class="lineNum">     188 </span><span class="lineNoCov">          0 :     bool Backup(const std::string&amp; strDest) const override { return true; }</span></a>
+<a name="189"><span class="lineNum">     189 </span><span class="lineNoCov">          0 :     void Close() override {}</span></a>
+<a name="190"><span class="lineNum">     190 </span><span class="lineNoCov">          0 :     void Flush() override {}</span></a>
+<a name="191"><span class="lineNum">     191 </span><span class="lineNoCov">          0 :     bool PeriodicFlush() override { return true; }</span></a>
+<a name="192"><span class="lineNum">     192 </span><span class="lineCov">     220108 :     void IncrementUpdateCounter() override { ++nUpdateCounter; }</span></a>
+<a name="193"><span class="lineNum">     193 </span><span class="lineNoCov">          0 :     void ReloadDbEnv() override {}</span></a>
+<span class="lineNum">     194 </span><span class="lineNoCov">          0 :     bool Verify(bilingual_str&amp; errorStr) override { return true; }</span>
+<span class="lineNum">     195 </span><span class="lineCov">     110061 :     std::unique_ptr&lt;DatabaseBatch&gt; MakeBatch(const char* mode = &quot;r+&quot;, bool flush_on_close = true) override { return MakeUnique&lt;DummyBatch&gt;(); }</span>
+<span class="lineNum">     196 </span>            : };
+<span class="lineNum">     197 </span>            : 
+<span class="lineNum">     198 </span>            : #endif // BITCOIN_WALLET_DB_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

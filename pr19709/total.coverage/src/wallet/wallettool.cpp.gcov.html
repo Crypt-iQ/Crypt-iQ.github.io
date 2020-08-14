@@ -1,0 +1,235 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - total_coverage.info - src/wallet/wallettool.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">src/wallet</a> - wallettool.cpp<span style="font-size: 80%;"> (source / <a href="wallettool.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">total_coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">70</td>
+            <td class="headerCovTableEntry">95</td>
+            <td class="headerCovTableEntryLo">73.7 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-08-14 02:59:33</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2016-2020 The Bitcoin Core developers</a>
+<span class="lineNum">       2 </span>            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       3 </span>            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       4 </span>            : 
+<span class="lineNum">       5 </span>            : #include &lt;fs.h&gt;
+<span class="lineNum">       6 </span>            : #include &lt;util/system.h&gt;
+<span class="lineNum">       7 </span>            : #include &lt;util/translation.h&gt;
+<span class="lineNum">       8 </span>            : #include &lt;wallet/salvage.h&gt;
+<span class="lineNum">       9 </span>            : #include &lt;wallet/wallet.h&gt;
+<span class="lineNum">      10 </span>            : #include &lt;wallet/walletutil.h&gt;
+<span class="lineNum">      11 </span>            : 
+<span class="lineNum">      12 </span>            : namespace WalletTool {
+<span class="lineNum">      13 </span>            : 
+<span class="lineNum">      14 </span>            : // The standard wallet deleter function blocks on the validation interface
+<a name="15"><span class="lineNum">      15 </span>            : // queue, which doesn't exist for the bitcoin-wallet. Define our own</a>
+<span class="lineNum">      16 </span>            : // deleter here.
+<span class="lineNum">      17 </span><span class="lineCov">          4 : static void WalletToolReleaseWallet(CWallet* wallet)</span>
+<span class="lineNum">      18 </span>            : {
+<span class="lineNum">      19 </span><span class="lineCov">          4 :     wallet-&gt;WalletLogPrintf(&quot;Releasing wallet\n&quot;);</span>
+<span class="lineNum">      20 </span><span class="lineCov">          4 :     wallet-&gt;Close();</span>
+<span class="lineNum">      21 </span><span class="lineCov">          4 :     delete wallet;</span>
+<a name="22"><span class="lineNum">      22 </span><span class="lineCov">          4 : }</span></a>
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span><span class="lineCov">          1 : static std::shared_ptr&lt;CWallet&gt; CreateWallet(const std::string&amp; name, const fs::path&amp; path)</span>
+<span class="lineNum">      25 </span>            : {
+<span class="lineNum">      26 </span><span class="lineCov">          1 :     if (fs::exists(path)) {</span>
+<span class="lineNum">      27 </span><span class="lineNoCov">          0 :         tfm::format(std::cerr, &quot;Error: File exists already\n&quot;);</span>
+<span class="lineNum">      28 </span><span class="lineNoCov">          0 :         return nullptr;</span>
+<span class="lineNum">      29 </span>            :     }
+<span class="lineNum">      30 </span>            :     // dummy chain interface
+<span class="lineNum">      31 </span><span class="lineCov">          1 :     std::shared_ptr&lt;CWallet&gt; wallet_instance(new CWallet(nullptr /* chain */, WalletLocation(name), CreateWalletDatabase(path)), WalletToolReleaseWallet);</span>
+<span class="lineNum">      32 </span><span class="lineCov">          1 :     LOCK(wallet_instance-&gt;cs_wallet);</span>
+<span class="lineNum">      33 </span><span class="lineCov">          1 :     bool first_run = true;</span>
+<span class="lineNum">      34 </span><span class="lineCov">          1 :     DBErrors load_wallet_ret = wallet_instance-&gt;LoadWallet(first_run);</span>
+<span class="lineNum">      35 </span><span class="lineCov">          1 :     if (load_wallet_ret != DBErrors::LOAD_OK) {</span>
+<span class="lineNum">      36 </span><span class="lineNoCov">          0 :         tfm::format(std::cerr, &quot;Error creating %s&quot;, name);</span>
+<span class="lineNum">      37 </span><span class="lineNoCov">          0 :         return nullptr;</span>
+<span class="lineNum">      38 </span>            :     }
+<span class="lineNum">      39 </span>            : 
+<span class="lineNum">      40 </span><span class="lineCov">          1 :     wallet_instance-&gt;SetMinVersion(FEATURE_HD_SPLIT);</span>
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span>            :     // generate a new HD seed
+<span class="lineNum">      43 </span><span class="lineCov">          1 :     auto spk_man = wallet_instance-&gt;GetOrCreateLegacyScriptPubKeyMan();</span>
+<span class="lineNum">      44 </span><span class="lineCov">          1 :     CPubKey seed = spk_man-&gt;GenerateNewSeed();</span>
+<span class="lineNum">      45 </span><span class="lineCov">          1 :     spk_man-&gt;SetHDSeed(seed);</span>
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span><span class="lineCov">          1 :     tfm::format(std::cout, &quot;Topping up keypool...\n&quot;);</span>
+<span class="lineNum">      48 </span><span class="lineCov">          1 :     wallet_instance-&gt;TopUpKeyPool();</span>
+<span class="lineNum">      49 </span><span class="lineCov">          1 :     return wallet_instance;</span>
+<a name="50"><span class="lineNum">      50 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span><span class="lineCov">          3 : static std::shared_ptr&lt;CWallet&gt; LoadWallet(const std::string&amp; name, const fs::path&amp; path)</span>
+<span class="lineNum">      53 </span>            : {
+<span class="lineNum">      54 </span><span class="lineCov">          3 :     if (!fs::exists(path)) {</span>
+<span class="lineNum">      55 </span><span class="lineNoCov">          0 :         tfm::format(std::cerr, &quot;Error: Wallet files does not exist\n&quot;);</span>
+<span class="lineNum">      56 </span><span class="lineNoCov">          0 :         return nullptr;</span>
+<span class="lineNum">      57 </span>            :     }
+<span class="lineNum">      58 </span>            : 
+<span class="lineNum">      59 </span>            :     // dummy chain interface
+<span class="lineNum">      60 </span><span class="lineCov">          3 :     std::shared_ptr&lt;CWallet&gt; wallet_instance(new CWallet(nullptr /* chain */, WalletLocation(name), CreateWalletDatabase(path)), WalletToolReleaseWallet);</span>
+<span class="lineNum">      61 </span>            :     DBErrors load_wallet_ret;
+<span class="lineNum">      62 </span>            :     try {
+<span class="lineNum">      63 </span><span class="lineCov">          3 :         bool first_run;</span>
+<span class="lineNum">      64 </span><span class="lineCov">          3 :         load_wallet_ret = wallet_instance-&gt;LoadWallet(first_run);</span>
+<span class="lineNum">      65 </span><span class="lineCov">          3 :     } catch (const std::runtime_error&amp;) {</span>
+<span class="lineNum">      66 </span><span class="lineCov">          1 :         tfm::format(std::cerr, &quot;Error loading %s. Is wallet being used by another process?\n&quot;, name);</span>
+<span class="lineNum">      67 </span><span class="lineCov">          1 :         return nullptr;</span>
+<span class="lineNum">      68 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">      69 </span>            : 
+<span class="lineNum">      70 </span><span class="lineCov">          2 :     if (load_wallet_ret != DBErrors::LOAD_OK) {</span>
+<span class="lineNum">      71 </span><span class="lineNoCov">          0 :         wallet_instance = nullptr;</span>
+<span class="lineNum">      72 </span><span class="lineNoCov">          0 :         if (load_wallet_ret == DBErrors::CORRUPT) {</span>
+<span class="lineNum">      73 </span><span class="lineNoCov">          0 :             tfm::format(std::cerr, &quot;Error loading %s: Wallet corrupted&quot;, name);</span>
+<span class="lineNum">      74 </span><span class="lineNoCov">          0 :             return nullptr;</span>
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 :         } else if (load_wallet_ret == DBErrors::NONCRITICAL_ERROR) {</span>
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :             tfm::format(std::cerr, &quot;Error reading %s! All keys read correctly, but transaction data&quot;</span>
+<span class="lineNum">      77 </span>            :                             &quot; or address book entries might be missing or incorrect.&quot;,
+<span class="lineNum">      78 </span>            :                 name);
+<span class="lineNum">      79 </span><span class="lineNoCov">          0 :         } else if (load_wallet_ret == DBErrors::TOO_NEW) {</span>
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 :             tfm::format(std::cerr, &quot;Error loading %s: Wallet requires newer version of %s&quot;,</span>
+<span class="lineNum">      81 </span>            :                 name, PACKAGE_NAME);
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 :             return nullptr;</span>
+<span class="lineNum">      83 </span><span class="lineNoCov">          0 :         } else if (load_wallet_ret == DBErrors::NEED_REWRITE) {</span>
+<span class="lineNum">      84 </span><span class="lineNoCov">          0 :             tfm::format(std::cerr, &quot;Wallet needed to be rewritten: restart %s to complete&quot;, PACKAGE_NAME);</span>
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 :             return nullptr;</span>
+<span class="lineNum">      86 </span>            :         } else {
+<span class="lineNum">      87 </span><span class="lineNoCov">          0 :             tfm::format(std::cerr, &quot;Error loading %s&quot;, name);</span>
+<span class="lineNum">      88 </span><span class="lineNoCov">          0 :             return nullptr;</span>
+<span class="lineNum">      89 </span>            :         }
+<span class="lineNum">      90 </span>            :     }
+<span class="lineNum">      91 </span>            : 
+<span class="lineNum">      92 </span><span class="lineCov">          2 :     return wallet_instance;</span>
+<a name="93"><span class="lineNum">      93 </span><span class="lineCov">          4 : }</span></a>
+<span class="lineNum">      94 </span>            : 
+<span class="lineNum">      95 </span><span class="lineCov">          3 : static void WalletShowInfo(CWallet* wallet_instance)</span>
+<span class="lineNum">      96 </span>            : {
+<span class="lineNum">      97 </span><span class="lineCov">          3 :     LOCK(wallet_instance-&gt;cs_wallet);</span>
+<span class="lineNum">      98 </span>            : 
+<span class="lineNum">      99 </span><span class="lineCov">          3 :     tfm::format(std::cout, &quot;Wallet info\n===========\n&quot;);</span>
+<span class="lineNum">     100 </span><span class="lineCov">          3 :     tfm::format(std::cout, &quot;Encrypted: %s\n&quot;, wallet_instance-&gt;IsCrypted() ? &quot;yes&quot; : &quot;no&quot;);</span>
+<span class="lineNum">     101 </span><span class="lineCov">          3 :     tfm::format(std::cout, &quot;HD (hd seed available): %s\n&quot;, wallet_instance-&gt;IsHDEnabled() ? &quot;yes&quot; : &quot;no&quot;);</span>
+<span class="lineNum">     102 </span><span class="lineCov">          3 :     tfm::format(std::cout, &quot;Keypool Size: %u\n&quot;, wallet_instance-&gt;GetKeyPoolSize());</span>
+<span class="lineNum">     103 </span><span class="lineCov">          3 :     tfm::format(std::cout, &quot;Transactions: %zu\n&quot;, wallet_instance-&gt;mapWallet.size());</span>
+<span class="lineNum">     104 </span><span class="lineCov">          3 :     tfm::format(std::cout, &quot;Address Book: %zu\n&quot;, wallet_instance-&gt;m_address_book.size());</span>
+<a name="105"><span class="lineNum">     105 </span><span class="lineCov">          3 : }</span></a>
+<span class="lineNum">     106 </span>            : 
+<span class="lineNum">     107 </span><span class="lineCov">          1 : static bool SalvageWallet(const fs::path&amp; path)</span>
+<span class="lineNum">     108 </span>            : {
+<span class="lineNum">     109 </span>            :     // Create a Database handle to allow for the db to be initialized before recovery
+<span class="lineNum">     110 </span><span class="lineCov">          1 :     std::unique_ptr&lt;WalletDatabase&gt; database = CreateWalletDatabase(path);</span>
+<span class="lineNum">     111 </span>            : 
+<span class="lineNum">     112 </span>            :     // Initialize the environment before recovery
+<span class="lineNum">     113 </span><span class="lineCov">          1 :     bilingual_str error_string;</span>
+<span class="lineNum">     114 </span>            :     try {
+<span class="lineNum">     115 </span><span class="lineCov">          1 :         database-&gt;Verify(error_string);</span>
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 :     } catch (const fs::filesystem_error&amp; e) {</span>
+<span class="lineNum">     117 </span><span class="lineNoCov">          0 :         error_string = Untranslated(strprintf(&quot;Error loading wallet. %s&quot;, fsbridge::get_filesystem_error_message(e)));</span>
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     119 </span><span class="lineCov">          1 :     if (!error_string.original.empty()) {</span>
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :         tfm::format(std::cerr, &quot;Failed to open wallet for salvage :%s\n&quot;, error_string.original);</span>
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 :         return false;</span>
+<span class="lineNum">     122 </span>            :     }
+<span class="lineNum">     123 </span>            : 
+<span class="lineNum">     124 </span>            :     // Perform the recovery
+<span class="lineNum">     125 </span><span class="lineCov">          1 :     return RecoverDatabaseFile(path);</span>
+<a name="126"><span class="lineNum">     126 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     127 </span>            : 
+<span class="lineNum">     128 </span><span class="lineCov">          8 : bool ExecuteWalletToolFunc(const std::string&amp; command, const std::string&amp; name)</span>
+<span class="lineNum">     129 </span>            : {
+<span class="lineNum">     130 </span><span class="lineCov">          8 :     fs::path path = fs::absolute(name, GetWalletDir());</span>
+<span class="lineNum">     131 </span>            : 
+<span class="lineNum">     132 </span><span class="lineCov">          8 :     if (command == &quot;create&quot;) {</span>
+<span class="lineNum">     133 </span><span class="lineCov">          1 :         std::shared_ptr&lt;CWallet&gt; wallet_instance = CreateWallet(name, path);</span>
+<span class="lineNum">     134 </span><span class="lineCov">          1 :         if (wallet_instance) {</span>
+<span class="lineNum">     135 </span><span class="lineCov">          1 :             WalletShowInfo(wallet_instance.get());</span>
+<span class="lineNum">     136 </span><span class="lineCov">          1 :             wallet_instance-&gt;Close();</span>
+<span class="lineNum">     137 </span>            :         }
+<span class="lineNum">     138 </span><span class="lineCov">          8 :     } else if (command == &quot;info&quot; || command == &quot;salvage&quot;) {</span>
+<span class="lineNum">     139 </span><span class="lineCov">          5 :         if (!fs::exists(path)) {</span>
+<span class="lineNum">     140 </span><span class="lineCov">          1 :             tfm::format(std::cerr, &quot;Error: no wallet file at %s\n&quot;, name);</span>
+<span class="lineNum">     141 </span><span class="lineCov">          1 :             return false;</span>
+<span class="lineNum">     142 </span>            :         }
+<span class="lineNum">     143 </span>            : 
+<span class="lineNum">     144 </span><span class="lineCov">          4 :         if (command == &quot;info&quot;) {</span>
+<span class="lineNum">     145 </span><span class="lineCov">          3 :             std::shared_ptr&lt;CWallet&gt; wallet_instance = LoadWallet(name, path);</span>
+<span class="lineNum">     146 </span><span class="lineCov">          3 :             if (!wallet_instance) return false;</span>
+<span class="lineNum">     147 </span><span class="lineCov">          2 :             WalletShowInfo(wallet_instance.get());</span>
+<span class="lineNum">     148 </span><span class="lineCov">          2 :             wallet_instance-&gt;Close();</span>
+<span class="lineNum">     149 </span><span class="lineCov">          4 :         } else if (command == &quot;salvage&quot;) {</span>
+<span class="lineNum">     150 </span><span class="lineCov">          1 :             return SalvageWallet(path);</span>
+<span class="lineNum">     151 </span>            :         }
+<span class="lineNum">     152 </span>            :     } else {
+<span class="lineNum">     153 </span><span class="lineCov">          2 :         tfm::format(std::cerr, &quot;Invalid command: %s\n&quot;, command);</span>
+<span class="lineNum">     154 </span><span class="lineCov">          2 :         return false;</span>
+<span class="lineNum">     155 </span>            :     }
+<span class="lineNum">     156 </span>            : 
+<span class="lineNum">     157 </span><span class="lineCov">          3 :     return true;</span>
+<span class="lineNum">     158 </span><span class="lineCov">          8 : }</span>
+<span class="lineNum">     159 </span>            : } // namespace WalletTool
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

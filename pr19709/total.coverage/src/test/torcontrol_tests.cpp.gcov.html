@@ -1,0 +1,279 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - total_coverage.info - src/test/torcontrol_tests.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">src/test</a> - torcontrol_tests.cpp<span style="font-size: 80%;"> (source / <a href="torcontrol_tests.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">total_coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">126</td>
+            <td class="headerCovTableEntry">126</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-08-14 02:59:33</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2017 The Zcash developers</a>
+<span class="lineNum">       2 </span>            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       3 </span>            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       4 </span>            : //
+<span class="lineNum">       5 </span>            : #include &lt;test/util/setup_common.h&gt;
+<span class="lineNum">       6 </span>            : 
+<span class="lineNum">       7 </span>            : #include &lt;boost/test/unit_test.hpp&gt;
+<span class="lineNum">       8 </span>            : 
+<span class="lineNum">       9 </span>            : #include &lt;map&gt;
+<span class="lineNum">      10 </span>            : #include &lt;string&gt;
+<span class="lineNum">      11 </span>            : #include &lt;utility&gt;
+<span class="lineNum">      12 </span>            : 
+<span class="lineNum">      13 </span>            : 
+<span class="lineNum">      14 </span>            : std::pair&lt;std::string, std::string&gt; SplitTorReplyLine(const std::string&amp; s);
+<span class="lineNum">      15 </span>            : std::map&lt;std::string, std::string&gt; ParseTorReplyMapping(const std::string&amp; s);
+<a name="16"><span class="lineNum">      16 </span>            : </a>
+<span class="lineNum">      17 </span>            : 
+<a name="18"><span class="lineNum">      18 </span><span class="lineCov">         88 : BOOST_FIXTURE_TEST_SUITE(torcontrol_tests, BasicTestingSetup)</span></a>
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span><span class="lineCov">         10 : static void CheckSplitTorReplyLine(std::string input, std::string command, std::string args)</span>
+<span class="lineNum">      21 </span>            : {
+<span class="lineNum">      22 </span><span class="lineCov">         10 :     auto ret = SplitTorReplyLine(input);</span>
+<span class="lineNum">      23 </span><span class="lineCov">         10 :     BOOST_CHECK_EQUAL(ret.first, command);</span>
+<span class="lineNum">      24 </span><span class="lineCov">         10 :     BOOST_CHECK_EQUAL(ret.second, args);</span>
+<a name="25"><span class="lineNum">      25 </span><span class="lineCov">         10 : }</span></a>
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span><span class="lineCov">         91 : BOOST_AUTO_TEST_CASE(util_SplitTorReplyLine)</span>
+<span class="lineNum">      28 </span>            : {
+<span class="lineNum">      29 </span>            :     // Data we should receive during normal usage
+<span class="lineNum">      30 </span><span class="lineCov">          1 :     CheckSplitTorReplyLine(</span>
+<span class="lineNum">      31 </span><span class="lineCov">          1 :         &quot;PROTOCOLINFO PIVERSION&quot;,</span>
+<span class="lineNum">      32 </span><span class="lineCov">          1 :         &quot;PROTOCOLINFO&quot;, &quot;PIVERSION&quot;);</span>
+<span class="lineNum">      33 </span><span class="lineCov">          1 :     CheckSplitTorReplyLine(</span>
+<span class="lineNum">      34 </span><span class="lineCov">          1 :         &quot;AUTH METHODS=COOKIE,SAFECOOKIE COOKIEFILE=\&quot;/home/x/.tor/control_auth_cookie\&quot;&quot;,</span>
+<span class="lineNum">      35 </span><span class="lineCov">          1 :         &quot;AUTH&quot;, &quot;METHODS=COOKIE,SAFECOOKIE COOKIEFILE=\&quot;/home/x/.tor/control_auth_cookie\&quot;&quot;);</span>
+<span class="lineNum">      36 </span><span class="lineCov">          1 :     CheckSplitTorReplyLine(</span>
+<span class="lineNum">      37 </span><span class="lineCov">          1 :         &quot;AUTH METHODS=NULL&quot;,</span>
+<span class="lineNum">      38 </span><span class="lineCov">          1 :         &quot;AUTH&quot;, &quot;METHODS=NULL&quot;);</span>
+<span class="lineNum">      39 </span><span class="lineCov">          1 :     CheckSplitTorReplyLine(</span>
+<span class="lineNum">      40 </span><span class="lineCov">          1 :         &quot;AUTH METHODS=HASHEDPASSWORD&quot;,</span>
+<span class="lineNum">      41 </span><span class="lineCov">          1 :         &quot;AUTH&quot;, &quot;METHODS=HASHEDPASSWORD&quot;);</span>
+<span class="lineNum">      42 </span><span class="lineCov">          1 :     CheckSplitTorReplyLine(</span>
+<span class="lineNum">      43 </span><span class="lineCov">          1 :         &quot;VERSION Tor=\&quot;0.2.9.8 (git-a0df013ea241b026)\&quot;&quot;,</span>
+<span class="lineNum">      44 </span><span class="lineCov">          1 :         &quot;VERSION&quot;, &quot;Tor=\&quot;0.2.9.8 (git-a0df013ea241b026)\&quot;&quot;);</span>
+<span class="lineNum">      45 </span><span class="lineCov">          1 :     CheckSplitTorReplyLine(</span>
+<span class="lineNum">      46 </span><span class="lineCov">          1 :         &quot;AUTHCHALLENGE SERVERHASH=aaaa SERVERNONCE=bbbb&quot;,</span>
+<span class="lineNum">      47 </span><span class="lineCov">          1 :         &quot;AUTHCHALLENGE&quot;, &quot;SERVERHASH=aaaa SERVERNONCE=bbbb&quot;);</span>
+<span class="lineNum">      48 </span>            : 
+<span class="lineNum">      49 </span>            :     // Other valid inputs
+<span class="lineNum">      50 </span><span class="lineCov">          1 :     CheckSplitTorReplyLine(&quot;COMMAND&quot;, &quot;COMMAND&quot;, &quot;&quot;);</span>
+<span class="lineNum">      51 </span><span class="lineCov">          1 :     CheckSplitTorReplyLine(&quot;COMMAND SOME  ARGS&quot;, &quot;COMMAND&quot;, &quot;SOME  ARGS&quot;);</span>
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span>            :     // These inputs are valid because PROTOCOLINFO accepts an OtherLine that is
+<span class="lineNum">      54 </span>            :     // just an OptArguments, which enables multiple spaces to be present
+<span class="lineNum">      55 </span>            :     // between the command and arguments.
+<span class="lineNum">      56 </span><span class="lineCov">          1 :     CheckSplitTorReplyLine(&quot;COMMAND  ARGS&quot;, &quot;COMMAND&quot;, &quot; ARGS&quot;);</span>
+<span class="lineNum">      57 </span><span class="lineCov">          1 :     CheckSplitTorReplyLine(&quot;COMMAND   EVEN+more  ARGS&quot;, &quot;COMMAND&quot;, &quot;  EVEN+more  ARGS&quot;);</span>
+<a name="58"><span class="lineNum">      58 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">      59 </span>            : 
+<span class="lineNum">      60 </span><span class="lineCov">         26 : static void CheckParseTorReplyMapping(std::string input, std::map&lt;std::string,std::string&gt; expected)</span>
+<span class="lineNum">      61 </span>            : {
+<span class="lineNum">      62 </span><span class="lineCov">         26 :     auto ret = ParseTorReplyMapping(input);</span>
+<span class="lineNum">      63 </span><span class="lineCov">         26 :     BOOST_CHECK_EQUAL(ret.size(), expected.size());</span>
+<span class="lineNum">      64 </span><span class="lineCov">         26 :     auto r_it = ret.begin();</span>
+<span class="lineNum">      65 </span><span class="lineCov">         26 :     auto e_it = expected.begin();</span>
+<span class="lineNum">      66 </span><span class="lineCov">         55 :     while (r_it != ret.end() &amp;&amp; e_it != expected.end()) {</span>
+<span class="lineNum">      67 </span><span class="lineCov">         29 :         BOOST_CHECK_EQUAL(r_it-&gt;first, e_it-&gt;first);</span>
+<span class="lineNum">      68 </span><span class="lineCov">         29 :         BOOST_CHECK_EQUAL(r_it-&gt;second, e_it-&gt;second);</span>
+<span class="lineNum">      69 </span><span class="lineCov">         29 :         r_it++;</span>
+<span class="lineNum">      70 </span><span class="lineCov">         29 :         e_it++;</span>
+<span class="lineNum">      71 </span>            :     }
+<a name="72"><span class="lineNum">      72 </span><span class="lineCov">         26 : }</span></a>
+<span class="lineNum">      73 </span>            : 
+<span class="lineNum">      74 </span><span class="lineCov">         91 : BOOST_AUTO_TEST_CASE(util_ParseTorReplyMapping)</span>
+<span class="lineNum">      75 </span>            : {
+<span class="lineNum">      76 </span>            :     // Data we should receive during normal usage
+<span class="lineNum">      77 </span><span class="lineCov">          2 :     CheckParseTorReplyMapping(</span>
+<span class="lineNum">      78 </span><span class="lineCov">          1 :         &quot;METHODS=COOKIE,SAFECOOKIE COOKIEFILE=\&quot;/home/x/.tor/control_auth_cookie\&quot;&quot;, {</span>
+<span class="lineNum">      79 </span><span class="lineCov">          1 :             {&quot;METHODS&quot;, &quot;COOKIE,SAFECOOKIE&quot;},</span>
+<span class="lineNum">      80 </span><span class="lineCov">          1 :             {&quot;COOKIEFILE&quot;, &quot;/home/x/.tor/control_auth_cookie&quot;},</span>
+<span class="lineNum">      81 </span>            :         });
+<span class="lineNum">      82 </span><span class="lineCov">          1 :     CheckParseTorReplyMapping(</span>
+<span class="lineNum">      83 </span><span class="lineCov">          1 :         &quot;METHODS=NULL&quot;, {</span>
+<span class="lineNum">      84 </span><span class="lineCov">          1 :             {&quot;METHODS&quot;, &quot;NULL&quot;},</span>
+<span class="lineNum">      85 </span>            :         });
+<span class="lineNum">      86 </span><span class="lineCov">          1 :     CheckParseTorReplyMapping(</span>
+<span class="lineNum">      87 </span><span class="lineCov">          1 :         &quot;METHODS=HASHEDPASSWORD&quot;, {</span>
+<span class="lineNum">      88 </span><span class="lineCov">          1 :             {&quot;METHODS&quot;, &quot;HASHEDPASSWORD&quot;},</span>
+<span class="lineNum">      89 </span>            :         });
+<span class="lineNum">      90 </span><span class="lineCov">          1 :     CheckParseTorReplyMapping(</span>
+<span class="lineNum">      91 </span><span class="lineCov">          1 :         &quot;Tor=\&quot;0.2.9.8 (git-a0df013ea241b026)\&quot;&quot;, {</span>
+<span class="lineNum">      92 </span><span class="lineCov">          1 :             {&quot;Tor&quot;, &quot;0.2.9.8 (git-a0df013ea241b026)&quot;},</span>
+<span class="lineNum">      93 </span>            :         });
+<span class="lineNum">      94 </span><span class="lineCov">          2 :     CheckParseTorReplyMapping(</span>
+<span class="lineNum">      95 </span><span class="lineCov">          1 :         &quot;SERVERHASH=aaaa SERVERNONCE=bbbb&quot;, {</span>
+<span class="lineNum">      96 </span><span class="lineCov">          1 :             {&quot;SERVERHASH&quot;, &quot;aaaa&quot;},</span>
+<span class="lineNum">      97 </span><span class="lineCov">          1 :             {&quot;SERVERNONCE&quot;, &quot;bbbb&quot;},</span>
+<span class="lineNum">      98 </span>            :         });
+<span class="lineNum">      99 </span><span class="lineCov">          1 :     CheckParseTorReplyMapping(</span>
+<span class="lineNum">     100 </span><span class="lineCov">          1 :         &quot;ServiceID=exampleonion1234&quot;, {</span>
+<span class="lineNum">     101 </span><span class="lineCov">          1 :             {&quot;ServiceID&quot;, &quot;exampleonion1234&quot;},</span>
+<span class="lineNum">     102 </span>            :         });
+<span class="lineNum">     103 </span><span class="lineCov">          1 :     CheckParseTorReplyMapping(</span>
+<span class="lineNum">     104 </span><span class="lineCov">          1 :         &quot;PrivateKey=RSA1024:BLOB&quot;, {</span>
+<span class="lineNum">     105 </span><span class="lineCov">          1 :             {&quot;PrivateKey&quot;, &quot;RSA1024:BLOB&quot;},</span>
+<span class="lineNum">     106 </span>            :         });
+<span class="lineNum">     107 </span><span class="lineCov">          1 :     CheckParseTorReplyMapping(</span>
+<span class="lineNum">     108 </span><span class="lineCov">          1 :         &quot;ClientAuth=bob:BLOB&quot;, {</span>
+<span class="lineNum">     109 </span><span class="lineCov">          1 :             {&quot;ClientAuth&quot;, &quot;bob:BLOB&quot;},</span>
+<span class="lineNum">     110 </span>            :         });
+<span class="lineNum">     111 </span>            : 
+<span class="lineNum">     112 </span>            :     // Other valid inputs
+<span class="lineNum">     113 </span><span class="lineCov">          2 :     CheckParseTorReplyMapping(</span>
+<span class="lineNum">     114 </span><span class="lineCov">          1 :         &quot;Foo=Bar=Baz Spam=Eggs&quot;, {</span>
+<span class="lineNum">     115 </span><span class="lineCov">          1 :             {&quot;Foo&quot;, &quot;Bar=Baz&quot;},</span>
+<span class="lineNum">     116 </span><span class="lineCov">          1 :             {&quot;Spam&quot;, &quot;Eggs&quot;},</span>
+<span class="lineNum">     117 </span>            :         });
+<span class="lineNum">     118 </span><span class="lineCov">          1 :     CheckParseTorReplyMapping(</span>
+<span class="lineNum">     119 </span><span class="lineCov">          1 :         &quot;Foo=\&quot;Bar=Baz\&quot;&quot;, {</span>
+<span class="lineNum">     120 </span><span class="lineCov">          1 :             {&quot;Foo&quot;, &quot;Bar=Baz&quot;},</span>
+<span class="lineNum">     121 </span>            :         });
+<span class="lineNum">     122 </span><span class="lineCov">          1 :     CheckParseTorReplyMapping(</span>
+<span class="lineNum">     123 </span><span class="lineCov">          1 :         &quot;Foo=\&quot;Bar Baz\&quot;&quot;, {</span>
+<span class="lineNum">     124 </span><span class="lineCov">          1 :             {&quot;Foo&quot;, &quot;Bar Baz&quot;},</span>
+<span class="lineNum">     125 </span>            :         });
+<span class="lineNum">     126 </span>            : 
+<span class="lineNum">     127 </span>            :     // Escapes
+<span class="lineNum">     128 </span><span class="lineCov">          1 :     CheckParseTorReplyMapping(</span>
+<span class="lineNum">     129 </span><span class="lineCov">          1 :         &quot;Foo=\&quot;Bar\\ Baz\&quot;&quot;, {</span>
+<span class="lineNum">     130 </span><span class="lineCov">          1 :             {&quot;Foo&quot;, &quot;Bar Baz&quot;},</span>
+<span class="lineNum">     131 </span>            :         });
+<span class="lineNum">     132 </span><span class="lineCov">          1 :     CheckParseTorReplyMapping(</span>
+<span class="lineNum">     133 </span><span class="lineCov">          1 :         &quot;Foo=\&quot;Bar\\Baz\&quot;&quot;, {</span>
+<span class="lineNum">     134 </span><span class="lineCov">          1 :             {&quot;Foo&quot;, &quot;BarBaz&quot;},</span>
+<span class="lineNum">     135 </span>            :         });
+<span class="lineNum">     136 </span><span class="lineCov">          1 :     CheckParseTorReplyMapping(</span>
+<span class="lineNum">     137 </span><span class="lineCov">          1 :         &quot;Foo=\&quot;Bar\\@Baz\&quot;&quot;, {</span>
+<span class="lineNum">     138 </span><span class="lineCov">          1 :             {&quot;Foo&quot;, &quot;Bar@Baz&quot;},</span>
+<span class="lineNum">     139 </span>            :         });
+<span class="lineNum">     140 </span><span class="lineCov">          2 :     CheckParseTorReplyMapping(</span>
+<span class="lineNum">     141 </span><span class="lineCov">          1 :         &quot;Foo=\&quot;Bar\\\&quot;Baz\&quot; Spam=\&quot;\\\&quot;Eggs\\\&quot;\&quot;&quot;, {</span>
+<span class="lineNum">     142 </span><span class="lineCov">          1 :             {&quot;Foo&quot;, &quot;Bar\&quot;Baz&quot;},</span>
+<span class="lineNum">     143 </span><span class="lineCov">          1 :             {&quot;Spam&quot;, &quot;\&quot;Eggs\&quot;&quot;},</span>
+<span class="lineNum">     144 </span>            :         });
+<span class="lineNum">     145 </span><span class="lineCov">          1 :     CheckParseTorReplyMapping(</span>
+<span class="lineNum">     146 </span><span class="lineCov">          1 :         &quot;Foo=\&quot;Bar\\\\Baz\&quot;&quot;, {</span>
+<span class="lineNum">     147 </span><span class="lineCov">          1 :             {&quot;Foo&quot;, &quot;Bar\\Baz&quot;},</span>
+<span class="lineNum">     148 </span>            :         });
+<span class="lineNum">     149 </span>            : 
+<span class="lineNum">     150 </span>            :     // C escapes
+<span class="lineNum">     151 </span><span class="lineCov">          4 :     CheckParseTorReplyMapping(</span>
+<span class="lineNum">     152 </span><span class="lineCov">          1 :         &quot;Foo=\&quot;Bar\\nBaz\\t\&quot; Spam=\&quot;\\rEggs\&quot; Octals=\&quot;\\1a\\11\\17\\18\\81\\377\\378\\400\\2222\&quot; Final=Check&quot;, {</span>
+<span class="lineNum">     153 </span><span class="lineCov">          1 :             {&quot;Foo&quot;, &quot;Bar\nBaz\t&quot;},</span>
+<span class="lineNum">     154 </span><span class="lineCov">          1 :             {&quot;Spam&quot;, &quot;\rEggs&quot;},</span>
+<span class="lineNum">     155 </span><span class="lineCov">          1 :             {&quot;Octals&quot;, &quot;\1a\11\17\1&quot; &quot;881\377\37&quot; &quot;8\40&quot; &quot;0\222&quot; &quot;2&quot;},</span>
+<span class="lineNum">     156 </span><span class="lineCov">          1 :             {&quot;Final&quot;, &quot;Check&quot;},</span>
+<span class="lineNum">     157 </span>            :         });
+<span class="lineNum">     158 </span><span class="lineCov">          2 :     CheckParseTorReplyMapping(</span>
+<span class="lineNum">     159 </span><span class="lineCov">          1 :         &quot;Valid=Mapping Escaped=\&quot;Escape\\\\\&quot;&quot;, {</span>
+<span class="lineNum">     160 </span><span class="lineCov">          1 :             {&quot;Valid&quot;, &quot;Mapping&quot;},</span>
+<span class="lineNum">     161 </span><span class="lineCov">          1 :             {&quot;Escaped&quot;, &quot;Escape\\&quot;},</span>
+<span class="lineNum">     162 </span>            :         });
+<span class="lineNum">     163 </span><span class="lineCov">          1 :     CheckParseTorReplyMapping(</span>
+<span class="lineNum">     164 </span><span class="lineCov">          1 :         &quot;Valid=Mapping Bare=\&quot;Escape\\\&quot;&quot;, {});</span>
+<span class="lineNum">     165 </span><span class="lineCov">          2 :     CheckParseTorReplyMapping(</span>
+<span class="lineNum">     166 </span><span class="lineCov">          1 :         &quot;OneOctal=\&quot;OneEnd\\1\&quot; TwoOctal=\&quot;TwoEnd\\11\&quot;&quot;, {</span>
+<span class="lineNum">     167 </span><span class="lineCov">          1 :             {&quot;OneOctal&quot;, &quot;OneEnd\1&quot;},</span>
+<span class="lineNum">     168 </span><span class="lineCov">          1 :             {&quot;TwoOctal&quot;, &quot;TwoEnd\11&quot;},</span>
+<span class="lineNum">     169 </span>            :         });
+<span class="lineNum">     170 </span>            : 
+<span class="lineNum">     171 </span>            :     // Special handling for null case
+<span class="lineNum">     172 </span>            :     // (needed because string comparison reads the null as end-of-string)
+<span class="lineNum">     173 </span><span class="lineCov">          1 :     auto ret = ParseTorReplyMapping(&quot;Null=\&quot;\\0\&quot;&quot;);</span>
+<span class="lineNum">     174 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(ret.size(), 1U);</span>
+<span class="lineNum">     175 </span><span class="lineCov">          1 :     auto r_it = ret.begin();</span>
+<span class="lineNum">     176 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(r_it-&gt;first, &quot;Null&quot;);</span>
+<span class="lineNum">     177 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(r_it-&gt;second.size(), 1U);</span>
+<span class="lineNum">     178 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(r_it-&gt;second[0], '\0');</span>
+<span class="lineNum">     179 </span>            : 
+<span class="lineNum">     180 </span>            :     // A more complex valid grammar. PROTOCOLINFO accepts a VersionLine that
+<span class="lineNum">     181 </span>            :     // takes a key=value pair followed by an OptArguments, making this valid.
+<span class="lineNum">     182 </span>            :     // Because an OptArguments contains no semantic data, there is no point in
+<span class="lineNum">     183 </span>            :     // parsing it.
+<span class="lineNum">     184 </span><span class="lineCov">          1 :     CheckParseTorReplyMapping(</span>
+<span class="lineNum">     185 </span><span class="lineCov">          1 :         &quot;SOME=args,here MORE optional=arguments  here&quot;, {</span>
+<span class="lineNum">     186 </span><span class="lineCov">          1 :             {&quot;SOME&quot;, &quot;args,here&quot;},</span>
+<span class="lineNum">     187 </span>            :         });
+<span class="lineNum">     188 </span>            : 
+<span class="lineNum">     189 </span>            :     // Inputs that are effectively invalid under the target grammar.
+<span class="lineNum">     190 </span>            :     // PROTOCOLINFO accepts an OtherLine that is just an OptArguments, which
+<span class="lineNum">     191 </span>            :     // would make these inputs valid. However,
+<span class="lineNum">     192 </span>            :     // - This parser is never used in that situation, because the
+<span class="lineNum">     193 </span>            :     //   SplitTorReplyLine parser enables OtherLine to be skipped.
+<span class="lineNum">     194 </span>            :     // - Even if these were valid, an OptArguments contains no semantic data,
+<span class="lineNum">     195 </span>            :     //   so there is no point in parsing it.
+<span class="lineNum">     196 </span><span class="lineCov">          1 :     CheckParseTorReplyMapping(&quot;ARGS&quot;, {});</span>
+<span class="lineNum">     197 </span><span class="lineCov">          1 :     CheckParseTorReplyMapping(&quot;MORE ARGS&quot;, {});</span>
+<span class="lineNum">     198 </span><span class="lineCov">          1 :     CheckParseTorReplyMapping(&quot;MORE  ARGS&quot;, {});</span>
+<span class="lineNum">     199 </span><span class="lineCov">          1 :     CheckParseTorReplyMapping(&quot;EVEN more=ARGS&quot;, {});</span>
+<span class="lineNum">     200 </span><span class="lineCov">          1 :     CheckParseTorReplyMapping(&quot;EVEN+more ARGS&quot;, {});</span>
+<a name="201"><span class="lineNum">     201 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     202 </span>            : 
+<span class="lineNum">     203 </span><span class="lineCov">         88 : BOOST_AUTO_TEST_SUITE_END()</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

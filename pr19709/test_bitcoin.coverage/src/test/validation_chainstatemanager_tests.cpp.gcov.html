@@ -1,0 +1,229 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - test_bitcoin_coverage.info - src/test/validation_chainstatemanager_tests.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">src/test</a> - validation_chainstatemanager_tests.cpp<span style="font-size: 80%;"> (source / <a href="validation_chainstatemanager_tests.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">test_bitcoin_coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">82</td>
+            <td class="headerCovTableEntry">82</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-08-14 02:46:54</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">17</td>
+            <td class="headerCovTableEntry">17</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2019-2020 The Bitcoin Core developers</a>
+<span class="lineNum">       2 </span>            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       3 </span>            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       4 </span>            : //
+<span class="lineNum">       5 </span>            : #include &lt;chainparams.h&gt;
+<span class="lineNum">       6 </span>            : #include &lt;consensus/validation.h&gt;
+<span class="lineNum">       7 </span>            : #include &lt;random.h&gt;
+<span class="lineNum">       8 </span>            : #include &lt;sync.h&gt;
+<span class="lineNum">       9 </span>            : #include &lt;test/util/setup_common.h&gt;
+<span class="lineNum">      10 </span>            : #include &lt;uint256.h&gt;
+<span class="lineNum">      11 </span>            : #include &lt;validation.h&gt;
+<span class="lineNum">      12 </span>            : #include &lt;validationinterface.h&gt;
+<span class="lineNum">      13 </span>            : 
+<span class="lineNum">      14 </span>            : #include &lt;vector&gt;
+<span class="lineNum">      15 </span>            : 
+<a name="16"><span class="lineNum">      16 </span>            : #include &lt;boost/test/unit_test.hpp&gt;</a>
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span><span class="lineCov">         88 : BOOST_FIXTURE_TEST_SUITE(validation_chainstatemanager_tests, TestingSetup)</span>
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : //! Basic tests for ChainstateManager.
+<a name="21"><span class="lineNum">      21 </span>            : //!</a>
+<span class="lineNum">      22 </span>            : //! First create a legacy (IBD) chainstate, then create a snapshot chainstate.
+<span class="lineNum">      23 </span><span class="lineCov">         91 : BOOST_AUTO_TEST_CASE(chainstatemanager)</span>
+<span class="lineNum">      24 </span>            : {
+<span class="lineNum">      25 </span><span class="lineCov">          1 :     ChainstateManager manager;</span>
+<span class="lineNum">      26 </span><span class="lineCov">          1 :     std::vector&lt;CChainState*&gt; chainstates;</span>
+<span class="lineNum">      27 </span><span class="lineCov">          1 :     const CChainParams&amp; chainparams = Params();</span>
+<span class="lineNum">      28 </span>            : 
+<a name="29"><span class="lineNum">      29 </span>            :     // Create a legacy (IBD) chainstate.</a>
+<span class="lineNum">      30 </span>            :     //
+<span class="lineNum">      31 </span><span class="lineCov">          2 :     CChainState&amp; c1 = *WITH_LOCK(::cs_main, return &amp;manager.InitializeChainstate());</span>
+<span class="lineNum">      32 </span><span class="lineCov">          1 :     chainstates.push_back(&amp;c1);</span>
+<a name="33"><span class="lineNum">      33 </span><span class="lineCov">          1 :     c1.InitCoinsDB(</span></a>
+<span class="lineNum">      34 </span>            :         /* cache_size_bytes */ 1 &lt;&lt; 23, /* in_memory */ true, /* should_wipe */ false);
+<span class="lineNum">      35 </span><span class="lineCov">          2 :     WITH_LOCK(::cs_main, c1.InitCoinsCache(1 &lt;&lt; 23));</span>
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span><span class="lineCov">          1 :     BOOST_CHECK(!manager.IsSnapshotActive());</span>
+<span class="lineNum">      38 </span><span class="lineCov">          1 :     BOOST_CHECK(!manager.IsSnapshotValidated());</span>
+<span class="lineNum">      39 </span><span class="lineCov">          1 :     BOOST_CHECK(!manager.IsBackgroundIBD(&amp;c1));</span>
+<span class="lineNum">      40 </span><span class="lineCov">          1 :     auto all = manager.GetAll();</span>
+<span class="lineNum">      41 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL_COLLECTIONS(all.begin(), all.end(), chainstates.begin(), chainstates.end());</span>
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span><span class="lineCov">          1 :     auto&amp; active_chain = manager.ActiveChain();</span>
+<span class="lineNum">      44 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(&amp;active_chain, &amp;c1.m_chain);</span>
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(manager.ActiveHeight(), -1);</span>
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span><span class="lineCov">          1 :     auto active_tip = manager.ActiveTip();</span>
+<span class="lineNum">      49 </span><span class="lineCov">          1 :     auto exp_tip = c1.m_chain.Tip();</span>
+<span class="lineNum">      50 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(active_tip, exp_tip);</span>
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span><span class="lineCov">          1 :     auto&amp; validated_cs = manager.ValidatedChainstate();</span>
+<span class="lineNum">      53 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(&amp;validated_cs, &amp;c1);</span>
+<span class="lineNum">      54 </span>            : 
+<a name="55"><span class="lineNum">      55 </span>            :     // Create a snapshot-based chainstate.</a>
+<span class="lineNum">      56 </span>            :     //
+<span class="lineNum">      57 </span><span class="lineCov">          2 :     CChainState&amp; c2 = *WITH_LOCK(::cs_main, return &amp;manager.InitializeChainstate(GetRandHash()));</span>
+<span class="lineNum">      58 </span><span class="lineCov">          1 :     chainstates.push_back(&amp;c2);</span>
+<a name="59"><span class="lineNum">      59 </span><span class="lineCov">          1 :     c2.InitCoinsDB(</span></a>
+<span class="lineNum">      60 </span>            :         /* cache_size_bytes */ 1 &lt;&lt; 23, /* in_memory */ true, /* should_wipe */ false);
+<span class="lineNum">      61 </span><span class="lineCov">          2 :     WITH_LOCK(::cs_main, c2.InitCoinsCache(1 &lt;&lt; 23));</span>
+<span class="lineNum">      62 </span>            :     // Unlike c1, which doesn't have any blocks. Gets us different tip, height.
+<span class="lineNum">      63 </span><span class="lineCov">          1 :     c2.LoadGenesisBlock(chainparams);</span>
+<span class="lineNum">      64 </span><span class="lineCov">          1 :     BlockValidationState _;</span>
+<span class="lineNum">      65 </span><span class="lineCov">          1 :     BOOST_CHECK(c2.ActivateBestChain(_, chainparams, nullptr));</span>
+<span class="lineNum">      66 </span>            : 
+<span class="lineNum">      67 </span><span class="lineCov">          1 :     BOOST_CHECK(manager.IsSnapshotActive());</span>
+<span class="lineNum">      68 </span><span class="lineCov">          1 :     BOOST_CHECK(!manager.IsSnapshotValidated());</span>
+<span class="lineNum">      69 </span><span class="lineCov">          1 :     BOOST_CHECK(manager.IsBackgroundIBD(&amp;c1));</span>
+<span class="lineNum">      70 </span><span class="lineCov">          1 :     BOOST_CHECK(!manager.IsBackgroundIBD(&amp;c2));</span>
+<span class="lineNum">      71 </span><span class="lineCov">          1 :     auto all2 = manager.GetAll();</span>
+<span class="lineNum">      72 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL_COLLECTIONS(all2.begin(), all2.end(), chainstates.begin(), chainstates.end());</span>
+<span class="lineNum">      73 </span>            : 
+<span class="lineNum">      74 </span><span class="lineCov">          1 :     auto&amp; active_chain2 = manager.ActiveChain();</span>
+<span class="lineNum">      75 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(&amp;active_chain2, &amp;c2.m_chain);</span>
+<span class="lineNum">      76 </span>            : 
+<span class="lineNum">      77 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(manager.ActiveHeight(), 0);</span>
+<span class="lineNum">      78 </span>            : 
+<span class="lineNum">      79 </span><span class="lineCov">          1 :     auto active_tip2 = manager.ActiveTip();</span>
+<span class="lineNum">      80 </span><span class="lineCov">          1 :     auto exp_tip2 = c2.m_chain.Tip();</span>
+<span class="lineNum">      81 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(active_tip2, exp_tip2);</span>
+<span class="lineNum">      82 </span>            : 
+<span class="lineNum">      83 </span>            :     // Ensure that these pointers actually correspond to different
+<span class="lineNum">      84 </span>            :     // CCoinsViewCache instances.
+<span class="lineNum">      85 </span><span class="lineCov">          1 :     BOOST_CHECK(exp_tip != exp_tip2);</span>
+<span class="lineNum">      86 </span>            : 
+<span class="lineNum">      87 </span><span class="lineCov">          1 :     auto&amp; validated_cs2 = manager.ValidatedChainstate();</span>
+<span class="lineNum">      88 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(&amp;validated_cs2, &amp;c1);</span>
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span><span class="lineCov">          1 :     auto&amp; validated_chain = manager.ValidatedChain();</span>
+<span class="lineNum">      91 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(&amp;validated_chain, &amp;c1.m_chain);</span>
+<span class="lineNum">      92 </span>            : 
+<span class="lineNum">      93 </span><span class="lineCov">          1 :     auto validated_tip = manager.ValidatedTip();</span>
+<span class="lineNum">      94 </span><span class="lineCov">          1 :     exp_tip = c1.m_chain.Tip();</span>
+<span class="lineNum">      95 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(validated_tip, exp_tip);</span>
+<span class="lineNum">      96 </span>            : 
+<span class="lineNum">      97 </span>            :     // Let scheduler events finish running to avoid accessing memory that is going to be unloaded
+<a name="98"><span class="lineNum">      98 </span><span class="lineCov">          1 :     SyncWithValidationInterfaceQueue();</span></a>
+<span class="lineNum">      99 </span>            : 
+<span class="lineNum">     100 </span><span class="lineCov">          2 :     WITH_LOCK(::cs_main, manager.Unload());</span>
+<span class="lineNum">     101 </span><span class="lineCov">          1 : }</span>
+<a name="102"><span class="lineNum">     102 </span>            : </a>
+<span class="lineNum">     103 </span>            : //! Test rebalancing the caches associated with each chainstate.
+<span class="lineNum">     104 </span><span class="lineCov">         91 : BOOST_AUTO_TEST_CASE(chainstatemanager_rebalance_caches)</span>
+<span class="lineNum">     105 </span>            : {
+<span class="lineNum">     106 </span><span class="lineCov">          1 :     ChainstateManager manager;</span>
+<span class="lineNum">     107 </span><span class="lineCov">          1 :     size_t max_cache = 10000;</span>
+<span class="lineNum">     108 </span><span class="lineCov">          1 :     manager.m_total_coinsdb_cache = max_cache;</span>
+<span class="lineNum">     109 </span><span class="lineCov">          1 :     manager.m_total_coinstip_cache = max_cache;</span>
+<span class="lineNum">     110 </span>            : 
+<span class="lineNum">     111 </span><span class="lineCov">          1 :     std::vector&lt;CChainState*&gt; chainstates;</span>
+<span class="lineNum">     112 </span>            : 
+<a name="113"><span class="lineNum">     113 </span>            :     // Create a legacy (IBD) chainstate.</a>
+<span class="lineNum">     114 </span>            :     //
+<span class="lineNum">     115 </span><span class="lineCov">          2 :     CChainState&amp; c1 = *WITH_LOCK(cs_main, return &amp;manager.InitializeChainstate());</span>
+<span class="lineNum">     116 </span><span class="lineCov">          1 :     chainstates.push_back(&amp;c1);</span>
+<span class="lineNum">     117 </span><span class="lineCov">          1 :     c1.InitCoinsDB(</span>
+<span class="lineNum">     118 </span>            :         /* cache_size_bytes */ 1 &lt;&lt; 23, /* in_memory */ true, /* should_wipe */ false);
+<span class="lineNum">     119 </span>            : 
+<span class="lineNum">     120 </span>            :     {
+<span class="lineNum">     121 </span><span class="lineCov">          1 :         LOCK(::cs_main);</span>
+<span class="lineNum">     122 </span><span class="lineCov">          1 :         c1.InitCoinsCache(1 &lt;&lt; 23);</span>
+<span class="lineNum">     123 </span><span class="lineCov">          1 :         c1.CoinsTip().SetBestBlock(InsecureRand256());</span>
+<span class="lineNum">     124 </span><span class="lineCov">          1 :         manager.MaybeRebalanceCaches();</span>
+<span class="lineNum">     125 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">     126 </span>            : 
+<span class="lineNum">     127 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(c1.m_coinstip_cache_size_bytes, max_cache);</span>
+<span class="lineNum">     128 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(c1.m_coinsdb_cache_size_bytes, max_cache);</span>
+<span class="lineNum">     129 </span>            : 
+<a name="130"><span class="lineNum">     130 </span>            :     // Create a snapshot-based chainstate.</a>
+<span class="lineNum">     131 </span>            :     //
+<span class="lineNum">     132 </span><span class="lineCov">          2 :     CChainState&amp; c2 = *WITH_LOCK(cs_main, return &amp;manager.InitializeChainstate(GetRandHash()));</span>
+<span class="lineNum">     133 </span><span class="lineCov">          1 :     chainstates.push_back(&amp;c2);</span>
+<span class="lineNum">     134 </span><span class="lineCov">          1 :     c2.InitCoinsDB(</span>
+<span class="lineNum">     135 </span>            :         /* cache_size_bytes */ 1 &lt;&lt; 23, /* in_memory */ true, /* should_wipe */ false);
+<span class="lineNum">     136 </span>            : 
+<span class="lineNum">     137 </span>            :     {
+<span class="lineNum">     138 </span><span class="lineCov">          1 :         LOCK(::cs_main);</span>
+<span class="lineNum">     139 </span><span class="lineCov">          1 :         c2.InitCoinsCache(1 &lt;&lt; 23);</span>
+<span class="lineNum">     140 </span><span class="lineCov">          1 :         c2.CoinsTip().SetBestBlock(InsecureRand256());</span>
+<span class="lineNum">     141 </span><span class="lineCov">          1 :         manager.MaybeRebalanceCaches();</span>
+<span class="lineNum">     142 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">     143 </span>            : 
+<span class="lineNum">     144 </span>            :     // Since both chainstates are considered to be in initial block download,
+<span class="lineNum">     145 </span>            :     // the snapshot chainstate should take priority.
+<span class="lineNum">     146 </span><span class="lineCov">          1 :     BOOST_CHECK_CLOSE(c1.m_coinstip_cache_size_bytes, max_cache * 0.05, 1);</span>
+<span class="lineNum">     147 </span><span class="lineCov">          1 :     BOOST_CHECK_CLOSE(c1.m_coinsdb_cache_size_bytes, max_cache * 0.05, 1);</span>
+<span class="lineNum">     148 </span><span class="lineCov">          1 :     BOOST_CHECK_CLOSE(c2.m_coinstip_cache_size_bytes, max_cache * 0.95, 1);</span>
+<span class="lineNum">     149 </span><span class="lineCov">          1 :     BOOST_CHECK_CLOSE(c2.m_coinsdb_cache_size_bytes, max_cache * 0.95, 1);</span>
+<span class="lineNum">     150 </span>            : 
+<a name="151"><span class="lineNum">     151 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     152 </span>            : 
+<span class="lineNum">     153 </span><span class="lineCov">         88 : BOOST_AUTO_TEST_SUITE_END()</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - total_coverage.info - src/test/timedata_tests.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">src/test</a> - timedata_tests.cpp<span style="font-size: 80%;"> (source / <a href="timedata_tests.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">total_coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">45</td>
+            <td class="headerCovTableEntry">45</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-08-14 02:59:33</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2011-2020 The Bitcoin Core developers</a>
+<span class="lineNum">       2 </span>            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       3 </span>            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       4 </span>            : //
+<span class="lineNum">       5 </span>            : 
+<span class="lineNum">       6 </span>            : #include &lt;netaddress.h&gt;
+<span class="lineNum">       7 </span>            : #include &lt;noui.h&gt;
+<span class="lineNum">       8 </span>            : #include &lt;test/util/logging.h&gt;
+<span class="lineNum">       9 </span>            : #include &lt;test/util/setup_common.h&gt;
+<span class="lineNum">      10 </span>            : #include &lt;timedata.h&gt;
+<span class="lineNum">      11 </span>            : #include &lt;util/string.h&gt;
+<span class="lineNum">      12 </span>            : #include &lt;util/translation.h&gt;
+<span class="lineNum">      13 </span>            : #include &lt;warnings.h&gt;
+<span class="lineNum">      14 </span>            : 
+<span class="lineNum">      15 </span>            : #include &lt;string&gt;
+<span class="lineNum">      16 </span>            : 
+<a name="17"><span class="lineNum">      17 </span>            : #include &lt;boost/test/unit_test.hpp&gt;</a>
+<span class="lineNum">      18 </span>            : 
+<a name="19"><span class="lineNum">      19 </span><span class="lineCov">         88 : BOOST_FIXTURE_TEST_SUITE(timedata_tests, BasicTestingSetup)</span></a>
+<span class="lineNum">      20 </span>            : 
+<span class="lineNum">      21 </span><span class="lineCov">         91 : BOOST_AUTO_TEST_CASE(util_MedianFilter)</span>
+<span class="lineNum">      22 </span>            : {
+<span class="lineNum">      23 </span><span class="lineCov">          1 :     CMedianFilter&lt;int&gt; filter(5, 15);</span>
+<span class="lineNum">      24 </span>            : 
+<span class="lineNum">      25 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(filter.median(), 15);</span>
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span><span class="lineCov">          1 :     filter.input(20); // [15 20]</span>
+<span class="lineNum">      28 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(filter.median(), 17);</span>
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span><span class="lineCov">          1 :     filter.input(30); // [15 20 30]</span>
+<span class="lineNum">      31 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(filter.median(), 20);</span>
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span><span class="lineCov">          1 :     filter.input(3); // [3 15 20 30]</span>
+<span class="lineNum">      34 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(filter.median(), 17);</span>
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span><span class="lineCov">          1 :     filter.input(7); // [3 7 15 20 30]</span>
+<span class="lineNum">      37 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(filter.median(), 15);</span>
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span><span class="lineCov">          1 :     filter.input(18); // [3 7 18 20 30]</span>
+<span class="lineNum">      40 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(filter.median(), 18);</span>
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span><span class="lineCov">          1 :     filter.input(0); // [0 3 7 18 30]</span>
+<span class="lineNum">      43 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(filter.median(), 7);</span>
+<a name="44"><span class="lineNum">      44 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span><span class="lineCov">          8 : static void MultiAddTimeData(int n, int64_t offset)</span>
+<span class="lineNum">      47 </span>            : {
+<span class="lineNum">      48 </span>            :     static int cnt = 0;
+<span class="lineNum">      49 </span><span class="lineCov">        208 :     for (int i = 0; i &lt; n; ++i) {</span>
+<span class="lineNum">      50 </span><span class="lineCov">        200 :         CNetAddr addr;</span>
+<span class="lineNum">      51 </span><span class="lineCov">        200 :         addr.SetInternal(ToString(++cnt));</span>
+<span class="lineNum">      52 </span><span class="lineCov">        200 :         AddTimeData(addr, offset);</span>
+<span class="lineNum">      53 </span><span class="lineCov">        200 :     }</span>
+<span class="lineNum">      54 </span><span class="lineCov">          8 : }</span>
+<a name="55"><span class="lineNum">      55 </span>            : </a>
+<span class="lineNum">      56 </span>            : 
+<span class="lineNum">      57 </span><span class="lineCov">         91 : BOOST_AUTO_TEST_CASE(addtimedata)</span>
+<span class="lineNum">      58 </span>            : {
+<span class="lineNum">      59 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(GetTimeOffset(), 0);</span>
+<span class="lineNum">      60 </span>            : 
+<span class="lineNum">      61 </span>            :     //Part 1: Add large offsets to test a warning message that our clock may be wrong.
+<span class="lineNum">      62 </span><span class="lineCov">          1 :     MultiAddTimeData(3, DEFAULT_MAX_TIME_ADJUSTMENT + 1);</span>
+<span class="lineNum">      63 </span>            :     // Filter size is 1 + 3 = 4: It is always initialized with a single element (offset 0)
+<span class="lineNum">      64 </span>            : 
+<span class="lineNum">      65 </span>            :     {
+<span class="lineNum">      66 </span><span class="lineCov">          1 :         ASSERT_DEBUG_LOG(&quot;Please check that your computer's date and time are correct!&quot;);</span>
+<span class="lineNum">      67 </span><span class="lineCov">          1 :         MultiAddTimeData(1, DEFAULT_MAX_TIME_ADJUSTMENT + 1); //filter size 5</span>
+<span class="lineNum">      68 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">      69 </span>            : 
+<span class="lineNum">      70 </span><span class="lineCov">          1 :     BOOST_CHECK(GetWarnings(true).original.find(&quot;clock is wrong&quot;) != std::string::npos);</span>
+<span class="lineNum">      71 </span>            : 
+<span class="lineNum">      72 </span>            :     // nTimeOffset is not changed if the median of offsets exceeds DEFAULT_MAX_TIME_ADJUSTMENT
+<span class="lineNum">      73 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(GetTimeOffset(), 0);</span>
+<span class="lineNum">      74 </span>            : 
+<span class="lineNum">      75 </span>            :     // Part 2: Test positive and negative medians by adding more offsets
+<span class="lineNum">      76 </span><span class="lineCov">          1 :     MultiAddTimeData(4, 100); // filter size 9</span>
+<span class="lineNum">      77 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(GetTimeOffset(), 100);</span>
+<span class="lineNum">      78 </span><span class="lineCov">          1 :     MultiAddTimeData(10, -100); //filter size 19</span>
+<span class="lineNum">      79 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(GetTimeOffset(), -100);</span>
+<span class="lineNum">      80 </span>            : 
+<span class="lineNum">      81 </span>            :     // Part 3: Test behaviour when filter has reached maximum number of offsets
+<span class="lineNum">      82 </span>            :     const int MAX_SAMPLES = 200;
+<span class="lineNum">      83 </span>            :     int nfill = (MAX_SAMPLES - 3 - 19) / 2; //89
+<span class="lineNum">      84 </span><span class="lineCov">          1 :     MultiAddTimeData(nfill, 100);</span>
+<span class="lineNum">      85 </span><span class="lineCov">          1 :     MultiAddTimeData(nfill, -100); //filter size MAX_SAMPLES - 3</span>
+<span class="lineNum">      86 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(GetTimeOffset(), -100);</span>
+<span class="lineNum">      87 </span>            : 
+<span class="lineNum">      88 </span><span class="lineCov">          1 :     MultiAddTimeData(2, 100);</span>
+<span class="lineNum">      89 </span>            :     //filter size MAX_SAMPLES -1, median is the initial 0 offset
+<span class="lineNum">      90 </span>            :     //since we added same number of positive/negative offsets
+<span class="lineNum">      91 </span>            : 
+<span class="lineNum">      92 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(GetTimeOffset(), 0);</span>
+<span class="lineNum">      93 </span>            : 
+<span class="lineNum">      94 </span>            :     // After the number of offsets has reached MAX_SAMPLES -1 (=199), nTimeOffset will never change
+<span class="lineNum">      95 </span>            :     // because it is only updated when the number of elements in the filter becomes odd. It was decided
+<span class="lineNum">      96 </span>            :     // not to fix this because it prevents possible attacks. See the comment in AddTimeData() or issue #4521
+<span class="lineNum">      97 </span>            :     // for a more detailed explanation.
+<span class="lineNum">      98 </span><span class="lineCov">          1 :     MultiAddTimeData(2, 100); // filter median is 100 now, but nTimeOffset will not change</span>
+<span class="lineNum">      99 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(GetTimeOffset(), 0);</span>
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span>            :     // We want this test to end with nTimeOffset==0, otherwise subsequent tests of the suite will fail.
+<a name="102"><span class="lineNum">     102 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     103 </span>            : 
+<span class="lineNum">     104 </span><span class="lineCov">         88 : BOOST_AUTO_TEST_SUITE_END()</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

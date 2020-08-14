@@ -1,0 +1,696 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - test_bitcoin_coverage.info - src/wallet/scriptpubkeyman.h</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">src/wallet</a> - scriptpubkeyman.h<span style="font-size: 80%;"> (source / <a href="scriptpubkeyman.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">test_bitcoin_coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">36</td>
+            <td class="headerCovTableEntry">87</td>
+            <td class="headerCovTableEntryLo">41.4 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-08-14 02:46:54</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">20</td>
+            <td class="headerCovTableEntry">62</td>
+            <td class="headerCovTableEntryLo">32.3 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2019-2020 The Bitcoin Core developers</a>
+<span class="lineNum">       2 </span>            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       3 </span>            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       4 </span>            : 
+<span class="lineNum">       5 </span>            : #ifndef BITCOIN_WALLET_SCRIPTPUBKEYMAN_H
+<span class="lineNum">       6 </span>            : #define BITCOIN_WALLET_SCRIPTPUBKEYMAN_H
+<span class="lineNum">       7 </span>            : 
+<span class="lineNum">       8 </span>            : #include &lt;psbt.h&gt;
+<span class="lineNum">       9 </span>            : #include &lt;script/descriptor.h&gt;
+<span class="lineNum">      10 </span>            : #include &lt;script/signingprovider.h&gt;
+<span class="lineNum">      11 </span>            : #include &lt;script/standard.h&gt;
+<span class="lineNum">      12 </span>            : #include &lt;util/error.h&gt;
+<span class="lineNum">      13 </span>            : #include &lt;util/message.h&gt;
+<span class="lineNum">      14 </span>            : #include &lt;wallet/crypter.h&gt;
+<span class="lineNum">      15 </span>            : #include &lt;wallet/ismine.h&gt;
+<span class="lineNum">      16 </span>            : #include &lt;wallet/walletdb.h&gt;
+<span class="lineNum">      17 </span>            : #include &lt;wallet/walletutil.h&gt;
+<span class="lineNum">      18 </span>            : 
+<span class="lineNum">      19 </span>            : #include &lt;boost/signals2/signal.hpp&gt;
+<span class="lineNum">      20 </span>            : 
+<span class="lineNum">      21 </span>            : #include &lt;unordered_map&gt;
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            : enum class OutputType;
+<span class="lineNum">      24 </span>            : struct bilingual_str;
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : // Wallet storage things that ScriptPubKeyMans need in order to be able to store things to the wallet database.
+<span class="lineNum">      27 </span>            : // It provides access to things that are part of the entire wallet and not specific to a ScriptPubKeyMan such as
+<span class="lineNum">      28 </span>            : // wallet flags, wallet version, encryption keys, encryption status, and the database itself. This allows a
+<a name="29"><span class="lineNum">      29 </span>            : // ScriptPubKeyMan to have callbacks into CWallet without causing a circular dependency.</a>
+<span class="lineNum">      30 </span>            : // WalletStorage should be the same for all ScriptPubKeyMans of a wallet.
+<span class="lineNum">      31 </span><span class="lineCov">        139 : class WalletStorage</span>
+<a name="32"><span class="lineNum">      32 </span>            : {</a>
+<span class="lineNum">      33 </span>            : public:
+<span class="lineNum">      34 </span><span class="lineCov">        140 :     virtual ~WalletStorage() = default;</span>
+<span class="lineNum">      35 </span>            :     virtual const std::string GetDisplayName() const = 0;
+<span class="lineNum">      36 </span>            :     virtual WalletDatabase&amp; GetDatabase() = 0;
+<span class="lineNum">      37 </span>            :     virtual bool IsWalletFlagSet(uint64_t) const = 0;
+<span class="lineNum">      38 </span>            :     virtual void UnsetBlankWalletFlag(WalletBatch&amp;) = 0;
+<span class="lineNum">      39 </span>            :     virtual bool CanSupportFeature(enum WalletFeature) const = 0;
+<span class="lineNum">      40 </span>            :     virtual void SetMinVersion(enum WalletFeature, WalletBatch* = nullptr, bool = false) = 0;
+<span class="lineNum">      41 </span>            :     virtual const CKeyingMaterial&amp; GetEncryptionKey() const = 0;
+<span class="lineNum">      42 </span>            :     virtual bool HasEncryptionKeys() const = 0;
+<span class="lineNum">      43 </span>            :     virtual bool IsLocked() const = 0;
+<span class="lineNum">      44 </span>            : };
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span>            : //! Default for -keypool
+<span class="lineNum">      47 </span>            : static const unsigned int DEFAULT_KEYPOOL_SIZE = 1000;
+<span class="lineNum">      48 </span>            : 
+<span class="lineNum">      49 </span>            : std::vector&lt;CKeyID&gt; GetAffectedKeys(const CScript&amp; spk, const SigningProvider&amp; provider);
+<span class="lineNum">      50 </span>            : 
+<span class="lineNum">      51 </span>            : /** A key from a CWallet's keypool
+<span class="lineNum">      52 </span>            :  *
+<span class="lineNum">      53 </span>            :  * The wallet holds one (for pre HD-split wallets) or several keypools. These
+<span class="lineNum">      54 </span>            :  * are sets of keys that have not yet been used to provide addresses or receive
+<span class="lineNum">      55 </span>            :  * change.
+<span class="lineNum">      56 </span>            :  *
+<span class="lineNum">      57 </span>            :  * The Bitcoin Core wallet was originally a collection of unrelated private
+<span class="lineNum">      58 </span>            :  * keys with their associated addresses. If a non-HD wallet generated a
+<span class="lineNum">      59 </span>            :  * key/address, gave that address out and then restored a backup from before
+<span class="lineNum">      60 </span>            :  * that key's generation, then any funds sent to that address would be
+<span class="lineNum">      61 </span>            :  * lost definitively.
+<span class="lineNum">      62 </span>            :  *
+<span class="lineNum">      63 </span>            :  * The keypool was implemented to avoid this scenario (commit: 10384941). The
+<span class="lineNum">      64 </span>            :  * wallet would generate a set of keys (100 by default). When a new public key
+<span class="lineNum">      65 </span>            :  * was required, either to give out as an address or to use in a change output,
+<span class="lineNum">      66 </span>            :  * it would be drawn from the keypool. The keypool would then be topped up to
+<span class="lineNum">      67 </span>            :  * maintain 100 keys. This ensured that as long as the wallet hadn't used more
+<span class="lineNum">      68 </span>            :  * than 100 keys since the previous backup, all funds would be safe, since a
+<span class="lineNum">      69 </span>            :  * restored wallet would be able to scan for all owned addresses.
+<span class="lineNum">      70 </span>            :  *
+<span class="lineNum">      71 </span>            :  * A keypool also allowed encrypted wallets to give out addresses without
+<span class="lineNum">      72 </span>            :  * having to be decrypted to generate a new private key.
+<span class="lineNum">      73 </span>            :  *
+<span class="lineNum">      74 </span>            :  * With the introduction of HD wallets (commit: f1902510), the keypool
+<span class="lineNum">      75 </span>            :  * essentially became an address look-ahead pool. Restoring old backups can no
+<span class="lineNum">      76 </span>            :  * longer definitively lose funds as long as the addresses used were from the
+<span class="lineNum">      77 </span>            :  * wallet's HD seed (since all private keys can be rederived from the seed).
+<span class="lineNum">      78 </span>            :  * However, if many addresses were used since the backup, then the wallet may
+<span class="lineNum">      79 </span>            :  * not know how far ahead in the HD chain to look for its addresses. The
+<span class="lineNum">      80 </span>            :  * keypool is used to implement a 'gap limit'. The keypool maintains a set of
+<span class="lineNum">      81 </span>            :  * keys (by default 1000) ahead of the last used key and scans for the
+<span class="lineNum">      82 </span>            :  * addresses of those keys.  This avoids the risk of not seeing transactions
+<span class="lineNum">      83 </span>            :  * involving the wallet's addresses, or of re-using the same address.
+<span class="lineNum">      84 </span>            :  * In the unlikely case where none of the addresses in the `gap limit` are
+<span class="lineNum">      85 </span>            :  * used on-chain, the look-ahead will not be incremented to keep
+<span class="lineNum">      86 </span>            :  * a constant size and addresses beyond this range will not be detected by an
+<span class="lineNum">      87 </span>            :  * old backup. For this reason, it is not recommended to decrease keypool size
+<span class="lineNum">      88 </span>            :  * lower than default value.
+<span class="lineNum">      89 </span>            :  *
+<span class="lineNum">      90 </span>            :  * The HD-split wallet feature added a second keypool (commit: 02592f4c). There
+<span class="lineNum">      91 </span>            :  * is an external keypool (for addresses to hand out) and an internal keypool
+<span class="lineNum">      92 </span>            :  * (for change addresses).
+<span class="lineNum">      93 </span>            :  *
+<span class="lineNum">      94 </span>            :  * Keypool keys are stored in the wallet/keystore's keymap. The keypool data is
+<span class="lineNum">      95 </span>            :  * stored as sets of indexes in the wallet (setInternalKeyPool,
+<span class="lineNum">      96 </span>            :  * setExternalKeyPool and set_pre_split_keypool), and a map from the key to the
+<span class="lineNum">      97 </span>            :  * index (m_pool_key_to_index). The CKeyPool object is used to
+<span class="lineNum">      98 </span>            :  * serialize/deserialize the pool data to/from the database.
+<span class="lineNum">      99 </span>            :  */
+<span class="lineNum">     100 </span>            : class CKeyPool
+<span class="lineNum">     101 </span>            : {
+<span class="lineNum">     102 </span>            : public:
+<span class="lineNum">     103 </span>            :     //! The time at which the key was generated. Set in AddKeypoolPubKeyWithDB
+<span class="lineNum">     104 </span>            :     int64_t nTime;
+<span class="lineNum">     105 </span>            :     //! The public key
+<span class="lineNum">     106 </span>            :     CPubKey vchPubKey;
+<span class="lineNum">     107 </span>            :     //! Whether this keypool entry is in the internal keypool (for change outputs)
+<span class="lineNum">     108 </span>            :     bool fInternal;
+<span class="lineNum">     109 </span>            :     //! Whether this key was generated for a keypool before the wallet was upgraded to HD-split
+<span class="lineNum">     110 </span>            :     bool m_pre_split;
+<span class="lineNum">     111 </span>            : 
+<span class="lineNum">     112 </span>            :     CKeyPool();
+<span class="lineNum">     113 </span>            :     CKeyPool(const CPubKey&amp; vchPubKeyIn, bool internalIn);
+<a name="114"><span class="lineNum">     114 </span>            : </a>
+<span class="lineNum">     115 </span>            :     template&lt;typename Stream&gt;
+<span class="lineNum">     116 </span><span class="lineCov">      10002 :     void Serialize(Stream&amp; s) const</span>
+<span class="lineNum">     117 </span>            :     {
+<span class="lineNum">     118 </span><span class="lineCov">      10002 :         int nVersion = s.GetVersion();</span>
+<span class="lineNum">     119 </span><span class="lineCov">      10002 :         if (!(s.GetType() &amp; SER_GETHASH)) {</span>
+<span class="lineNum">     120 </span><span class="lineCov">      10002 :             s &lt;&lt; nVersion;</span>
+<span class="lineNum">     121 </span><span class="lineCov">      10002 :         }</span>
+<span class="lineNum">     122 </span><span class="lineCov">      10002 :         s &lt;&lt; nTime &lt;&lt; vchPubKey &lt;&lt; fInternal &lt;&lt; m_pre_split;</span>
+<span class="lineNum">     123 </span><span class="lineCov">      10002 :     }</span>
+<a name="124"><span class="lineNum">     124 </span>            : </a>
+<span class="lineNum">     125 </span>            :     template&lt;typename Stream&gt;
+<span class="lineNum">     126 </span><span class="lineCov">       4007 :     void Unserialize(Stream&amp; s)</span>
+<span class="lineNum">     127 </span>            :     {
+<span class="lineNum">     128 </span><span class="lineCov">       4007 :         int nVersion = s.GetVersion();</span>
+<span class="lineNum">     129 </span><span class="lineCov">       4007 :         if (!(s.GetType() &amp; SER_GETHASH)) {</span>
+<span class="lineNum">     130 </span><span class="lineCov">       4007 :             s &gt;&gt; nVersion;</span>
+<span class="lineNum">     131 </span><span class="lineCov">       4007 :         }</span>
+<span class="lineNum">     132 </span><span class="lineCov">       4007 :         s &gt;&gt; nTime &gt;&gt; vchPubKey;</span>
+<span class="lineNum">     133 </span>            :         try {
+<span class="lineNum">     134 </span><span class="lineCov">       4007 :             s &gt;&gt; fInternal;</span>
+<span class="lineNum">     135 </span><span class="lineNoCov">          0 :         } catch (std::ios_base::failure&amp;) {</span>
+<span class="lineNum">     136 </span>            :             /* flag as external address if we can't read the internal boolean
+<span class="lineNum">     137 </span>            :                (this will be the case for any wallet before the HD chain split version) */
+<span class="lineNum">     138 </span><span class="lineNoCov">          0 :             fInternal = false;</span>
+<span class="lineNum">     139 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     140 </span>            :         try {
+<span class="lineNum">     141 </span><span class="lineCov">       4007 :             s &gt;&gt; m_pre_split;</span>
+<span class="lineNum">     142 </span><span class="lineNoCov">          0 :         } catch (std::ios_base::failure&amp;) {</span>
+<span class="lineNum">     143 </span>            :             /* flag as postsplit address if we can't read the m_pre_split boolean
+<span class="lineNum">     144 </span>            :                (this will be the case for any wallet that upgrades to HD chain split) */
+<span class="lineNum">     145 </span><span class="lineNoCov">          0 :             m_pre_split = false;</span>
+<span class="lineNum">     146 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     147 </span><span class="lineCov">       4007 :     }</span>
+<span class="lineNum">     148 </span>            : };
+<span class="lineNum">     149 </span>            : 
+<span class="lineNum">     150 </span>            : class KeyIDHasher
+<a name="151"><span class="lineNum">     151 </span>            : {</a>
+<span class="lineNum">     152 </span>            : public:
+<a name="153"><span class="lineNum">     153 </span><span class="lineCov">         45 :     KeyIDHasher() {}</span></a>
+<span class="lineNum">     154 </span>            : 
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :     size_t operator()(const CKeyID&amp; id) const</span>
+<span class="lineNum">     156 </span>            :     {
+<span class="lineNum">     157 </span><span class="lineNoCov">          0 :         return id.GetUint64(0);</span>
+<span class="lineNum">     158 </span>            :     }
+<span class="lineNum">     159 </span>            : };
+<span class="lineNum">     160 </span>            : 
+<span class="lineNum">     161 </span>            : /*
+<span class="lineNum">     162 </span>            :  * A class implementing ScriptPubKeyMan manages some (or all) scriptPubKeys used in a wallet.
+<span class="lineNum">     163 </span>            :  * It contains the scripts and keys related to the scriptPubKeys it manages.
+<span class="lineNum">     164 </span>            :  * A ScriptPubKeyMan will be able to give out scriptPubKeys to be used, as well as marking
+<span class="lineNum">     165 </span>            :  * when a scriptPubKey has been used. It also handles when and how to store a scriptPubKey
+<span class="lineNum">     166 </span>            :  * and its related scripts and keys, including encryption.
+<span class="lineNum">     167 </span>            :  */
+<span class="lineNum">     168 </span>            : class ScriptPubKeyMan
+<span class="lineNum">     169 </span>            : {
+<span class="lineNum">     170 </span>            : protected:
+<span class="lineNum">     171 </span>            :     WalletStorage&amp; m_storage;
+<a name="172"><span class="lineNum">     172 </span>            : </a>
+<a name="173"><span class="lineNum">     173 </span>            : public:</a>
+<a name="174"><span class="lineNum">     174 </span><span class="lineCov">         45 :     ScriptPubKeyMan(WalletStorage&amp; storage) : m_storage(storage) {}</span></a>
+<a name="175"><span class="lineNum">     175 </span><span class="lineCov">         45 :     virtual ~ScriptPubKeyMan() {};</span></a>
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 :     virtual bool GetNewDestination(const OutputType type, CTxDestination&amp; dest, std::string&amp; error) { return false; }</span>
+<span class="lineNum">     177 </span><span class="lineNoCov">          0 :     virtual isminetype IsMine(const CScript&amp; script) const { return ISMINE_NO; }</span>
+<a name="178"><span class="lineNum">     178 </span>            : </a>
+<a name="179"><span class="lineNum">     179 </span>            :     //! Check that the given decryption key is valid for this ScriptPubKeyMan, i.e. it decrypts all of the keys handled by it.</a>
+<span class="lineNum">     180 </span><span class="lineNoCov">          0 :     virtual bool CheckDecryptionKey(const CKeyingMaterial&amp; master_key, bool accept_no_keys = false) { return false; }</span>
+<a name="181"><span class="lineNum">     181 </span><span class="lineNoCov">          0 :     virtual bool Encrypt(const CKeyingMaterial&amp; master_key, WalletBatch* batch) { return false; }</span></a>
+<a name="182"><span class="lineNum">     182 </span>            : </a>
+<a name="183"><span class="lineNum">     183 </span><span class="lineNoCov">          0 :     virtual bool GetReservedDestination(const OutputType type, bool internal, CTxDestination&amp; address, int64_t&amp; index, CKeyPool&amp; keypool) { return false; }</span></a>
+<span class="lineNum">     184 </span><span class="lineNoCov">          0 :     virtual void KeepDestination(int64_t index, const OutputType&amp; type) {}</span>
+<span class="lineNum">     185 </span><span class="lineNoCov">          0 :     virtual void ReturnDestination(int64_t index, bool internal, const CTxDestination&amp; addr) {}</span>
+<span class="lineNum">     186 </span>            : 
+<span class="lineNum">     187 </span>            :     /** Fills internal address pool. Use within ScriptPubKeyMan implementations should be used sparingly and only
+<span class="lineNum">     188 </span>            :       * when something from the address pool is removed, excluding GetNewDestination and GetReservedDestination.
+<a name="189"><span class="lineNum">     189 </span>            :       * External wallet code is primarily responsible for topping up prior to fetching new addresses</a>
+<span class="lineNum">     190 </span>            :       */
+<span class="lineNum">     191 </span><span class="lineNoCov">          0 :     virtual bool TopUp(unsigned int size = 0) { return false; }</span>
+<a name="192"><span class="lineNum">     192 </span>            : </a>
+<span class="lineNum">     193 </span>            :     //! Mark unused addresses as being used
+<span class="lineNum">     194 </span><span class="lineNoCov">          0 :     virtual void MarkUnusedAddresses(const CScript&amp; script) {}</span>
+<span class="lineNum">     195 </span>            : 
+<span class="lineNum">     196 </span>            :     /** Sets up the key generation stuff, i.e. generates new HD seeds and sets them as active.
+<span class="lineNum">     197 </span>            :       * Returns false if already setup or setup fails, true if setup is successful
+<a name="198"><span class="lineNum">     198 </span>            :       * Set force=true to make it re-setup if already setup, used for upgrades</a>
+<span class="lineNum">     199 </span>            :       */
+<span class="lineNum">     200 </span><span class="lineNoCov">          0 :     virtual bool SetupGeneration(bool force = false) { return false; }</span>
+<a name="201"><span class="lineNum">     201 </span>            : </a>
+<span class="lineNum">     202 </span>            :     /* Returns true if HD is enabled */
+<span class="lineNum">     203 </span><span class="lineNoCov">          0 :     virtual bool IsHDEnabled() const { return false; }</span>
+<a name="204"><span class="lineNum">     204 </span>            : </a>
+<span class="lineNum">     205 </span>            :     /* Returns true if the wallet can give out new addresses. This means it has keys in the keypool or can generate new keys */
+<span class="lineNum">     206 </span><span class="lineNoCov">          0 :     virtual bool CanGetAddresses(bool internal = false) const { return false; }</span>
+<a name="207"><span class="lineNum">     207 </span>            : </a>
+<span class="lineNum">     208 </span>            :     /** Upgrades the wallet to the specified version */
+<a name="209"><span class="lineNum">     209 </span><span class="lineNoCov">          0 :     virtual bool Upgrade(int prev_version, bilingual_str&amp; error) { return false; }</span></a>
+<span class="lineNum">     210 </span>            : 
+<span class="lineNum">     211 </span><span class="lineNoCov">          0 :     virtual bool HavePrivateKeys() const { return false; }</span>
+<a name="212"><span class="lineNum">     212 </span>            : </a>
+<span class="lineNum">     213 </span>            :     //! The action to do when the DB needs rewrite
+<a name="214"><span class="lineNum">     214 </span><span class="lineNoCov">          0 :     virtual void RewriteDB() {}</span></a>
+<span class="lineNum">     215 </span>            : 
+<a name="216"><span class="lineNum">     216 </span><span class="lineNoCov">          0 :     virtual int64_t GetOldestKeyPoolTime() const { return GetTime(); }</span></a>
+<a name="217"><span class="lineNum">     217 </span>            : </a>
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 :     virtual size_t KeypoolCountExternalKeys() const { return 0; }</span>
+<a name="219"><span class="lineNum">     219 </span><span class="lineNoCov">          0 :     virtual unsigned int GetKeyPoolSize() const { return 0; }</span></a>
+<span class="lineNum">     220 </span>            : 
+<a name="221"><span class="lineNum">     221 </span><span class="lineNoCov">          0 :     virtual int64_t GetTimeFirstKey() const { return 0; }</span></a>
+<span class="lineNum">     222 </span>            : 
+<a name="223"><span class="lineNum">     223 </span><span class="lineNoCov">          0 :     virtual std::unique_ptr&lt;CKeyMetadata&gt; GetMetadata(const CTxDestination&amp; dest) const { return nullptr; }</span></a>
+<span class="lineNum">     224 </span>            : 
+<span class="lineNum">     225 </span><span class="lineNoCov">          0 :     virtual std::unique_ptr&lt;SigningProvider&gt; GetSolvingProvider(const CScript&amp; script) const { return nullptr; }</span>
+<span class="lineNum">     226 </span>            : 
+<span class="lineNum">     227 </span>            :     /** Whether this ScriptPubKeyMan can provide a SigningProvider (via GetSolvingProvider) that, combined with
+<a name="228"><span class="lineNum">     228 </span>            :       * sigdata, can produce solving data.</a>
+<span class="lineNum">     229 </span>            :       */
+<span class="lineNum">     230 </span><span class="lineNoCov">          0 :     virtual bool CanProvide(const CScript&amp; script, SignatureData&amp; sigdata) { return false; }</span>
+<a name="231"><span class="lineNum">     231 </span>            : </a>
+<span class="lineNum">     232 </span>            :     /** Creates new signatures and adds them to the transaction. Returns whether all inputs were signed */
+<a name="233"><span class="lineNum">     233 </span><span class="lineNoCov">          0 :     virtual bool SignTransaction(CMutableTransaction&amp; tx, const std::map&lt;COutPoint, Coin&gt;&amp; coins, int sighash, std::map&lt;int, std::string&gt;&amp; input_errors) const { return false; }</span></a>
+<span class="lineNum">     234 </span>            :     /** Sign a message with the given script */
+<a name="235"><span class="lineNum">     235 </span><span class="lineNoCov">          0 :     virtual SigningResult SignMessage(const std::string&amp; message, const PKHash&amp; pkhash, std::string&amp; str_sig) const { return SigningResult::SIGNING_FAILED; };</span></a>
+<span class="lineNum">     236 </span>            :     /** Adds script and derivation path information to a PSBT, and optionally signs it. */
+<a name="237"><span class="lineNum">     237 </span><span class="lineNoCov">          0 :     virtual TransactionError FillPSBT(PartiallySignedTransaction&amp; psbt, int sighash_type = 1 /* SIGHASH_ALL */, bool sign = true, bool bip32derivs = false, int* n_signed = nullptr) const { return TransactionError::INVALID_PSBT; }</span></a>
+<span class="lineNum">     238 </span>            : 
+<a name="239"><span class="lineNum">     239 </span><span class="lineNoCov">          0 :     virtual uint256 GetID() const { return uint256(); }</span></a>
+<span class="lineNum">     240 </span>            : 
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 :     virtual void SetInternal(bool internal) {}</span>
+<span class="lineNum">     242 </span>            : 
+<a name="243"><span class="lineNum">     243 </span>            :     /** Prepends the wallet name in logging output to ease debugging in multi-wallet use cases */</a>
+<span class="lineNum">     244 </span>            :     template&lt;typename... Params&gt;
+<span class="lineNum">     245 </span><span class="lineCov">         28 :     void WalletLogPrintf(std::string fmt, Params... parameters) const {</span>
+<span class="lineNum">     246 </span><span class="lineCov">         28 :         LogPrintf((&quot;%s &quot; + fmt).c_str(), m_storage.GetDisplayName(), parameters...);</span>
+<span class="lineNum">     247 </span><span class="lineCov">         28 :     };</span>
+<span class="lineNum">     248 </span>            : 
+<span class="lineNum">     249 </span>            :     /** Watch-only address added */
+<span class="lineNum">     250 </span>            :     boost::signals2::signal&lt;void (bool fHaveWatchOnly)&gt; NotifyWatchonlyChanged;
+<span class="lineNum">     251 </span>            : 
+<span class="lineNum">     252 </span>            :     /** Keypool has new keys */
+<span class="lineNum">     253 </span>            :     boost::signals2::signal&lt;void ()&gt; NotifyCanGetAddressesChanged;
+<a name="254"><span class="lineNum">     254 </span>            : };</a>
+<span class="lineNum">     255 </span>            : 
+<span class="lineNum">     256 </span><span class="lineCov">         90 : class LegacyScriptPubKeyMan : public ScriptPubKeyMan, public FillableSigningProvider</span>
+<span class="lineNum">     257 </span>            : {
+<span class="lineNum">     258 </span>            : private:
+<span class="lineNum">     259 </span>            :     //! keeps track of whether Unlock has run a thorough check before
+<span class="lineNum">     260 </span><span class="lineCov">         45 :     bool fDecryptionThoroughlyChecked = true;</span>
+<span class="lineNum">     261 </span>            : 
+<span class="lineNum">     262 </span>            :     using WatchOnlySet = std::set&lt;CScript&gt;;
+<span class="lineNum">     263 </span>            :     using WatchKeyMap = std::map&lt;CKeyID, CPubKey&gt;;
+<span class="lineNum">     264 </span>            : 
+<span class="lineNum">     265 </span><span class="lineCov">         45 :     WalletBatch *encrypted_batch GUARDED_BY(cs_KeyStore) = nullptr;</span>
+<span class="lineNum">     266 </span>            : 
+<span class="lineNum">     267 </span>            :     using CryptedKeyMap = std::map&lt;CKeyID, std::pair&lt;CPubKey, std::vector&lt;unsigned char&gt;&gt;&gt;;
+<span class="lineNum">     268 </span>            : 
+<span class="lineNum">     269 </span>            :     CryptedKeyMap mapCryptedKeys GUARDED_BY(cs_KeyStore);
+<span class="lineNum">     270 </span>            :     WatchOnlySet setWatchOnly GUARDED_BY(cs_KeyStore);
+<span class="lineNum">     271 </span>            :     WatchKeyMap mapWatchKeys GUARDED_BY(cs_KeyStore);
+<span class="lineNum">     272 </span>            : 
+<span class="lineNum">     273 </span><span class="lineCov">         45 :     int64_t nTimeFirstKey GUARDED_BY(cs_KeyStore) = 0;</span>
+<span class="lineNum">     274 </span>            : 
+<span class="lineNum">     275 </span>            :     bool AddKeyPubKeyInner(const CKey&amp; key, const CPubKey &amp;pubkey);
+<span class="lineNum">     276 </span>            :     bool AddCryptedKeyInner(const CPubKey &amp;vchPubKey, const std::vector&lt;unsigned char&gt; &amp;vchCryptedSecret);
+<span class="lineNum">     277 </span>            : 
+<span class="lineNum">     278 </span>            :     /**
+<span class="lineNum">     279 </span>            :      * Private version of AddWatchOnly method which does not accept a
+<span class="lineNum">     280 </span>            :      * timestamp, and which will reset the wallet's nTimeFirstKey value to 1 if
+<span class="lineNum">     281 </span>            :      * the watch key did not previously have a timestamp associated with it.
+<span class="lineNum">     282 </span>            :      * Because this is an inherited virtual method, it is accessible despite
+<span class="lineNum">     283 </span>            :      * being marked private, but it is marked private anyway to encourage use
+<span class="lineNum">     284 </span>            :      * of the other AddWatchOnly which accepts a timestamp and sets
+<span class="lineNum">     285 </span>            :      * nTimeFirstKey more intelligently for more efficient rescans.
+<span class="lineNum">     286 </span>            :      */
+<span class="lineNum">     287 </span>            :     bool AddWatchOnly(const CScript&amp; dest) EXCLUSIVE_LOCKS_REQUIRED(cs_KeyStore);
+<span class="lineNum">     288 </span>            :     bool AddWatchOnlyWithDB(WalletBatch &amp;batch, const CScript&amp; dest) EXCLUSIVE_LOCKS_REQUIRED(cs_KeyStore);
+<span class="lineNum">     289 </span>            :     bool AddWatchOnlyInMem(const CScript &amp;dest);
+<span class="lineNum">     290 </span>            :     //! Adds a watch-only address to the store, and saves it to disk.
+<span class="lineNum">     291 </span>            :     bool AddWatchOnlyWithDB(WalletBatch &amp;batch, const CScript&amp; dest, int64_t create_time) EXCLUSIVE_LOCKS_REQUIRED(cs_KeyStore);
+<span class="lineNum">     292 </span>            : 
+<span class="lineNum">     293 </span>            :     //! Adds a key to the store, and saves it to disk.
+<span class="lineNum">     294 </span>            :     bool AddKeyPubKeyWithDB(WalletBatch &amp;batch,const CKey&amp; key, const CPubKey &amp;pubkey) EXCLUSIVE_LOCKS_REQUIRED(cs_KeyStore);
+<span class="lineNum">     295 </span>            : 
+<span class="lineNum">     296 </span>            :     void AddKeypoolPubkeyWithDB(const CPubKey&amp; pubkey, const bool internal, WalletBatch&amp; batch);
+<span class="lineNum">     297 </span>            : 
+<span class="lineNum">     298 </span>            :     //! Adds a script to the store and saves it to disk
+<span class="lineNum">     299 </span>            :     bool AddCScriptWithDB(WalletBatch&amp; batch, const CScript&amp; script);
+<span class="lineNum">     300 </span>            : 
+<span class="lineNum">     301 </span>            :     /** Add a KeyOriginInfo to the wallet */
+<span class="lineNum">     302 </span>            :     bool AddKeyOriginWithDB(WalletBatch&amp; batch, const CPubKey&amp; pubkey, const KeyOriginInfo&amp; info);
+<span class="lineNum">     303 </span>            : 
+<span class="lineNum">     304 </span>            :     /* the HD chain data model (external chain counters) */
+<span class="lineNum">     305 </span>            :     CHDChain m_hd_chain;
+<span class="lineNum">     306 </span>            :     std::unordered_map&lt;CKeyID, CHDChain, KeyIDHasher&gt; m_inactive_hd_chains;
+<span class="lineNum">     307 </span>            : 
+<span class="lineNum">     308 </span>            :     /* HD derive new child key (on internal or external chain) */
+<span class="lineNum">     309 </span>            :     void DeriveNewChildKey(WalletBatch&amp; batch, CKeyMetadata&amp; metadata, CKey&amp; secret, CHDChain&amp; hd_chain, bool internal = false) EXCLUSIVE_LOCKS_REQUIRED(cs_KeyStore);
+<span class="lineNum">     310 </span>            : 
+<span class="lineNum">     311 </span>            :     std::set&lt;int64_t&gt; setInternalKeyPool GUARDED_BY(cs_KeyStore);
+<span class="lineNum">     312 </span>            :     std::set&lt;int64_t&gt; setExternalKeyPool GUARDED_BY(cs_KeyStore);
+<span class="lineNum">     313 </span>            :     std::set&lt;int64_t&gt; set_pre_split_keypool GUARDED_BY(cs_KeyStore);
+<span class="lineNum">     314 </span><span class="lineCov">         45 :     int64_t m_max_keypool_index GUARDED_BY(cs_KeyStore) = 0;</span>
+<span class="lineNum">     315 </span>            :     std::map&lt;CKeyID, int64_t&gt; m_pool_key_to_index;
+<span class="lineNum">     316 </span>            :     // Tracks keypool indexes to CKeyIDs of keys that have been taken out of the keypool but may be returned to it
+<span class="lineNum">     317 </span>            :     std::map&lt;int64_t, CKeyID&gt; m_index_to_reserved_key;
+<span class="lineNum">     318 </span>            : 
+<span class="lineNum">     319 </span>            :     //! Fetches a key from the keypool
+<span class="lineNum">     320 </span>            :     bool GetKeyFromPool(CPubKey &amp;key, const OutputType type, bool internal = false);
+<span class="lineNum">     321 </span>            : 
+<span class="lineNum">     322 </span>            :     /**
+<span class="lineNum">     323 </span>            :      * Reserves a key from the keypool and sets nIndex to its index
+<span class="lineNum">     324 </span>            :      *
+<span class="lineNum">     325 </span>            :      * @param[out] nIndex the index of the key in keypool
+<span class="lineNum">     326 </span>            :      * @param[out] keypool the keypool the key was drawn from, which could be the
+<span class="lineNum">     327 </span>            :      *     the pre-split pool if present, or the internal or external pool
+<span class="lineNum">     328 </span>            :      * @param fRequestedInternal true if the caller would like the key drawn
+<span class="lineNum">     329 </span>            :      *     from the internal keypool, false if external is preferred
+<span class="lineNum">     330 </span>            :      *
+<span class="lineNum">     331 </span>            :      * @return true if succeeded, false if failed due to empty keypool
+<span class="lineNum">     332 </span>            :      * @throws std::runtime_error if keypool read failed, key was invalid,
+<span class="lineNum">     333 </span>            :      *     was not found in the wallet, or was misclassified in the internal
+<span class="lineNum">     334 </span>            :      *     or external keypool
+<span class="lineNum">     335 </span>            :      */
+<span class="lineNum">     336 </span>            :     bool ReserveKeyFromKeyPool(int64_t&amp; nIndex, CKeyPool&amp; keypool, bool fRequestedInternal);
+<span class="lineNum">     337 </span>            : 
+<span class="lineNum">     338 </span>            :     /**
+<span class="lineNum">     339 </span>            :      * Like TopUp() but adds keys for inactive HD chains.
+<span class="lineNum">     340 </span>            :      * Ensures that there are at least -keypool number of keys derived after the given index.
+<span class="lineNum">     341 </span>            :      *
+<span class="lineNum">     342 </span>            :      * @param seed_id the CKeyID for the HD seed.
+<span class="lineNum">     343 </span>            :      * @param index the index to start generating keys from
+<span class="lineNum">     344 </span>            :      * @param internal whether the internal chain should be used. true for internal chain, false for external chain.
+<span class="lineNum">     345 </span>            :      *
+<span class="lineNum">     346 </span>            :      * @return true if seed was found and keys were derived. false if unable to derive seeds
+<span class="lineNum">     347 </span>            :      */
+<span class="lineNum">     348 </span>            :     bool TopUpInactiveHDChain(const CKeyID seed_id, int64_t index, bool internal);
+<a name="349"><span class="lineNum">     349 </span>            : </a>
+<span class="lineNum">     350 </span>            : public:
+<span class="lineNum">     351 </span><span class="lineCov">        135 :     using ScriptPubKeyMan::ScriptPubKeyMan;</span>
+<span class="lineNum">     352 </span>            : 
+<span class="lineNum">     353 </span>            :     bool GetNewDestination(const OutputType type, CTxDestination&amp; dest, std::string&amp; error) override;
+<span class="lineNum">     354 </span>            :     isminetype IsMine(const CScript&amp; script) const override;
+<span class="lineNum">     355 </span>            : 
+<span class="lineNum">     356 </span>            :     bool CheckDecryptionKey(const CKeyingMaterial&amp; master_key, bool accept_no_keys = false) override;
+<span class="lineNum">     357 </span>            :     bool Encrypt(const CKeyingMaterial&amp; master_key, WalletBatch* batch) override;
+<span class="lineNum">     358 </span>            : 
+<span class="lineNum">     359 </span>            :     bool GetReservedDestination(const OutputType type, bool internal, CTxDestination&amp; address, int64_t&amp; index, CKeyPool&amp; keypool) override;
+<span class="lineNum">     360 </span>            :     void KeepDestination(int64_t index, const OutputType&amp; type) override;
+<span class="lineNum">     361 </span>            :     void ReturnDestination(int64_t index, bool internal, const CTxDestination&amp;) override;
+<span class="lineNum">     362 </span>            : 
+<span class="lineNum">     363 </span>            :     bool TopUp(unsigned int size = 0) override;
+<span class="lineNum">     364 </span>            : 
+<span class="lineNum">     365 </span>            :     void MarkUnusedAddresses(const CScript&amp; script) override;
+<span class="lineNum">     366 </span>            : 
+<span class="lineNum">     367 </span>            :     //! Upgrade stored CKeyMetadata objects to store key origin info as KeyOriginInfo
+<span class="lineNum">     368 </span>            :     void UpgradeKeyMetadata();
+<span class="lineNum">     369 </span>            : 
+<span class="lineNum">     370 </span>            :     bool IsHDEnabled() const override;
+<span class="lineNum">     371 </span>            : 
+<span class="lineNum">     372 </span>            :     bool SetupGeneration(bool force = false) override;
+<span class="lineNum">     373 </span>            : 
+<span class="lineNum">     374 </span>            :     bool Upgrade(int prev_version, bilingual_str&amp; error) override;
+<span class="lineNum">     375 </span>            : 
+<span class="lineNum">     376 </span>            :     bool HavePrivateKeys() const override;
+<span class="lineNum">     377 </span>            : 
+<span class="lineNum">     378 </span>            :     void RewriteDB() override;
+<span class="lineNum">     379 </span>            : 
+<span class="lineNum">     380 </span>            :     int64_t GetOldestKeyPoolTime() const override;
+<span class="lineNum">     381 </span>            :     size_t KeypoolCountExternalKeys() const override;
+<span class="lineNum">     382 </span>            :     unsigned int GetKeyPoolSize() const override;
+<span class="lineNum">     383 </span>            : 
+<span class="lineNum">     384 </span>            :     int64_t GetTimeFirstKey() const override;
+<span class="lineNum">     385 </span>            : 
+<span class="lineNum">     386 </span>            :     std::unique_ptr&lt;CKeyMetadata&gt; GetMetadata(const CTxDestination&amp; dest) const override;
+<span class="lineNum">     387 </span>            : 
+<span class="lineNum">     388 </span>            :     bool CanGetAddresses(bool internal = false) const override;
+<span class="lineNum">     389 </span>            : 
+<span class="lineNum">     390 </span>            :     std::unique_ptr&lt;SigningProvider&gt; GetSolvingProvider(const CScript&amp; script) const override;
+<span class="lineNum">     391 </span>            : 
+<span class="lineNum">     392 </span>            :     bool CanProvide(const CScript&amp; script, SignatureData&amp; sigdata) override;
+<span class="lineNum">     393 </span>            : 
+<span class="lineNum">     394 </span>            :     bool SignTransaction(CMutableTransaction&amp; tx, const std::map&lt;COutPoint, Coin&gt;&amp; coins, int sighash, std::map&lt;int, std::string&gt;&amp; input_errors) const override;
+<span class="lineNum">     395 </span>            :     SigningResult SignMessage(const std::string&amp; message, const PKHash&amp; pkhash, std::string&amp; str_sig) const override;
+<span class="lineNum">     396 </span>            :     TransactionError FillPSBT(PartiallySignedTransaction&amp; psbt, int sighash_type = 1 /* SIGHASH_ALL */, bool sign = true, bool bip32derivs = false, int* n_signed = nullptr) const override;
+<span class="lineNum">     397 </span>            : 
+<span class="lineNum">     398 </span>            :     uint256 GetID() const override;
+<span class="lineNum">     399 </span>            : 
+<span class="lineNum">     400 </span>            :     void SetInternal(bool internal) override;
+<span class="lineNum">     401 </span>            : 
+<span class="lineNum">     402 </span>            :     // Map from Key ID to key metadata.
+<span class="lineNum">     403 </span>            :     std::map&lt;CKeyID, CKeyMetadata&gt; mapKeyMetadata GUARDED_BY(cs_KeyStore);
+<span class="lineNum">     404 </span>            : 
+<span class="lineNum">     405 </span>            :     // Map from Script ID to key metadata (for watch-only keys).
+<span class="lineNum">     406 </span>            :     std::map&lt;CScriptID, CKeyMetadata&gt; m_script_metadata GUARDED_BY(cs_KeyStore);
+<span class="lineNum">     407 </span>            : 
+<span class="lineNum">     408 </span>            :     //! Adds a key to the store, and saves it to disk.
+<span class="lineNum">     409 </span>            :     bool AddKeyPubKey(const CKey&amp; key, const CPubKey &amp;pubkey) override;
+<span class="lineNum">     410 </span>            :     //! Adds a key to the store, without saving it to disk (used by LoadWallet)
+<span class="lineNum">     411 </span>            :     bool LoadKey(const CKey&amp; key, const CPubKey &amp;pubkey);
+<span class="lineNum">     412 </span>            :     //! Adds an encrypted key to the store, and saves it to disk.
+<span class="lineNum">     413 </span>            :     bool AddCryptedKey(const CPubKey &amp;vchPubKey, const std::vector&lt;unsigned char&gt; &amp;vchCryptedSecret);
+<span class="lineNum">     414 </span>            :     //! Adds an encrypted key to the store, without saving it to disk (used by LoadWallet)
+<span class="lineNum">     415 </span>            :     bool LoadCryptedKey(const CPubKey &amp;vchPubKey, const std::vector&lt;unsigned char&gt; &amp;vchCryptedSecret, bool checksum_valid);
+<span class="lineNum">     416 </span>            :     void UpdateTimeFirstKey(int64_t nCreateTime) EXCLUSIVE_LOCKS_REQUIRED(cs_KeyStore);
+<span class="lineNum">     417 </span>            :     //! Adds a CScript to the store
+<span class="lineNum">     418 </span>            :     bool LoadCScript(const CScript&amp; redeemScript);
+<span class="lineNum">     419 </span>            :     //! Load metadata (used by LoadWallet)
+<span class="lineNum">     420 </span>            :     void LoadKeyMetadata(const CKeyID&amp; keyID, const CKeyMetadata &amp;metadata);
+<span class="lineNum">     421 </span>            :     void LoadScriptMetadata(const CScriptID&amp; script_id, const CKeyMetadata &amp;metadata);
+<span class="lineNum">     422 </span>            :     //! Generate a new key
+<span class="lineNum">     423 </span>            :     CPubKey GenerateNewKey(WalletBatch&amp; batch, CHDChain&amp; hd_chain, bool internal = false) EXCLUSIVE_LOCKS_REQUIRED(cs_KeyStore);
+<span class="lineNum">     424 </span>            : 
+<span class="lineNum">     425 </span>            :     /* Set the HD chain model (chain child index counters) and writes it to the database */
+<span class="lineNum">     426 </span>            :     void AddHDChain(const CHDChain&amp; chain);
+<a name="427"><span class="lineNum">     427 </span>            :     //! Load a HD chain model (used by LoadWallet)</a>
+<span class="lineNum">     428 </span>            :     void LoadHDChain(const CHDChain&amp; chain);
+<span class="lineNum">     429 </span><span class="lineCov">          3 :     const CHDChain&amp; GetHDChain() const { return m_hd_chain; }</span>
+<span class="lineNum">     430 </span>            :     void AddInactiveHDChain(const CHDChain&amp; chain);
+<span class="lineNum">     431 </span>            : 
+<span class="lineNum">     432 </span>            :     //! Adds a watch-only address to the store, without saving it to disk (used by LoadWallet)
+<span class="lineNum">     433 </span>            :     bool LoadWatchOnly(const CScript &amp;dest);
+<span class="lineNum">     434 </span>            :     //! Returns whether the watch-only script is in the wallet
+<span class="lineNum">     435 </span>            :     bool HaveWatchOnly(const CScript &amp;dest) const;
+<span class="lineNum">     436 </span>            :     //! Returns whether there are any watch-only things in the wallet
+<span class="lineNum">     437 </span>            :     bool HaveWatchOnly() const;
+<span class="lineNum">     438 </span>            :     //! Remove a watch only script from the keystore
+<span class="lineNum">     439 </span>            :     bool RemoveWatchOnly(const CScript &amp;dest);
+<span class="lineNum">     440 </span>            :     bool AddWatchOnly(const CScript&amp; dest, int64_t nCreateTime) EXCLUSIVE_LOCKS_REQUIRED(cs_KeyStore);
+<span class="lineNum">     441 </span>            : 
+<span class="lineNum">     442 </span>            :     //! Fetches a pubkey from mapWatchKeys if it exists there
+<span class="lineNum">     443 </span>            :     bool GetWatchPubKey(const CKeyID &amp;address, CPubKey &amp;pubkey_out) const;
+<span class="lineNum">     444 </span>            : 
+<span class="lineNum">     445 </span>            :     /* SigningProvider overrides */
+<span class="lineNum">     446 </span>            :     bool HaveKey(const CKeyID &amp;address) const override;
+<span class="lineNum">     447 </span>            :     bool GetKey(const CKeyID &amp;address, CKey&amp; keyOut) const override;
+<span class="lineNum">     448 </span>            :     bool GetPubKey(const CKeyID &amp;address, CPubKey&amp; vchPubKeyOut) const override;
+<span class="lineNum">     449 </span>            :     bool AddCScript(const CScript&amp; redeemScript) override;
+<span class="lineNum">     450 </span>            :     bool GetKeyOrigin(const CKeyID&amp; keyid, KeyOriginInfo&amp; info) const override;
+<span class="lineNum">     451 </span>            : 
+<span class="lineNum">     452 </span>            :     //! Load a keypool entry
+<span class="lineNum">     453 </span>            :     void LoadKeyPool(int64_t nIndex, const CKeyPool &amp;keypool);
+<span class="lineNum">     454 </span>            :     bool NewKeyPool();
+<span class="lineNum">     455 </span>            :     void MarkPreSplitKeys() EXCLUSIVE_LOCKS_REQUIRED(cs_KeyStore);
+<span class="lineNum">     456 </span>            : 
+<span class="lineNum">     457 </span>            :     bool ImportScripts(const std::set&lt;CScript&gt; scripts, int64_t timestamp) EXCLUSIVE_LOCKS_REQUIRED(cs_KeyStore);
+<span class="lineNum">     458 </span>            :     bool ImportPrivKeys(const std::map&lt;CKeyID, CKey&gt;&amp; privkey_map, const int64_t timestamp) EXCLUSIVE_LOCKS_REQUIRED(cs_KeyStore);
+<span class="lineNum">     459 </span>            :     bool ImportPubKeys(const std::vector&lt;CKeyID&gt;&amp; ordered_pubkeys, const std::map&lt;CKeyID, CPubKey&gt;&amp; pubkey_map, const std::map&lt;CKeyID, std::pair&lt;CPubKey, KeyOriginInfo&gt;&gt;&amp; key_origins, const bool add_keypool, const bool internal, const int64_t timestamp) EXCLUSIVE_LOCKS_REQUIRED(cs_KeyStore);
+<span class="lineNum">     460 </span>            :     bool ImportScriptPubKeys(const std::set&lt;CScript&gt;&amp; script_pub_keys, const bool have_solving_data, const int64_t timestamp) EXCLUSIVE_LOCKS_REQUIRED(cs_KeyStore);
+<span class="lineNum">     461 </span>            : 
+<span class="lineNum">     462 </span>            :     /* Returns true if the wallet can generate new keys */
+<span class="lineNum">     463 </span>            :     bool CanGenerateKeys() const;
+<span class="lineNum">     464 </span>            : 
+<span class="lineNum">     465 </span>            :     /* Generates a new HD seed (will not be activated) */
+<span class="lineNum">     466 </span>            :     CPubKey GenerateNewSeed();
+<span class="lineNum">     467 </span>            : 
+<span class="lineNum">     468 </span>            :     /* Derives a new HD seed (will not be activated) */
+<span class="lineNum">     469 </span>            :     CPubKey DeriveNewSeed(const CKey&amp; key);
+<span class="lineNum">     470 </span>            : 
+<span class="lineNum">     471 </span>            :     /* Set the current HD seed (will reset the chain child index counters)
+<span class="lineNum">     472 </span>            :        Sets the seed's version based on the current wallet version (so the
+<span class="lineNum">     473 </span>            :        caller must ensure the current wallet version is correct before calling
+<span class="lineNum">     474 </span>            :        this function). */
+<span class="lineNum">     475 </span>            :     void SetHDSeed(const CPubKey&amp; key);
+<span class="lineNum">     476 </span>            : 
+<span class="lineNum">     477 </span>            :     /**
+<span class="lineNum">     478 </span>            :      * Explicitly make the wallet learn the related scripts for outputs to the
+<span class="lineNum">     479 </span>            :      * given key. This is purely to make the wallet file compatible with older
+<span class="lineNum">     480 </span>            :      * software, as FillableSigningProvider automatically does this implicitly for all
+<span class="lineNum">     481 </span>            :      * keys now.
+<span class="lineNum">     482 </span>            :      */
+<span class="lineNum">     483 </span>            :     void LearnRelatedScripts(const CPubKey&amp; key, OutputType);
+<span class="lineNum">     484 </span>            : 
+<span class="lineNum">     485 </span>            :     /**
+<span class="lineNum">     486 </span>            :      * Same as LearnRelatedScripts, but when the OutputType is not known (and could
+<span class="lineNum">     487 </span>            :      * be anything).
+<span class="lineNum">     488 </span>            :      */
+<span class="lineNum">     489 </span>            :     void LearnAllRelatedScripts(const CPubKey&amp; key);
+<span class="lineNum">     490 </span>            : 
+<span class="lineNum">     491 </span>            :     /**
+<span class="lineNum">     492 </span>            :      * Marks all keys in the keypool up to and including reserve_key as used.
+<a name="493"><span class="lineNum">     493 </span>            :      */</a>
+<span class="lineNum">     494 </span>            :     void MarkReserveKeysAsUsed(int64_t keypool_id) EXCLUSIVE_LOCKS_REQUIRED(cs_KeyStore);
+<span class="lineNum">     495 </span><span class="lineCov">          1 :     const std::map&lt;CKeyID, int64_t&gt;&amp; GetAllReserveKeys() const { return m_pool_key_to_index; }</span>
+<span class="lineNum">     496 </span>            : 
+<span class="lineNum">     497 </span>            :     std::set&lt;CKeyID&gt; GetKeys() const override;
+<span class="lineNum">     498 </span>            : };
+<a name="499"><span class="lineNum">     499 </span>            : </a>
+<span class="lineNum">     500 </span>            : /** Wraps a LegacyScriptPubKeyMan so that it can be returned in a new unique_ptr. Does not provide privkeys */
+<span class="lineNum">     501 </span><span class="lineCov">         23 : class LegacySigningProvider : public SigningProvider</span>
+<span class="lineNum">     502 </span>            : {
+<span class="lineNum">     503 </span>            : private:
+<a name="504"><span class="lineNum">     504 </span>            :     const LegacyScriptPubKeyMan&amp; m_spk_man;</a>
+<span class="lineNum">     505 </span>            : public:
+<a name="506"><span class="lineNum">     506 </span><span class="lineCov">         23 :     LegacySigningProvider(const LegacyScriptPubKeyMan&amp; spk_man) : m_spk_man(spk_man) {}</span></a>
+<a name="507"><span class="lineNum">     507 </span>            : </a>
+<a name="508"><span class="lineNum">     508 </span><span class="lineNoCov">          0 :     bool GetCScript(const CScriptID &amp;scriptid, CScript&amp; script) const override { return m_spk_man.GetCScript(scriptid, script); }</span></a>
+<a name="509"><span class="lineNum">     509 </span><span class="lineNoCov">          0 :     bool HaveCScript(const CScriptID &amp;scriptid) const override { return m_spk_man.HaveCScript(scriptid); }</span></a>
+<a name="510"><span class="lineNum">     510 </span><span class="lineCov">         11 :     bool GetPubKey(const CKeyID &amp;address, CPubKey&amp; pubkey) const override { return m_spk_man.GetPubKey(address, pubkey); }</span></a>
+<a name="511"><span class="lineNum">     511 </span><span class="lineNoCov">          0 :     bool GetKey(const CKeyID &amp;address, CKey&amp; key) const override { return false; }</span></a>
+<span class="lineNum">     512 </span><span class="lineNoCov">          0 :     bool HaveKey(const CKeyID &amp;address) const override { return false; }</span>
+<span class="lineNum">     513 </span><span class="lineCov">         23 :     bool GetKeyOrigin(const CKeyID&amp; keyid, KeyOriginInfo&amp; info) const override { return m_spk_man.GetKeyOrigin(keyid, info); }</span>
+<a name="514"><span class="lineNum">     514 </span>            : };</a>
+<span class="lineNum">     515 </span>            : 
+<span class="lineNum">     516 </span><span class="lineNoCov">          0 : class DescriptorScriptPubKeyMan : public ScriptPubKeyMan</span>
+<span class="lineNum">     517 </span>            : {
+<span class="lineNum">     518 </span>            : private:
+<span class="lineNum">     519 </span>            :     WalletDescriptor m_wallet_descriptor GUARDED_BY(cs_desc_man);
+<span class="lineNum">     520 </span>            : 
+<span class="lineNum">     521 </span>            :     using ScriptPubKeyMap = std::map&lt;CScript, int32_t&gt;; // Map of scripts to descriptor range index
+<span class="lineNum">     522 </span>            :     using PubKeyMap = std::map&lt;CPubKey, int32_t&gt;; // Map of pubkeys involved in scripts to descriptor range index
+<span class="lineNum">     523 </span>            :     using CryptedKeyMap = std::map&lt;CKeyID, std::pair&lt;CPubKey, std::vector&lt;unsigned char&gt;&gt;&gt;;
+<span class="lineNum">     524 </span>            :     using KeyMap = std::map&lt;CKeyID, CKey&gt;;
+<span class="lineNum">     525 </span>            : 
+<span class="lineNum">     526 </span>            :     ScriptPubKeyMap m_map_script_pub_keys GUARDED_BY(cs_desc_man);
+<span class="lineNum">     527 </span>            :     PubKeyMap m_map_pubkeys GUARDED_BY(cs_desc_man);
+<span class="lineNum">     528 </span><span class="lineNoCov">          0 :     int32_t m_max_cached_index = -1;</span>
+<span class="lineNum">     529 </span>            : 
+<span class="lineNum">     530 </span><span class="lineNoCov">          0 :     bool m_internal = false;</span>
+<span class="lineNum">     531 </span>            : 
+<span class="lineNum">     532 </span>            :     KeyMap m_map_keys GUARDED_BY(cs_desc_man);
+<span class="lineNum">     533 </span>            :     CryptedKeyMap m_map_crypted_keys GUARDED_BY(cs_desc_man);
+<span class="lineNum">     534 </span>            : 
+<span class="lineNum">     535 </span>            :     //! keeps track of whether Unlock has run a thorough check before
+<span class="lineNum">     536 </span><span class="lineNoCov">          0 :     bool m_decryption_thoroughly_checked = false;</span>
+<span class="lineNum">     537 </span>            : 
+<span class="lineNum">     538 </span>            :     bool AddDescriptorKeyWithDB(WalletBatch&amp; batch, const CKey&amp; key, const CPubKey &amp;pubkey);
+<span class="lineNum">     539 </span>            : 
+<span class="lineNum">     540 </span>            :     KeyMap GetKeys() const EXCLUSIVE_LOCKS_REQUIRED(cs_desc_man);
+<span class="lineNum">     541 </span>            : 
+<span class="lineNum">     542 </span>            :     // Fetch the SigningProvider for the given script and optionally include private keys
+<span class="lineNum">     543 </span>            :     std::unique_ptr&lt;FlatSigningProvider&gt; GetSigningProvider(const CScript&amp; script, bool include_private = false) const;
+<span class="lineNum">     544 </span>            :     // Fetch the SigningProvider for the given pubkey and always include private keys. This should only be called by signing code.
+<span class="lineNum">     545 </span>            :     std::unique_ptr&lt;FlatSigningProvider&gt; GetSigningProvider(const CPubKey&amp; pubkey) const;
+<span class="lineNum">     546 </span>            :     // Fetch the SigningProvider for a given index and optionally include private keys. Called by the above functions.
+<span class="lineNum">     547 </span>            :     std::unique_ptr&lt;FlatSigningProvider&gt; GetSigningProvider(int32_t index, bool include_private = false) const EXCLUSIVE_LOCKS_REQUIRED(cs_desc_man);
+<a name="548"><span class="lineNum">     548 </span>            : </a>
+<span class="lineNum">     549 </span>            : public:
+<span class="lineNum">     550 </span><span class="lineNoCov">          0 :     DescriptorScriptPubKeyMan(WalletStorage&amp; storage, WalletDescriptor&amp; descriptor)</span>
+<span class="lineNum">     551 </span><span class="lineNoCov">          0 :         :   ScriptPubKeyMan(storage),</span>
+<a name="552"><span class="lineNum">     552 </span><span class="lineNoCov">          0 :             m_wallet_descriptor(descriptor)</span></a>
+<span class="lineNum">     553 </span><span class="lineNoCov">          0 :         {}</span>
+<span class="lineNum">     554 </span><span class="lineNoCov">          0 :     DescriptorScriptPubKeyMan(WalletStorage&amp; storage, bool internal)</span>
+<span class="lineNum">     555 </span><span class="lineNoCov">          0 :         :   ScriptPubKeyMan(storage),</span>
+<span class="lineNum">     556 </span><span class="lineNoCov">          0 :             m_internal(internal)</span>
+<span class="lineNum">     557 </span><span class="lineNoCov">          0 :         {}</span>
+<span class="lineNum">     558 </span>            : 
+<span class="lineNum">     559 </span>            :     mutable RecursiveMutex cs_desc_man;
+<span class="lineNum">     560 </span>            : 
+<span class="lineNum">     561 </span>            :     bool GetNewDestination(const OutputType type, CTxDestination&amp; dest, std::string&amp; error) override;
+<span class="lineNum">     562 </span>            :     isminetype IsMine(const CScript&amp; script) const override;
+<span class="lineNum">     563 </span>            : 
+<span class="lineNum">     564 </span>            :     bool CheckDecryptionKey(const CKeyingMaterial&amp; master_key, bool accept_no_keys = false) override;
+<span class="lineNum">     565 </span>            :     bool Encrypt(const CKeyingMaterial&amp; master_key, WalletBatch* batch) override;
+<span class="lineNum">     566 </span>            : 
+<span class="lineNum">     567 </span>            :     bool GetReservedDestination(const OutputType type, bool internal, CTxDestination&amp; address, int64_t&amp; index, CKeyPool&amp; keypool) override;
+<span class="lineNum">     568 </span>            :     void ReturnDestination(int64_t index, bool internal, const CTxDestination&amp; addr) override;
+<span class="lineNum">     569 </span>            : 
+<span class="lineNum">     570 </span>            :     // Tops up the descriptor cache and m_map_script_pub_keys. The cache is stored in the wallet file
+<span class="lineNum">     571 </span>            :     // and is used to expand the descriptor in GetNewDestination. DescriptorScriptPubKeyMan relies
+<span class="lineNum">     572 </span>            :     // more on ephemeral data than LegacyScriptPubKeyMan. For wallets using unhardened derivation
+<span class="lineNum">     573 </span>            :     // (with or without private keys), the &quot;keypool&quot; is a single xpub.
+<span class="lineNum">     574 </span>            :     bool TopUp(unsigned int size = 0) override;
+<span class="lineNum">     575 </span>            : 
+<span class="lineNum">     576 </span>            :     void MarkUnusedAddresses(const CScript&amp; script) override;
+<span class="lineNum">     577 </span>            : 
+<span class="lineNum">     578 </span>            :     bool IsHDEnabled() const override;
+<span class="lineNum">     579 </span>            : 
+<span class="lineNum">     580 </span>            :     //! Setup descriptors based on the given CExtkey
+<span class="lineNum">     581 </span>            :     bool SetupDescriptorGeneration(const CExtKey&amp; master_key, OutputType addr_type);
+<span class="lineNum">     582 </span>            : 
+<span class="lineNum">     583 </span>            :     bool HavePrivateKeys() const override;
+<span class="lineNum">     584 </span>            : 
+<span class="lineNum">     585 </span>            :     int64_t GetOldestKeyPoolTime() const override;
+<span class="lineNum">     586 </span>            :     size_t KeypoolCountExternalKeys() const override;
+<span class="lineNum">     587 </span>            :     unsigned int GetKeyPoolSize() const override;
+<span class="lineNum">     588 </span>            : 
+<span class="lineNum">     589 </span>            :     int64_t GetTimeFirstKey() const override;
+<span class="lineNum">     590 </span>            : 
+<span class="lineNum">     591 </span>            :     std::unique_ptr&lt;CKeyMetadata&gt; GetMetadata(const CTxDestination&amp; dest) const override;
+<span class="lineNum">     592 </span>            : 
+<span class="lineNum">     593 </span>            :     bool CanGetAddresses(bool internal = false) const override;
+<span class="lineNum">     594 </span>            : 
+<span class="lineNum">     595 </span>            :     std::unique_ptr&lt;SigningProvider&gt; GetSolvingProvider(const CScript&amp; script) const override;
+<span class="lineNum">     596 </span>            : 
+<span class="lineNum">     597 </span>            :     bool CanProvide(const CScript&amp; script, SignatureData&amp; sigdata) override;
+<span class="lineNum">     598 </span>            : 
+<span class="lineNum">     599 </span>            :     bool SignTransaction(CMutableTransaction&amp; tx, const std::map&lt;COutPoint, Coin&gt;&amp; coins, int sighash, std::map&lt;int, std::string&gt;&amp; input_errors) const override;
+<span class="lineNum">     600 </span>            :     SigningResult SignMessage(const std::string&amp; message, const PKHash&amp; pkhash, std::string&amp; str_sig) const override;
+<span class="lineNum">     601 </span>            :     TransactionError FillPSBT(PartiallySignedTransaction&amp; psbt, int sighash_type = 1 /* SIGHASH_ALL */, bool sign = true, bool bip32derivs = false, int* n_signed = nullptr) const override;
+<span class="lineNum">     602 </span>            : 
+<span class="lineNum">     603 </span>            :     uint256 GetID() const override;
+<span class="lineNum">     604 </span>            : 
+<span class="lineNum">     605 </span>            :     void SetInternal(bool internal) override;
+<span class="lineNum">     606 </span>            : 
+<span class="lineNum">     607 </span>            :     void SetCache(const DescriptorCache&amp; cache);
+<span class="lineNum">     608 </span>            : 
+<span class="lineNum">     609 </span>            :     bool AddKey(const CKeyID&amp; key_id, const CKey&amp; key);
+<span class="lineNum">     610 </span>            :     bool AddCryptedKey(const CKeyID&amp; key_id, const CPubKey&amp; pubkey, const std::vector&lt;unsigned char&gt;&amp; crypted_key);
+<span class="lineNum">     611 </span>            : 
+<span class="lineNum">     612 </span>            :     bool HasWalletDescriptor(const WalletDescriptor&amp; desc) const;
+<span class="lineNum">     613 </span>            :     void AddDescriptorKey(const CKey&amp; key, const CPubKey &amp;pubkey);
+<span class="lineNum">     614 </span>            :     void WriteDescriptor();
+<span class="lineNum">     615 </span>            : 
+<span class="lineNum">     616 </span>            :     const WalletDescriptor GetWalletDescriptor() const EXCLUSIVE_LOCKS_REQUIRED(cs_desc_man);
+<span class="lineNum">     617 </span>            :     const std::vector&lt;CScript&gt; GetScriptPubKeys() const;
+<span class="lineNum">     618 </span>            : };
+<span class="lineNum">     619 </span>            : 
+<span class="lineNum">     620 </span>            : #endif // BITCOIN_WALLET_SCRIPTPUBKEYMAN_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

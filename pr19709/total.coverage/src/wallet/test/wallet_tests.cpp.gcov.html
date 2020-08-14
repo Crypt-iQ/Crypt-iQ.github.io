@@ -1,0 +1,908 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - total_coverage.info - src/wallet/test/wallet_tests.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">src/wallet/test</a> - wallet_tests.cpp<span style="font-size: 80%;"> (source / <a href="wallet_tests.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">total_coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">501</td>
+            <td class="headerCovTableEntry">502</td>
+            <td class="headerCovTableEntryHi">99.8 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-08-14 02:59:33</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">75</td>
+            <td class="headerCovTableEntry">75</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2012-2020 The Bitcoin Core developers</a>
+<span class="lineNum">       2 </span>            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       3 </span>            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       4 </span>            : 
+<span class="lineNum">       5 </span>            : #include &lt;wallet/wallet.h&gt;
+<span class="lineNum">       6 </span>            : 
+<span class="lineNum">       7 </span>            : #include &lt;future&gt;
+<span class="lineNum">       8 </span>            : #include &lt;memory&gt;
+<span class="lineNum">       9 </span>            : #include &lt;stdint.h&gt;
+<span class="lineNum">      10 </span>            : #include &lt;vector&gt;
+<span class="lineNum">      11 </span>            : 
+<span class="lineNum">      12 </span>            : #include &lt;interfaces/chain.h&gt;
+<span class="lineNum">      13 </span>            : #include &lt;node/context.h&gt;
+<span class="lineNum">      14 </span>            : #include &lt;policy/policy.h&gt;
+<span class="lineNum">      15 </span>            : #include &lt;rpc/server.h&gt;
+<span class="lineNum">      16 </span>            : #include &lt;test/util/logging.h&gt;
+<span class="lineNum">      17 </span>            : #include &lt;test/util/setup_common.h&gt;
+<span class="lineNum">      18 </span>            : #include &lt;util/ref.h&gt;
+<span class="lineNum">      19 </span>            : #include &lt;util/translation.h&gt;
+<span class="lineNum">      20 </span>            : #include &lt;validation.h&gt;
+<span class="lineNum">      21 </span>            : #include &lt;wallet/coincontrol.h&gt;
+<span class="lineNum">      22 </span>            : #include &lt;wallet/test/wallet_test_fixture.h&gt;
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span>            : #include &lt;boost/test/unit_test.hpp&gt;
+<span class="lineNum">      25 </span>            : #include &lt;univalue.h&gt;
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span>            : extern UniValue importmulti(const JSONRPCRequest&amp; request);
+<span class="lineNum">      28 </span>            : extern UniValue dumpwallet(const JSONRPCRequest&amp; request);
+<span class="lineNum">      29 </span>            : extern UniValue importwallet(const JSONRPCRequest&amp; request);
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            : // Ensure that fee levels defined in the wallet are at least as high
+<span class="lineNum">      32 </span>            : // as the default levels for node policy.
+<span class="lineNum">      33 </span>            : static_assert(DEFAULT_TRANSACTION_MINFEE &gt;= DEFAULT_MIN_RELAY_TX_FEE, &quot;wallet minimum fee is smaller than default relay fee&quot;);
+<a name="34"><span class="lineNum">      34 </span>            : static_assert(WALLET_INCREMENTAL_RELAY_FEE &gt;= DEFAULT_INCREMENTAL_RELAY_FEE, &quot;wallet incremental fee is smaller than default incremental relay fee&quot;);</a>
+<span class="lineNum">      35 </span>            : 
+<a name="36"><span class="lineNum">      36 </span><span class="lineCov">         88 : BOOST_FIXTURE_TEST_SUITE(wallet_tests, WalletTestingSetup)</span></a>
+<span class="lineNum">      37 </span>            : 
+<span class="lineNum">      38 </span><span class="lineCov">          4 : static std::shared_ptr&lt;CWallet&gt; TestLoadWallet(interfaces::Chain&amp; chain)</span>
+<span class="lineNum">      39 </span>            : {
+<span class="lineNum">      40 </span><span class="lineCov">          4 :     bilingual_str error;</span>
+<span class="lineNum">      41 </span><span class="lineCov">          4 :     std::vector&lt;bilingual_str&gt; warnings;</span>
+<span class="lineNum">      42 </span><span class="lineCov">          4 :     auto wallet = CWallet::CreateWalletFromFile(chain, WalletLocation(&quot;&quot;), error, warnings);</span>
+<span class="lineNum">      43 </span><span class="lineCov">          4 :     wallet-&gt;postInitProcess();</span>
+<span class="lineNum">      44 </span>            :     return wallet;
+<a name="45"><span class="lineNum">      45 </span><span class="lineCov">          4 : }</span></a>
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span><span class="lineCov">          4 : static void TestUnloadWallet(std::shared_ptr&lt;CWallet&gt;&amp;&amp; wallet)</span>
+<span class="lineNum">      48 </span>            : {
+<span class="lineNum">      49 </span><span class="lineCov">          4 :     SyncWithValidationInterfaceQueue();</span>
+<span class="lineNum">      50 </span><span class="lineCov">          4 :     wallet-&gt;m_chain_notifications_handler.reset();</span>
+<span class="lineNum">      51 </span><span class="lineCov">          4 :     UnloadWallet(std::move(wallet));</span>
+<a name="52"><span class="lineNum">      52 </span><span class="lineCov">          4 : }</span></a>
+<span class="lineNum">      53 </span>            : 
+<span class="lineNum">      54 </span><span class="lineCov">          5 : static CMutableTransaction TestSimpleSpend(const CTransaction&amp; from, uint32_t index, const CKey&amp; key, const CScript&amp; pubkey)</span>
+<span class="lineNum">      55 </span>            : {
+<span class="lineNum">      56 </span><span class="lineCov">          5 :     CMutableTransaction mtx;</span>
+<span class="lineNum">      57 </span><span class="lineCov">          5 :     mtx.vout.push_back({from.vout[index].nValue - DEFAULT_TRANSACTION_MAXFEE, pubkey});</span>
+<span class="lineNum">      58 </span><span class="lineCov">          5 :     mtx.vin.push_back({CTxIn{from.GetHash(), index}});</span>
+<span class="lineNum">      59 </span><span class="lineCov">          5 :     FillableSigningProvider keystore;</span>
+<span class="lineNum">      60 </span><span class="lineCov">          5 :     keystore.AddKey(key);</span>
+<span class="lineNum">      61 </span><span class="lineCov">          5 :     std::map&lt;COutPoint, Coin&gt; coins;</span>
+<span class="lineNum">      62 </span><span class="lineCov">          5 :     coins[mtx.vin[0].prevout].out = from.vout[index];</span>
+<span class="lineNum">      63 </span><span class="lineCov">          5 :     std::map&lt;int, std::string&gt; input_errors;</span>
+<span class="lineNum">      64 </span><span class="lineCov">          5 :     BOOST_CHECK(SignTransaction(mtx, &amp;keystore, coins, SIGHASH_ALL, input_errors));</span>
+<span class="lineNum">      65 </span>            :     return mtx;
+<a name="66"><span class="lineNum">      66 </span><span class="lineCov">          5 : }</span></a>
+<span class="lineNum">      67 </span>            : 
+<span class="lineNum">      68 </span><span class="lineCov">          7 : static void AddKey(CWallet&amp; wallet, const CKey&amp; key)</span>
+<span class="lineNum">      69 </span>            : {
+<span class="lineNum">      70 </span><span class="lineCov">          7 :     auto spk_man = wallet.GetOrCreateLegacyScriptPubKeyMan();</span>
+<span class="lineNum">      71 </span><span class="lineCov">          7 :     LOCK2(wallet.cs_wallet, spk_man-&gt;cs_KeyStore);</span>
+<span class="lineNum">      72 </span><span class="lineCov">          7 :     spk_man-&gt;AddKeyPubKey(key, key.GetPubKey());</span>
+<a name="73"><span class="lineNum">      73 </span><span class="lineCov">          7 : }</span></a>
+<span class="lineNum">      74 </span>            : 
+<span class="lineNum">      75 </span><span class="lineCov">         91 : BOOST_FIXTURE_TEST_CASE(scan_for_wallet_transactions, TestChain100Setup)</span>
+<span class="lineNum">      76 </span>            : {
+<span class="lineNum">      77 </span>            :     // Cap last block file size, and mine new block in a new block file.
+<span class="lineNum">      78 </span><span class="lineCov">          1 :     CBlockIndex* oldTip = ::ChainActive().Tip();</span>
+<span class="lineNum">      79 </span><span class="lineCov">          1 :     GetBlockFileInfo(oldTip-&gt;GetBlockPos().nFile)-&gt;nSize = MAX_BLOCKFILE_SIZE;</span>
+<span class="lineNum">      80 </span><span class="lineCov">          1 :     CreateAndProcessBlock({}, GetScriptForRawPubKey(coinbaseKey.GetPubKey()));</span>
+<span class="lineNum">      81 </span><span class="lineCov">          1 :     CBlockIndex* newTip = ::ChainActive().Tip();</span>
+<span class="lineNum">      82 </span>            : 
+<span class="lineNum">      83 </span><span class="lineCov">          1 :     NodeContext node;</span>
+<span class="lineNum">      84 </span><span class="lineCov">          1 :     auto chain = interfaces::MakeChain(node);</span>
+<span class="lineNum">      85 </span>            : 
+<span class="lineNum">      86 </span>            :     // Verify ScanForWalletTransactions fails to read an unknown start block.
+<span class="lineNum">      87 </span>            :     {
+<span class="lineNum">      88 </span><span class="lineCov">          1 :         CWallet wallet(chain.get(), WalletLocation(), CreateDummyWalletDatabase());</span>
+<span class="lineNum">      89 </span>            :         {
+<span class="lineNum">      90 </span><span class="lineCov">          1 :             LOCK(wallet.cs_wallet);</span>
+<span class="lineNum">      91 </span><span class="lineCov">          1 :             wallet.SetLastBlockProcessed(::ChainActive().Height(), ::ChainActive().Tip()-&gt;GetBlockHash());</span>
+<span class="lineNum">      92 </span><span class="lineCov">          1 :         }</span>
+<span class="lineNum">      93 </span><span class="lineCov">          1 :         AddKey(wallet, coinbaseKey);</span>
+<span class="lineNum">      94 </span><span class="lineCov">          1 :         WalletRescanReserver reserver(wallet);</span>
+<span class="lineNum">      95 </span><span class="lineCov">          1 :         reserver.reserve();</span>
+<span class="lineNum">      96 </span><span class="lineCov">          1 :         CWallet::ScanResult result = wallet.ScanForWalletTransactions({} /* start_block */, 0 /* start_height */, {} /* max_height */, reserver, false /* update */);</span>
+<span class="lineNum">      97 </span><span class="lineCov">          1 :         BOOST_CHECK_EQUAL(result.status, CWallet::ScanResult::FAILURE);</span>
+<span class="lineNum">      98 </span><span class="lineCov">          1 :         BOOST_CHECK(result.last_failed_block.IsNull());</span>
+<span class="lineNum">      99 </span><span class="lineCov">          1 :         BOOST_CHECK(result.last_scanned_block.IsNull());</span>
+<span class="lineNum">     100 </span><span class="lineCov">          1 :         BOOST_CHECK(!result.last_scanned_height);</span>
+<span class="lineNum">     101 </span><span class="lineCov">          1 :         BOOST_CHECK_EQUAL(wallet.GetBalance().m_mine_immature, 0);</span>
+<span class="lineNum">     102 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">     103 </span>            : 
+<span class="lineNum">     104 </span>            :     // Verify ScanForWalletTransactions picks up transactions in both the old
+<span class="lineNum">     105 </span>            :     // and new block files.
+<span class="lineNum">     106 </span>            :     {
+<span class="lineNum">     107 </span><span class="lineCov">          1 :         CWallet wallet(chain.get(), WalletLocation(), CreateDummyWalletDatabase());</span>
+<span class="lineNum">     108 </span>            :         {
+<span class="lineNum">     109 </span><span class="lineCov">          1 :             LOCK(wallet.cs_wallet);</span>
+<span class="lineNum">     110 </span><span class="lineCov">          1 :             wallet.SetLastBlockProcessed(::ChainActive().Height(), ::ChainActive().Tip()-&gt;GetBlockHash());</span>
+<span class="lineNum">     111 </span><span class="lineCov">          1 :         }</span>
+<span class="lineNum">     112 </span><span class="lineCov">          1 :         AddKey(wallet, coinbaseKey);</span>
+<span class="lineNum">     113 </span><span class="lineCov">          1 :         WalletRescanReserver reserver(wallet);</span>
+<span class="lineNum">     114 </span><span class="lineCov">          1 :         reserver.reserve();</span>
+<span class="lineNum">     115 </span><span class="lineCov">          1 :         CWallet::ScanResult result = wallet.ScanForWalletTransactions(oldTip-&gt;GetBlockHash(), oldTip-&gt;nHeight, {} /* max_height */, reserver, false /* update */);</span>
+<span class="lineNum">     116 </span><span class="lineCov">          1 :         BOOST_CHECK_EQUAL(result.status, CWallet::ScanResult::SUCCESS);</span>
+<span class="lineNum">     117 </span><span class="lineCov">          1 :         BOOST_CHECK(result.last_failed_block.IsNull());</span>
+<span class="lineNum">     118 </span><span class="lineCov">          1 :         BOOST_CHECK_EQUAL(result.last_scanned_block, newTip-&gt;GetBlockHash());</span>
+<span class="lineNum">     119 </span><span class="lineCov">          1 :         BOOST_CHECK_EQUAL(*result.last_scanned_height, newTip-&gt;nHeight);</span>
+<span class="lineNum">     120 </span><span class="lineCov">          1 :         BOOST_CHECK_EQUAL(wallet.GetBalance().m_mine_immature, 100 * COIN);</span>
+<span class="lineNum">     121 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">     122 </span>            : 
+<span class="lineNum">     123 </span>            :     // Prune the older block file.
+<a name="124"><span class="lineNum">     124 </span>            :     {</a>
+<span class="lineNum">     125 </span><span class="lineCov">          1 :         LOCK(cs_main);</span>
+<span class="lineNum">     126 </span><span class="lineCov">          2 :         Assert(m_node.chainman)-&gt;PruneOneBlockFile(oldTip-&gt;GetBlockPos().nFile);</span>
+<span class="lineNum">     127 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">     128 </span><span class="lineCov">          1 :     UnlinkPrunedFiles({oldTip-&gt;GetBlockPos().nFile});</span>
+<span class="lineNum">     129 </span>            : 
+<span class="lineNum">     130 </span>            :     // Verify ScanForWalletTransactions only picks transactions in the new block
+<span class="lineNum">     131 </span>            :     // file.
+<span class="lineNum">     132 </span>            :     {
+<span class="lineNum">     133 </span><span class="lineCov">          1 :         CWallet wallet(chain.get(), WalletLocation(), CreateDummyWalletDatabase());</span>
+<span class="lineNum">     134 </span>            :         {
+<span class="lineNum">     135 </span><span class="lineCov">          1 :             LOCK(wallet.cs_wallet);</span>
+<span class="lineNum">     136 </span><span class="lineCov">          1 :             wallet.SetLastBlockProcessed(::ChainActive().Height(), ::ChainActive().Tip()-&gt;GetBlockHash());</span>
+<span class="lineNum">     137 </span><span class="lineCov">          1 :         }</span>
+<span class="lineNum">     138 </span><span class="lineCov">          1 :         AddKey(wallet, coinbaseKey);</span>
+<span class="lineNum">     139 </span><span class="lineCov">          1 :         WalletRescanReserver reserver(wallet);</span>
+<span class="lineNum">     140 </span><span class="lineCov">          1 :         reserver.reserve();</span>
+<span class="lineNum">     141 </span><span class="lineCov">          1 :         CWallet::ScanResult result = wallet.ScanForWalletTransactions(oldTip-&gt;GetBlockHash(), oldTip-&gt;nHeight, {} /* max_height */, reserver, false /* update */);</span>
+<span class="lineNum">     142 </span><span class="lineCov">          1 :         BOOST_CHECK_EQUAL(result.status, CWallet::ScanResult::FAILURE);</span>
+<span class="lineNum">     143 </span><span class="lineCov">          1 :         BOOST_CHECK_EQUAL(result.last_failed_block, oldTip-&gt;GetBlockHash());</span>
+<span class="lineNum">     144 </span><span class="lineCov">          1 :         BOOST_CHECK_EQUAL(result.last_scanned_block, newTip-&gt;GetBlockHash());</span>
+<span class="lineNum">     145 </span><span class="lineCov">          1 :         BOOST_CHECK_EQUAL(*result.last_scanned_height, newTip-&gt;nHeight);</span>
+<span class="lineNum">     146 </span><span class="lineCov">          1 :         BOOST_CHECK_EQUAL(wallet.GetBalance().m_mine_immature, 50 * COIN);</span>
+<span class="lineNum">     147 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">     148 </span>            : 
+<span class="lineNum">     149 </span>            :     // Prune the remaining block file.
+<a name="150"><span class="lineNum">     150 </span>            :     {</a>
+<span class="lineNum">     151 </span><span class="lineCov">          1 :         LOCK(cs_main);</span>
+<span class="lineNum">     152 </span><span class="lineCov">          2 :         Assert(m_node.chainman)-&gt;PruneOneBlockFile(newTip-&gt;GetBlockPos().nFile);</span>
+<span class="lineNum">     153 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">     154 </span><span class="lineCov">          1 :     UnlinkPrunedFiles({newTip-&gt;GetBlockPos().nFile});</span>
+<span class="lineNum">     155 </span>            : 
+<span class="lineNum">     156 </span>            :     // Verify ScanForWalletTransactions scans no blocks.
+<span class="lineNum">     157 </span>            :     {
+<span class="lineNum">     158 </span><span class="lineCov">          1 :         CWallet wallet(chain.get(), WalletLocation(), CreateDummyWalletDatabase());</span>
+<span class="lineNum">     159 </span>            :         {
+<span class="lineNum">     160 </span><span class="lineCov">          1 :             LOCK(wallet.cs_wallet);</span>
+<span class="lineNum">     161 </span><span class="lineCov">          1 :             wallet.SetLastBlockProcessed(::ChainActive().Height(), ::ChainActive().Tip()-&gt;GetBlockHash());</span>
+<span class="lineNum">     162 </span><span class="lineCov">          1 :         }</span>
+<span class="lineNum">     163 </span><span class="lineCov">          1 :         AddKey(wallet, coinbaseKey);</span>
+<span class="lineNum">     164 </span><span class="lineCov">          1 :         WalletRescanReserver reserver(wallet);</span>
+<span class="lineNum">     165 </span><span class="lineCov">          1 :         reserver.reserve();</span>
+<span class="lineNum">     166 </span><span class="lineCov">          1 :         CWallet::ScanResult result = wallet.ScanForWalletTransactions(oldTip-&gt;GetBlockHash(), oldTip-&gt;nHeight, {} /* max_height */, reserver, false /* update */);</span>
+<span class="lineNum">     167 </span><span class="lineCov">          1 :         BOOST_CHECK_EQUAL(result.status, CWallet::ScanResult::FAILURE);</span>
+<span class="lineNum">     168 </span><span class="lineCov">          1 :         BOOST_CHECK_EQUAL(result.last_failed_block, newTip-&gt;GetBlockHash());</span>
+<span class="lineNum">     169 </span><span class="lineCov">          1 :         BOOST_CHECK(result.last_scanned_block.IsNull());</span>
+<span class="lineNum">     170 </span><span class="lineCov">          1 :         BOOST_CHECK(!result.last_scanned_height);</span>
+<span class="lineNum">     171 </span><span class="lineCov">          1 :         BOOST_CHECK_EQUAL(wallet.GetBalance().m_mine_immature, 0);</span>
+<span class="lineNum">     172 </span><span class="lineCov">          1 :     }</span>
+<a name="173"><span class="lineNum">     173 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     174 </span>            : 
+<span class="lineNum">     175 </span><span class="lineCov">         91 : BOOST_FIXTURE_TEST_CASE(importmulti_rescan, TestChain100Setup)</span>
+<span class="lineNum">     176 </span>            : {
+<span class="lineNum">     177 </span>            :     // Cap last block file size, and mine new block in a new block file.
+<span class="lineNum">     178 </span><span class="lineCov">          1 :     CBlockIndex* oldTip = ::ChainActive().Tip();</span>
+<span class="lineNum">     179 </span><span class="lineCov">          1 :     GetBlockFileInfo(oldTip-&gt;GetBlockPos().nFile)-&gt;nSize = MAX_BLOCKFILE_SIZE;</span>
+<span class="lineNum">     180 </span><span class="lineCov">          1 :     CreateAndProcessBlock({}, GetScriptForRawPubKey(coinbaseKey.GetPubKey()));</span>
+<span class="lineNum">     181 </span><span class="lineCov">          1 :     CBlockIndex* newTip = ::ChainActive().Tip();</span>
+<span class="lineNum">     182 </span>            : 
+<span class="lineNum">     183 </span><span class="lineCov">          1 :     NodeContext node;</span>
+<span class="lineNum">     184 </span><span class="lineCov">          1 :     auto chain = interfaces::MakeChain(node);</span>
+<span class="lineNum">     185 </span>            : 
+<span class="lineNum">     186 </span>            :     // Prune the older block file.
+<a name="187"><span class="lineNum">     187 </span>            :     {</a>
+<span class="lineNum">     188 </span><span class="lineCov">          1 :         LOCK(cs_main);</span>
+<span class="lineNum">     189 </span><span class="lineCov">          2 :         Assert(m_node.chainman)-&gt;PruneOneBlockFile(oldTip-&gt;GetBlockPos().nFile);</span>
+<span class="lineNum">     190 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">     191 </span><span class="lineCov">          1 :     UnlinkPrunedFiles({oldTip-&gt;GetBlockPos().nFile});</span>
+<span class="lineNum">     192 </span>            : 
+<span class="lineNum">     193 </span>            :     // Verify importmulti RPC returns failure for a key whose creation time is
+<span class="lineNum">     194 </span>            :     // before the missing block, and success for a key whose creation time is
+<span class="lineNum">     195 </span>            :     // after.
+<span class="lineNum">     196 </span>            :     {
+<a name="197"><span class="lineNum">     197 </span><span class="lineCov">          1 :         std::shared_ptr&lt;CWallet&gt; wallet = std::make_shared&lt;CWallet&gt;(chain.get(), WalletLocation(), CreateDummyWalletDatabase());</span></a>
+<span class="lineNum">     198 </span><span class="lineCov">          1 :         wallet-&gt;SetupLegacyScriptPubKeyMan();</span>
+<span class="lineNum">     199 </span><span class="lineCov">          2 :         WITH_LOCK(wallet-&gt;cs_wallet, wallet-&gt;SetLastBlockProcessed(newTip-&gt;nHeight, newTip-&gt;GetBlockHash()));</span>
+<span class="lineNum">     200 </span><span class="lineCov">          1 :         AddWallet(wallet);</span>
+<span class="lineNum">     201 </span><span class="lineCov">          1 :         UniValue keys;</span>
+<span class="lineNum">     202 </span><span class="lineCov">          1 :         keys.setArray();</span>
+<span class="lineNum">     203 </span><span class="lineCov">          1 :         UniValue key;</span>
+<span class="lineNum">     204 </span><span class="lineCov">          1 :         key.setObject();</span>
+<span class="lineNum">     205 </span><span class="lineCov">          1 :         key.pushKV(&quot;scriptPubKey&quot;, HexStr(GetScriptForRawPubKey(coinbaseKey.GetPubKey())));</span>
+<span class="lineNum">     206 </span><span class="lineCov">          1 :         key.pushKV(&quot;timestamp&quot;, 0);</span>
+<span class="lineNum">     207 </span><span class="lineCov">          1 :         key.pushKV(&quot;internal&quot;, UniValue(true));</span>
+<span class="lineNum">     208 </span><span class="lineCov">          1 :         keys.push_back(key);</span>
+<span class="lineNum">     209 </span><span class="lineCov">          1 :         key.clear();</span>
+<span class="lineNum">     210 </span><span class="lineCov">          1 :         key.setObject();</span>
+<span class="lineNum">     211 </span><span class="lineCov">          1 :         CKey futureKey;</span>
+<span class="lineNum">     212 </span><span class="lineCov">          1 :         futureKey.MakeNewKey(true);</span>
+<span class="lineNum">     213 </span><span class="lineCov">          1 :         key.pushKV(&quot;scriptPubKey&quot;, HexStr(GetScriptForRawPubKey(futureKey.GetPubKey())));</span>
+<span class="lineNum">     214 </span><span class="lineCov">          1 :         key.pushKV(&quot;timestamp&quot;, newTip-&gt;GetBlockTimeMax() + TIMESTAMP_WINDOW + 1);</span>
+<span class="lineNum">     215 </span><span class="lineCov">          1 :         key.pushKV(&quot;internal&quot;, UniValue(true));</span>
+<span class="lineNum">     216 </span><span class="lineCov">          1 :         keys.push_back(key);</span>
+<span class="lineNum">     217 </span><span class="lineCov">          1 :         util::Ref context;</span>
+<span class="lineNum">     218 </span><span class="lineCov">          1 :         JSONRPCRequest request(context);</span>
+<span class="lineNum">     219 </span><span class="lineCov">          1 :         request.params.setArray();</span>
+<span class="lineNum">     220 </span><span class="lineCov">          1 :         request.params.push_back(keys);</span>
+<span class="lineNum">     221 </span>            : 
+<span class="lineNum">     222 </span><span class="lineCov">          1 :         UniValue response = importmulti(request);</span>
+<span class="lineNum">     223 </span><span class="lineCov">          1 :         BOOST_CHECK_EQUAL(response.write(),</span>
+<span class="lineNum">     224 </span>            :             strprintf(&quot;[{\&quot;success\&quot;:false,\&quot;error\&quot;:{\&quot;code\&quot;:-1,\&quot;message\&quot;:\&quot;Rescan failed for key with creation &quot;
+<span class="lineNum">     225 </span>            :                       &quot;timestamp %d. There was an error reading a block from time %d, which is after or within %d &quot;
+<span class="lineNum">     226 </span>            :                       &quot;seconds of key creation, and could contain transactions pertaining to the key. As a result, &quot;
+<span class="lineNum">     227 </span>            :                       &quot;transactions and coins using this key may not appear in the wallet. This error could be caused &quot;
+<span class="lineNum">     228 </span>            :                       &quot;by pruning or data corruption (see bitcoind log for details) and could be dealt with by &quot;
+<span class="lineNum">     229 </span>            :                       &quot;downloading and rescanning the relevant blocks (see -reindex and -rescan &quot;
+<span class="lineNum">     230 </span>            :                       &quot;options).\&quot;}},{\&quot;success\&quot;:true}]&quot;,
+<span class="lineNum">     231 </span>            :                               0, oldTip-&gt;GetBlockTimeMax(), TIMESTAMP_WINDOW));
+<span class="lineNum">     232 </span><span class="lineCov">          1 :         RemoveWallet(wallet);</span>
+<span class="lineNum">     233 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">     234 </span><span class="lineCov">          1 : }</span>
+<span class="lineNum">     235 </span>            : 
+<span class="lineNum">     236 </span>            : // Verify importwallet RPC starts rescan at earliest block with timestamp
+<span class="lineNum">     237 </span>            : // greater or equal than key birthday. Previously there was a bug where
+<a name="238"><span class="lineNum">     238 </span>            : // importwallet RPC would start the scan at the latest block with timestamp less</a>
+<span class="lineNum">     239 </span>            : // than or equal to key birthday.
+<span class="lineNum">     240 </span><span class="lineCov">         91 : BOOST_FIXTURE_TEST_CASE(importwallet_rescan, TestChain100Setup)</span>
+<span class="lineNum">     241 </span>            : {
+<span class="lineNum">     242 </span>            :     // Create two blocks with same timestamp to verify that importwallet rescan
+<span class="lineNum">     243 </span>            :     // will pick up both blocks, not just the first.
+<span class="lineNum">     244 </span><span class="lineCov">          1 :     const int64_t BLOCK_TIME = ::ChainActive().Tip()-&gt;GetBlockTimeMax() + 5;</span>
+<span class="lineNum">     245 </span><span class="lineCov">          1 :     SetMockTime(BLOCK_TIME);</span>
+<span class="lineNum">     246 </span><span class="lineCov">          1 :     m_coinbase_txns.emplace_back(CreateAndProcessBlock({}, GetScriptForRawPubKey(coinbaseKey.GetPubKey())).vtx[0]);</span>
+<span class="lineNum">     247 </span><span class="lineCov">          1 :     m_coinbase_txns.emplace_back(CreateAndProcessBlock({}, GetScriptForRawPubKey(coinbaseKey.GetPubKey())).vtx[0]);</span>
+<span class="lineNum">     248 </span>            : 
+<span class="lineNum">     249 </span>            :     // Set key birthday to block time increased by the timestamp window, so
+<span class="lineNum">     250 </span>            :     // rescan will start at the block time.
+<span class="lineNum">     251 </span><span class="lineCov">          1 :     const int64_t KEY_TIME = BLOCK_TIME + TIMESTAMP_WINDOW;</span>
+<span class="lineNum">     252 </span><span class="lineCov">          1 :     SetMockTime(KEY_TIME);</span>
+<span class="lineNum">     253 </span><span class="lineCov">          1 :     m_coinbase_txns.emplace_back(CreateAndProcessBlock({}, GetScriptForRawPubKey(coinbaseKey.GetPubKey())).vtx[0]);</span>
+<span class="lineNum">     254 </span>            : 
+<span class="lineNum">     255 </span><span class="lineCov">          1 :     NodeContext node;</span>
+<span class="lineNum">     256 </span><span class="lineCov">          1 :     auto chain = interfaces::MakeChain(node);</span>
+<span class="lineNum">     257 </span>            : 
+<span class="lineNum">     258 </span><span class="lineCov">          1 :     std::string backup_file = (GetDataDir() / &quot;wallet.backup&quot;).string();</span>
+<span class="lineNum">     259 </span>            : 
+<span class="lineNum">     260 </span>            :     // Import key into wallet and call dumpwallet to create backup file.
+<span class="lineNum">     261 </span>            :     {
+<span class="lineNum">     262 </span><span class="lineCov">          1 :         std::shared_ptr&lt;CWallet&gt; wallet = std::make_shared&lt;CWallet&gt;(chain.get(), WalletLocation(), CreateDummyWalletDatabase());</span>
+<span class="lineNum">     263 </span>            :         {
+<span class="lineNum">     264 </span><span class="lineCov">          1 :             auto spk_man = wallet-&gt;GetOrCreateLegacyScriptPubKeyMan();</span>
+<span class="lineNum">     265 </span><span class="lineCov">          1 :             LOCK2(wallet-&gt;cs_wallet, spk_man-&gt;cs_KeyStore);</span>
+<span class="lineNum">     266 </span><span class="lineCov">          1 :             spk_man-&gt;mapKeyMetadata[coinbaseKey.GetPubKey().GetID()].nCreateTime = KEY_TIME;</span>
+<span class="lineNum">     267 </span><span class="lineCov">          1 :             spk_man-&gt;AddKeyPubKey(coinbaseKey, coinbaseKey.GetPubKey());</span>
+<span class="lineNum">     268 </span>            : 
+<span class="lineNum">     269 </span><span class="lineCov">          1 :             AddWallet(wallet);</span>
+<span class="lineNum">     270 </span><span class="lineCov">          1 :             wallet-&gt;SetLastBlockProcessed(::ChainActive().Height(), ::ChainActive().Tip()-&gt;GetBlockHash());</span>
+<span class="lineNum">     271 </span><span class="lineCov">          1 :         }</span>
+<span class="lineNum">     272 </span><span class="lineCov">          1 :         util::Ref context;</span>
+<span class="lineNum">     273 </span><span class="lineCov">          1 :         JSONRPCRequest request(context);</span>
+<span class="lineNum">     274 </span><span class="lineCov">          1 :         request.params.setArray();</span>
+<span class="lineNum">     275 </span><span class="lineCov">          1 :         request.params.push_back(backup_file);</span>
+<span class="lineNum">     276 </span>            : 
+<span class="lineNum">     277 </span><span class="lineCov">          1 :         ::dumpwallet(request);</span>
+<span class="lineNum">     278 </span><span class="lineCov">          1 :         RemoveWallet(wallet);</span>
+<span class="lineNum">     279 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">     280 </span>            : 
+<span class="lineNum">     281 </span>            :     // Call importwallet RPC and verify all blocks with timestamps &gt;= BLOCK_TIME
+<span class="lineNum">     282 </span>            :     // were scanned, and no prior blocks were scanned.
+<span class="lineNum">     283 </span>            :     {
+<span class="lineNum">     284 </span><span class="lineCov">          1 :         std::shared_ptr&lt;CWallet&gt; wallet = std::make_shared&lt;CWallet&gt;(chain.get(), WalletLocation(), CreateDummyWalletDatabase());</span>
+<span class="lineNum">     285 </span><span class="lineCov">          1 :         LOCK(wallet-&gt;cs_wallet);</span>
+<span class="lineNum">     286 </span><span class="lineCov">          1 :         wallet-&gt;SetupLegacyScriptPubKeyMan();</span>
+<span class="lineNum">     287 </span>            : 
+<span class="lineNum">     288 </span><span class="lineCov">          1 :         util::Ref context;</span>
+<span class="lineNum">     289 </span><span class="lineCov">          1 :         JSONRPCRequest request(context);</span>
+<span class="lineNum">     290 </span><span class="lineCov">          1 :         request.params.setArray();</span>
+<span class="lineNum">     291 </span><span class="lineCov">          1 :         request.params.push_back(backup_file);</span>
+<span class="lineNum">     292 </span><span class="lineCov">          1 :         AddWallet(wallet);</span>
+<span class="lineNum">     293 </span><span class="lineCov">          1 :         wallet-&gt;SetLastBlockProcessed(::ChainActive().Height(), ::ChainActive().Tip()-&gt;GetBlockHash());</span>
+<span class="lineNum">     294 </span><span class="lineCov">          1 :         ::importwallet(request);</span>
+<span class="lineNum">     295 </span><span class="lineCov">          1 :         RemoveWallet(wallet);</span>
+<span class="lineNum">     296 </span>            : 
+<span class="lineNum">     297 </span><span class="lineCov">          1 :         BOOST_CHECK_EQUAL(wallet-&gt;mapWallet.size(), 3U);</span>
+<span class="lineNum">     298 </span><span class="lineCov">          1 :         BOOST_CHECK_EQUAL(m_coinbase_txns.size(), 103U);</span>
+<span class="lineNum">     299 </span><span class="lineCov">        104 :         for (size_t i = 0; i &lt; m_coinbase_txns.size(); ++i) {</span>
+<span class="lineNum">     300 </span><span class="lineCov">        103 :             bool found = wallet-&gt;GetWalletTx(m_coinbase_txns[i]-&gt;GetHash());</span>
+<span class="lineNum">     301 </span><span class="lineCov">        103 :             bool expected = i &gt;= 100;</span>
+<span class="lineNum">     302 </span><span class="lineCov">        103 :             BOOST_CHECK_EQUAL(found, expected);</span>
+<span class="lineNum">     303 </span><span class="lineCov">        103 :         }</span>
+<span class="lineNum">     304 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">     305 </span>            : 
+<span class="lineNum">     306 </span><span class="lineCov">          1 :     SetMockTime(0);</span>
+<span class="lineNum">     307 </span><span class="lineCov">          1 : }</span>
+<span class="lineNum">     308 </span>            : 
+<span class="lineNum">     309 </span>            : // Check that GetImmatureCredit() returns a newly calculated value instead of
+<span class="lineNum">     310 </span>            : // the cached value after a MarkDirty() call.
+<span class="lineNum">     311 </span>            : //
+<span class="lineNum">     312 </span>            : // This is a regression test written to verify a bugfix for the immature credit
+<a name="313"><span class="lineNum">     313 </span>            : // function. Similar tests probably should be written for the other credit and</a>
+<span class="lineNum">     314 </span>            : // debit functions.
+<span class="lineNum">     315 </span><span class="lineCov">         91 : BOOST_FIXTURE_TEST_CASE(coin_mark_dirty_immature_credit, TestChain100Setup)</span>
+<span class="lineNum">     316 </span>            : {
+<span class="lineNum">     317 </span><span class="lineCov">          1 :     NodeContext node;</span>
+<span class="lineNum">     318 </span><span class="lineCov">          1 :     auto chain = interfaces::MakeChain(node);</span>
+<span class="lineNum">     319 </span>            : 
+<span class="lineNum">     320 </span><span class="lineCov">          1 :     CWallet wallet(chain.get(), WalletLocation(), CreateDummyWalletDatabase());</span>
+<span class="lineNum">     321 </span><span class="lineCov">          1 :     auto spk_man = wallet.GetOrCreateLegacyScriptPubKeyMan();</span>
+<span class="lineNum">     322 </span><span class="lineCov">          1 :     CWalletTx wtx(&amp;wallet, m_coinbase_txns.back());</span>
+<span class="lineNum">     323 </span>            : 
+<span class="lineNum">     324 </span><span class="lineCov">          1 :     LOCK2(wallet.cs_wallet, spk_man-&gt;cs_KeyStore);</span>
+<span class="lineNum">     325 </span><span class="lineCov">          1 :     wallet.SetLastBlockProcessed(::ChainActive().Height(), ::ChainActive().Tip()-&gt;GetBlockHash());</span>
+<span class="lineNum">     326 </span>            : 
+<span class="lineNum">     327 </span><span class="lineCov">          1 :     CWalletTx::Confirmation confirm(CWalletTx::Status::CONFIRMED, ::ChainActive().Height(), ::ChainActive().Tip()-&gt;GetBlockHash(), 0);</span>
+<span class="lineNum">     328 </span><span class="lineCov">          1 :     wtx.m_confirm = confirm;</span>
+<span class="lineNum">     329 </span>            : 
+<span class="lineNum">     330 </span>            :     // Call GetImmatureCredit() once before adding the key to the wallet to
+<span class="lineNum">     331 </span>            :     // cache the current immature credit amount, which is 0.
+<span class="lineNum">     332 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(wtx.GetImmatureCredit(), 0);</span>
+<span class="lineNum">     333 </span>            : 
+<span class="lineNum">     334 </span>            :     // Invalidate the cached value, add the key, and make sure a new immature
+<span class="lineNum">     335 </span>            :     // credit amount is calculated.
+<span class="lineNum">     336 </span><span class="lineCov">          1 :     wtx.MarkDirty();</span>
+<span class="lineNum">     337 </span><span class="lineCov">          1 :     BOOST_CHECK(spk_man-&gt;AddKeyPubKey(coinbaseKey, coinbaseKey.GetPubKey()));</span>
+<span class="lineNum">     338 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(wtx.GetImmatureCredit(), 50*COIN);</span>
+<a name="339"><span class="lineNum">     339 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     340 </span>            : 
+<span class="lineNum">     341 </span><span class="lineCov">          6 : static int64_t AddTx(ChainstateManager&amp; chainman, CWallet&amp; wallet, uint32_t lockTime, int64_t mockTime, int64_t blockTime)</span>
+<span class="lineNum">     342 </span>            : {
+<span class="lineNum">     343 </span><span class="lineCov">          6 :     CMutableTransaction tx;</span>
+<span class="lineNum">     344 </span><span class="lineCov">          6 :     CWalletTx::Confirmation confirm;</span>
+<span class="lineNum">     345 </span><span class="lineCov">          6 :     tx.nLockTime = lockTime;</span>
+<span class="lineNum">     346 </span><span class="lineCov">          6 :     SetMockTime(mockTime);</span>
+<span class="lineNum">     347 </span>            :     CBlockIndex* block = nullptr;
+<span class="lineNum">     348 </span><span class="lineCov">          6 :     if (blockTime &gt; 0) {</span>
+<span class="lineNum">     349 </span><span class="lineCov">          5 :         LOCK(cs_main);</span>
+<span class="lineNum">     350 </span><span class="lineCov">          5 :         auto inserted = chainman.BlockIndex().emplace(GetRandHash(), new CBlockIndex);</span>
+<span class="lineNum">     351 </span><span class="lineCov">          5 :         assert(inserted.second);</span>
+<span class="lineNum">     352 </span><span class="lineCov">          5 :         const uint256&amp; hash = inserted.first-&gt;first;</span>
+<span class="lineNum">     353 </span><span class="lineCov">          5 :         block = inserted.first-&gt;second;</span>
+<span class="lineNum">     354 </span><span class="lineCov">          5 :         block-&gt;nTime = blockTime;</span>
+<span class="lineNum">     355 </span><span class="lineCov">          5 :         block-&gt;phashBlock = &amp;hash;</span>
+<span class="lineNum">     356 </span><span class="lineCov">          5 :         confirm = {CWalletTx::Status::CONFIRMED, block-&gt;nHeight, hash, 0};</span>
+<span class="lineNum">     357 </span><span class="lineCov">          5 :     }</span>
+<span class="lineNum">     358 </span>            : 
+<a name="359"><span class="lineNum">     359 </span>            :     // If transaction is already in map, to avoid inconsistencies, unconfirmation</a>
+<span class="lineNum">     360 </span>            :     // is needed before confirm again with different block.
+<span class="lineNum">     361 </span><span class="lineCov">         12 :     return wallet.AddToWallet(MakeTransactionRef(tx), confirm, [&amp;](CWalletTx&amp; wtx, bool /* new_tx */) {</span>
+<span class="lineNum">     362 </span><span class="lineCov">          6 :         wtx.setUnconfirmed();</span>
+<span class="lineNum">     363 </span><span class="lineCov">          6 :         return true;</span>
+<span class="lineNum">     364 </span><span class="lineCov">          6 :     })-&gt;nTimeSmart;</span>
+<span class="lineNum">     365 </span><span class="lineCov">          6 : }</span>
+<span class="lineNum">     366 </span>            : 
+<a name="367"><span class="lineNum">     367 </span>            : // Simple test to verify assignment of CWalletTx::nSmartTime value. Could be</a>
+<span class="lineNum">     368 </span>            : // expanded to cover more corner cases of smart time logic.
+<span class="lineNum">     369 </span><span class="lineCov">         91 : BOOST_AUTO_TEST_CASE(ComputeTimeSmart)</span>
+<span class="lineNum">     370 </span>            : {
+<span class="lineNum">     371 </span>            :     // New transaction should use clock time if lower than block time.
+<span class="lineNum">     372 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(AddTx(*m_node.chainman, m_wallet, 1, 100, 120), 100);</span>
+<span class="lineNum">     373 </span>            : 
+<span class="lineNum">     374 </span>            :     // Test that updating existing transaction does not change smart time.
+<span class="lineNum">     375 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(AddTx(*m_node.chainman, m_wallet, 1, 200, 220), 100);</span>
+<span class="lineNum">     376 </span>            : 
+<span class="lineNum">     377 </span>            :     // New transaction should use clock time if there's no block time.
+<span class="lineNum">     378 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(AddTx(*m_node.chainman, m_wallet, 2, 300, 0), 300);</span>
+<span class="lineNum">     379 </span>            : 
+<span class="lineNum">     380 </span>            :     // New transaction should use block time if lower than clock time.
+<span class="lineNum">     381 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(AddTx(*m_node.chainman, m_wallet, 3, 420, 400), 400);</span>
+<span class="lineNum">     382 </span>            : 
+<span class="lineNum">     383 </span>            :     // New transaction should use latest entry time if higher than
+<span class="lineNum">     384 </span>            :     // min(block time, clock time).
+<span class="lineNum">     385 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(AddTx(*m_node.chainman, m_wallet, 4, 500, 390), 400);</span>
+<span class="lineNum">     386 </span>            : 
+<span class="lineNum">     387 </span>            :     // If there are future entries, new transaction should use time of the
+<span class="lineNum">     388 </span>            :     // newest entry that is no more than 300 seconds ahead of the clock time.
+<span class="lineNum">     389 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(AddTx(*m_node.chainman, m_wallet, 5, 50, 600), 300);</span>
+<span class="lineNum">     390 </span>            : 
+<span class="lineNum">     391 </span>            :     // Reset mock time for other tests.
+<span class="lineNum">     392 </span><span class="lineCov">          1 :     SetMockTime(0);</span>
+<a name="393"><span class="lineNum">     393 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     394 </span>            : 
+<span class="lineNum">     395 </span><span class="lineCov">         91 : BOOST_AUTO_TEST_CASE(LoadReceiveRequests)</span>
+<span class="lineNum">     396 </span>            : {
+<span class="lineNum">     397 </span><span class="lineCov">          1 :     CTxDestination dest = PKHash();</span>
+<span class="lineNum">     398 </span><span class="lineCov">          1 :     LOCK(m_wallet.cs_wallet);</span>
+<span class="lineNum">     399 </span><span class="lineCov">          1 :     WalletBatch batch{m_wallet.GetDatabase()};</span>
+<span class="lineNum">     400 </span><span class="lineCov">          1 :     m_wallet.AddDestData(batch, dest, &quot;misc&quot;, &quot;val_misc&quot;);</span>
+<span class="lineNum">     401 </span><span class="lineCov">          1 :     m_wallet.AddDestData(batch, dest, &quot;rr0&quot;, &quot;val_rr0&quot;);</span>
+<span class="lineNum">     402 </span><span class="lineCov">          1 :     m_wallet.AddDestData(batch, dest, &quot;rr1&quot;, &quot;val_rr1&quot;);</span>
+<span class="lineNum">     403 </span>            : 
+<span class="lineNum">     404 </span><span class="lineCov">          1 :     auto values = m_wallet.GetDestValues(&quot;rr&quot;);</span>
+<span class="lineNum">     405 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(values.size(), 2U);</span>
+<span class="lineNum">     406 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(values[0], &quot;val_rr0&quot;);</span>
+<span class="lineNum">     407 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(values[1], &quot;val_rr1&quot;);</span>
+<span class="lineNum">     408 </span><span class="lineCov">          1 : }</span>
+<span class="lineNum">     409 </span>            : 
+<span class="lineNum">     410 </span>            : // Test some watch-only LegacyScriptPubKeyMan methods by the procedure of loading (LoadWatchOnly),
+<span class="lineNum">     411 </span>            : // checking (HaveWatchOnly), getting (GetWatchPubKey) and removing (RemoveWatchOnly) a
+<a name="412"><span class="lineNum">     412 </span>            : // given PubKey, resp. its corresponding P2PK Script. Results of the the impact on</a>
+<span class="lineNum">     413 </span>            : // the address -&gt; PubKey map is dependent on whether the PubKey is a point on the curve
+<span class="lineNum">     414 </span><span class="lineCov">          5 : static void TestWatchOnlyPubKey(LegacyScriptPubKeyMan* spk_man, const CPubKey&amp; add_pubkey)</span>
+<span class="lineNum">     415 </span>            : {
+<span class="lineNum">     416 </span><span class="lineCov">          5 :     CScript p2pk = GetScriptForRawPubKey(add_pubkey);</span>
+<span class="lineNum">     417 </span><span class="lineCov">          5 :     CKeyID add_address = add_pubkey.GetID();</span>
+<span class="lineNum">     418 </span><span class="lineCov">          5 :     CPubKey found_pubkey;</span>
+<span class="lineNum">     419 </span><span class="lineCov">          5 :     LOCK(spk_man-&gt;cs_KeyStore);</span>
+<span class="lineNum">     420 </span>            : 
+<span class="lineNum">     421 </span>            :     // all Scripts (i.e. also all PubKeys) are added to the general watch-only set
+<span class="lineNum">     422 </span><span class="lineCov">          5 :     BOOST_CHECK(!spk_man-&gt;HaveWatchOnly(p2pk));</span>
+<span class="lineNum">     423 </span><span class="lineCov">          5 :     spk_man-&gt;LoadWatchOnly(p2pk);</span>
+<span class="lineNum">     424 </span><span class="lineCov">          5 :     BOOST_CHECK(spk_man-&gt;HaveWatchOnly(p2pk));</span>
+<span class="lineNum">     425 </span>            : 
+<span class="lineNum">     426 </span>            :     // only PubKeys on the curve shall be added to the watch-only address -&gt; PubKey map
+<span class="lineNum">     427 </span><span class="lineCov">          5 :     bool is_pubkey_fully_valid = add_pubkey.IsFullyValid();</span>
+<span class="lineNum">     428 </span><span class="lineCov">          5 :     if (is_pubkey_fully_valid) {</span>
+<span class="lineNum">     429 </span><span class="lineCov">          2 :         BOOST_CHECK(spk_man-&gt;GetWatchPubKey(add_address, found_pubkey));</span>
+<span class="lineNum">     430 </span><span class="lineCov">          2 :         BOOST_CHECK(found_pubkey == add_pubkey);</span>
+<span class="lineNum">     431 </span>            :     } else {
+<span class="lineNum">     432 </span><span class="lineCov">          3 :         BOOST_CHECK(!spk_man-&gt;GetWatchPubKey(add_address, found_pubkey));</span>
+<span class="lineNum">     433 </span><span class="lineCov">          3 :         BOOST_CHECK(found_pubkey == CPubKey()); // passed key is unchanged</span>
+<span class="lineNum">     434 </span>            :     }
+<span class="lineNum">     435 </span>            : 
+<span class="lineNum">     436 </span><span class="lineCov">          5 :     spk_man-&gt;RemoveWatchOnly(p2pk);</span>
+<span class="lineNum">     437 </span><span class="lineCov">          5 :     BOOST_CHECK(!spk_man-&gt;HaveWatchOnly(p2pk));</span>
+<span class="lineNum">     438 </span>            : 
+<span class="lineNum">     439 </span><span class="lineCov">          5 :     if (is_pubkey_fully_valid) {</span>
+<span class="lineNum">     440 </span><span class="lineCov">          2 :         BOOST_CHECK(!spk_man-&gt;GetWatchPubKey(add_address, found_pubkey));</span>
+<span class="lineNum">     441 </span><span class="lineCov">          2 :         BOOST_CHECK(found_pubkey == add_pubkey); // passed key is unchanged</span>
+<span class="lineNum">     442 </span>            :     }
+<span class="lineNum">     443 </span><span class="lineCov">          5 : }</span>
+<a name="444"><span class="lineNum">     444 </span>            : </a>
+<span class="lineNum">     445 </span>            : // Cryptographically invalidate a PubKey whilst keeping length and first byte
+<span class="lineNum">     446 </span><span class="lineCov">          2 : static void PollutePubKey(CPubKey&amp; pubkey)</span>
+<span class="lineNum">     447 </span>            : {
+<span class="lineNum">     448 </span><span class="lineCov">          2 :     std::vector&lt;unsigned char&gt; pubkey_raw(pubkey.begin(), pubkey.end());</span>
+<span class="lineNum">     449 </span><span class="lineCov">          2 :     std::fill(pubkey_raw.begin()+1, pubkey_raw.end(), 0);</span>
+<span class="lineNum">     450 </span><span class="lineCov">          2 :     pubkey = CPubKey(pubkey_raw);</span>
+<span class="lineNum">     451 </span><span class="lineCov">          2 :     assert(!pubkey.IsFullyValid());</span>
+<span class="lineNum">     452 </span><span class="lineCov">          2 :     assert(pubkey.IsValid());</span>
+<span class="lineNum">     453 </span><span class="lineCov">          2 : }</span>
+<a name="454"><span class="lineNum">     454 </span>            : </a>
+<span class="lineNum">     455 </span>            : // Test watch-only logic for PubKeys
+<span class="lineNum">     456 </span><span class="lineCov">         91 : BOOST_AUTO_TEST_CASE(WatchOnlyPubKeys)</span>
+<span class="lineNum">     457 </span>            : {
+<span class="lineNum">     458 </span><span class="lineCov">          1 :     CKey key;</span>
+<span class="lineNum">     459 </span><span class="lineCov">          1 :     CPubKey pubkey;</span>
+<span class="lineNum">     460 </span><span class="lineCov">          1 :     LegacyScriptPubKeyMan* spk_man = m_wallet.GetOrCreateLegacyScriptPubKeyMan();</span>
+<span class="lineNum">     461 </span>            : 
+<span class="lineNum">     462 </span><span class="lineCov">          1 :     BOOST_CHECK(!spk_man-&gt;HaveWatchOnly());</span>
+<span class="lineNum">     463 </span>            : 
+<span class="lineNum">     464 </span>            :     // uncompressed valid PubKey
+<span class="lineNum">     465 </span><span class="lineCov">          1 :     key.MakeNewKey(false);</span>
+<span class="lineNum">     466 </span><span class="lineCov">          1 :     pubkey = key.GetPubKey();</span>
+<span class="lineNum">     467 </span><span class="lineCov">          1 :     assert(!pubkey.IsCompressed());</span>
+<span class="lineNum">     468 </span><span class="lineCov">          1 :     TestWatchOnlyPubKey(spk_man, pubkey);</span>
+<span class="lineNum">     469 </span>            : 
+<span class="lineNum">     470 </span>            :     // uncompressed cryptographically invalid PubKey
+<span class="lineNum">     471 </span><span class="lineCov">          1 :     PollutePubKey(pubkey);</span>
+<span class="lineNum">     472 </span><span class="lineCov">          1 :     TestWatchOnlyPubKey(spk_man, pubkey);</span>
+<span class="lineNum">     473 </span>            : 
+<span class="lineNum">     474 </span>            :     // compressed valid PubKey
+<span class="lineNum">     475 </span><span class="lineCov">          1 :     key.MakeNewKey(true);</span>
+<span class="lineNum">     476 </span><span class="lineCov">          1 :     pubkey = key.GetPubKey();</span>
+<span class="lineNum">     477 </span><span class="lineCov">          1 :     assert(pubkey.IsCompressed());</span>
+<span class="lineNum">     478 </span><span class="lineCov">          1 :     TestWatchOnlyPubKey(spk_man, pubkey);</span>
+<span class="lineNum">     479 </span>            : 
+<span class="lineNum">     480 </span>            :     // compressed cryptographically invalid PubKey
+<span class="lineNum">     481 </span><span class="lineCov">          1 :     PollutePubKey(pubkey);</span>
+<span class="lineNum">     482 </span><span class="lineCov">          1 :     TestWatchOnlyPubKey(spk_man, pubkey);</span>
+<span class="lineNum">     483 </span>            : 
+<span class="lineNum">     484 </span>            :     // invalid empty PubKey
+<span class="lineNum">     485 </span><span class="lineCov">          1 :     pubkey = CPubKey();</span>
+<span class="lineNum">     486 </span><span class="lineCov">          1 :     TestWatchOnlyPubKey(spk_man, pubkey);</span>
+<span class="lineNum">     487 </span><span class="lineCov">          1 : }</span>
+<span class="lineNum">     488 </span>            : 
+<span class="lineNum">     489 </span>            : class ListCoinsTestingSetup : public TestChain100Setup
+<a name="490"><span class="lineNum">     490 </span>            : {</a>
+<span class="lineNum">     491 </span>            : public:
+<span class="lineNum">     492 </span><span class="lineCov">          1 :     ListCoinsTestingSetup()</span>
+<span class="lineNum">     493 </span><span class="lineCov">          1 :     {</span>
+<span class="lineNum">     494 </span><span class="lineCov">          1 :         CreateAndProcessBlock({}, GetScriptForRawPubKey(coinbaseKey.GetPubKey()));</span>
+<span class="lineNum">     495 </span><span class="lineCov">          1 :         wallet = MakeUnique&lt;CWallet&gt;(m_chain.get(), WalletLocation(), CreateMockWalletDatabase());</span>
+<span class="lineNum">     496 </span>            :         {
+<span class="lineNum">     497 </span><span class="lineCov">          1 :             LOCK2(wallet-&gt;cs_wallet, ::cs_main);</span>
+<span class="lineNum">     498 </span><span class="lineCov">          1 :             wallet-&gt;SetLastBlockProcessed(::ChainActive().Height(), ::ChainActive().Tip()-&gt;GetBlockHash());</span>
+<span class="lineNum">     499 </span><span class="lineCov">          1 :         }</span>
+<span class="lineNum">     500 </span><span class="lineCov">          1 :         bool firstRun;</span>
+<span class="lineNum">     501 </span><span class="lineCov">          1 :         wallet-&gt;LoadWallet(firstRun);</span>
+<span class="lineNum">     502 </span><span class="lineCov">          1 :         AddKey(*wallet, coinbaseKey);</span>
+<span class="lineNum">     503 </span><span class="lineCov">          1 :         WalletRescanReserver reserver(*wallet);</span>
+<span class="lineNum">     504 </span><span class="lineCov">          1 :         reserver.reserve();</span>
+<span class="lineNum">     505 </span><span class="lineCov">          1 :         CWallet::ScanResult result = wallet-&gt;ScanForWalletTransactions(::ChainActive().Genesis()-&gt;GetBlockHash(), 0 /* start_height */, {} /* max_height */, reserver, false /* update */);</span>
+<span class="lineNum">     506 </span><span class="lineCov">          1 :         BOOST_CHECK_EQUAL(result.status, CWallet::ScanResult::SUCCESS);</span>
+<span class="lineNum">     507 </span><span class="lineCov">          1 :         BOOST_CHECK_EQUAL(result.last_scanned_block, ::ChainActive().Tip()-&gt;GetBlockHash());</span>
+<span class="lineNum">     508 </span><span class="lineCov">          1 :         BOOST_CHECK_EQUAL(*result.last_scanned_height, ::ChainActive().Height());</span>
+<span class="lineNum">     509 </span><span class="lineCov">          1 :         BOOST_CHECK(result.last_failed_block.IsNull());</span>
+<a name="510"><span class="lineNum">     510 </span><span class="lineCov">          1 :     }</span></a>
+<span class="lineNum">     511 </span>            : 
+<span class="lineNum">     512 </span><span class="lineCov">          1 :     ~ListCoinsTestingSetup()</span>
+<span class="lineNum">     513 </span>            :     {
+<span class="lineNum">     514 </span><span class="lineCov">          1 :         wallet.reset();</span>
+<a name="515"><span class="lineNum">     515 </span><span class="lineCov">          1 :     }</span></a>
+<span class="lineNum">     516 </span>            : 
+<span class="lineNum">     517 </span><span class="lineCov">          1 :     CWalletTx&amp; AddTx(CRecipient recipient)</span>
+<span class="lineNum">     518 </span>            :     {
+<span class="lineNum">     519 </span><span class="lineCov">          1 :         CTransactionRef tx;</span>
+<span class="lineNum">     520 </span><span class="lineCov">          1 :         CAmount fee;</span>
+<span class="lineNum">     521 </span><span class="lineCov">          1 :         int changePos = -1;</span>
+<span class="lineNum">     522 </span><span class="lineCov">          1 :         bilingual_str error;</span>
+<span class="lineNum">     523 </span><span class="lineCov">          1 :         CCoinControl dummy;</span>
+<span class="lineNum">     524 </span>            :         {
+<span class="lineNum">     525 </span><span class="lineCov">          1 :             BOOST_CHECK(wallet-&gt;CreateTransaction({recipient}, tx, fee, changePos, error, dummy));</span>
+<span class="lineNum">     526 </span>            :         }
+<span class="lineNum">     527 </span><span class="lineCov">          1 :         wallet-&gt;CommitTransaction(tx, {}, {});</span>
+<span class="lineNum">     528 </span><span class="lineCov">          1 :         CMutableTransaction blocktx;</span>
+<span class="lineNum">     529 </span>            :         {
+<span class="lineNum">     530 </span><span class="lineCov">          1 :             LOCK(wallet-&gt;cs_wallet);</span>
+<span class="lineNum">     531 </span><span class="lineCov">          1 :             blocktx = CMutableTransaction(*wallet-&gt;mapWallet.at(tx-&gt;GetHash()).tx);</span>
+<span class="lineNum">     532 </span><span class="lineCov">          1 :         }</span>
+<span class="lineNum">     533 </span><span class="lineCov">          1 :         CreateAndProcessBlock({CMutableTransaction(blocktx)}, GetScriptForRawPubKey(coinbaseKey.GetPubKey()));</span>
+<span class="lineNum">     534 </span>            : 
+<span class="lineNum">     535 </span><span class="lineCov">          1 :         LOCK(wallet-&gt;cs_wallet);</span>
+<span class="lineNum">     536 </span><span class="lineCov">          1 :         wallet-&gt;SetLastBlockProcessed(wallet-&gt;GetLastBlockHeight() + 1, ::ChainActive().Tip()-&gt;GetBlockHash());</span>
+<span class="lineNum">     537 </span><span class="lineCov">          1 :         auto it = wallet-&gt;mapWallet.find(tx-&gt;GetHash());</span>
+<span class="lineNum">     538 </span><span class="lineCov">          1 :         BOOST_CHECK(it != wallet-&gt;mapWallet.end());</span>
+<span class="lineNum">     539 </span><span class="lineCov">          1 :         CWalletTx::Confirmation confirm(CWalletTx::Status::CONFIRMED, ::ChainActive().Height(), ::ChainActive().Tip()-&gt;GetBlockHash(), 1);</span>
+<span class="lineNum">     540 </span><span class="lineCov">          1 :         it-&gt;second.m_confirm = confirm;</span>
+<span class="lineNum">     541 </span><span class="lineCov">          1 :         return it-&gt;second;</span>
+<span class="lineNum">     542 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">     543 </span>            : 
+<span class="lineNum">     544 </span><span class="lineCov">          1 :     std::unique_ptr&lt;interfaces::Chain&gt; m_chain = interfaces::MakeChain(m_node);</span>
+<span class="lineNum">     545 </span>            :     std::unique_ptr&lt;CWallet&gt; wallet;
+<a name="546"><span class="lineNum">     546 </span>            : };</a>
+<span class="lineNum">     547 </span>            : 
+<span class="lineNum">     548 </span><span class="lineCov">         91 : BOOST_FIXTURE_TEST_CASE(ListCoins, ListCoinsTestingSetup)</span>
+<span class="lineNum">     549 </span>            : {
+<span class="lineNum">     550 </span><span class="lineCov">          1 :     std::string coinbaseAddress = coinbaseKey.GetPubKey().GetID().ToString();</span>
+<span class="lineNum">     551 </span>            : 
+<span class="lineNum">     552 </span>            :     // Confirm ListCoins initially returns 1 coin grouped under coinbaseKey
+<span class="lineNum">     553 </span>            :     // address.
+<span class="lineNum">     554 </span><span class="lineCov">          1 :     std::map&lt;CTxDestination, std::vector&lt;COutput&gt;&gt; list;</span>
+<span class="lineNum">     555 </span>            :     {
+<span class="lineNum">     556 </span><span class="lineCov">          1 :         LOCK(wallet-&gt;cs_wallet);</span>
+<span class="lineNum">     557 </span><span class="lineCov">          1 :         list = wallet-&gt;ListCoins();</span>
+<span class="lineNum">     558 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">     559 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(list.size(), 1U);</span>
+<span class="lineNum">     560 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(boost::get&lt;PKHash&gt;(list.begin()-&gt;first).ToString(), coinbaseAddress);</span>
+<span class="lineNum">     561 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(list.begin()-&gt;second.size(), 1U);</span>
+<span class="lineNum">     562 </span>            : 
+<span class="lineNum">     563 </span>            :     // Check initial balance from one mature coinbase transaction.
+<span class="lineNum">     564 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(50 * COIN, wallet-&gt;GetAvailableBalance());</span>
+<span class="lineNum">     565 </span>            : 
+<span class="lineNum">     566 </span>            :     // Add a transaction creating a change address, and confirm ListCoins still
+<span class="lineNum">     567 </span>            :     // returns the coin associated with the change address underneath the
+<span class="lineNum">     568 </span>            :     // coinbaseKey pubkey, even though the change address has a different
+<span class="lineNum">     569 </span>            :     // pubkey.
+<span class="lineNum">     570 </span><span class="lineCov">          1 :     AddTx(CRecipient{GetScriptForRawPubKey({}), 1 * COIN, false /* subtract fee */});</span>
+<span class="lineNum">     571 </span>            :     {
+<span class="lineNum">     572 </span><span class="lineCov">          1 :         LOCK(wallet-&gt;cs_wallet);</span>
+<span class="lineNum">     573 </span><span class="lineCov">          1 :         list = wallet-&gt;ListCoins();</span>
+<span class="lineNum">     574 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">     575 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(list.size(), 1U);</span>
+<span class="lineNum">     576 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(boost::get&lt;PKHash&gt;(list.begin()-&gt;first).ToString(), coinbaseAddress);</span>
+<span class="lineNum">     577 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(list.begin()-&gt;second.size(), 2U);</span>
+<span class="lineNum">     578 </span>            : 
+<span class="lineNum">     579 </span>            :     // Lock both coins. Confirm number of available coins drops to 0.
+<span class="lineNum">     580 </span>            :     {
+<span class="lineNum">     581 </span><span class="lineCov">          1 :         LOCK(wallet-&gt;cs_wallet);</span>
+<span class="lineNum">     582 </span><span class="lineCov">          1 :         std::vector&lt;COutput&gt; available;</span>
+<span class="lineNum">     583 </span><span class="lineCov">          1 :         wallet-&gt;AvailableCoins(available);</span>
+<span class="lineNum">     584 </span><span class="lineCov">          1 :         BOOST_CHECK_EQUAL(available.size(), 2U);</span>
+<span class="lineNum">     585 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">     586 </span><span class="lineCov">          2 :     for (const auto&amp; group : list) {</span>
+<span class="lineNum">     587 </span><span class="lineCov">          3 :         for (const auto&amp; coin : group.second) {</span>
+<span class="lineNum">     588 </span><span class="lineCov">          2 :             LOCK(wallet-&gt;cs_wallet);</span>
+<span class="lineNum">     589 </span><span class="lineCov">          2 :             wallet-&gt;LockCoin(COutPoint(coin.tx-&gt;GetHash(), coin.i));</span>
+<span class="lineNum">     590 </span><span class="lineCov">          2 :         }</span>
+<span class="lineNum">     591 </span>            :     }
+<span class="lineNum">     592 </span>            :     {
+<span class="lineNum">     593 </span><span class="lineCov">          1 :         LOCK(wallet-&gt;cs_wallet);</span>
+<span class="lineNum">     594 </span><span class="lineCov">          1 :         std::vector&lt;COutput&gt; available;</span>
+<span class="lineNum">     595 </span><span class="lineCov">          1 :         wallet-&gt;AvailableCoins(available);</span>
+<span class="lineNum">     596 </span><span class="lineCov">          1 :         BOOST_CHECK_EQUAL(available.size(), 0U);</span>
+<span class="lineNum">     597 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">     598 </span>            :     // Confirm ListCoins still returns same result as before, despite coins
+<span class="lineNum">     599 </span>            :     // being locked.
+<span class="lineNum">     600 </span>            :     {
+<span class="lineNum">     601 </span><span class="lineCov">          1 :         LOCK(wallet-&gt;cs_wallet);</span>
+<span class="lineNum">     602 </span><span class="lineCov">          1 :         list = wallet-&gt;ListCoins();</span>
+<span class="lineNum">     603 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">     604 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(list.size(), 1U);</span>
+<span class="lineNum">     605 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(boost::get&lt;PKHash&gt;(list.begin()-&gt;first).ToString(), coinbaseAddress);</span>
+<span class="lineNum">     606 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(list.begin()-&gt;second.size(), 2U);</span>
+<a name="607"><span class="lineNum">     607 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     608 </span>            : 
+<span class="lineNum">     609 </span><span class="lineCov">         91 : BOOST_FIXTURE_TEST_CASE(wallet_disableprivkeys, TestChain100Setup)</span>
+<span class="lineNum">     610 </span>            : {
+<span class="lineNum">     611 </span><span class="lineCov">          1 :     NodeContext node;</span>
+<span class="lineNum">     612 </span><span class="lineCov">          1 :     auto chain = interfaces::MakeChain(node);</span>
+<span class="lineNum">     613 </span><span class="lineCov">          1 :     std::shared_ptr&lt;CWallet&gt; wallet = std::make_shared&lt;CWallet&gt;(chain.get(), WalletLocation(), CreateDummyWalletDatabase());</span>
+<span class="lineNum">     614 </span><span class="lineCov">          1 :     wallet-&gt;SetupLegacyScriptPubKeyMan();</span>
+<span class="lineNum">     615 </span><span class="lineCov">          1 :     wallet-&gt;SetMinVersion(FEATURE_LATEST);</span>
+<span class="lineNum">     616 </span><span class="lineCov">          1 :     wallet-&gt;SetWalletFlag(WALLET_FLAG_DISABLE_PRIVATE_KEYS);</span>
+<span class="lineNum">     617 </span><span class="lineCov">          1 :     BOOST_CHECK(!wallet-&gt;TopUpKeyPool(1000));</span>
+<span class="lineNum">     618 </span><span class="lineCov">          1 :     CTxDestination dest;</span>
+<span class="lineNum">     619 </span><span class="lineCov">          1 :     std::string error;</span>
+<span class="lineNum">     620 </span><span class="lineCov">          1 :     BOOST_CHECK(!wallet-&gt;GetNewDestination(OutputType::BECH32, &quot;&quot;, dest, error));</span>
+<span class="lineNum">     621 </span><span class="lineCov">          1 : }</span>
+<span class="lineNum">     622 </span>            : 
+<a name="623"><span class="lineNum">     623 </span>            : // Explicit calculation which is used to test the wallet constant</a>
+<span class="lineNum">     624 </span>            : // We get the same virtual size due to rounding(weight/4) for both use_max_sig values
+<span class="lineNum">     625 </span><span class="lineCov">          2 : static size_t CalculateNestedKeyhashInputSize(bool use_max_sig)</span>
+<span class="lineNum">     626 </span>            : {
+<span class="lineNum">     627 </span>            :     // Generate ephemeral valid pubkey
+<span class="lineNum">     628 </span><span class="lineCov">          2 :     CKey key;</span>
+<span class="lineNum">     629 </span><span class="lineCov">          2 :     key.MakeNewKey(true);</span>
+<span class="lineNum">     630 </span><span class="lineCov">          2 :     CPubKey pubkey = key.GetPubKey();</span>
+<span class="lineNum">     631 </span>            : 
+<span class="lineNum">     632 </span>            :     // Generate pubkey hash
+<span class="lineNum">     633 </span><span class="lineCov">          2 :     uint160 key_hash(Hash160(pubkey));</span>
+<span class="lineNum">     634 </span>            : 
+<span class="lineNum">     635 </span>            :     // Create inner-script to enter into keystore. Key hash can't be 0...
+<span class="lineNum">     636 </span><span class="lineCov">          2 :     CScript inner_script = CScript() &lt;&lt; OP_0 &lt;&lt; std::vector&lt;unsigned char&gt;(key_hash.begin(), key_hash.end());</span>
+<span class="lineNum">     637 </span>            : 
+<span class="lineNum">     638 </span>            :     // Create outer P2SH script for the output
+<span class="lineNum">     639 </span><span class="lineCov">          2 :     uint160 script_id(Hash160(inner_script));</span>
+<span class="lineNum">     640 </span><span class="lineCov">          2 :     CScript script_pubkey = CScript() &lt;&lt; OP_HASH160 &lt;&lt; std::vector&lt;unsigned char&gt;(script_id.begin(), script_id.end()) &lt;&lt; OP_EQUAL;</span>
+<span class="lineNum">     641 </span>            : 
+<span class="lineNum">     642 </span>            :     // Add inner-script to key store and key to watchonly
+<span class="lineNum">     643 </span><span class="lineCov">          2 :     FillableSigningProvider keystore;</span>
+<span class="lineNum">     644 </span><span class="lineCov">          2 :     keystore.AddCScript(inner_script);</span>
+<span class="lineNum">     645 </span><span class="lineCov">          2 :     keystore.AddKeyPubKey(key, pubkey);</span>
+<span class="lineNum">     646 </span>            : 
+<span class="lineNum">     647 </span>            :     // Fill in dummy signatures for fee calculation.
+<span class="lineNum">     648 </span><span class="lineCov">          2 :     SignatureData sig_data;</span>
+<span class="lineNum">     649 </span>            : 
+<span class="lineNum">     650 </span><span class="lineCov">          2 :     if (!ProduceSignature(keystore, use_max_sig ? DUMMY_MAXIMUM_SIGNATURE_CREATOR : DUMMY_SIGNATURE_CREATOR, script_pubkey, sig_data)) {</span>
+<span class="lineNum">     651 </span>            :         // We're hand-feeding it correct arguments; shouldn't happen
+<span class="lineNum">     652 </span><span class="lineNoCov">          0 :         assert(false);</span>
+<span class="lineNum">     653 </span>            :     }
+<span class="lineNum">     654 </span>            : 
+<span class="lineNum">     655 </span><span class="lineCov">          2 :     CTxIn tx_in;</span>
+<span class="lineNum">     656 </span><span class="lineCov">          2 :     UpdateInput(tx_in, sig_data);</span>
+<span class="lineNum">     657 </span><span class="lineCov">          2 :     return (size_t)GetVirtualTransactionInputSize(tx_in);</span>
+<a name="658"><span class="lineNum">     658 </span><span class="lineCov">          2 : }</span></a>
+<span class="lineNum">     659 </span>            : 
+<span class="lineNum">     660 </span><span class="lineCov">         91 : BOOST_FIXTURE_TEST_CASE(dummy_input_size_test, TestChain100Setup)</span>
+<span class="lineNum">     661 </span>            : {
+<span class="lineNum">     662 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(CalculateNestedKeyhashInputSize(false), DUMMY_NESTED_P2WPKH_INPUT_SIZE);</span>
+<span class="lineNum">     663 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(CalculateNestedKeyhashInputSize(true), DUMMY_NESTED_P2WPKH_INPUT_SIZE);</span>
+<a name="664"><span class="lineNum">     664 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     665 </span>            : 
+<span class="lineNum">     666 </span><span class="lineCov">          1 : bool malformed_descriptor(std::ios_base::failure e)</span>
+<span class="lineNum">     667 </span>            : {
+<span class="lineNum">     668 </span><span class="lineCov">          1 :     std::string s(e.what());</span>
+<span class="lineNum">     669 </span><span class="lineCov">          1 :     return s.find(&quot;Missing checksum&quot;) != std::string::npos;</span>
+<a name="670"><span class="lineNum">     670 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     671 </span>            : 
+<span class="lineNum">     672 </span><span class="lineCov">         91 : BOOST_FIXTURE_TEST_CASE(wallet_descriptor_test, BasicTestingSetup)</span>
+<span class="lineNum">     673 </span>            : {
+<span class="lineNum">     674 </span><span class="lineCov">          1 :     std::vector&lt;unsigned char&gt; malformed_record;</span>
+<span class="lineNum">     675 </span><span class="lineCov">          1 :     CVectorWriter vw(0, 0, malformed_record, 0);</span>
+<span class="lineNum">     676 </span><span class="lineCov">          1 :     vw &lt;&lt; std::string(&quot;notadescriptor&quot;);</span>
+<span class="lineNum">     677 </span><span class="lineCov">          1 :     vw &lt;&lt; (uint64_t)0;</span>
+<span class="lineNum">     678 </span><span class="lineCov">          1 :     vw &lt;&lt; (int32_t)0;</span>
+<span class="lineNum">     679 </span><span class="lineCov">          1 :     vw &lt;&lt; (int32_t)0;</span>
+<span class="lineNum">     680 </span><span class="lineCov">          1 :     vw &lt;&lt; (int32_t)1;</span>
+<span class="lineNum">     681 </span>            : 
+<span class="lineNum">     682 </span><span class="lineCov">          1 :     VectorReader vr(0, 0, malformed_record, 0);</span>
+<span class="lineNum">     683 </span><span class="lineCov">          1 :     WalletDescriptor w_desc;</span>
+<span class="lineNum">     684 </span><span class="lineCov">          2 :     BOOST_CHECK_EXCEPTION(vr &gt;&gt; w_desc, std::ios_base::failure, malformed_descriptor);</span>
+<span class="lineNum">     685 </span><span class="lineCov">          2 : }</span>
+<span class="lineNum">     686 </span>            : 
+<span class="lineNum">     687 </span>            : //! Test CreateWalletFromFile function and its behavior handling potential race
+<span class="lineNum">     688 </span>            : //! conditions if it's called the same time an incoming transaction shows up in
+<span class="lineNum">     689 </span>            : //! the mempool or a new block.
+<span class="lineNum">     690 </span>            : //!
+<span class="lineNum">     691 </span>            : //! It isn't possible to verify there aren't race condition in every case, so
+<span class="lineNum">     692 </span>            : //! this test just checks two specific cases and ensures that timing of
+<span class="lineNum">     693 </span>            : //! notifications in these cases doesn't prevent the wallet from detecting
+<span class="lineNum">     694 </span>            : //! transactions.
+<span class="lineNum">     695 </span>            : //!
+<span class="lineNum">     696 </span>            : //! In the first case, block and mempool transactions are created before the
+<span class="lineNum">     697 </span>            : //! wallet is loaded, but notifications about these transactions are delayed
+<span class="lineNum">     698 </span>            : //! until after it is loaded. The notifications are superfluous in this case, so
+<span class="lineNum">     699 </span>            : //! the test verifies the transactions are detected before they arrive.
+<span class="lineNum">     700 </span>            : //!
+<span class="lineNum">     701 </span>            : //! In the second case, block and mempool transactions are created after the
+<span class="lineNum">     702 </span>            : //! wallet rescan and notifications are immediately synced, to verify the wallet
+<a name="703"><span class="lineNum">     703 </span>            : //! must already have a handler in place for them, and there's no gap after</a>
+<span class="lineNum">     704 </span>            : //! rescanning where new transactions in new blocks could be lost.
+<span class="lineNum">     705 </span><span class="lineCov">         91 : BOOST_FIXTURE_TEST_CASE(CreateWalletFromFile, TestChain100Setup)</span>
+<span class="lineNum">     706 </span>            : {
+<span class="lineNum">     707 </span>            :     // Create new wallet with known key and unload it.
+<span class="lineNum">     708 </span><span class="lineCov">          1 :     auto chain = interfaces::MakeChain(m_node);</span>
+<span class="lineNum">     709 </span><span class="lineCov">          1 :     auto wallet = TestLoadWallet(*chain);</span>
+<span class="lineNum">     710 </span><span class="lineCov">          1 :     CKey key;</span>
+<span class="lineNum">     711 </span><span class="lineCov">          1 :     key.MakeNewKey(true);</span>
+<span class="lineNum">     712 </span><span class="lineCov">          1 :     AddKey(*wallet, key);</span>
+<span class="lineNum">     713 </span><span class="lineCov">          1 :     TestUnloadWallet(std::move(wallet));</span>
+<span class="lineNum">     714 </span>            : 
+<span class="lineNum">     715 </span>            : 
+<span class="lineNum">     716 </span>            :     // Add log hook to detect AddToWallet events from rescans, blockConnected,
+<a name="717"><span class="lineNum">     717 </span>            :     // and transactionAddedToMempool notifications</a>
+<span class="lineNum">     718 </span><span class="lineCov">          1 :     int addtx_count = 0;</span>
+<span class="lineNum">     719 </span><span class="lineCov">         10 :     DebugLogHelper addtx_counter(&quot;[default wallet] AddToWallet&quot;, [&amp;](const std::string* s) {</span>
+<span class="lineNum">     720 </span><span class="lineCov">          9 :         if (s) ++addtx_count;</span>
+<span class="lineNum">     721 </span><span class="lineCov">          9 :         return false;</span>
+<span class="lineNum">     722 </span>            :     });
+<span class="lineNum">     723 </span>            : 
+<a name="724"><span class="lineNum">     724 </span>            : </a>
+<span class="lineNum">     725 </span><span class="lineCov">          1 :     bool rescan_completed = false;</span>
+<span class="lineNum">     726 </span><span class="lineCov">          3 :     DebugLogHelper rescan_check(&quot;[default wallet] Rescan completed&quot;, [&amp;](const std::string* s) {</span>
+<span class="lineNum">     727 </span><span class="lineCov">          2 :         if (s) rescan_completed = true;</span>
+<span class="lineNum">     728 </span><span class="lineCov">          2 :         return false;</span>
+<span class="lineNum">     729 </span>            :     });
+<span class="lineNum">     730 </span>            : 
+<span class="lineNum">     731 </span>            : 
+<span class="lineNum">     732 </span>            :     // Block the queue to prevent the wallet receiving blockConnected and
+<span class="lineNum">     733 </span>            :     // transactionAddedToMempool notifications, and create block and mempool
+<a name="734"><span class="lineNum">     734 </span>            :     // transactions paying to the wallet</a>
+<span class="lineNum">     735 </span><span class="lineCov">          1 :     std::promise&lt;void&gt; promise;</span>
+<span class="lineNum">     736 </span><span class="lineCov">          2 :     CallFunctionInValidationInterfaceQueue([&amp;promise] {</span>
+<span class="lineNum">     737 </span><span class="lineCov">          1 :         promise.get_future().wait();</span>
+<span class="lineNum">     738 </span><span class="lineCov">          1 :     });</span>
+<span class="lineNum">     739 </span><span class="lineCov">          1 :     std::string error;</span>
+<span class="lineNum">     740 </span><span class="lineCov">          1 :     m_coinbase_txns.push_back(CreateAndProcessBlock({}, GetScriptForRawPubKey(coinbaseKey.GetPubKey())).vtx[0]);</span>
+<span class="lineNum">     741 </span><span class="lineCov">          1 :     auto block_tx = TestSimpleSpend(*m_coinbase_txns[0], 0, coinbaseKey, GetScriptForRawPubKey(key.GetPubKey()));</span>
+<span class="lineNum">     742 </span><span class="lineCov">          1 :     m_coinbase_txns.push_back(CreateAndProcessBlock({block_tx}, GetScriptForRawPubKey(coinbaseKey.GetPubKey())).vtx[0]);</span>
+<span class="lineNum">     743 </span><span class="lineCov">          1 :     auto mempool_tx = TestSimpleSpend(*m_coinbase_txns[1], 0, coinbaseKey, GetScriptForRawPubKey(key.GetPubKey()));</span>
+<span class="lineNum">     744 </span><span class="lineCov">          1 :     BOOST_CHECK(chain-&gt;broadcastTransaction(MakeTransactionRef(mempool_tx), DEFAULT_TRANSACTION_MAXFEE, false, error));</span>
+<span class="lineNum">     745 </span>            : 
+<span class="lineNum">     746 </span>            : 
+<span class="lineNum">     747 </span>            :     // Reload wallet and make sure new transactions are detected despite events
+<span class="lineNum">     748 </span>            :     // being blocked
+<span class="lineNum">     749 </span><span class="lineCov">          1 :     wallet = TestLoadWallet(*chain);</span>
+<span class="lineNum">     750 </span><span class="lineCov">          1 :     BOOST_CHECK(rescan_completed);</span>
+<span class="lineNum">     751 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(addtx_count, 2);</span>
+<span class="lineNum">     752 </span>            :     {
+<span class="lineNum">     753 </span><span class="lineCov">          1 :         LOCK(wallet-&gt;cs_wallet);</span>
+<span class="lineNum">     754 </span><span class="lineCov">          1 :         BOOST_CHECK_EQUAL(wallet-&gt;mapWallet.count(block_tx.GetHash()), 1U);</span>
+<span class="lineNum">     755 </span><span class="lineCov">          1 :         BOOST_CHECK_EQUAL(wallet-&gt;mapWallet.count(mempool_tx.GetHash()), 1U);</span>
+<span class="lineNum">     756 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">     757 </span>            : 
+<span class="lineNum">     758 </span>            : 
+<span class="lineNum">     759 </span>            :     // Unblock notification queue and make sure stale blockConnected and
+<span class="lineNum">     760 </span>            :     // transactionAddedToMempool events are processed
+<span class="lineNum">     761 </span><span class="lineCov">          1 :     promise.set_value();</span>
+<span class="lineNum">     762 </span><span class="lineCov">          1 :     SyncWithValidationInterfaceQueue();</span>
+<span class="lineNum">     763 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(addtx_count, 4);</span>
+<span class="lineNum">     764 </span>            : 
+<span class="lineNum">     765 </span>            : 
+<span class="lineNum">     766 </span><span class="lineCov">          1 :     TestUnloadWallet(std::move(wallet));</span>
+<span class="lineNum">     767 </span>            : 
+<span class="lineNum">     768 </span>            : 
+<span class="lineNum">     769 </span>            :     // Load wallet again, this time creating new block and mempool transactions
+<span class="lineNum">     770 </span>            :     // paying to the wallet as the wallet finishes loading and syncing the
+<span class="lineNum">     771 </span>            :     // queue so the events have to be handled immediately. Releasing the wallet
+<span class="lineNum">     772 </span>            :     // lock during the sync is a little artificial but is needed to avoid a
+<span class="lineNum">     773 </span>            :     // deadlock during the sync and simulates a new block notification happening
+<a name="774"><span class="lineNum">     774 </span>            :     // as soon as possible.</a>
+<span class="lineNum">     775 </span><span class="lineCov">          1 :     addtx_count = 0;</span>
+<span class="lineNum">     776 </span><span class="lineCov">          2 :     auto handler = HandleLoadWallet([&amp;](std::unique_ptr&lt;interfaces::Wallet&gt; wallet) EXCLUSIVE_LOCKS_REQUIRED(wallet-&gt;wallet()-&gt;cs_wallet) {</span>
+<span class="lineNum">     777 </span><span class="lineCov">          1 :             BOOST_CHECK(rescan_completed);</span>
+<span class="lineNum">     778 </span><span class="lineCov">          1 :             m_coinbase_txns.push_back(CreateAndProcessBlock({}, GetScriptForRawPubKey(coinbaseKey.GetPubKey())).vtx[0]);</span>
+<span class="lineNum">     779 </span><span class="lineCov">          1 :             block_tx = TestSimpleSpend(*m_coinbase_txns[2], 0, coinbaseKey, GetScriptForRawPubKey(key.GetPubKey()));</span>
+<span class="lineNum">     780 </span><span class="lineCov">          1 :             m_coinbase_txns.push_back(CreateAndProcessBlock({block_tx}, GetScriptForRawPubKey(coinbaseKey.GetPubKey())).vtx[0]);</span>
+<span class="lineNum">     781 </span><span class="lineCov">          1 :             mempool_tx = TestSimpleSpend(*m_coinbase_txns[3], 0, coinbaseKey, GetScriptForRawPubKey(key.GetPubKey()));</span>
+<span class="lineNum">     782 </span><span class="lineCov">          1 :             BOOST_CHECK(chain-&gt;broadcastTransaction(MakeTransactionRef(mempool_tx), DEFAULT_TRANSACTION_MAXFEE, false, error));</span>
+<span class="lineNum">     783 </span><span class="lineCov">          1 :             LEAVE_CRITICAL_SECTION(wallet-&gt;wallet()-&gt;cs_wallet);</span>
+<span class="lineNum">     784 </span><span class="lineCov">          1 :             SyncWithValidationInterfaceQueue();</span>
+<span class="lineNum">     785 </span><span class="lineCov">          1 :             ENTER_CRITICAL_SECTION(wallet-&gt;wallet()-&gt;cs_wallet);</span>
+<span class="lineNum">     786 </span><span class="lineCov">          1 :         });</span>
+<span class="lineNum">     787 </span><span class="lineCov">          1 :     wallet = TestLoadWallet(*chain);</span>
+<span class="lineNum">     788 </span><span class="lineCov">          1 :     BOOST_CHECK_EQUAL(addtx_count, 4);</span>
+<span class="lineNum">     789 </span>            :     {
+<span class="lineNum">     790 </span><span class="lineCov">          1 :         LOCK(wallet-&gt;cs_wallet);</span>
+<span class="lineNum">     791 </span><span class="lineCov">          1 :         BOOST_CHECK_EQUAL(wallet-&gt;mapWallet.count(block_tx.GetHash()), 1U);</span>
+<span class="lineNum">     792 </span><span class="lineCov">          1 :         BOOST_CHECK_EQUAL(wallet-&gt;mapWallet.count(mempool_tx.GetHash()), 1U);</span>
+<span class="lineNum">     793 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">     794 </span>            : 
+<span class="lineNum">     795 </span>            : 
+<span class="lineNum">     796 </span><span class="lineCov">          1 :     TestUnloadWallet(std::move(wallet));</span>
+<a name="797"><span class="lineNum">     797 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     798 </span>            : 
+<span class="lineNum">     799 </span><span class="lineCov">         91 : BOOST_FIXTURE_TEST_CASE(ZapSelectTx, TestChain100Setup)</span>
+<span class="lineNum">     800 </span>            : {
+<span class="lineNum">     801 </span><span class="lineCov">          1 :     auto chain = interfaces::MakeChain(m_node);</span>
+<span class="lineNum">     802 </span><span class="lineCov">          1 :     auto wallet = TestLoadWallet(*chain);</span>
+<span class="lineNum">     803 </span><span class="lineCov">          1 :     CKey key;</span>
+<span class="lineNum">     804 </span><span class="lineCov">          1 :     key.MakeNewKey(true);</span>
+<span class="lineNum">     805 </span><span class="lineCov">          1 :     AddKey(*wallet, key);</span>
+<span class="lineNum">     806 </span>            : 
+<span class="lineNum">     807 </span><span class="lineCov">          1 :     std::string error;</span>
+<span class="lineNum">     808 </span><span class="lineCov">          1 :     m_coinbase_txns.push_back(CreateAndProcessBlock({}, GetScriptForRawPubKey(coinbaseKey.GetPubKey())).vtx[0]);</span>
+<span class="lineNum">     809 </span><span class="lineCov">          1 :     auto block_tx = TestSimpleSpend(*m_coinbase_txns[0], 0, coinbaseKey, GetScriptForRawPubKey(key.GetPubKey()));</span>
+<span class="lineNum">     810 </span><span class="lineCov">          1 :     CreateAndProcessBlock({block_tx}, GetScriptForRawPubKey(coinbaseKey.GetPubKey()));</span>
+<span class="lineNum">     811 </span>            : 
+<span class="lineNum">     812 </span><span class="lineCov">          1 :     SyncWithValidationInterfaceQueue();</span>
+<span class="lineNum">     813 </span>            : 
+<span class="lineNum">     814 </span>            :     {
+<span class="lineNum">     815 </span><span class="lineCov">          1 :         auto block_hash = block_tx.GetHash();</span>
+<span class="lineNum">     816 </span><span class="lineCov">          1 :         auto prev_hash = m_coinbase_txns[0]-&gt;GetHash();</span>
+<span class="lineNum">     817 </span>            : 
+<span class="lineNum">     818 </span><span class="lineCov">          1 :         LOCK(wallet-&gt;cs_wallet);</span>
+<span class="lineNum">     819 </span><span class="lineCov">          1 :         BOOST_CHECK(wallet-&gt;HasWalletSpend(prev_hash));</span>
+<span class="lineNum">     820 </span><span class="lineCov">          1 :         BOOST_CHECK_EQUAL(wallet-&gt;mapWallet.count(block_hash), 1u);</span>
+<span class="lineNum">     821 </span>            : 
+<span class="lineNum">     822 </span><span class="lineCov">          1 :         std::vector&lt;uint256&gt; vHashIn{ block_hash }, vHashOut;</span>
+<span class="lineNum">     823 </span><span class="lineCov">          1 :         BOOST_CHECK_EQUAL(wallet-&gt;ZapSelectTx(vHashIn, vHashOut), DBErrors::LOAD_OK);</span>
+<span class="lineNum">     824 </span>            : 
+<span class="lineNum">     825 </span><span class="lineCov">          1 :         BOOST_CHECK(!wallet-&gt;HasWalletSpend(prev_hash));</span>
+<span class="lineNum">     826 </span><span class="lineCov">          1 :         BOOST_CHECK_EQUAL(wallet-&gt;mapWallet.count(block_hash), 0u);</span>
+<span class="lineNum">     827 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">     828 </span>            : 
+<span class="lineNum">     829 </span><span class="lineCov">          1 :     TestUnloadWallet(std::move(wallet));</span>
+<a name="830"><span class="lineNum">     830 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     831 </span>            : 
+<span class="lineNum">     832 </span><span class="lineCov">         88 : BOOST_AUTO_TEST_SUITE_END()</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
