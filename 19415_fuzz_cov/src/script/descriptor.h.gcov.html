@@ -1,0 +1,237 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - fuzz_coverage.info - src/script/descriptor.h</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">src/script</a> - descriptor.h<span style="font-size: 80%;"> (source / <a href="descriptor.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">fuzz_coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryLo">33.3 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-08-31 14:15:59</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntryLo">40.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2018-2020 The Bitcoin Core developers</a>
+<span class="lineNum">       2 </span>            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       3 </span>            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       4 </span>            : 
+<span class="lineNum">       5 </span>            : #ifndef BITCOIN_SCRIPT_DESCRIPTOR_H
+<span class="lineNum">       6 </span>            : #define BITCOIN_SCRIPT_DESCRIPTOR_H
+<span class="lineNum">       7 </span>            : 
+<span class="lineNum">       8 </span>            : #include &lt;optional.h&gt;
+<span class="lineNum">       9 </span>            : #include &lt;outputtype.h&gt;
+<span class="lineNum">      10 </span>            : #include &lt;script/script.h&gt;
+<span class="lineNum">      11 </span>            : #include &lt;script/sign.h&gt;
+<span class="lineNum">      12 </span>            : #include &lt;script/signingprovider.h&gt;
+<span class="lineNum">      13 </span>            : 
+<span class="lineNum">      14 </span>            : #include &lt;vector&gt;
+<span class="lineNum">      15 </span>            : 
+<span class="lineNum">      16 </span>            : using ExtPubKeyMap = std::unordered_map&lt;uint32_t, CExtPubKey&gt;;
+<a name="17"><span class="lineNum">      17 </span>            : </a>
+<span class="lineNum">      18 </span>            : /** Cache for single descriptor's derived extended pubkeys */
+<span class="lineNum">      19 </span><span class="lineCov">          4 : class DescriptorCache {</span>
+<span class="lineNum">      20 </span>            : private:
+<span class="lineNum">      21 </span>            :     /** Map key expression index -&gt; map of (key derivation index -&gt; xpub) */
+<span class="lineNum">      22 </span>            :     std::unordered_map&lt;uint32_t, ExtPubKeyMap&gt; m_derived_xpubs;
+<span class="lineNum">      23 </span>            :     /** Map key expression index -&gt; parent xpub */
+<span class="lineNum">      24 </span>            :     ExtPubKeyMap m_parent_xpubs;
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : public:
+<span class="lineNum">      27 </span>            :     /** Cache a parent xpub
+<span class="lineNum">      28 </span>            :      *
+<span class="lineNum">      29 </span>            :      * @param[in] key_exp_pos Position of the key expression within the descriptor
+<span class="lineNum">      30 </span>            :      * @param[in] xpub The CExtPubKey to cache
+<span class="lineNum">      31 </span>            :      */
+<span class="lineNum">      32 </span>            :     void CacheParentExtPubKey(uint32_t key_exp_pos, const CExtPubKey&amp; xpub);
+<span class="lineNum">      33 </span>            :     /** Retrieve a cached parent xpub
+<span class="lineNum">      34 </span>            :      *
+<span class="lineNum">      35 </span>            :      * @param[in] key_exp_pos Position of the key expression within the descriptor
+<span class="lineNum">      36 </span>            :      * @param[in] xpub The CExtPubKey to get from cache
+<span class="lineNum">      37 </span>            :      */
+<span class="lineNum">      38 </span>            :     bool GetCachedParentExtPubKey(uint32_t key_exp_pos, CExtPubKey&amp; xpub) const;
+<span class="lineNum">      39 </span>            :     /** Cache an xpub derived at an index
+<span class="lineNum">      40 </span>            :      *
+<span class="lineNum">      41 </span>            :      * @param[in] key_exp_pos Position of the key expression within the descriptor
+<span class="lineNum">      42 </span>            :      * @param[in] der_index Derivation index of the xpub
+<span class="lineNum">      43 </span>            :      * @param[in] xpub The CExtPubKey to cache
+<span class="lineNum">      44 </span>            :      */
+<span class="lineNum">      45 </span>            :     void CacheDerivedExtPubKey(uint32_t key_exp_pos, uint32_t der_index, const CExtPubKey&amp; xpub);
+<span class="lineNum">      46 </span>            :     /** Retrieve a cached xpub derived at an index
+<span class="lineNum">      47 </span>            :      *
+<span class="lineNum">      48 </span>            :      * @param[in] key_exp_pos Position of the key expression within the descriptor
+<span class="lineNum">      49 </span>            :      * @param[in] der_index Derivation index of the xpub
+<span class="lineNum">      50 </span>            :      * @param[in] xpub The CExtPubKey to get from cache
+<span class="lineNum">      51 </span>            :      */
+<span class="lineNum">      52 </span>            :     bool GetCachedDerivedExtPubKey(uint32_t key_exp_pos, uint32_t der_index, CExtPubKey&amp; xpub) const;
+<span class="lineNum">      53 </span>            : 
+<span class="lineNum">      54 </span>            :     /** Retrieve all cached parent xpubs */
+<span class="lineNum">      55 </span>            :     const ExtPubKeyMap GetCachedParentExtPubKeys() const;
+<span class="lineNum">      56 </span>            :     /** Retrieve all cached derived xpubs */
+<span class="lineNum">      57 </span>            :     const std::unordered_map&lt;uint32_t, ExtPubKeyMap&gt; GetCachedDerivedExtPubKeys() const;
+<span class="lineNum">      58 </span>            : };
+<span class="lineNum">      59 </span>            : 
+<span class="lineNum">      60 </span>            : /** \brief Interface for parsed descriptor objects.
+<span class="lineNum">      61 </span>            :  *
+<span class="lineNum">      62 </span>            :  * Descriptors are strings that describe a set of scriptPubKeys, together with
+<span class="lineNum">      63 </span>            :  * all information necessary to solve them. By combining all information into
+<span class="lineNum">      64 </span>            :  * one, they avoid the need to separately import keys and scripts.
+<span class="lineNum">      65 </span>            :  *
+<span class="lineNum">      66 </span>            :  * Descriptors may be ranged, which occurs when the public keys inside are
+<span class="lineNum">      67 </span>            :  * specified in the form of HD chains (xpubs).
+<span class="lineNum">      68 </span>            :  *
+<span class="lineNum">      69 </span>            :  * Descriptors always represent public information - public keys and scripts -
+<span class="lineNum">      70 </span>            :  * but in cases where private keys need to be conveyed along with a descriptor,
+<span class="lineNum">      71 </span>            :  * they can be included inside by changing public keys to private keys (WIF
+<span class="lineNum">      72 </span>            :  * format), and changing xpubs by xprvs.
+<span class="lineNum">      73 </span>            :  *
+<span class="lineNum">      74 </span>            :  * Reference documentation about the descriptor language can be found in
+<a name="75"><span class="lineNum">      75 </span>            :  * doc/descriptors.md.</a>
+<a name="76"><span class="lineNum">      76 </span>            :  */</a>
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 : struct Descriptor {</span>
+<span class="lineNum">      78 </span><span class="lineNoCov">          0 :     virtual ~Descriptor() = default;</span>
+<span class="lineNum">      79 </span>            : 
+<span class="lineNum">      80 </span>            :     /** Whether the expansion of this descriptor depends on the position. */
+<span class="lineNum">      81 </span>            :     virtual bool IsRange() const = 0;
+<span class="lineNum">      82 </span>            : 
+<span class="lineNum">      83 </span>            :     /** Whether this descriptor has all information about signing ignoring lack of private keys.
+<span class="lineNum">      84 </span>            :      *  This is true for all descriptors except ones that use `raw` or `addr` constructions. */
+<span class="lineNum">      85 </span>            :     virtual bool IsSolvable() const = 0;
+<span class="lineNum">      86 </span>            : 
+<span class="lineNum">      87 </span>            :     /** Convert the descriptor back to a string, undoing parsing. */
+<span class="lineNum">      88 </span>            :     virtual std::string ToString() const = 0;
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span>            :     /** Whether this descriptor will return one scriptPubKey or multiple (aka is or is not combo) */
+<span class="lineNum">      91 </span>            :     virtual bool IsSingleType() const = 0;
+<span class="lineNum">      92 </span>            : 
+<span class="lineNum">      93 </span>            :     /** Convert the descriptor to a private string. This fails if the provided provider does not have the relevant private keys. */
+<span class="lineNum">      94 </span>            :     virtual bool ToPrivateString(const SigningProvider&amp; provider, std::string&amp; out) const = 0;
+<span class="lineNum">      95 </span>            : 
+<span class="lineNum">      96 </span>            :     /** Expand a descriptor at a specified position.
+<span class="lineNum">      97 </span>            :      *
+<span class="lineNum">      98 </span>            :      * @param[in] pos The position at which to expand the descriptor. If IsRange() is false, this is ignored.
+<span class="lineNum">      99 </span>            :      * @param[in] provider The provider to query for private keys in case of hardened derivation.
+<span class="lineNum">     100 </span>            :      * @param[out] output_scripts The expanded scriptPubKeys.
+<span class="lineNum">     101 </span>            :      * @param[out] out Scripts and public keys necessary for solving the expanded scriptPubKeys (may be equal to `provider`).
+<span class="lineNum">     102 </span>            :      * @param[out] write_cache Cache data necessary to evaluate the descriptor at this point without access to private keys.
+<span class="lineNum">     103 </span>            :      */
+<span class="lineNum">     104 </span>            :     virtual bool Expand(int pos, const SigningProvider&amp; provider, std::vector&lt;CScript&gt;&amp; output_scripts, FlatSigningProvider&amp; out, DescriptorCache* write_cache = nullptr) const = 0;
+<span class="lineNum">     105 </span>            : 
+<span class="lineNum">     106 </span>            :     /** Expand a descriptor at a specified position using cached expansion data.
+<span class="lineNum">     107 </span>            :      *
+<span class="lineNum">     108 </span>            :      * @param[in] pos The position at which to expand the descriptor. If IsRange() is false, this is ignored.
+<span class="lineNum">     109 </span>            :      * @param[in] read_cache Cached expansion data.
+<span class="lineNum">     110 </span>            :      * @param[out] output_scripts The expanded scriptPubKeys.
+<span class="lineNum">     111 </span>            :      * @param[out] out Scripts and public keys necessary for solving the expanded scriptPubKeys (may be equal to `provider`).
+<span class="lineNum">     112 </span>            :      */
+<span class="lineNum">     113 </span>            :     virtual bool ExpandFromCache(int pos, const DescriptorCache&amp; read_cache, std::vector&lt;CScript&gt;&amp; output_scripts, FlatSigningProvider&amp; out) const = 0;
+<span class="lineNum">     114 </span>            : 
+<span class="lineNum">     115 </span>            :     /** Expand the private key for a descriptor at a specified position, if possible.
+<span class="lineNum">     116 </span>            :      *
+<span class="lineNum">     117 </span>            :      * @param[in] pos The position at which to expand the descriptor. If IsRange() is false, this is ignored.
+<span class="lineNum">     118 </span>            :      * @param[in] provider The provider to query for the private keys.
+<span class="lineNum">     119 </span>            :      * @param[out] out Any private keys available for the specified `pos`.
+<span class="lineNum">     120 </span>            :      */
+<span class="lineNum">     121 </span>            :     virtual void ExpandPrivate(int pos, const SigningProvider&amp; provider, FlatSigningProvider&amp; out) const = 0;
+<span class="lineNum">     122 </span>            : 
+<span class="lineNum">     123 </span>            :     /** @return The OutputType of the scriptPubKey(s) produced by this descriptor. Or nullopt if indeterminate (multiple or none) */
+<span class="lineNum">     124 </span>            :     virtual Optional&lt;OutputType&gt; GetOutputType() const = 0;
+<span class="lineNum">     125 </span>            : };
+<span class="lineNum">     126 </span>            : 
+<span class="lineNum">     127 </span>            : /** Parse a `descriptor` string. Included private keys are put in `out`.
+<span class="lineNum">     128 </span>            :  *
+<span class="lineNum">     129 </span>            :  * If the descriptor has a checksum, it must be valid. If `require_checksum`
+<span class="lineNum">     130 </span>            :  * is set, the checksum is mandatory - otherwise it is optional.
+<span class="lineNum">     131 </span>            :  *
+<span class="lineNum">     132 </span>            :  * If a parse error occurs, or the checksum is missing/invalid, or anything
+<span class="lineNum">     133 </span>            :  * else is wrong, `nullptr` is returned.
+<span class="lineNum">     134 </span>            :  */
+<span class="lineNum">     135 </span>            : std::unique_ptr&lt;Descriptor&gt; Parse(const std::string&amp; descriptor, FlatSigningProvider&amp; out, std::string&amp; error, bool require_checksum = false);
+<span class="lineNum">     136 </span>            : 
+<span class="lineNum">     137 </span>            : /** Get the checksum for a `descriptor`.
+<span class="lineNum">     138 </span>            :  *
+<span class="lineNum">     139 </span>            :  * - If it already has one, and it is correct, return the checksum in the input.
+<span class="lineNum">     140 </span>            :  * - If it already has one that is wrong, return &quot;&quot;.
+<span class="lineNum">     141 </span>            :  * - If it does not already have one, return the checksum that would need to be added.
+<span class="lineNum">     142 </span>            :  */
+<span class="lineNum">     143 </span>            : std::string GetDescriptorChecksum(const std::string&amp; descriptor);
+<span class="lineNum">     144 </span>            : 
+<span class="lineNum">     145 </span>            : /** Find a descriptor for the specified `script`, using information from `provider` where possible.
+<span class="lineNum">     146 </span>            :  *
+<span class="lineNum">     147 </span>            :  * A non-ranged descriptor which only generates the specified script will be returned in all
+<span class="lineNum">     148 </span>            :  * circumstances.
+<span class="lineNum">     149 </span>            :  *
+<span class="lineNum">     150 </span>            :  * For public keys with key origin information, this information will be preserved in the returned
+<span class="lineNum">     151 </span>            :  * descriptor.
+<span class="lineNum">     152 </span>            :  *
+<span class="lineNum">     153 </span>            :  * - If all information for solving `script` is present in `provider`, a descriptor will be returned
+<span class="lineNum">     154 </span>            :  *   which is IsSolvable() and encapsulates said information.
+<span class="lineNum">     155 </span>            :  * - Failing that, if `script` corresponds to a known address type, an &quot;addr()&quot; descriptor will be
+<span class="lineNum">     156 </span>            :  *   returned (which is not IsSolvable()).
+<span class="lineNum">     157 </span>            :  * - Failing that, a &quot;raw()&quot; descriptor is returned.
+<span class="lineNum">     158 </span>            :  */
+<span class="lineNum">     159 </span>            : std::unique_ptr&lt;Descriptor&gt; InferDescriptor(const CScript&amp; script, const SigningProvider&amp; provider);
+<span class="lineNum">     160 </span>            : 
+<span class="lineNum">     161 </span>            : #endif // BITCOIN_SCRIPT_DESCRIPTOR_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

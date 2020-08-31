@@ -1,0 +1,210 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - fuzz_coverage.info - src/test/fuzz/scriptnum_ops.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">src/test/fuzz</a> - scriptnum_ops.cpp<span style="font-size: 80%;"> (source / <a href="scriptnum_ops.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">fuzz_coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">71</td>
+            <td class="headerCovTableEntryLo">7.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-08-31 14:15:59</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryLo">33.3 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2020 The Bitcoin Core developers</a>
+<span class="lineNum">       2 </span>            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       3 </span>            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       4 </span>            : 
+<span class="lineNum">       5 </span>            : #include &lt;script/script.h&gt;
+<span class="lineNum">       6 </span>            : #include &lt;test/fuzz/FuzzedDataProvider.h&gt;
+<span class="lineNum">       7 </span>            : #include &lt;test/fuzz/fuzz.h&gt;
+<span class="lineNum">       8 </span>            : #include &lt;test/fuzz/util.h&gt;
+<span class="lineNum">       9 </span>            : 
+<span class="lineNum">      10 </span>            : #include &lt;cassert&gt;
+<span class="lineNum">      11 </span>            : #include &lt;cstdint&gt;
+<span class="lineNum">      12 </span>            : #include &lt;limits&gt;
+<span class="lineNum">      13 </span>            : #include &lt;vector&gt;
+<a name="14"><span class="lineNum">      14 </span>            : </a>
+<span class="lineNum">      15 </span>            : namespace {
+<span class="lineNum">      16 </span><span class="lineNoCov">          0 : bool IsValidAddition(const CScriptNum&amp; lhs, const CScriptNum&amp; rhs)</span>
+<span class="lineNum">      17 </span>            : {
+<span class="lineNum">      18 </span><span class="lineNoCov">          0 :     return rhs == 0 || (rhs &gt; 0 &amp;&amp; lhs &lt;= CScriptNum{std::numeric_limits&lt;int64_t&gt;::max()} - rhs) || (rhs &lt; 0 &amp;&amp; lhs &gt;= CScriptNum{std::numeric_limits&lt;int64_t&gt;::min()} - rhs);</span>
+<a name="19"><span class="lineNum">      19 </span>            : }</a>
+<span class="lineNum">      20 </span>            : 
+<span class="lineNum">      21 </span><span class="lineNoCov">          0 : bool IsValidSubtraction(const CScriptNum&amp; lhs, const CScriptNum&amp; rhs)</span>
+<span class="lineNum">      22 </span>            : {
+<span class="lineNum">      23 </span><span class="lineNoCov">          0 :     return rhs == 0 || (rhs &gt; 0 &amp;&amp; lhs &gt;= CScriptNum{std::numeric_limits&lt;int64_t&gt;::min()} + rhs) || (rhs &lt; 0 &amp;&amp; lhs &lt;= CScriptNum{std::numeric_limits&lt;int64_t&gt;::max()} + rhs);</span>
+<span class="lineNum">      24 </span>            : }
+<a name="25"><span class="lineNum">      25 </span>            : } // namespace</a>
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span><span class="lineCov">          2 : void test_one_input(const std::vector&lt;uint8_t&gt;&amp; buffer)</span>
+<span class="lineNum">      28 </span>            : {
+<span class="lineNum">      29 </span><span class="lineCov">          2 :     FuzzedDataProvider fuzzed_data_provider(buffer.data(), buffer.size());</span>
+<span class="lineNum">      30 </span><span class="lineCov">          2 :     CScriptNum script_num = ConsumeScriptNum(fuzzed_data_provider);</span>
+<span class="lineNum">      31 </span><span class="lineCov">          2 :     while (fuzzed_data_provider.remaining_bytes() &gt; 0) {</span>
+<span class="lineNum">      32 </span><span class="lineNoCov">          0 :         switch (fuzzed_data_provider.ConsumeIntegralInRange(0, 11)) {</span>
+<span class="lineNum">      33 </span>            :         case 0: {
+<span class="lineNum">      34 </span><span class="lineNoCov">          0 :             const int64_t i = fuzzed_data_provider.ConsumeIntegral&lt;int64_t&gt;();</span>
+<span class="lineNum">      35 </span><span class="lineNoCov">          0 :             assert((script_num == i) != (script_num != i));</span>
+<span class="lineNum">      36 </span><span class="lineNoCov">          0 :             assert((script_num &lt;= i) != (script_num &gt; i));</span>
+<span class="lineNum">      37 </span><span class="lineNoCov">          0 :             assert((script_num &gt;= i) != (script_num &lt; i));</span>
+<span class="lineNum">      38 </span>            :             // Avoid signed integer overflow:
+<span class="lineNum">      39 </span>            :             // script/script.h:264:93: runtime error: signed integer overflow: -2261405121394637306 + -9223372036854775802 cannot be represented in type 'long'
+<span class="lineNum">      40 </span><span class="lineNoCov">          0 :             if (IsValidAddition(script_num, CScriptNum{i})) {</span>
+<span class="lineNum">      41 </span><span class="lineNoCov">          0 :                 assert((script_num + i) - i == script_num);</span>
+<span class="lineNum">      42 </span><span class="lineNoCov">          0 :             }</span>
+<span class="lineNum">      43 </span>            :             // Avoid signed integer overflow:
+<span class="lineNum">      44 </span>            :             // script/script.h:265:93: runtime error: signed integer overflow: 9223371895120855039 - -9223372036854710486 cannot be represented in type 'long'
+<span class="lineNum">      45 </span><span class="lineNoCov">          0 :             if (IsValidSubtraction(script_num, CScriptNum{i})) {</span>
+<span class="lineNum">      46 </span><span class="lineNoCov">          0 :                 assert((script_num - i) + i == script_num);</span>
+<span class="lineNum">      47 </span><span class="lineNoCov">          0 :             }</span>
+<span class="lineNum">      48 </span>            :             break;
+<span class="lineNum">      49 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">      50 </span>            :         case 1: {
+<span class="lineNum">      51 </span><span class="lineNoCov">          0 :             const CScriptNum random_script_num = ConsumeScriptNum(fuzzed_data_provider);</span>
+<span class="lineNum">      52 </span><span class="lineNoCov">          0 :             assert((script_num == random_script_num) != (script_num != random_script_num));</span>
+<span class="lineNum">      53 </span><span class="lineNoCov">          0 :             assert((script_num &lt;= random_script_num) != (script_num &gt; random_script_num));</span>
+<span class="lineNum">      54 </span><span class="lineNoCov">          0 :             assert((script_num &gt;= random_script_num) != (script_num &lt; random_script_num));</span>
+<span class="lineNum">      55 </span>            :             // Avoid signed integer overflow:
+<span class="lineNum">      56 </span>            :             // script/script.h:264:93: runtime error: signed integer overflow: -9223126527765971126 + -9223372036854756825 cannot be represented in type 'long'
+<span class="lineNum">      57 </span><span class="lineNoCov">          0 :             if (IsValidAddition(script_num, random_script_num)) {</span>
+<span class="lineNum">      58 </span><span class="lineNoCov">          0 :                 assert((script_num + random_script_num) - random_script_num == script_num);</span>
+<span class="lineNum">      59 </span><span class="lineNoCov">          0 :             }</span>
+<span class="lineNum">      60 </span>            :             // Avoid signed integer overflow:
+<span class="lineNum">      61 </span>            :             // script/script.h:265:93: runtime error: signed integer overflow: 6052837899185946624 - -9223372036854775808 cannot be represented in type 'long'
+<span class="lineNum">      62 </span><span class="lineNoCov">          0 :             if (IsValidSubtraction(script_num, random_script_num)) {</span>
+<span class="lineNum">      63 </span><span class="lineNoCov">          0 :                 assert((script_num - random_script_num) + random_script_num == script_num);</span>
+<span class="lineNum">      64 </span><span class="lineNoCov">          0 :             }</span>
+<span class="lineNum">      65 </span>            :             break;
+<span class="lineNum">      66 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">      67 </span>            :         case 2: {
+<span class="lineNum">      68 </span><span class="lineNoCov">          0 :             const CScriptNum random_script_num = ConsumeScriptNum(fuzzed_data_provider);</span>
+<span class="lineNum">      69 </span><span class="lineNoCov">          0 :             if (!IsValidAddition(script_num, random_script_num)) {</span>
+<span class="lineNum">      70 </span>            :                 // Avoid assertion failure:
+<span class="lineNum">      71 </span>            :                 // ./script/script.h:292: CScriptNum &amp;CScriptNum::operator+=(const int64_t &amp;): Assertion `rhs == 0 || (rhs &gt; 0 &amp;&amp; m_value &lt;= std::numeric_limits&lt;int64_t&gt;::max() - rhs) || (rhs &lt; 0 &amp;&amp; m_value &gt;= std::numeric_limits&lt;int64_t&gt;::min() - rhs)' failed.
+<span class="lineNum">      72 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">      73 </span>            :             }
+<span class="lineNum">      74 </span><span class="lineNoCov">          0 :             script_num += random_script_num;</span>
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">      77 </span>            :         case 3: {
+<span class="lineNum">      78 </span><span class="lineNoCov">          0 :             const CScriptNum random_script_num = ConsumeScriptNum(fuzzed_data_provider);</span>
+<span class="lineNum">      79 </span><span class="lineNoCov">          0 :             if (!IsValidSubtraction(script_num, random_script_num)) {</span>
+<span class="lineNum">      80 </span>            :                 // Avoid assertion failure:
+<span class="lineNum">      81 </span>            :                 // ./script/script.h:300: CScriptNum &amp;CScriptNum::operator-=(const int64_t &amp;): Assertion `rhs == 0 || (rhs &gt; 0 &amp;&amp; m_value &gt;= std::numeric_limits&lt;int64_t&gt;::min() + rhs) || (rhs &lt; 0 &amp;&amp; m_value &lt;= std::numeric_limits&lt;int64_t&gt;::max() + rhs)' failed.
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">      83 </span>            :             }
+<span class="lineNum">      84 </span><span class="lineNoCov">          0 :             script_num -= random_script_num;</span>
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">      87 </span>            :         case 4:
+<span class="lineNum">      88 </span><span class="lineNoCov">          0 :             script_num = script_num &amp; fuzzed_data_provider.ConsumeIntegral&lt;int64_t&gt;();</span>
+<span class="lineNum">      89 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">      90 </span>            :         case 5:
+<span class="lineNum">      91 </span><span class="lineNoCov">          0 :             script_num = script_num &amp; ConsumeScriptNum(fuzzed_data_provider);</span>
+<span class="lineNum">      92 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">      93 </span>            :         case 6:
+<span class="lineNum">      94 </span><span class="lineNoCov">          0 :             script_num &amp;= ConsumeScriptNum(fuzzed_data_provider);</span>
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">      96 </span>            :         case 7:
+<span class="lineNum">      97 </span><span class="lineNoCov">          0 :             if (script_num == CScriptNum{std::numeric_limits&lt;int64_t&gt;::min()}) {</span>
+<span class="lineNum">      98 </span>            :                 // Avoid assertion failure:
+<span class="lineNum">      99 </span>            :                 // ./script/script.h:279: CScriptNum CScriptNum::operator-() const: Assertion `m_value != std::numeric_limits&lt;int64_t&gt;::min()' failed.
+<span class="lineNum">     100 </span>            :                 break;
+<span class="lineNum">     101 </span>            :             }
+<span class="lineNum">     102 </span><span class="lineNoCov">          0 :             script_num = -script_num;</span>
+<span class="lineNum">     103 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">     104 </span>            :         case 8:
+<span class="lineNum">     105 </span><span class="lineNoCov">          0 :             script_num = fuzzed_data_provider.ConsumeIntegral&lt;int64_t&gt;();</span>
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">     107 </span>            :         case 9: {
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :             const int64_t random_integer = fuzzed_data_provider.ConsumeIntegral&lt;int64_t&gt;();</span>
+<span class="lineNum">     109 </span><span class="lineNoCov">          0 :             if (!IsValidAddition(script_num, CScriptNum{random_integer})) {</span>
+<span class="lineNum">     110 </span>            :                 // Avoid assertion failure:
+<span class="lineNum">     111 </span>            :                 // ./script/script.h:292: CScriptNum &amp;CScriptNum::operator+=(const int64_t &amp;): Assertion `rhs == 0 || (rhs &gt; 0 &amp;&amp; m_value &lt;= std::numeric_limits&lt;int64_t&gt;::max() - rhs) || (rhs &lt; 0 &amp;&amp; m_value &gt;= std::numeric_limits&lt;int64_t&gt;::min() - rhs)' failed.
+<span class="lineNum">     112 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     113 </span>            :             }
+<span class="lineNum">     114 </span><span class="lineNoCov">          0 :             script_num += random_integer;</span>
+<span class="lineNum">     115 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     117 </span>            :         case 10: {
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :             const int64_t random_integer = fuzzed_data_provider.ConsumeIntegral&lt;int64_t&gt;();</span>
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 :             if (!IsValidSubtraction(script_num, CScriptNum{random_integer})) {</span>
+<span class="lineNum">     120 </span>            :                 // Avoid assertion failure:
+<span class="lineNum">     121 </span>            :                 // ./script/script.h:300: CScriptNum &amp;CScriptNum::operator-=(const int64_t &amp;): Assertion `rhs == 0 || (rhs &gt; 0 &amp;&amp; m_value &gt;= std::numeric_limits&lt;int64_t&gt;::min() + rhs) || (rhs &lt; 0 &amp;&amp; m_value &lt;= std::numeric_limits&lt;int64_t&gt;::max() + rhs)' failed.
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     123 </span>            :             }
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :             script_num -= random_integer;</span>
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">     126 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     127 </span>            :         case 11:
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :             script_num &amp;= fuzzed_data_provider.ConsumeIntegral&lt;int64_t&gt;();</span>
+<span class="lineNum">     129 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">     130 </span>            :         }
+<span class="lineNum">     131 </span><span class="lineNoCov">          0 :         (void)script_num.getint();</span>
+<span class="lineNum">     132 </span><span class="lineNoCov">          0 :         (void)script_num.getvch();</span>
+<span class="lineNum">     133 </span>            :     }
+<span class="lineNum">     134 </span><span class="lineCov">          2 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

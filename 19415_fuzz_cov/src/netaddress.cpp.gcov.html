@@ -1,0 +1,986 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - fuzz_coverage.info - src/netaddress.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">src</a> - netaddress.cpp<span style="font-size: 80%;"> (source / <a href="netaddress.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">fuzz_coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">285</td>
+            <td class="headerCovTableEntry">456</td>
+            <td class="headerCovTableEntryLo">62.5 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-08-31 14:15:59</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">67</td>
+            <td class="headerCovTableEntry">80</td>
+            <td class="headerCovTableEntryMed">83.8 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2009-2010 Satoshi Nakamoto</a>
+<span class="lineNum">       2 </span>            : // Copyright (c) 2009-2020 The Bitcoin Core developers
+<span class="lineNum">       3 </span>            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       4 </span>            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       5 </span>            : 
+<span class="lineNum">       6 </span>            : #include &lt;netaddress.h&gt;
+<span class="lineNum">       7 </span>            : #include &lt;hash.h&gt;
+<span class="lineNum">       8 </span>            : #include &lt;util/strencodings.h&gt;
+<span class="lineNum">       9 </span>            : #include &lt;util/asmap.h&gt;
+<span class="lineNum">      10 </span>            : #include &lt;tinyformat.h&gt;
+<span class="lineNum">      11 </span>            : 
+<span class="lineNum">      12 </span>            : #include &lt;algorithm&gt;
+<span class="lineNum">      13 </span>            : #include &lt;array&gt;
+<span class="lineNum">      14 </span>            : #include &lt;cstdint&gt;
+<span class="lineNum">      15 </span>            : #include &lt;iterator&gt;
+<span class="lineNum">      16 </span>            : #include &lt;tuple&gt;
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : constexpr size_t CNetAddr::V1_SERIALIZATION_SIZE;
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : /**
+<span class="lineNum">      21 </span>            :  * Construct an unspecified IPv6 network address (::/128).
+<span class="lineNum">      22 </span>            :  *
+<a name="23"><span class="lineNum">      23 </span>            :  * @note This address is considered invalid by CNetAddr::IsValid()</a>
+<span class="lineNum">      24 </span>            :  */
+<a name="25"><span class="lineNum">      25 </span><span class="lineCov">      66460 : CNetAddr::CNetAddr() {}</span></a>
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span><span class="lineCov">          2 : void CNetAddr::SetIP(const CNetAddr&amp; ipIn)</span>
+<span class="lineNum">      28 </span>            : {
+<span class="lineNum">      29 </span>            :     // Size check.
+<span class="lineNum">      30 </span><span class="lineCov">          2 :     switch (ipIn.m_net) {</span>
+<span class="lineNum">      31 </span>            :     case NET_IPV4:
+<span class="lineNum">      32 </span><span class="lineCov">          1 :         assert(ipIn.m_addr.size() == ADDR_IPV4_SIZE);</span>
+<span class="lineNum">      33 </span>            :         break;
+<span class="lineNum">      34 </span>            :     case NET_IPV6:
+<span class="lineNum">      35 </span><span class="lineCov">          1 :         assert(ipIn.m_addr.size() == ADDR_IPV6_SIZE);</span>
+<span class="lineNum">      36 </span>            :         break;
+<span class="lineNum">      37 </span>            :     case NET_ONION:
+<span class="lineNum">      38 </span><span class="lineNoCov">          0 :         assert(ipIn.m_addr.size() == ADDR_TORV2_SIZE);</span>
+<span class="lineNum">      39 </span>            :         break;
+<span class="lineNum">      40 </span>            :     case NET_INTERNAL:
+<span class="lineNum">      41 </span><span class="lineNoCov">          0 :         assert(ipIn.m_addr.size() == ADDR_INTERNAL_SIZE);</span>
+<span class="lineNum">      42 </span>            :         break;
+<span class="lineNum">      43 </span>            :     case NET_UNROUTABLE:
+<span class="lineNum">      44 </span>            :     case NET_MAX:
+<span class="lineNum">      45 </span><span class="lineNoCov">          0 :         assert(false);</span>
+<span class="lineNum">      46 </span>            :     } // no default case, so the compiler can warn about missing cases
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span><span class="lineCov">          2 :     m_net = ipIn.m_net;</span>
+<span class="lineNum">      49 </span><span class="lineCov">          2 :     m_addr = ipIn.m_addr;</span>
+<span class="lineNum">      50 </span><span class="lineCov">          2 : }</span>
+<a name="51"><span class="lineNum">      51 </span>            : </a>
+<span class="lineNum">      52 </span>            : template &lt;typename T1, size_t PREFIX_LEN&gt;
+<span class="lineNum">      53 </span><span class="lineCov">      66990 : inline bool HasPrefix(const T1&amp; obj, const std::array&lt;uint8_t, PREFIX_LEN&gt;&amp; prefix)</span>
+<span class="lineNum">      54 </span>            : {
+<span class="lineNum">      55 </span><span class="lineCov">     133980 :     return obj.size() &gt;= PREFIX_LEN &amp;&amp;</span>
+<span class="lineNum">      56 </span><span class="lineCov">      66990 :            std::equal(std::begin(prefix), std::end(prefix), std::begin(obj));</span>
+<a name="57"><span class="lineNum">      57 </span>            : }</a>
+<span class="lineNum">      58 </span>            : 
+<span class="lineNum">      59 </span><span class="lineCov">      22927 : void CNetAddr::SetLegacyIPv6(Span&lt;const uint8_t&gt; ipv6)</span>
+<span class="lineNum">      60 </span>            : {
+<span class="lineNum">      61 </span><span class="lineCov">      22927 :     assert(ipv6.size() == ADDR_IPV6_SIZE);</span>
+<span class="lineNum">      62 </span>            : 
+<span class="lineNum">      63 </span>            :     size_t skip{0};
+<span class="lineNum">      64 </span>            : 
+<span class="lineNum">      65 </span><span class="lineCov">      22927 :     if (HasPrefix(ipv6, IPV4_IN_IPV6_PREFIX)) {</span>
+<span class="lineNum">      66 </span>            :         // IPv4-in-IPv6
+<span class="lineNum">      67 </span><span class="lineCov">        911 :         m_net = NET_IPV4;</span>
+<span class="lineNum">      68 </span>            :         skip = sizeof(IPV4_IN_IPV6_PREFIX);
+<span class="lineNum">      69 </span><span class="lineCov">      22927 :     } else if (HasPrefix(ipv6, TORV2_IN_IPV6_PREFIX)) {</span>
+<span class="lineNum">      70 </span>            :         // TORv2-in-IPv6
+<span class="lineNum">      71 </span><span class="lineNoCov">          0 :         m_net = NET_ONION;</span>
+<span class="lineNum">      72 </span>            :         skip = sizeof(TORV2_IN_IPV6_PREFIX);
+<span class="lineNum">      73 </span><span class="lineCov">      22016 :     } else if (HasPrefix(ipv6, INTERNAL_IN_IPV6_PREFIX)) {</span>
+<span class="lineNum">      74 </span>            :         // Internal-in-IPv6
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 :         m_net = NET_INTERNAL;</span>
+<span class="lineNum">      76 </span>            :         skip = sizeof(INTERNAL_IN_IPV6_PREFIX);
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 :     } else {</span>
+<span class="lineNum">      78 </span>            :         // IPv6
+<span class="lineNum">      79 </span><span class="lineCov">      22016 :         m_net = NET_IPV6;</span>
+<span class="lineNum">      80 </span>            :     }
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span><span class="lineCov">      22927 :     m_addr.assign(ipv6.begin() + skip, ipv6.end());</span>
+<span class="lineNum">      83 </span><span class="lineCov">      22927 : }</span>
+<span class="lineNum">      84 </span>            : 
+<span class="lineNum">      85 </span>            : /**
+<span class="lineNum">      86 </span>            :  * Create an &quot;internal&quot; address that represents a name or FQDN. CAddrMan uses
+<span class="lineNum">      87 </span>            :  * these fake addresses to keep track of which DNS seeds were used.
+<span class="lineNum">      88 </span>            :  * @returns Whether or not the operation was successful.
+<a name="89"><span class="lineNum">      89 </span>            :  * @see NET_INTERNAL, INTERNAL_IN_IPV6_PREFIX, CNetAddr::IsInternal(), CNetAddr::IsRFC4193()</a>
+<span class="lineNum">      90 </span>            :  */
+<span class="lineNum">      91 </span><span class="lineCov">       1842 : bool CNetAddr::SetInternal(const std::string &amp;name)</span>
+<span class="lineNum">      92 </span>            : {
+<span class="lineNum">      93 </span><span class="lineCov">       1842 :     if (name.empty()) {</span>
+<span class="lineNum">      94 </span><span class="lineCov">          8 :         return false;</span>
+<span class="lineNum">      95 </span>            :     }
+<span class="lineNum">      96 </span><span class="lineCov">       1834 :     m_net = NET_INTERNAL;</span>
+<span class="lineNum">      97 </span><span class="lineCov">       1834 :     unsigned char hash[32] = {};</span>
+<span class="lineNum">      98 </span><span class="lineCov">      94519 :     CSHA256().Write((const unsigned char*)name.data(), name.size()).Finalize(hash);</span>
+<span class="lineNum">      99 </span><span class="lineCov">       1834 :     m_addr.assign(hash, hash + ADDR_INTERNAL_SIZE);</span>
+<span class="lineNum">     100 </span>            :     return true;
+<span class="lineNum">     101 </span><span class="lineCov">       1842 : }</span>
+<span class="lineNum">     102 </span>            : 
+<span class="lineNum">     103 </span><span class="lineCov">      92685 : /**</span>
+<span class="lineNum">     104 </span>            :  * Parse a TORv2 address and set this object to it.
+<span class="lineNum">     105 </span><span class="lineCov">      92685 :  *</span>
+<span class="lineNum">     106 </span>            :  * @returns Whether or not the operation was successful.
+<span class="lineNum">     107 </span>            :  *
+<a name="108"><span class="lineNum">     108 </span>            :  * @see CNetAddr::IsTor()</a>
+<span class="lineNum">     109 </span>            :  */
+<span class="lineNum">     110 </span><span class="lineCov">      14235 : bool CNetAddr::SetSpecial(const std::string &amp;strName)</span>
+<span class="lineNum">     111 </span>            : {
+<span class="lineNum">     112 </span><span class="lineCov">      14235 :     if (strName.size()&gt;6 &amp;&amp; strName.substr(strName.size() - 6, 6) == &quot;.onion&quot;) {</span>
+<span class="lineNum">     113 </span><span class="lineNoCov">          0 :         std::vector&lt;unsigned char&gt; vchAddr = DecodeBase32(strName.substr(0, strName.size() - 6).c_str());</span>
+<span class="lineNum">     114 </span><span class="lineNoCov">          0 :         if (vchAddr.size() != ADDR_TORV2_SIZE) {</span>
+<span class="lineNum">     115 </span><span class="lineNoCov">          0 :             return false;</span>
+<span class="lineNum">     116 </span>            :         }
+<span class="lineNum">     117 </span><span class="lineNoCov">          0 :         m_net = NET_ONION;</span>
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :         m_addr.assign(vchAddr.begin(), vchAddr.end());</span>
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 :         return true;</span>
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     121 </span><span class="lineCov">      14235 :     return false;</span>
+<a name="122"><span class="lineNum">     122 </span><span class="lineCov">      14235 : }</span></a>
+<span class="lineNum">     123 </span>            : 
+<span class="lineNum">     124 </span><span class="lineCov">       3298 : CNetAddr::CNetAddr(const struct in_addr&amp; ipv4Addr)</span>
+<span class="lineNum">     125 </span>            : {
+<span class="lineNum">     126 </span><span class="lineCov">       3298 :     m_net = NET_IPV4;</span>
+<span class="lineNum">     127 </span><span class="lineCov">       3298 :     const uint8_t* ptr = reinterpret_cast&lt;const uint8_t*&gt;(&amp;ipv4Addr);</span>
+<span class="lineNum">     128 </span><span class="lineCov">       3298 :     m_addr.assign(ptr, ptr + ADDR_IPV4_SIZE);</span>
+<a name="129"><span class="lineNum">     129 </span><span class="lineCov">       3298 : }</span></a>
+<span class="lineNum">     130 </span>            : 
+<span class="lineNum">     131 </span><span class="lineCov">      22927 : CNetAddr::CNetAddr(const struct in6_addr&amp; ipv6Addr, const uint32_t scope)</span>
+<span class="lineNum">     132 </span>            : {
+<span class="lineNum">     133 </span><span class="lineCov">      22927 :     SetLegacyIPv6(Span&lt;const uint8_t&gt;(reinterpret_cast&lt;const uint8_t*&gt;(&amp;ipv6Addr), sizeof(ipv6Addr)));</span>
+<span class="lineNum">     134 </span><span class="lineCov">      22927 :     scopeId = scope;</span>
+<a name="135"><span class="lineNum">     135 </span><span class="lineCov">      22927 : }</span></a>
+<span class="lineNum">     136 </span>            : 
+<span class="lineNum">     137 </span><span class="lineCov">          2 : bool CNetAddr::IsBindAny() const</span>
+<span class="lineNum">     138 </span>            : {
+<span class="lineNum">     139 </span><span class="lineCov">          2 :     if (!IsIPv4() &amp;&amp; !IsIPv6()) {</span>
+<a name="140"><span class="lineNum">     140 </span><span class="lineNoCov">          0 :         return false;</span></a>
+<span class="lineNum">     141 </span>            :     }
+<span class="lineNum">     142 </span><span class="lineCov">         22 :     return std::all_of(m_addr.begin(), m_addr.end(), [](uint8_t b) { return b == 0; });</span>
+<a name="143"><span class="lineNum">     143 </span><span class="lineCov">          2 : }</span></a>
+<span class="lineNum">     144 </span>            : 
+<a name="145"><span class="lineNum">     145 </span><span class="lineCov">        489 : bool CNetAddr::IsIPv4() const { return m_net == NET_IPV4; }</span></a>
+<span class="lineNum">     146 </span>            : 
+<a name="147"><span class="lineNum">     147 </span><span class="lineCov">        353 : bool CNetAddr::IsIPv6() const { return m_net == NET_IPV6; }</span></a>
+<span class="lineNum">     148 </span>            : 
+<span class="lineNum">     149 </span><span class="lineCov">          4 : bool CNetAddr::IsRFC1918() const</span>
+<span class="lineNum">     150 </span>            : {
+<span class="lineNum">     151 </span><span class="lineCov">          7 :     return IsIPv4() &amp;&amp; (</span>
+<span class="lineNum">     152 </span><span class="lineCov">          3 :         m_addr[0] == 10 ||</span>
+<span class="lineNum">     153 </span><span class="lineCov">          3 :         (m_addr[0] == 192 &amp;&amp; m_addr[1] == 168) ||</span>
+<span class="lineNum">     154 </span><span class="lineCov">          3 :         (m_addr[0] == 172 &amp;&amp; m_addr[1] &gt;= 16 &amp;&amp; m_addr[1] &lt;= 31));</span>
+<a name="155"><span class="lineNum">     155 </span>            : }</a>
+<span class="lineNum">     156 </span>            : 
+<span class="lineNum">     157 </span><span class="lineCov">          6 : bool CNetAddr::IsRFC2544() const</span>
+<span class="lineNum">     158 </span>            : {
+<span class="lineNum">     159 </span><span class="lineCov">          6 :     return IsIPv4() &amp;&amp; m_addr[0] == 198 &amp;&amp; (m_addr[1] == 18 || m_addr[1] == 19);</span>
+<a name="160"><span class="lineNum">     160 </span>            : }</a>
+<span class="lineNum">     161 </span>            : 
+<span class="lineNum">     162 </span><span class="lineCov">          6 : bool CNetAddr::IsRFC3927() const</span>
+<span class="lineNum">     163 </span>            : {
+<span class="lineNum">     164 </span><span class="lineCov">          6 :     return IsIPv4() &amp;&amp; HasPrefix(m_addr, std::array&lt;uint8_t, 2&gt;{169, 254});</span>
+<a name="165"><span class="lineNum">     165 </span>            : }</a>
+<span class="lineNum">     166 </span>            : 
+<span class="lineNum">     167 </span><span class="lineCov">          6 : bool CNetAddr::IsRFC6598() const</span>
+<span class="lineNum">     168 </span>            : {
+<span class="lineNum">     169 </span><span class="lineCov">          6 :     return IsIPv4() &amp;&amp; m_addr[0] == 100 &amp;&amp; m_addr[1] &gt;= 64 &amp;&amp; m_addr[1] &lt;= 127;</span>
+<a name="170"><span class="lineNum">     170 </span>            : }</a>
+<span class="lineNum">     171 </span>            : 
+<span class="lineNum">     172 </span><span class="lineCov">          6 : bool CNetAddr::IsRFC5737() const</span>
+<span class="lineNum">     173 </span>            : {
+<span class="lineNum">     174 </span><span class="lineCov">         10 :     return IsIPv4() &amp;&amp; (HasPrefix(m_addr, std::array&lt;uint8_t, 3&gt;{192, 0, 2}) ||</span>
+<span class="lineNum">     175 </span><span class="lineCov">          4 :                         HasPrefix(m_addr, std::array&lt;uint8_t, 3&gt;{198, 51, 100}) ||</span>
+<span class="lineNum">     176 </span><span class="lineCov">          4 :                         HasPrefix(m_addr, std::array&lt;uint8_t, 3&gt;{203, 0, 113}));</span>
+<a name="177"><span class="lineNum">     177 </span>            : }</a>
+<span class="lineNum">     178 </span>            : 
+<span class="lineNum">     179 </span><span class="lineCov">         19 : bool CNetAddr::IsRFC3849() const</span>
+<span class="lineNum">     180 </span>            : {
+<span class="lineNum">     181 </span><span class="lineCov">         19 :     return IsIPv6() &amp;&amp; HasPrefix(m_addr, std::array&lt;uint8_t, 4&gt;{0x20, 0x01, 0x0D, 0xB8});</span>
+<a name="182"><span class="lineNum">     182 </span>            : }</a>
+<span class="lineNum">     183 </span>            : 
+<span class="lineNum">     184 </span><span class="lineCov">          4 : bool CNetAddr::IsRFC3964() const</span>
+<span class="lineNum">     185 </span>            : {
+<span class="lineNum">     186 </span><span class="lineCov">          4 :     return IsIPv6() &amp;&amp; HasPrefix(m_addr, std::array&lt;uint8_t, 2&gt;{0x20, 0x02});</span>
+<a name="187"><span class="lineNum">     187 </span>            : }</a>
+<span class="lineNum">     188 </span>            : 
+<span class="lineNum">     189 </span><span class="lineCov">          4 : bool CNetAddr::IsRFC6052() const</span>
+<span class="lineNum">     190 </span>            : {
+<span class="lineNum">     191 </span><span class="lineCov">          6 :     return IsIPv6() &amp;&amp;</span>
+<span class="lineNum">     192 </span><span class="lineCov">          2 :            HasPrefix(m_addr, std::array&lt;uint8_t, 12&gt;{0x00, 0x64, 0xFF, 0x9B, 0x00, 0x00,</span>
+<span class="lineNum">     193 </span>            :                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00});
+<a name="194"><span class="lineNum">     194 </span>            : }</a>
+<span class="lineNum">     195 </span>            : 
+<span class="lineNum">     196 </span><span class="lineCov">          4 : bool CNetAddr::IsRFC4380() const</span>
+<span class="lineNum">     197 </span>            : {
+<span class="lineNum">     198 </span><span class="lineCov">          4 :     return IsIPv6() &amp;&amp; HasPrefix(m_addr, std::array&lt;uint8_t, 4&gt;{0x20, 0x01, 0x00, 0x00});</span>
+<a name="199"><span class="lineNum">     199 </span>            : }</a>
+<span class="lineNum">     200 </span>            : 
+<span class="lineNum">     201 </span><span class="lineCov">          6 : bool CNetAddr::IsRFC4862() const</span>
+<span class="lineNum">     202 </span>            : {
+<span class="lineNum">     203 </span><span class="lineCov">          6 :     return IsIPv6() &amp;&amp; HasPrefix(m_addr, std::array&lt;uint8_t, 8&gt;{0xFE, 0x80, 0x00, 0x00,</span>
+<span class="lineNum">     204 </span>            :                                                                 0x00, 0x00, 0x00, 0x00});
+<a name="205"><span class="lineNum">     205 </span>            : }</a>
+<span class="lineNum">     206 </span>            : 
+<span class="lineNum">     207 </span><span class="lineCov">          4 : bool CNetAddr::IsRFC4193() const</span>
+<span class="lineNum">     208 </span>            : {
+<span class="lineNum">     209 </span><span class="lineCov">          4 :     return IsIPv6() &amp;&amp; (m_addr[0] &amp; 0xFE) == 0xFC;</span>
+<a name="210"><span class="lineNum">     210 </span>            : }</a>
+<span class="lineNum">     211 </span>            : 
+<span class="lineNum">     212 </span><span class="lineCov">          4 : bool CNetAddr::IsRFC6145() const</span>
+<span class="lineNum">     213 </span>            : {
+<span class="lineNum">     214 </span><span class="lineCov">          6 :     return IsIPv6() &amp;&amp;</span>
+<span class="lineNum">     215 </span><span class="lineCov">          2 :            HasPrefix(m_addr, std::array&lt;uint8_t, 12&gt;{0x00, 0x00, 0x00, 0x00, 0x00, 0x00,</span>
+<span class="lineNum">     216 </span>            :                                                      0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00});
+<a name="217"><span class="lineNum">     217 </span>            : }</a>
+<span class="lineNum">     218 </span>            : 
+<span class="lineNum">     219 </span><span class="lineCov">          6 : bool CNetAddr::IsRFC4843() const</span>
+<span class="lineNum">     220 </span>            : {
+<span class="lineNum">     221 </span><span class="lineCov">          6 :     return IsIPv6() &amp;&amp; HasPrefix(m_addr, std::array&lt;uint8_t, 3&gt;{0x20, 0x01, 0x00}) &amp;&amp;</span>
+<span class="lineNum">     222 </span><span class="lineNoCov">          0 :            (m_addr[3] &amp; 0xF0) == 0x10;</span>
+<a name="223"><span class="lineNum">     223 </span>            : }</a>
+<span class="lineNum">     224 </span>            : 
+<span class="lineNum">     225 </span><span class="lineCov">          6 : bool CNetAddr::IsRFC7343() const</span>
+<span class="lineNum">     226 </span>            : {
+<span class="lineNum">     227 </span><span class="lineCov">          6 :     return IsIPv6() &amp;&amp; HasPrefix(m_addr, std::array&lt;uint8_t, 3&gt;{0x20, 0x01, 0x00}) &amp;&amp;</span>
+<span class="lineNum">     228 </span><span class="lineNoCov">          0 :            (m_addr[3] &amp; 0xF0) == 0x20;</span>
+<a name="229"><span class="lineNum">     229 </span>            : }</a>
+<span class="lineNum">     230 </span>            : 
+<span class="lineNum">     231 </span><span class="lineNoCov">          0 : bool CNetAddr::IsHeNet() const</span>
+<span class="lineNum">     232 </span>            : {
+<span class="lineNum">     233 </span><span class="lineNoCov">          0 :     return IsIPv6() &amp;&amp; HasPrefix(m_addr, std::array&lt;uint8_t, 4&gt;{0x20, 0x01, 0x04, 0x70});</span>
+<span class="lineNum">     234 </span>            : }
+<span class="lineNum">     235 </span>            : 
+<span class="lineNum">     236 </span>            : /**
+<span class="lineNum">     237 </span>            :  * @returns Whether or not this is a dummy address that maps an onion address
+<span class="lineNum">     238 </span>            :  *          into IPv6.
+<span class="lineNum">     239 </span>            :  *
+<a name="240"><span class="lineNum">     240 </span>            :  * @see CNetAddr::SetSpecial(const std::string &amp;)</a>
+<span class="lineNum">     241 </span>            :  */
+<a name="242"><span class="lineNum">     242 </span><span class="lineCov">         23 : bool CNetAddr::IsTor() const { return m_net == NET_ONION; }</span></a>
+<span class="lineNum">     243 </span>            : 
+<span class="lineNum">     244 </span><span class="lineCov">          6 : bool CNetAddr::IsLocal() const</span>
+<span class="lineNum">     245 </span>            : {
+<span class="lineNum">     246 </span>            :     // IPv4 loopback (127.0.0.0/8 or 0.0.0.0/8)
+<span class="lineNum">     247 </span><span class="lineCov">          6 :     if (IsIPv4() &amp;&amp; (m_addr[0] == 127 || m_addr[0] == 0)) {</span>
+<span class="lineNum">     248 </span><span class="lineCov">          4 :         return true;</span>
+<span class="lineNum">     249 </span>            :     }
+<span class="lineNum">     250 </span>            : 
+<span class="lineNum">     251 </span>            :     // IPv6 loopback (::1/128)
+<span class="lineNum">     252 </span>            :     static const unsigned char pchLocal[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1};
+<span class="lineNum">     253 </span><span class="lineCov">          2 :     if (IsIPv6() &amp;&amp; memcmp(m_addr.data(), pchLocal, sizeof(pchLocal)) == 0) {</span>
+<span class="lineNum">     254 </span><span class="lineNoCov">          0 :         return true;</span>
+<span class="lineNum">     255 </span>            :     }
+<span class="lineNum">     256 </span>            : 
+<span class="lineNum">     257 </span><span class="lineCov">          2 :     return false;</span>
+<span class="lineNum">     258 </span><span class="lineCov">          6 : }</span>
+<span class="lineNum">     259 </span>            : 
+<span class="lineNum">     260 </span>            : /**
+<span class="lineNum">     261 </span>            :  * @returns Whether or not this network address is a valid address that @a could
+<span class="lineNum">     262 </span>            :  *          be used to refer to an actual host.
+<span class="lineNum">     263 </span>            :  *
+<span class="lineNum">     264 </span>            :  * @note A valid address may or may not be publicly routable on the global
+<span class="lineNum">     265 </span>            :  *       internet. As in, the set of valid addresses is a superset of the set of
+<span class="lineNum">     266 </span>            :  *       publicly routable addresses.
+<span class="lineNum">     267 </span>            :  *
+<a name="268"><span class="lineNum">     268 </span>            :  * @see CNetAddr::IsRoutable()</a>
+<span class="lineNum">     269 </span>            :  */
+<span class="lineNum">     270 </span><span class="lineCov">         30 : bool CNetAddr::IsValid() const</span>
+<span class="lineNum">     271 </span>            : {
+<span class="lineNum">     272 </span>            :     // Cleanup 3-byte shifted addresses caused by garbage in size field
+<span class="lineNum">     273 </span>            :     // of addr messages from versions before 0.2.9 checksum.
+<span class="lineNum">     274 </span>            :     // Two consecutive addr messages look like this:
+<span class="lineNum">     275 </span>            :     // header20 vectorlen3 addr26 addr26 addr26 header20 vectorlen3 addr26 addr26 addr26...
+<span class="lineNum">     276 </span>            :     // so if the first length field is garbled, it reads the second batch
+<span class="lineNum">     277 </span>            :     // of addr misaligned by 3 bytes.
+<span class="lineNum">     278 </span><span class="lineCov">         30 :     if (IsIPv6() &amp;&amp; memcmp(m_addr.data(), IPV4_IN_IPV6_PREFIX.data() + 3,</span>
+<span class="lineNum">     279 </span><span class="lineCov">         13 :                            sizeof(IPV4_IN_IPV6_PREFIX) - 3) == 0) {</span>
+<span class="lineNum">     280 </span><span class="lineNoCov">          0 :         return false;</span>
+<span class="lineNum">     281 </span>            :     }
+<span class="lineNum">     282 </span>            : 
+<span class="lineNum">     283 </span>            :     // unspecified IPv6 address (::/128)
+<span class="lineNum">     284 </span><span class="lineCov">         30 :     unsigned char ipNone6[16] = {};</span>
+<span class="lineNum">     285 </span><span class="lineCov">         30 :     if (IsIPv6() &amp;&amp; memcmp(m_addr.data(), ipNone6, sizeof(ipNone6)) == 0) {</span>
+<span class="lineNum">     286 </span><span class="lineCov">         13 :         return false;</span>
+<span class="lineNum">     287 </span>            :     }
+<span class="lineNum">     288 </span>            : 
+<span class="lineNum">     289 </span>            :     // documentation IPv6 address
+<span class="lineNum">     290 </span><span class="lineCov">         17 :     if (IsRFC3849())</span>
+<span class="lineNum">     291 </span><span class="lineNoCov">          0 :         return false;</span>
+<span class="lineNum">     292 </span>            : 
+<span class="lineNum">     293 </span><span class="lineCov">         17 :     if (IsInternal())</span>
+<span class="lineNum">     294 </span><span class="lineNoCov">          0 :         return false;</span>
+<span class="lineNum">     295 </span>            : 
+<span class="lineNum">     296 </span><span class="lineCov">         17 :     if (IsIPv4()) {</span>
+<span class="lineNum">     297 </span><span class="lineCov">         17 :         const uint32_t addr = ReadBE32(m_addr.data());</span>
+<span class="lineNum">     298 </span><span class="lineCov">         17 :         if (addr == INADDR_ANY || addr == INADDR_NONE) {</span>
+<span class="lineNum">     299 </span><span class="lineCov">         15 :             return false;</span>
+<span class="lineNum">     300 </span>            :         }
+<span class="lineNum">     301 </span><span class="lineCov">          2 :     }</span>
+<span class="lineNum">     302 </span>            : 
+<span class="lineNum">     303 </span><span class="lineCov">          2 :     return true;</span>
+<span class="lineNum">     304 </span><span class="lineCov">         30 : }</span>
+<span class="lineNum">     305 </span>            : 
+<span class="lineNum">     306 </span>            : /**
+<span class="lineNum">     307 </span>            :  * @returns Whether or not this network address is publicly routable on the
+<span class="lineNum">     308 </span>            :  *          global internet.
+<span class="lineNum">     309 </span>            :  *
+<span class="lineNum">     310 </span>            :  * @note A routable address is always valid. As in, the set of routable addresses
+<span class="lineNum">     311 </span>            :  *       is a subset of the set of valid addresses.
+<span class="lineNum">     312 </span>            :  *
+<a name="313"><span class="lineNum">     313 </span>            :  * @see CNetAddr::IsValid()</a>
+<span class="lineNum">     314 </span>            :  */
+<span class="lineNum">     315 </span><span class="lineCov">         26 : bool CNetAddr::IsRoutable() const</span>
+<span class="lineNum">     316 </span>            : {
+<span class="lineNum">     317 </span><span class="lineCov">         26 :     return IsValid() &amp;&amp; !(IsRFC1918() || IsRFC2544() || IsRFC3927() || IsRFC4862() || IsRFC6598() || IsRFC5737() || (IsRFC4193() &amp;&amp; !IsTor()) || IsRFC4843() || IsRFC7343() || IsLocal() || IsInternal());</span>
+<span class="lineNum">     318 </span>            : }
+<span class="lineNum">     319 </span>            : 
+<span class="lineNum">     320 </span>            : /**
+<span class="lineNum">     321 </span>            :  * @returns Whether or not this is a dummy address that represents a name.
+<span class="lineNum">     322 </span>            :  *
+<a name="323"><span class="lineNum">     323 </span>            :  * @see CNetAddr::SetInternal(const std::string &amp;)</a>
+<span class="lineNum">     324 </span>            :  */
+<span class="lineNum">     325 </span><span class="lineCov">      30923 : bool CNetAddr::IsInternal() const</span>
+<span class="lineNum">     326 </span>            : {
+<span class="lineNum">     327 </span><span class="lineCov">      30923 :    return m_net == NET_INTERNAL;</span>
+<a name="328"><span class="lineNum">     328 </span>            : }</a>
+<span class="lineNum">     329 </span>            : 
+<span class="lineNum">     330 </span><span class="lineCov">         16 : enum Network CNetAddr::GetNetwork() const</span>
+<span class="lineNum">     331 </span>            : {
+<span class="lineNum">     332 </span><span class="lineCov">         16 :     if (IsInternal())</span>
+<span class="lineNum">     333 </span><span class="lineNoCov">          0 :         return NET_INTERNAL;</span>
+<span class="lineNum">     334 </span>            : 
+<span class="lineNum">     335 </span><span class="lineCov">         16 :     if (!IsRoutable())</span>
+<span class="lineNum">     336 </span><span class="lineCov">         16 :         return NET_UNROUTABLE;</span>
+<span class="lineNum">     337 </span>            : 
+<span class="lineNum">     338 </span><span class="lineNoCov">          0 :     return m_net;</span>
+<a name="339"><span class="lineNum">     339 </span><span class="lineCov">         16 : }</span></a>
+<span class="lineNum">     340 </span>            : 
+<span class="lineNum">     341 </span><span class="lineCov">         17 : std::string CNetAddr::ToStringIP() const</span>
+<span class="lineNum">     342 </span>            : {
+<span class="lineNum">     343 </span><span class="lineCov">         17 :     if (IsTor())</span>
+<span class="lineNum">     344 </span><span class="lineNoCov">          0 :         return EncodeBase32(m_addr.data(), m_addr.size()) + &quot;.onion&quot;;</span>
+<span class="lineNum">     345 </span><span class="lineCov">         17 :     if (IsInternal())</span>
+<span class="lineNum">     346 </span><span class="lineNoCov">          0 :         return EncodeBase32(m_addr.data(), m_addr.size()) + &quot;.internal&quot;;</span>
+<span class="lineNum">     347 </span><span class="lineCov">         17 :     CService serv(*this, 0);</span>
+<span class="lineNum">     348 </span><span class="lineCov">         17 :     struct sockaddr_storage sockaddr;</span>
+<span class="lineNum">     349 </span><span class="lineCov">         17 :     socklen_t socklen = sizeof(sockaddr);</span>
+<span class="lineNum">     350 </span><span class="lineCov">         17 :     if (serv.GetSockAddr((struct sockaddr*)&amp;sockaddr, &amp;socklen)) {</span>
+<span class="lineNum">     351 </span><span class="lineCov">         17 :         char name[1025] = &quot;&quot;;</span>
+<span class="lineNum">     352 </span><span class="lineCov">         17 :         if (!getnameinfo((const struct sockaddr*)&amp;sockaddr, socklen, name, sizeof(name), nullptr, 0, NI_NUMERICHOST))</span>
+<span class="lineNum">     353 </span><span class="lineCov">         17 :             return std::string(name);</span>
+<span class="lineNum">     354 </span><span class="lineCov">         17 :     }</span>
+<span class="lineNum">     355 </span><span class="lineNoCov">          0 :     if (IsIPv4())</span>
+<span class="lineNum">     356 </span><span class="lineNoCov">          0 :         return strprintf(&quot;%u.%u.%u.%u&quot;, m_addr[0], m_addr[1], m_addr[2], m_addr[3]);</span>
+<span class="lineNum">     357 </span><span class="lineNoCov">          0 :     assert(IsIPv6());</span>
+<span class="lineNum">     358 </span><span class="lineNoCov">          0 :     return strprintf(&quot;%x:%x:%x:%x:%x:%x:%x:%x&quot;,</span>
+<span class="lineNum">     359 </span><span class="lineNoCov">          0 :                      m_addr[0] &lt;&lt; 8 | m_addr[1], m_addr[2] &lt;&lt; 8 | m_addr[3],</span>
+<span class="lineNum">     360 </span><span class="lineNoCov">          0 :                      m_addr[4] &lt;&lt; 8 | m_addr[5], m_addr[6] &lt;&lt; 8 | m_addr[7],</span>
+<span class="lineNum">     361 </span><span class="lineNoCov">          0 :                      m_addr[8] &lt;&lt; 8 | m_addr[9], m_addr[10] &lt;&lt; 8 | m_addr[11],</span>
+<span class="lineNum">     362 </span><span class="lineNoCov">          0 :                      m_addr[12] &lt;&lt; 8 | m_addr[13], m_addr[14] &lt;&lt; 8 | m_addr[15]);</span>
+<a name="363"><span class="lineNum">     363 </span><span class="lineCov">         17 : }</span></a>
+<span class="lineNum">     364 </span>            : 
+<span class="lineNum">     365 </span><span class="lineCov">          4 : std::string CNetAddr::ToString() const</span>
+<span class="lineNum">     366 </span>            : {
+<span class="lineNum">     367 </span><span class="lineCov">          4 :     return ToStringIP();</span>
+<a name="368"><span class="lineNum">     368 </span>            : }</a>
+<span class="lineNum">     369 </span>            : 
+<span class="lineNum">     370 </span><span class="lineCov">          8 : bool operator==(const CNetAddr&amp; a, const CNetAddr&amp; b)</span>
+<span class="lineNum">     371 </span>            : {
+<span class="lineNum">     372 </span><span class="lineCov">          8 :     return a.m_net == b.m_net &amp;&amp; a.m_addr == b.m_addr;</span>
+<a name="373"><span class="lineNum">     373 </span>            : }</a>
+<span class="lineNum">     374 </span>            : 
+<span class="lineNum">     375 </span><span class="lineCov">          2 : bool operator&lt;(const CNetAddr&amp; a, const CNetAddr&amp; b)</span>
+<span class="lineNum">     376 </span>            : {
+<span class="lineNum">     377 </span><span class="lineCov">          2 :     return std::tie(a.m_net, a.m_addr) &lt; std::tie(b.m_net, b.m_addr);</span>
+<span class="lineNum">     378 </span>            : }
+<span class="lineNum">     379 </span>            : 
+<span class="lineNum">     380 </span>            : /**
+<span class="lineNum">     381 </span>            :  * Try to get our IPv4 address.
+<span class="lineNum">     382 </span>            :  *
+<span class="lineNum">     383 </span>            :  * @param[out] pipv4Addr The in_addr struct to which to copy.
+<span class="lineNum">     384 </span>            :  *
+<span class="lineNum">     385 </span>            :  * @returns Whether or not the operation was successful, in particular, whether
+<span class="lineNum">     386 </span>            :  *          or not our address was an IPv4 address.
+<span class="lineNum">     387 </span>            :  *
+<a name="388"><span class="lineNum">     388 </span>            :  * @see CNetAddr::IsIPv4()</a>
+<span class="lineNum">     389 </span>            :  */
+<span class="lineNum">     390 </span><span class="lineCov">         10 : bool CNetAddr::GetInAddr(struct in_addr* pipv4Addr) const</span>
+<span class="lineNum">     391 </span>            : {
+<span class="lineNum">     392 </span><span class="lineCov">         10 :     if (!IsIPv4())</span>
+<span class="lineNum">     393 </span><span class="lineNoCov">          0 :         return false;</span>
+<span class="lineNum">     394 </span><span class="lineCov">         10 :     assert(sizeof(*pipv4Addr) == m_addr.size());</span>
+<span class="lineNum">     395 </span><span class="lineCov">         10 :     memcpy(pipv4Addr, m_addr.data(), m_addr.size());</span>
+<span class="lineNum">     396 </span><span class="lineCov">         10 :     return true;</span>
+<span class="lineNum">     397 </span><span class="lineCov">         10 : }</span>
+<span class="lineNum">     398 </span>            : 
+<span class="lineNum">     399 </span>            : /**
+<span class="lineNum">     400 </span>            :  * Try to get our IPv6 address.
+<span class="lineNum">     401 </span>            :  *
+<span class="lineNum">     402 </span>            :  * @param[out] pipv6Addr The in6_addr struct to which to copy.
+<span class="lineNum">     403 </span>            :  *
+<span class="lineNum">     404 </span>            :  * @returns Whether or not the operation was successful, in particular, whether
+<span class="lineNum">     405 </span>            :  *          or not our address was an IPv6 address.
+<span class="lineNum">     406 </span>            :  *
+<a name="407"><span class="lineNum">     407 </span>            :  * @see CNetAddr::IsIPv6()</a>
+<span class="lineNum">     408 </span>            :  */
+<span class="lineNum">     409 </span><span class="lineCov">          7 : bool CNetAddr::GetIn6Addr(struct in6_addr* pipv6Addr) const</span>
+<span class="lineNum">     410 </span>            : {
+<span class="lineNum">     411 </span><span class="lineCov">          7 :     if (!IsIPv6()) {</span>
+<span class="lineNum">     412 </span><span class="lineNoCov">          0 :         return false;</span>
+<span class="lineNum">     413 </span>            :     }
+<span class="lineNum">     414 </span><span class="lineCov">          7 :     assert(sizeof(*pipv6Addr) == m_addr.size());</span>
+<span class="lineNum">     415 </span><span class="lineCov">          7 :     memcpy(pipv6Addr, m_addr.data(), m_addr.size());</span>
+<span class="lineNum">     416 </span><span class="lineCov">          7 :     return true;</span>
+<a name="417"><span class="lineNum">     417 </span><span class="lineCov">          7 : }</span></a>
+<span class="lineNum">     418 </span>            : 
+<span class="lineNum">     419 </span><span class="lineNoCov">          0 : bool CNetAddr::HasLinkedIPv4() const</span>
+<span class="lineNum">     420 </span>            : {
+<span class="lineNum">     421 </span><span class="lineNoCov">          0 :     return IsRoutable() &amp;&amp; (IsIPv4() || IsRFC6145() || IsRFC6052() || IsRFC3964() || IsRFC4380());</span>
+<a name="422"><span class="lineNum">     422 </span>            : }</a>
+<span class="lineNum">     423 </span>            : 
+<span class="lineNum">     424 </span><span class="lineNoCov">          0 : uint32_t CNetAddr::GetLinkedIPv4() const</span>
+<span class="lineNum">     425 </span>            : {
+<span class="lineNum">     426 </span><span class="lineNoCov">          0 :     if (IsIPv4()) {</span>
+<span class="lineNum">     427 </span><span class="lineNoCov">          0 :         return ReadBE32(m_addr.data());</span>
+<span class="lineNum">     428 </span><span class="lineNoCov">          0 :     } else if (IsRFC6052() || IsRFC6145()) {</span>
+<span class="lineNum">     429 </span>            :         // mapped IPv4, SIIT translated IPv4: the IPv4 address is the last 4 bytes of the address
+<span class="lineNum">     430 </span><span class="lineNoCov">          0 :         return ReadBE32(MakeSpan(m_addr).last(ADDR_IPV4_SIZE).data());</span>
+<span class="lineNum">     431 </span><span class="lineNoCov">          0 :     } else if (IsRFC3964()) {</span>
+<span class="lineNum">     432 </span>            :         // 6to4 tunneled IPv4: the IPv4 address is in bytes 2-6
+<span class="lineNum">     433 </span><span class="lineNoCov">          0 :         return ReadBE32(MakeSpan(m_addr).subspan(2, ADDR_IPV4_SIZE).data());</span>
+<span class="lineNum">     434 </span><span class="lineNoCov">          0 :     } else if (IsRFC4380()) {</span>
+<span class="lineNum">     435 </span>            :         // Teredo tunneled IPv4: the IPv4 address is in the last 4 bytes of the address, but bitflipped
+<span class="lineNum">     436 </span><span class="lineNoCov">          0 :         return ~ReadBE32(MakeSpan(m_addr).last(ADDR_IPV4_SIZE).data());</span>
+<span class="lineNum">     437 </span>            :     }
+<span class="lineNum">     438 </span><span class="lineNoCov">          0 :     assert(false);</span>
+<a name="439"><span class="lineNum">     439 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     440 </span>            : 
+<span class="lineNum">     441 </span><span class="lineCov">          2 : uint32_t CNetAddr::GetNetClass() const {</span>
+<span class="lineNum">     442 </span>            :     uint32_t net_class = NET_IPV6;
+<span class="lineNum">     443 </span><span class="lineCov">          2 :     if (IsLocal()) {</span>
+<span class="lineNum">     444 </span>            :         net_class = 255;
+<span class="lineNum">     445 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">     446 </span><span class="lineCov">          2 :     if (IsInternal()) {</span>
+<span class="lineNum">     447 </span>            :         net_class = NET_INTERNAL;
+<span class="lineNum">     448 </span><span class="lineCov">          2 :     } else if (!IsRoutable()) {</span>
+<span class="lineNum">     449 </span>            :         net_class = NET_UNROUTABLE;
+<span class="lineNum">     450 </span><span class="lineCov">          2 :     } else if (HasLinkedIPv4()) {</span>
+<span class="lineNum">     451 </span>            :         net_class = NET_IPV4;
+<span class="lineNum">     452 </span><span class="lineNoCov">          0 :     } else if (IsTor()) {</span>
+<span class="lineNum">     453 </span>            :         net_class = NET_ONION;
+<span class="lineNum">     454 </span><span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     455 </span><span class="lineCov">          2 :     return net_class;</span>
+<a name="456"><span class="lineNum">     456 </span>            : }</a>
+<span class="lineNum">     457 </span>            : 
+<span class="lineNum">     458 </span><span class="lineNoCov">          0 : uint32_t CNetAddr::GetMappedAS(const std::vector&lt;bool&gt; &amp;asmap) const {</span>
+<span class="lineNum">     459 </span><span class="lineNoCov">          0 :     uint32_t net_class = GetNetClass();</span>
+<span class="lineNum">     460 </span><span class="lineNoCov">          0 :     if (asmap.size() == 0 || (net_class != NET_IPV4 &amp;&amp; net_class != NET_IPV6)) {</span>
+<span class="lineNum">     461 </span><span class="lineNoCov">          0 :         return 0; // Indicates not found, safe because AS0 is reserved per RFC7607.</span>
+<span class="lineNum">     462 </span>            :     }
+<span class="lineNum">     463 </span><span class="lineNoCov">          0 :     std::vector&lt;bool&gt; ip_bits(128);</span>
+<span class="lineNum">     464 </span><span class="lineNoCov">          0 :     if (HasLinkedIPv4()) {</span>
+<span class="lineNum">     465 </span>            :         // For lookup, treat as if it was just an IPv4 address (IPV4_IN_IPV6_PREFIX + IPv4 bits)
+<span class="lineNum">     466 </span><span class="lineNoCov">          0 :         for (int8_t byte_i = 0; byte_i &lt; 12; ++byte_i) {</span>
+<span class="lineNum">     467 </span><span class="lineNoCov">          0 :             for (uint8_t bit_i = 0; bit_i &lt; 8; ++bit_i) {</span>
+<span class="lineNum">     468 </span><span class="lineNoCov">          0 :                 ip_bits[byte_i * 8 + bit_i] = (IPV4_IN_IPV6_PREFIX[byte_i] &gt;&gt; (7 - bit_i)) &amp; 1;</span>
+<span class="lineNum">     469 </span>            :             }
+<span class="lineNum">     470 </span>            :         }
+<span class="lineNum">     471 </span><span class="lineNoCov">          0 :         uint32_t ipv4 = GetLinkedIPv4();</span>
+<span class="lineNum">     472 </span><span class="lineNoCov">          0 :         for (int i = 0; i &lt; 32; ++i) {</span>
+<span class="lineNum">     473 </span><span class="lineNoCov">          0 :             ip_bits[96 + i] = (ipv4 &gt;&gt; (31 - i)) &amp; 1;</span>
+<span class="lineNum">     474 </span>            :         }
+<span class="lineNum">     475 </span><span class="lineNoCov">          0 :     } else {</span>
+<span class="lineNum">     476 </span>            :         // Use all 128 bits of the IPv6 address otherwise
+<span class="lineNum">     477 </span><span class="lineNoCov">          0 :         assert(IsIPv6());</span>
+<span class="lineNum">     478 </span><span class="lineNoCov">          0 :         for (int8_t byte_i = 0; byte_i &lt; 16; ++byte_i) {</span>
+<span class="lineNum">     479 </span><span class="lineNoCov">          0 :             uint8_t cur_byte = m_addr[byte_i];</span>
+<span class="lineNum">     480 </span><span class="lineNoCov">          0 :             for (uint8_t bit_i = 0; bit_i &lt; 8; ++bit_i) {</span>
+<span class="lineNum">     481 </span><span class="lineNoCov">          0 :                 ip_bits[byte_i * 8 + bit_i] = (cur_byte &gt;&gt; (7 - bit_i)) &amp; 1;</span>
+<span class="lineNum">     482 </span>            :             }
+<span class="lineNum">     483 </span>            :         }
+<span class="lineNum">     484 </span>            :     }
+<span class="lineNum">     485 </span><span class="lineNoCov">          0 :     uint32_t mapped_as = Interpret(asmap, ip_bits);</span>
+<span class="lineNum">     486 </span>            :     return mapped_as;
+<span class="lineNum">     487 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     488 </span>            : 
+<span class="lineNum">     489 </span>            : /**
+<span class="lineNum">     490 </span>            :  * Get the canonical identifier of our network group
+<span class="lineNum">     491 </span>            :  *
+<span class="lineNum">     492 </span>            :  * The groups are assigned in a way where it should be costly for an attacker to
+<span class="lineNum">     493 </span>            :  * obtain addresses with many different group identifiers, even if it is cheap
+<span class="lineNum">     494 </span>            :  * to obtain addresses with the same identifier.
+<span class="lineNum">     495 </span>            :  *
+<span class="lineNum">     496 </span>            :  * @note No two connections will be attempted to addresses with the same network
+<a name="497"><span class="lineNum">     497 </span>            :  *       group.</a>
+<span class="lineNum">     498 </span>            :  */
+<span class="lineNum">     499 </span><span class="lineNoCov">          0 : std::vector&lt;unsigned char&gt; CNetAddr::GetGroup(const std::vector&lt;bool&gt; &amp;asmap) const</span>
+<span class="lineNum">     500 </span>            : {
+<span class="lineNum">     501 </span><span class="lineNoCov">          0 :     std::vector&lt;unsigned char&gt; vchRet;</span>
+<span class="lineNum">     502 </span><span class="lineNoCov">          0 :     uint32_t net_class = GetNetClass();</span>
+<span class="lineNum">     503 </span>            :     // If non-empty asmap is supplied and the address is IPv4/IPv6,
+<span class="lineNum">     504 </span>            :     // return ASN to be used for bucketing.
+<span class="lineNum">     505 </span><span class="lineNoCov">          0 :     uint32_t asn = GetMappedAS(asmap);</span>
+<span class="lineNum">     506 </span><span class="lineNoCov">          0 :     if (asn != 0) { // Either asmap was empty, or address has non-asmappable net class (e.g. TOR).</span>
+<span class="lineNum">     507 </span><span class="lineNoCov">          0 :         vchRet.push_back(NET_IPV6); // IPv4 and IPv6 with same ASN should be in the same bucket</span>
+<span class="lineNum">     508 </span><span class="lineNoCov">          0 :         for (int i = 0; i &lt; 4; i++) {</span>
+<span class="lineNum">     509 </span><span class="lineNoCov">          0 :             vchRet.push_back((asn &gt;&gt; (8 * i)) &amp; 0xFF);</span>
+<span class="lineNum">     510 </span>            :         }
+<span class="lineNum">     511 </span><span class="lineNoCov">          0 :         return vchRet;</span>
+<span class="lineNum">     512 </span>            :     }
+<span class="lineNum">     513 </span>            : 
+<span class="lineNum">     514 </span><span class="lineNoCov">          0 :     vchRet.push_back(net_class);</span>
+<span class="lineNum">     515 </span>            :     int nBits{0};
+<span class="lineNum">     516 </span>            : 
+<span class="lineNum">     517 </span><span class="lineNoCov">          0 :     if (IsLocal()) {</span>
+<span class="lineNum">     518 </span>            :         // all local addresses belong to the same group
+<span class="lineNum">     519 </span><span class="lineNoCov">          0 :     } else if (IsInternal()) {</span>
+<span class="lineNum">     520 </span>            :         // all internal-usage addresses get their own group
+<span class="lineNum">     521 </span>            :         nBits = ADDR_INTERNAL_SIZE * 8;
+<span class="lineNum">     522 </span><span class="lineNoCov">          0 :     } else if (!IsRoutable()) {</span>
+<span class="lineNum">     523 </span>            :         // all other unroutable addresses belong to the same group
+<span class="lineNum">     524 </span><span class="lineNoCov">          0 :     } else if (HasLinkedIPv4()) {</span>
+<span class="lineNum">     525 </span>            :         // IPv4 addresses (and mapped IPv4 addresses) use /16 groups
+<span class="lineNum">     526 </span><span class="lineNoCov">          0 :         uint32_t ipv4 = GetLinkedIPv4();</span>
+<span class="lineNum">     527 </span><span class="lineNoCov">          0 :         vchRet.push_back((ipv4 &gt;&gt; 24) &amp; 0xFF);</span>
+<span class="lineNum">     528 </span><span class="lineNoCov">          0 :         vchRet.push_back((ipv4 &gt;&gt; 16) &amp; 0xFF);</span>
+<span class="lineNum">     529 </span>            :         return vchRet;
+<span class="lineNum">     530 </span><span class="lineNoCov">          0 :     } else if (IsTor()) {</span>
+<span class="lineNum">     531 </span>            :         nBits = 4;
+<span class="lineNum">     532 </span><span class="lineNoCov">          0 :     } else if (IsHeNet()) {</span>
+<span class="lineNum">     533 </span>            :         // for he.net, use /36 groups
+<span class="lineNum">     534 </span>            :         nBits = 36;
+<span class="lineNum">     535 </span><span class="lineNoCov">          0 :     } else {</span>
+<span class="lineNum">     536 </span>            :         // for the rest of the IPv6 network, use /32 groups
+<span class="lineNum">     537 </span>            :         nBits = 32;
+<span class="lineNum">     538 </span>            :     }
+<span class="lineNum">     539 </span>            : 
+<span class="lineNum">     540 </span>            :     // Push our address onto vchRet.
+<span class="lineNum">     541 </span><span class="lineNoCov">          0 :     const size_t num_bytes = nBits / 8;</span>
+<span class="lineNum">     542 </span><span class="lineNoCov">          0 :     vchRet.insert(vchRet.end(), m_addr.begin(), m_addr.begin() + num_bytes);</span>
+<span class="lineNum">     543 </span><span class="lineNoCov">          0 :     nBits %= 8;</span>
+<span class="lineNum">     544 </span>            :     // ...for the last byte, push nBits and for the rest of the byte push 1's
+<span class="lineNum">     545 </span><span class="lineNoCov">          0 :     if (nBits &gt; 0) {</span>
+<span class="lineNum">     546 </span><span class="lineNoCov">          0 :         assert(num_bytes &lt; m_addr.size());</span>
+<span class="lineNum">     547 </span><span class="lineNoCov">          0 :         vchRet.push_back(m_addr[num_bytes] | ((1 &lt;&lt; (8 - nBits)) - 1));</span>
+<span class="lineNum">     548 </span><span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     549 </span>            : 
+<span class="lineNum">     550 </span>            :     return vchRet;
+<a name="551"><span class="lineNum">     551 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     552 </span>            : 
+<span class="lineNum">     553 </span><span class="lineCov">          2 : std::vector&lt;unsigned char&gt; CNetAddr::GetAddrBytes() const</span>
+<span class="lineNum">     554 </span>            : {
+<span class="lineNum">     555 </span><span class="lineCov">          2 :     uint8_t serialized[V1_SERIALIZATION_SIZE];</span>
+<span class="lineNum">     556 </span><span class="lineCov">          2 :     SerializeV1Array(serialized);</span>
+<span class="lineNum">     557 </span><span class="lineCov">          2 :     return {std::begin(serialized), std::end(serialized)};</span>
+<a name="558"><span class="lineNum">     558 </span><span class="lineCov">          2 : }</span></a>
+<span class="lineNum">     559 </span>            : 
+<span class="lineNum">     560 </span><span class="lineCov">          2 : uint64_t CNetAddr::GetHash() const</span>
+<span class="lineNum">     561 </span>            : {
+<span class="lineNum">     562 </span><span class="lineCov">          2 :     uint256 hash = Hash(m_addr);</span>
+<span class="lineNum">     563 </span><span class="lineCov">          2 :     uint64_t nRet;</span>
+<span class="lineNum">     564 </span><span class="lineCov">          2 :     memcpy(&amp;nRet, &amp;hash, sizeof(nRet));</span>
+<span class="lineNum">     565 </span><span class="lineCov">          4 :     return nRet;</span>
+<span class="lineNum">     566 </span><span class="lineCov">          2 : }</span>
+<span class="lineNum">     567 </span>            : 
+<span class="lineNum">     568 </span>            : // private extensions to enum Network, only returned by GetExtNetwork,
+<span class="lineNum">     569 </span>            : // and only used in GetReachabilityFrom
+<a name="570"><span class="lineNum">     570 </span>            : static const int NET_UNKNOWN = NET_MAX + 0;</a>
+<span class="lineNum">     571 </span>            : static const int NET_TEREDO  = NET_MAX + 1;
+<span class="lineNum">     572 </span><span class="lineNoCov">          0 : int static GetExtNetwork(const CNetAddr *addr)</span>
+<span class="lineNum">     573 </span>            : {
+<span class="lineNum">     574 </span><span class="lineNoCov">          0 :     if (addr == nullptr)</span>
+<span class="lineNum">     575 </span><span class="lineNoCov">          0 :         return NET_UNKNOWN;</span>
+<span class="lineNum">     576 </span><span class="lineNoCov">          0 :     if (addr-&gt;IsRFC4380())</span>
+<span class="lineNum">     577 </span><span class="lineNoCov">          0 :         return NET_TEREDO;</span>
+<span class="lineNum">     578 </span><span class="lineNoCov">          0 :     return addr-&gt;GetNetwork();</span>
+<span class="lineNum">     579 </span><span class="lineNoCov">          0 : }</span>
+<a name="580"><span class="lineNum">     580 </span>            : </a>
+<span class="lineNum">     581 </span>            : /** Calculates a metric for how reachable (*this) is from a given partner */
+<span class="lineNum">     582 </span><span class="lineCov">          2 : int CNetAddr::GetReachabilityFrom(const CNetAddr *paddrPartner) const</span>
+<span class="lineNum">     583 </span>            : {
+<span class="lineNum">     584 </span>            :     enum Reachability {
+<span class="lineNum">     585 </span>            :         REACH_UNREACHABLE,
+<span class="lineNum">     586 </span>            :         REACH_DEFAULT,
+<span class="lineNum">     587 </span>            :         REACH_TEREDO,
+<span class="lineNum">     588 </span>            :         REACH_IPV6_WEAK,
+<span class="lineNum">     589 </span>            :         REACH_IPV4,
+<span class="lineNum">     590 </span>            :         REACH_IPV6_STRONG,
+<span class="lineNum">     591 </span>            :         REACH_PRIVATE
+<span class="lineNum">     592 </span>            :     };
+<span class="lineNum">     593 </span>            : 
+<span class="lineNum">     594 </span><span class="lineCov">          2 :     if (!IsRoutable() || IsInternal())</span>
+<span class="lineNum">     595 </span><span class="lineCov">          2 :         return REACH_UNREACHABLE;</span>
+<span class="lineNum">     596 </span>            : 
+<span class="lineNum">     597 </span><span class="lineNoCov">          0 :     int ourNet = GetExtNetwork(this);</span>
+<span class="lineNum">     598 </span><span class="lineNoCov">          0 :     int theirNet = GetExtNetwork(paddrPartner);</span>
+<span class="lineNum">     599 </span><span class="lineNoCov">          0 :     bool fTunnel = IsRFC3964() || IsRFC6052() || IsRFC6145();</span>
+<span class="lineNum">     600 </span>            : 
+<span class="lineNum">     601 </span><span class="lineNoCov">          0 :     switch(theirNet) {</span>
+<span class="lineNum">     602 </span>            :     case NET_IPV4:
+<span class="lineNum">     603 </span><span class="lineNoCov">          0 :         switch(ourNet) {</span>
+<span class="lineNum">     604 </span><span class="lineNoCov">          0 :         default:       return REACH_DEFAULT;</span>
+<span class="lineNum">     605 </span><span class="lineNoCov">          0 :         case NET_IPV4: return REACH_IPV4;</span>
+<span class="lineNum">     606 </span>            :         }
+<span class="lineNum">     607 </span>            :     case NET_IPV6:
+<span class="lineNum">     608 </span><span class="lineNoCov">          0 :         switch(ourNet) {</span>
+<span class="lineNum">     609 </span><span class="lineNoCov">          0 :         default:         return REACH_DEFAULT;</span>
+<span class="lineNum">     610 </span><span class="lineNoCov">          0 :         case NET_TEREDO: return REACH_TEREDO;</span>
+<span class="lineNum">     611 </span><span class="lineNoCov">          0 :         case NET_IPV4:   return REACH_IPV4;</span>
+<span class="lineNum">     612 </span><span class="lineNoCov">          0 :         case NET_IPV6:   return fTunnel ? REACH_IPV6_WEAK : REACH_IPV6_STRONG; // only prefer giving our IPv6 address if it's not tunnelled</span>
+<span class="lineNum">     613 </span>            :         }
+<span class="lineNum">     614 </span>            :     case NET_ONION:
+<span class="lineNum">     615 </span><span class="lineNoCov">          0 :         switch(ourNet) {</span>
+<span class="lineNum">     616 </span><span class="lineNoCov">          0 :         default:         return REACH_DEFAULT;</span>
+<span class="lineNum">     617 </span><span class="lineNoCov">          0 :         case NET_IPV4:   return REACH_IPV4; // Tor users can connect to IPv4 as well</span>
+<span class="lineNum">     618 </span><span class="lineNoCov">          0 :         case NET_ONION:    return REACH_PRIVATE;</span>
+<span class="lineNum">     619 </span>            :         }
+<span class="lineNum">     620 </span>            :     case NET_TEREDO:
+<span class="lineNum">     621 </span><span class="lineNoCov">          0 :         switch(ourNet) {</span>
+<span class="lineNum">     622 </span><span class="lineNoCov">          0 :         default:          return REACH_DEFAULT;</span>
+<span class="lineNum">     623 </span><span class="lineNoCov">          0 :         case NET_TEREDO:  return REACH_TEREDO;</span>
+<span class="lineNum">     624 </span><span class="lineNoCov">          0 :         case NET_IPV6:    return REACH_IPV6_WEAK;</span>
+<span class="lineNum">     625 </span><span class="lineNoCov">          0 :         case NET_IPV4:    return REACH_IPV4;</span>
+<span class="lineNum">     626 </span>            :         }
+<span class="lineNum">     627 </span>            :     case NET_UNKNOWN:
+<span class="lineNum">     628 </span>            :     case NET_UNROUTABLE:
+<span class="lineNum">     629 </span>            :     default:
+<span class="lineNum">     630 </span><span class="lineNoCov">          0 :         switch(ourNet) {</span>
+<span class="lineNum">     631 </span><span class="lineNoCov">          0 :         default:          return REACH_DEFAULT;</span>
+<span class="lineNum">     632 </span><span class="lineNoCov">          0 :         case NET_TEREDO:  return REACH_TEREDO;</span>
+<span class="lineNum">     633 </span><span class="lineNoCov">          0 :         case NET_IPV6:    return REACH_IPV6_WEAK;</span>
+<span class="lineNum">     634 </span><span class="lineNoCov">          0 :         case NET_IPV4:    return REACH_IPV4;</span>
+<span class="lineNum">     635 </span><span class="lineNoCov">          0 :         case NET_ONION:     return REACH_PRIVATE; // either from Tor, or don't care about our address</span>
+<span class="lineNum">     636 </span>            :         }
+<span class="lineNum">     637 </span>            :     }
+<a name="638"><span class="lineNum">     638 </span><span class="lineCov">          2 : }</span></a>
+<span class="lineNum">     639 </span>            : 
+<span class="lineNum">     640 </span><span class="lineCov">      18356 : CService::CService() : port(0)</span>
+<span class="lineNum">     641 </span><span class="lineCov">      18356 : {</span>
+<a name="642"><span class="lineNum">     642 </span><span class="lineCov">      18356 : }</span></a>
+<span class="lineNum">     643 </span>            : 
+<span class="lineNum">     644 </span><span class="lineCov">      14321 : CService::CService(const CNetAddr&amp; cip, uint16_t portIn) : CNetAddr(cip), port(portIn)</span>
+<span class="lineNum">     645 </span><span class="lineCov">      14321 : {</span>
+<a name="646"><span class="lineNum">     646 </span><span class="lineCov">      14321 : }</span></a>
+<span class="lineNum">     647 </span>            : 
+<span class="lineNum">     648 </span><span class="lineCov">          5 : CService::CService(const struct in_addr&amp; ipv4Addr, uint16_t portIn) : CNetAddr(ipv4Addr), port(portIn)</span>
+<span class="lineNum">     649 </span><span class="lineCov">          5 : {</span>
+<a name="650"><span class="lineNum">     650 </span><span class="lineCov">          5 : }</span></a>
+<span class="lineNum">     651 </span>            : 
+<span class="lineNum">     652 </span><span class="lineNoCov">          0 : CService::CService(const struct in6_addr&amp; ipv6Addr, uint16_t portIn) : CNetAddr(ipv6Addr), port(portIn)</span>
+<span class="lineNum">     653 </span><span class="lineNoCov">          0 : {</span>
+<a name="654"><span class="lineNum">     654 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     655 </span>            : 
+<span class="lineNum">     656 </span><span class="lineNoCov">          0 : CService::CService(const struct sockaddr_in&amp; addr) : CNetAddr(addr.sin_addr), port(ntohs(addr.sin_port))</span>
+<span class="lineNum">     657 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     658 </span><span class="lineNoCov">          0 :     assert(addr.sin_family == AF_INET);</span>
+<a name="659"><span class="lineNum">     659 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     660 </span>            : 
+<span class="lineNum">     661 </span><span class="lineNoCov">          0 : CService::CService(const struct sockaddr_in6 &amp;addr) : CNetAddr(addr.sin6_addr, addr.sin6_scope_id), port(ntohs(addr.sin6_port))</span>
+<span class="lineNum">     662 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     663 </span><span class="lineNoCov">          0 :    assert(addr.sin6_family == AF_INET6);</span>
+<a name="664"><span class="lineNum">     664 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     665 </span>            : 
+<span class="lineNum">     666 </span><span class="lineNoCov">          0 : bool CService::SetSockAddr(const struct sockaddr *paddr)</span>
+<span class="lineNum">     667 </span>            : {
+<span class="lineNum">     668 </span><span class="lineNoCov">          0 :     switch (paddr-&gt;sa_family) {</span>
+<span class="lineNum">     669 </span>            :     case AF_INET:
+<span class="lineNum">     670 </span><span class="lineNoCov">          0 :         *this = CService(*(const struct sockaddr_in*)paddr);</span>
+<span class="lineNum">     671 </span><span class="lineNoCov">          0 :         return true;</span>
+<span class="lineNum">     672 </span>            :     case AF_INET6:
+<span class="lineNum">     673 </span><span class="lineNoCov">          0 :         *this = CService(*(const struct sockaddr_in6*)paddr);</span>
+<span class="lineNum">     674 </span><span class="lineNoCov">          0 :         return true;</span>
+<span class="lineNum">     675 </span>            :     default:
+<span class="lineNum">     676 </span><span class="lineNoCov">          0 :         return false;</span>
+<span class="lineNum">     677 </span>            :     }
+<a name="678"><span class="lineNum">     678 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     679 </span>            : 
+<span class="lineNum">     680 </span><span class="lineCov">          2 : uint16_t CService::GetPort() const</span>
+<span class="lineNum">     681 </span>            : {
+<span class="lineNum">     682 </span><span class="lineCov">          2 :     return port;</span>
+<a name="683"><span class="lineNum">     683 </span>            : }</a>
+<span class="lineNum">     684 </span>            : 
+<span class="lineNum">     685 </span><span class="lineCov">          4 : bool operator==(const CService&amp; a, const CService&amp; b)</span>
+<span class="lineNum">     686 </span>            : {
+<span class="lineNum">     687 </span><span class="lineCov">          4 :     return static_cast&lt;CNetAddr&gt;(a) == static_cast&lt;CNetAddr&gt;(b) &amp;&amp; a.port == b.port;</span>
+<a name="688"><span class="lineNum">     688 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     689 </span>            : 
+<span class="lineNum">     690 </span><span class="lineCov">          2 : bool operator&lt;(const CService&amp; a, const CService&amp; b)</span>
+<span class="lineNum">     691 </span>            : {
+<span class="lineNum">     692 </span><span class="lineCov">          2 :     return static_cast&lt;CNetAddr&gt;(a) &lt; static_cast&lt;CNetAddr&gt;(b) || (static_cast&lt;CNetAddr&gt;(a) == static_cast&lt;CNetAddr&gt;(b) &amp;&amp; a.port &lt; b.port);</span>
+<span class="lineNum">     693 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     694 </span>            : 
+<span class="lineNum">     695 </span>            : /**
+<span class="lineNum">     696 </span>            :  * Obtain the IPv4/6 socket address this represents.
+<span class="lineNum">     697 </span>            :  *
+<span class="lineNum">     698 </span>            :  * @param[out] paddr The obtained socket address.
+<span class="lineNum">     699 </span>            :  * @param[in,out] addrlen The size, in bytes, of the address structure pointed
+<span class="lineNum">     700 </span>            :  *                        to by paddr. The value that's pointed to by this
+<span class="lineNum">     701 </span>            :  *                        parameter might change after calling this function if
+<span class="lineNum">     702 </span>            :  *                        the size of the corresponding address structure
+<span class="lineNum">     703 </span>            :  *                        changed.
+<span class="lineNum">     704 </span>            :  *
+<a name="705"><span class="lineNum">     705 </span>            :  * @returns Whether or not the operation was successful.</a>
+<span class="lineNum">     706 </span>            :  */
+<span class="lineNum">     707 </span><span class="lineCov">         17 : bool CService::GetSockAddr(struct sockaddr* paddr, socklen_t *addrlen) const</span>
+<span class="lineNum">     708 </span>            : {
+<span class="lineNum">     709 </span><span class="lineCov">         17 :     if (IsIPv4()) {</span>
+<span class="lineNum">     710 </span><span class="lineCov">         10 :         if (*addrlen &lt; (socklen_t)sizeof(struct sockaddr_in))</span>
+<span class="lineNum">     711 </span><span class="lineNoCov">          0 :             return false;</span>
+<span class="lineNum">     712 </span><span class="lineCov">         10 :         *addrlen = sizeof(struct sockaddr_in);</span>
+<span class="lineNum">     713 </span><span class="lineCov">         10 :         struct sockaddr_in *paddrin = (struct sockaddr_in*)paddr;</span>
+<span class="lineNum">     714 </span><span class="lineCov">         10 :         memset(paddrin, 0, *addrlen);</span>
+<span class="lineNum">     715 </span><span class="lineCov">         10 :         if (!GetInAddr(&amp;paddrin-&gt;sin_addr))</span>
+<span class="lineNum">     716 </span><span class="lineNoCov">          0 :             return false;</span>
+<span class="lineNum">     717 </span><span class="lineCov">         10 :         paddrin-&gt;sin_family = AF_INET;</span>
+<span class="lineNum">     718 </span><span class="lineCov">         10 :         paddrin-&gt;sin_port = htons(port);</span>
+<span class="lineNum">     719 </span><span class="lineCov">         10 :         return true;</span>
+<span class="lineNum">     720 </span>            :     }
+<span class="lineNum">     721 </span><span class="lineCov">          7 :     if (IsIPv6()) {</span>
+<span class="lineNum">     722 </span><span class="lineCov">          7 :         if (*addrlen &lt; (socklen_t)sizeof(struct sockaddr_in6))</span>
+<span class="lineNum">     723 </span><span class="lineNoCov">          0 :             return false;</span>
+<span class="lineNum">     724 </span><span class="lineCov">          7 :         *addrlen = sizeof(struct sockaddr_in6);</span>
+<span class="lineNum">     725 </span><span class="lineCov">          7 :         struct sockaddr_in6 *paddrin6 = (struct sockaddr_in6*)paddr;</span>
+<span class="lineNum">     726 </span><span class="lineCov">          7 :         memset(paddrin6, 0, *addrlen);</span>
+<span class="lineNum">     727 </span><span class="lineCov">          7 :         if (!GetIn6Addr(&amp;paddrin6-&gt;sin6_addr))</span>
+<span class="lineNum">     728 </span><span class="lineNoCov">          0 :             return false;</span>
+<span class="lineNum">     729 </span><span class="lineCov">          7 :         paddrin6-&gt;sin6_scope_id = scopeId;</span>
+<span class="lineNum">     730 </span><span class="lineCov">          7 :         paddrin6-&gt;sin6_family = AF_INET6;</span>
+<span class="lineNum">     731 </span><span class="lineCov">          7 :         paddrin6-&gt;sin6_port = htons(port);</span>
+<span class="lineNum">     732 </span><span class="lineCov">          7 :         return true;</span>
+<span class="lineNum">     733 </span>            :     }
+<span class="lineNum">     734 </span><span class="lineNoCov">          0 :     return false;</span>
+<span class="lineNum">     735 </span><span class="lineCov">         17 : }</span>
+<span class="lineNum">     736 </span>            : 
+<span class="lineNum">     737 </span>            : /**
+<a name="738"><span class="lineNum">     738 </span>            :  * @returns An identifier unique to this service's address and port number.</a>
+<span class="lineNum">     739 </span>            :  */
+<span class="lineNum">     740 </span><span class="lineCov">          2 : std::vector&lt;unsigned char&gt; CService::GetKey() const</span>
+<span class="lineNum">     741 </span>            : {
+<span class="lineNum">     742 </span><span class="lineCov">          2 :     auto key = GetAddrBytes();</span>
+<span class="lineNum">     743 </span><span class="lineCov">          2 :     key.push_back(port / 0x100); // most significant byte of our port</span>
+<span class="lineNum">     744 </span><span class="lineCov">          2 :     key.push_back(port &amp; 0x0FF); // least significant byte of our port</span>
+<span class="lineNum">     745 </span>            :     return key;
+<a name="746"><span class="lineNum">     746 </span><span class="lineCov">          2 : }</span></a>
+<span class="lineNum">     747 </span>            : 
+<span class="lineNum">     748 </span><span class="lineCov">         13 : std::string CService::ToStringPort() const</span>
+<span class="lineNum">     749 </span>            : {
+<span class="lineNum">     750 </span><span class="lineCov">         13 :     return strprintf(&quot;%u&quot;, port);</span>
+<a name="751"><span class="lineNum">     751 </span>            : }</a>
+<span class="lineNum">     752 </span>            : 
+<span class="lineNum">     753 </span><span class="lineCov">         11 : std::string CService::ToStringIPPort() const</span>
+<span class="lineNum">     754 </span>            : {
+<span class="lineNum">     755 </span><span class="lineCov">         11 :     if (IsIPv4() || IsTor() || IsInternal()) {</span>
+<span class="lineNum">     756 </span><span class="lineCov">          7 :         return ToStringIP() + &quot;:&quot; + ToStringPort();</span>
+<span class="lineNum">     757 </span>            :     } else {
+<span class="lineNum">     758 </span><span class="lineCov">          4 :         return &quot;[&quot; + ToStringIP() + &quot;]:&quot; + ToStringPort();</span>
+<span class="lineNum">     759 </span>            :     }
+<a name="760"><span class="lineNum">     760 </span><span class="lineCov">         11 : }</span></a>
+<span class="lineNum">     761 </span>            : 
+<span class="lineNum">     762 </span><span class="lineCov">          4 : std::string CService::ToString() const</span>
+<span class="lineNum">     763 </span>            : {
+<span class="lineNum">     764 </span><span class="lineCov">          4 :     return ToStringIPPort();</span>
+<a name="765"><span class="lineNum">     765 </span>            : }</a>
+<span class="lineNum">     766 </span>            : 
+<span class="lineNum">     767 </span><span class="lineCov">       1637 : CSubNet::CSubNet():</span>
+<span class="lineNum">     768 </span><span class="lineCov">       1637 :     valid(false)</span>
+<span class="lineNum">     769 </span>            : {
+<span class="lineNum">     770 </span><span class="lineCov">       1637 :     memset(netmask, 0, sizeof(netmask));</span>
+<a name="771"><span class="lineNum">     771 </span><span class="lineCov">       1637 : }</span></a>
+<span class="lineNum">     772 </span>            : 
+<span class="lineNum">     773 </span><span class="lineCov">         13 : CSubNet::CSubNet(const CNetAddr&amp; addr, uint8_t mask) : CSubNet()</span>
+<span class="lineNum">     774 </span>            : {
+<span class="lineNum">     775 </span><span class="lineCov">         21 :     valid = (addr.IsIPv4() &amp;&amp; mask &lt;= ADDR_IPV4_SIZE * 8) ||</span>
+<span class="lineNum">     776 </span><span class="lineCov">          8 :             (addr.IsIPv6() &amp;&amp; mask &lt;= ADDR_IPV6_SIZE * 8);</span>
+<span class="lineNum">     777 </span><span class="lineCov">         13 :     if (!valid) {</span>
+<span class="lineNum">     778 </span>            :         return;
+<span class="lineNum">     779 </span>            :     }
+<span class="lineNum">     780 </span>            : 
+<span class="lineNum">     781 </span><span class="lineCov">         11 :     assert(mask &lt;= sizeof(netmask) * 8);</span>
+<span class="lineNum">     782 </span>            : 
+<span class="lineNum">     783 </span><span class="lineCov">         11 :     network = addr;</span>
+<span class="lineNum">     784 </span>            : 
+<span class="lineNum">     785 </span>            :     uint8_t n = mask;
+<span class="lineNum">     786 </span><span class="lineCov">        127 :     for (size_t i = 0; i &lt; network.m_addr.size(); ++i) {</span>
+<span class="lineNum">     787 </span><span class="lineCov">        116 :         const uint8_t bits = n &lt; 8 ? n : 8;</span>
+<span class="lineNum">     788 </span><span class="lineCov">        116 :         netmask[i] = (uint8_t)((uint8_t)0xFF &lt;&lt; (8 - bits)); // Set first bits.</span>
+<span class="lineNum">     789 </span><span class="lineCov">        116 :         network.m_addr[i] &amp;= netmask[i]; // Normalize network according to netmask.</span>
+<span class="lineNum">     790 </span><span class="lineCov">        116 :         n -= bits;</span>
+<span class="lineNum">     791 </span>            :     }
+<span class="lineNum">     792 </span><span class="lineCov">         13 : }</span>
+<span class="lineNum">     793 </span>            : 
+<span class="lineNum">     794 </span>            : /**
+<span class="lineNum">     795 </span>            :  * @returns The number of 1-bits in the prefix of the specified subnet mask. If
+<a name="796"><span class="lineNum">     796 </span>            :  *          the specified subnet mask is not a valid one, -1.</a>
+<span class="lineNum">     797 </span>            :  */
+<span class="lineNum">     798 </span><span class="lineCov">       1088 : static inline int NetmaskBits(uint8_t x)</span>
+<span class="lineNum">     799 </span>            : {
+<span class="lineNum">     800 </span><span class="lineCov">       1088 :     switch(x) {</span>
+<span class="lineNum">     801 </span><span class="lineCov">        484 :     case 0x00: return 0;</span>
+<span class="lineNum">     802 </span><span class="lineCov">          3 :     case 0x80: return 1;</span>
+<span class="lineNum">     803 </span><span class="lineCov">         15 :     case 0xc0: return 2;</span>
+<span class="lineNum">     804 </span><span class="lineCov">         32 :     case 0xe0: return 3;</span>
+<span class="lineNum">     805 </span><span class="lineCov">          6 :     case 0xf0: return 4;</span>
+<span class="lineNum">     806 </span><span class="lineCov">         20 :     case 0xf8: return 5;</span>
+<span class="lineNum">     807 </span><span class="lineCov">         67 :     case 0xfc: return 6;</span>
+<span class="lineNum">     808 </span><span class="lineCov">          3 :     case 0xfe: return 7;</span>
+<span class="lineNum">     809 </span><span class="lineCov">        404 :     case 0xff: return 8;</span>
+<span class="lineNum">     810 </span><span class="lineCov">         54 :     default: return -1;</span>
+<span class="lineNum">     811 </span>            :     }
+<a name="812"><span class="lineNum">     812 </span><span class="lineCov">       1088 : }</span></a>
+<span class="lineNum">     813 </span>            : 
+<span class="lineNum">     814 </span><span class="lineCov">        234 : CSubNet::CSubNet(const CNetAddr&amp; addr, const CNetAddr&amp; mask) : CSubNet()</span>
+<span class="lineNum">     815 </span>            : {
+<span class="lineNum">     816 </span><span class="lineCov">        234 :     valid = (addr.IsIPv4() || addr.IsIPv6()) &amp;&amp; addr.m_net == mask.m_net;</span>
+<span class="lineNum">     817 </span><span class="lineCov">        234 :     if (!valid) {</span>
+<span class="lineNum">     818 </span>            :         return;
+<span class="lineNum">     819 </span>            :     }
+<span class="lineNum">     820 </span>            :     // Check if `mask` contains 1-bits after 0-bits (which is an invalid netmask).
+<span class="lineNum">     821 </span><span class="lineCov">       1157 :     bool zeros_found = false;</span>
+<span class="lineNum">     822 </span><span class="lineCov">       1285 :     for (auto b : mask.m_addr) {</span>
+<span class="lineNum">     823 </span><span class="lineCov">       1088 :         const int num_bits = NetmaskBits(b);</span>
+<span class="lineNum">     824 </span><span class="lineCov">       1088 :         if (num_bits == -1 || (zeros_found &amp;&amp; num_bits != 0)) {</span>
+<span class="lineNum">     825 </span><span class="lineCov">        128 :             valid = false;</span>
+<span class="lineNum">     826 </span><span class="lineCov">        128 :             return;</span>
+<span class="lineNum">     827 </span>            :         }
+<span class="lineNum">     828 </span><span class="lineCov">        960 :         if (num_bits &lt; 8) {</span>
+<span class="lineNum">     829 </span>            :             zeros_found = true;
+<span class="lineNum">     830 </span><span class="lineCov">        581 :         }</span>
+<span class="lineNum">     831 </span><span class="lineCov">       1920 :     }</span>
+<span class="lineNum">     832 </span>            : 
+<span class="lineNum">     833 </span><span class="lineCov">         69 :     assert(mask.m_addr.size() &lt;= sizeof(netmask));</span>
+<span class="lineNum">     834 </span>            : 
+<span class="lineNum">     835 </span><span class="lineCov">         69 :     memcpy(netmask, mask.m_addr.data(), mask.m_addr.size());</span>
+<span class="lineNum">     836 </span>            : 
+<span class="lineNum">     837 </span><span class="lineCov">         69 :     network = addr;</span>
+<span class="lineNum">     838 </span>            : 
+<span class="lineNum">     839 </span>            :     // Normalize network according to netmask
+<span class="lineNum">     840 </span><span class="lineCov">        609 :     for (size_t x = 0; x &lt; network.m_addr.size(); ++x) {</span>
+<span class="lineNum">     841 </span><span class="lineCov">        540 :         network.m_addr[x] &amp;= netmask[x];</span>
+<span class="lineNum">     842 </span>            :     }
+<a name="843"><span class="lineNum">     843 </span><span class="lineCov">        303 : }</span></a>
+<span class="lineNum">     844 </span>            : 
+<span class="lineNum">     845 </span><span class="lineCov">        149 : CSubNet::CSubNet(const CNetAddr&amp; addr) : CSubNet()</span>
+<span class="lineNum">     846 </span>            : {
+<span class="lineNum">     847 </span><span class="lineCov">        149 :     valid = addr.IsIPv4() || addr.IsIPv6();</span>
+<span class="lineNum">     848 </span><span class="lineCov">        149 :     if (!valid) {</span>
+<span class="lineNum">     849 </span>            :         return;
+<span class="lineNum">     850 </span>            :     }
+<span class="lineNum">     851 </span>            : 
+<span class="lineNum">     852 </span><span class="lineCov">        149 :     assert(addr.m_addr.size() &lt;= sizeof(netmask));</span>
+<span class="lineNum">     853 </span>            : 
+<span class="lineNum">     854 </span><span class="lineCov">        149 :     memset(netmask, 0xFF, addr.m_addr.size());</span>
+<span class="lineNum">     855 </span>            : 
+<span class="lineNum">     856 </span><span class="lineCov">        149 :     network = addr;</span>
+<span class="lineNum">     857 </span><span class="lineCov">        149 : }</span>
+<span class="lineNum">     858 </span>            : 
+<span class="lineNum">     859 </span>            : /**
+<span class="lineNum">     860 </span>            :  * @returns True if this subnet is valid, the specified address is valid, and
+<a name="861"><span class="lineNum">     861 </span>            :  *          the specified address belongs in this subnet.</a>
+<span class="lineNum">     862 </span>            :  */
+<span class="lineNum">     863 </span><span class="lineCov">          2 : bool CSubNet::Match(const CNetAddr &amp;addr) const</span>
+<span class="lineNum">     864 </span>            : {
+<span class="lineNum">     865 </span><span class="lineCov">          2 :     if (!valid || !addr.IsValid() || network.m_net != addr.m_net)</span>
+<span class="lineNum">     866 </span><span class="lineCov">          2 :         return false;</span>
+<span class="lineNum">     867 </span><span class="lineNoCov">          0 :     assert(network.m_addr.size() == addr.m_addr.size());</span>
+<span class="lineNum">     868 </span><span class="lineNoCov">          0 :     for (size_t x = 0; x &lt; addr.m_addr.size(); ++x) {</span>
+<span class="lineNum">     869 </span><span class="lineNoCov">          0 :         if ((addr.m_addr[x] &amp; netmask[x]) != network.m_addr[x]) {</span>
+<span class="lineNum">     870 </span><span class="lineNoCov">          0 :             return false;</span>
+<span class="lineNum">     871 </span>            :         }
+<span class="lineNum">     872 </span>            :     }
+<span class="lineNum">     873 </span><span class="lineNoCov">          0 :     return true;</span>
+<a name="874"><span class="lineNum">     874 </span><span class="lineCov">          2 : }</span></a>
+<span class="lineNum">     875 </span>            : 
+<span class="lineNum">     876 </span><span class="lineCov">          2 : std::string CSubNet::ToString() const</span>
+<span class="lineNum">     877 </span>            : {
+<span class="lineNum">     878 </span><span class="lineCov">          2 :     assert(network.m_addr.size() &lt;= sizeof(netmask));</span>
+<span class="lineNum">     879 </span>            : 
+<span class="lineNum">     880 </span><span class="lineCov">          2 :     uint8_t cidr = 0;</span>
+<span class="lineNum">     881 </span>            : 
+<span class="lineNum">     882 </span><span class="lineCov">          2 :     for (size_t i = 0; i &lt; network.m_addr.size(); ++i) {</span>
+<span class="lineNum">     883 </span><span class="lineCov">          2 :         if (netmask[i] == 0x00) {</span>
+<span class="lineNum">     884 </span><span class="lineCov">          2 :             break;</span>
+<span class="lineNum">     885 </span>            :         }
+<span class="lineNum">     886 </span><span class="lineNoCov">          0 :         cidr += NetmaskBits(netmask[i]);</span>
+<span class="lineNum">     887 </span>            :     }
+<span class="lineNum">     888 </span>            : 
+<span class="lineNum">     889 </span><span class="lineCov">          2 :     return network.ToString() + strprintf(&quot;/%u&quot;, cidr);</span>
+<a name="890"><span class="lineNum">     890 </span><span class="lineCov">          2 : }</span></a>
+<span class="lineNum">     891 </span>            : 
+<span class="lineNum">     892 </span><span class="lineCov">        394 : bool CSubNet::IsValid() const</span>
+<span class="lineNum">     893 </span>            : {
+<span class="lineNum">     894 </span><span class="lineCov">        394 :     return valid;</span>
+<a name="895"><span class="lineNum">     895 </span>            : }</a>
+<span class="lineNum">     896 </span>            : 
+<span class="lineNum">     897 </span><span class="lineNoCov">          0 : bool operator==(const CSubNet&amp; a, const CSubNet&amp; b)</span>
+<span class="lineNum">     898 </span>            : {
+<span class="lineNum">     899 </span><span class="lineNoCov">          0 :     return a.valid == b.valid &amp;&amp; a.network == b.network &amp;&amp; !memcmp(a.netmask, b.netmask, 16);</span>
+<a name="900"><span class="lineNum">     900 </span>            : }</a>
+<span class="lineNum">     901 </span>            : 
+<span class="lineNum">     902 </span><span class="lineNoCov">          0 : bool operator&lt;(const CSubNet&amp; a, const CSubNet&amp; b)</span>
+<span class="lineNum">     903 </span>            : {
+<span class="lineNum">     904 </span><span class="lineNoCov">          0 :     return (a.network &lt; b.network || (a.network == b.network &amp;&amp; memcmp(a.netmask, b.netmask, 16) &lt; 0));</span>
+<a name="905"><span class="lineNum">     905 </span>            : }</a>
+<span class="lineNum">     906 </span>            : 
+<span class="lineNum">     907 </span><span class="lineNoCov">          0 : bool SanityCheckASMap(const std::vector&lt;bool&gt;&amp; asmap)</span>
+<span class="lineNum">     908 </span>            : {
+<span class="lineNum">     909 </span><span class="lineNoCov">          0 :     return SanityCheckASMap(asmap, 128); // For IP address lookups, the input is 128 bits</span>
+<span class="lineNum">     910 </span>            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
