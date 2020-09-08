@@ -1,0 +1,508 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - fuzz_coverage.info - src/chain.h</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">src</a> - chain.h<span style="font-size: 80%;"> (source / <a href="chain.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">fuzz_coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">110</td>
+            <td class="headerCovTableEntry">179</td>
+            <td class="headerCovTableEntryLo">61.5 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-09-08 15:02:58</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">24</td>
+            <td class="headerCovTableEntry">44</td>
+            <td class="headerCovTableEntryLo">54.5 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2009-2010 Satoshi Nakamoto</a>
+<span class="lineNum">       2 </span>            : // Copyright (c) 2009-2020 The Bitcoin Core developers
+<span class="lineNum">       3 </span>            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       4 </span>            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       5 </span>            : 
+<span class="lineNum">       6 </span>            : #ifndef BITCOIN_CHAIN_H
+<span class="lineNum">       7 </span>            : #define BITCOIN_CHAIN_H
+<span class="lineNum">       8 </span>            : 
+<span class="lineNum">       9 </span>            : #include &lt;arith_uint256.h&gt;
+<span class="lineNum">      10 </span>            : #include &lt;consensus/params.h&gt;
+<span class="lineNum">      11 </span>            : #include &lt;flatfile.h&gt;
+<span class="lineNum">      12 </span>            : #include &lt;primitives/block.h&gt;
+<span class="lineNum">      13 </span>            : #include &lt;tinyformat.h&gt;
+<span class="lineNum">      14 </span>            : #include &lt;uint256.h&gt;
+<span class="lineNum">      15 </span>            : 
+<span class="lineNum">      16 </span>            : #include &lt;vector&gt;
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : /**
+<span class="lineNum">      19 </span>            :  * Maximum amount of time that a block timestamp is allowed to exceed the
+<span class="lineNum">      20 </span>            :  * current network-adjusted time before the block will be accepted.
+<span class="lineNum">      21 </span>            :  */
+<span class="lineNum">      22 </span>            : static constexpr int64_t MAX_FUTURE_BLOCK_TIME = 2 * 60 * 60;
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span>            : /**
+<span class="lineNum">      25 </span>            :  * Timestamp window used as a grace period by code that compares external
+<span class="lineNum">      26 </span>            :  * timestamps (such as timestamps passed to RPCs, or wallet key creation times)
+<span class="lineNum">      27 </span>            :  * to block timestamps. This should be set at least as high as
+<span class="lineNum">      28 </span>            :  * MAX_FUTURE_BLOCK_TIME.
+<span class="lineNum">      29 </span>            :  */
+<span class="lineNum">      30 </span>            : static constexpr int64_t TIMESTAMP_WINDOW = MAX_FUTURE_BLOCK_TIME;
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : /**
+<span class="lineNum">      33 </span>            :  * Maximum gap between node time and block time used
+<span class="lineNum">      34 </span>            :  * for the &quot;Catching up...&quot; mode in GUI.
+<span class="lineNum">      35 </span>            :  *
+<span class="lineNum">      36 </span>            :  * Ref: https://github.com/bitcoin/bitcoin/pull/1026
+<span class="lineNum">      37 </span>            :  */
+<span class="lineNum">      38 </span>            : static constexpr int64_t MAX_BLOCK_TIME_GAP = 90 * 60;
+<span class="lineNum">      39 </span>            : 
+<span class="lineNum">      40 </span>            : class CBlockFileInfo
+<span class="lineNum">      41 </span>            : {
+<span class="lineNum">      42 </span>            : public:
+<span class="lineNum">      43 </span>            :     unsigned int nBlocks;      //!&lt; number of blocks stored in file
+<span class="lineNum">      44 </span>            :     unsigned int nSize;        //!&lt; number of used bytes of block file
+<span class="lineNum">      45 </span>            :     unsigned int nUndoSize;    //!&lt; number of used bytes in the undo file
+<span class="lineNum">      46 </span>            :     unsigned int nHeightFirst; //!&lt; lowest height of block in file
+<span class="lineNum">      47 </span>            :     unsigned int nHeightLast;  //!&lt; highest height of block in file
+<span class="lineNum">      48 </span>            :     uint64_t nTimeFirst;       //!&lt; earliest time of block in file
+<a name="49"><span class="lineNum">      49 </span>            :     uint64_t nTimeLast;        //!&lt; latest time of block in file</a>
+<span class="lineNum">      50 </span>            : 
+<span class="lineNum">      51 </span><span class="lineNoCov">          0 :     SERIALIZE_METHODS(CBlockFileInfo, obj)</span>
+<span class="lineNum">      52 </span>            :     {
+<span class="lineNum">      53 </span><span class="lineNoCov">          0 :         READWRITE(VARINT(obj.nBlocks));</span>
+<span class="lineNum">      54 </span><span class="lineNoCov">          0 :         READWRITE(VARINT(obj.nSize));</span>
+<span class="lineNum">      55 </span><span class="lineNoCov">          0 :         READWRITE(VARINT(obj.nUndoSize));</span>
+<span class="lineNum">      56 </span><span class="lineNoCov">          0 :         READWRITE(VARINT(obj.nHeightFirst));</span>
+<span class="lineNum">      57 </span><span class="lineNoCov">          0 :         READWRITE(VARINT(obj.nHeightLast));</span>
+<span class="lineNum">      58 </span><span class="lineNoCov">          0 :         READWRITE(VARINT(obj.nTimeFirst));</span>
+<span class="lineNum">      59 </span><span class="lineNoCov">          0 :         READWRITE(VARINT(obj.nTimeLast));</span>
+<a name="60"><span class="lineNum">      60 </span><span class="lineNoCov">          0 :     }</span></a>
+<span class="lineNum">      61 </span>            : 
+<span class="lineNum">      62 </span><span class="lineCov">         28 :      void SetNull() {</span>
+<span class="lineNum">      63 </span><span class="lineCov">         28 :          nBlocks = 0;</span>
+<span class="lineNum">      64 </span><span class="lineCov">         28 :          nSize = 0;</span>
+<span class="lineNum">      65 </span><span class="lineCov">         28 :          nUndoSize = 0;</span>
+<span class="lineNum">      66 </span><span class="lineCov">         28 :          nHeightFirst = 0;</span>
+<span class="lineNum">      67 </span><span class="lineCov">         28 :          nHeightLast = 0;</span>
+<span class="lineNum">      68 </span><span class="lineCov">         28 :          nTimeFirst = 0;</span>
+<span class="lineNum">      69 </span><span class="lineCov">         28 :          nTimeLast = 0;</span>
+<a name="70"><span class="lineNum">      70 </span><span class="lineCov">         28 :      }</span></a>
+<span class="lineNum">      71 </span>            : 
+<span class="lineNum">      72 </span><span class="lineCov">         28 :      CBlockFileInfo() {</span>
+<span class="lineNum">      73 </span><span class="lineCov">         28 :          SetNull();</span>
+<span class="lineNum">      74 </span><span class="lineCov">         28 :      }</span>
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span>            :      std::string ToString() const;
+<a name="77"><span class="lineNum">      77 </span>            : </a>
+<span class="lineNum">      78 </span>            :      /** update statistics (does not update nSize) */
+<span class="lineNum">      79 </span><span class="lineCov">       5226 :      void AddBlock(unsigned int nHeightIn, uint64_t nTimeIn) {</span>
+<span class="lineNum">      80 </span><span class="lineCov">       5226 :          if (nBlocks==0 || nHeightFirst &gt; nHeightIn)</span>
+<span class="lineNum">      81 </span><span class="lineCov">         26 :              nHeightFirst = nHeightIn;</span>
+<span class="lineNum">      82 </span><span class="lineCov">       5226 :          if (nBlocks==0 || nTimeFirst &gt; nTimeIn)</span>
+<span class="lineNum">      83 </span><span class="lineCov">         26 :              nTimeFirst = nTimeIn;</span>
+<span class="lineNum">      84 </span><span class="lineCov">       5226 :          nBlocks++;</span>
+<span class="lineNum">      85 </span><span class="lineCov">       5226 :          if (nHeightIn &gt; nHeightLast)</span>
+<span class="lineNum">      86 </span><span class="lineCov">       5200 :              nHeightLast = nHeightIn;</span>
+<span class="lineNum">      87 </span><span class="lineCov">       5226 :          if (nTimeIn &gt; nTimeLast)</span>
+<span class="lineNum">      88 </span><span class="lineCov">        962 :              nTimeLast = nTimeIn;</span>
+<span class="lineNum">      89 </span><span class="lineCov">       5226 :      }</span>
+<span class="lineNum">      90 </span>            : };
+<span class="lineNum">      91 </span>            : 
+<span class="lineNum">      92 </span>            : enum BlockStatus: uint32_t {
+<span class="lineNum">      93 </span>            :     //! Unused.
+<span class="lineNum">      94 </span>            :     BLOCK_VALID_UNKNOWN      =    0,
+<span class="lineNum">      95 </span>            : 
+<span class="lineNum">      96 </span>            :     //! Reserved (was BLOCK_VALID_HEADER).
+<span class="lineNum">      97 </span>            :     BLOCK_VALID_RESERVED     =    1,
+<span class="lineNum">      98 </span>            : 
+<span class="lineNum">      99 </span>            :     //! All parent headers found, difficulty matches, timestamp &gt;= median previous, checkpoint. Implies all parents
+<span class="lineNum">     100 </span>            :     //! are also at least TREE.
+<span class="lineNum">     101 </span>            :     BLOCK_VALID_TREE         =    2,
+<span class="lineNum">     102 </span>            : 
+<span class="lineNum">     103 </span>            :     /**
+<span class="lineNum">     104 </span>            :      * Only first tx is coinbase, 2 &lt;= coinbase input script length &lt;= 100, transactions valid, no duplicate txids,
+<span class="lineNum">     105 </span>            :      * sigops, size, merkle root. Implies all parents are at least TREE but not necessarily TRANSACTIONS. When all
+<span class="lineNum">     106 </span>            :      * parent blocks also have TRANSACTIONS, CBlockIndex::nChainTx will be set.
+<span class="lineNum">     107 </span>            :      */
+<span class="lineNum">     108 </span>            :     BLOCK_VALID_TRANSACTIONS =    3,
+<span class="lineNum">     109 </span>            : 
+<span class="lineNum">     110 </span>            :     //! Outputs do not overspend inputs, no double spends, coinbase output ok, no immature coinbase spends, BIP30.
+<span class="lineNum">     111 </span>            :     //! Implies all parents are also at least CHAIN.
+<span class="lineNum">     112 </span>            :     BLOCK_VALID_CHAIN        =    4,
+<span class="lineNum">     113 </span>            : 
+<span class="lineNum">     114 </span>            :     //! Scripts &amp; signatures ok. Implies all parents are also at least SCRIPTS.
+<span class="lineNum">     115 </span>            :     BLOCK_VALID_SCRIPTS      =    5,
+<span class="lineNum">     116 </span>            : 
+<span class="lineNum">     117 </span>            :     //! All validity bits.
+<span class="lineNum">     118 </span>            :     BLOCK_VALID_MASK         =   BLOCK_VALID_RESERVED | BLOCK_VALID_TREE | BLOCK_VALID_TRANSACTIONS |
+<span class="lineNum">     119 </span>            :                                  BLOCK_VALID_CHAIN | BLOCK_VALID_SCRIPTS,
+<span class="lineNum">     120 </span>            : 
+<span class="lineNum">     121 </span>            :     BLOCK_HAVE_DATA          =    8, //!&lt; full block available in blk*.dat
+<span class="lineNum">     122 </span>            :     BLOCK_HAVE_UNDO          =   16, //!&lt; undo data available in rev*.dat
+<span class="lineNum">     123 </span>            :     BLOCK_HAVE_MASK          =   BLOCK_HAVE_DATA | BLOCK_HAVE_UNDO,
+<span class="lineNum">     124 </span>            : 
+<span class="lineNum">     125 </span>            :     BLOCK_FAILED_VALID       =   32, //!&lt; stage after last reached validness failed
+<span class="lineNum">     126 </span>            :     BLOCK_FAILED_CHILD       =   64, //!&lt; descends from failed block
+<span class="lineNum">     127 </span>            :     BLOCK_FAILED_MASK        =   BLOCK_FAILED_VALID | BLOCK_FAILED_CHILD,
+<span class="lineNum">     128 </span>            : 
+<span class="lineNum">     129 </span>            :     BLOCK_OPT_WITNESS       =   128, //!&lt; block data in blk*.data was received with a witness-enforcing client
+<span class="lineNum">     130 </span>            : };
+<span class="lineNum">     131 </span>            : 
+<span class="lineNum">     132 </span>            : /** The block chain is a tree shaped structure starting with the
+<span class="lineNum">     133 </span>            :  * genesis block at the root, with each block potentially having multiple
+<span class="lineNum">     134 </span>            :  * candidates to be the next block. A blockindex may have multiple pprev pointing
+<a name="135"><span class="lineNum">     135 </span>            :  * to it, but at most one of them can be part of the currently active branch.</a>
+<span class="lineNum">     136 </span>            :  */
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 : class CBlockIndex</span>
+<span class="lineNum">     138 </span>            : {
+<span class="lineNum">     139 </span>            : public:
+<span class="lineNum">     140 </span>            :     //! pointer to the hash of the block, if any. Memory is owned by this CBlockIndex
+<span class="lineNum">     141 </span><span class="lineCov">      10430 :     const uint256* phashBlock{nullptr};</span>
+<span class="lineNum">     142 </span>            : 
+<span class="lineNum">     143 </span>            :     //! pointer to the index of the predecessor of this block
+<span class="lineNum">     144 </span><span class="lineCov">      10430 :     CBlockIndex* pprev{nullptr};</span>
+<span class="lineNum">     145 </span>            : 
+<span class="lineNum">     146 </span>            :     //! pointer to the index of some further predecessor of this block
+<span class="lineNum">     147 </span><span class="lineCov">      10430 :     CBlockIndex* pskip{nullptr};</span>
+<span class="lineNum">     148 </span>            : 
+<span class="lineNum">     149 </span>            :     //! height of the entry in the chain. The genesis block has height 0
+<span class="lineNum">     150 </span><span class="lineCov">      10430 :     int nHeight{0};</span>
+<span class="lineNum">     151 </span>            : 
+<span class="lineNum">     152 </span>            :     //! Which # file this block is stored in (blk?????.dat)
+<span class="lineNum">     153 </span><span class="lineCov">      10430 :     int nFile{0};</span>
+<span class="lineNum">     154 </span>            : 
+<span class="lineNum">     155 </span>            :     //! Byte offset within blk?????.dat where this block's data is stored
+<span class="lineNum">     156 </span><span class="lineCov">      10430 :     unsigned int nDataPos{0};</span>
+<span class="lineNum">     157 </span>            : 
+<span class="lineNum">     158 </span>            :     //! Byte offset within rev?????.dat where this block's undo data is stored
+<span class="lineNum">     159 </span><span class="lineCov">      10430 :     unsigned int nUndoPos{0};</span>
+<span class="lineNum">     160 </span>            : 
+<span class="lineNum">     161 </span>            :     //! (memory only) Total amount of work (expected number of hashes) in the chain up to and including this block
+<span class="lineNum">     162 </span><span class="lineCov">      10430 :     arith_uint256 nChainWork{};</span>
+<span class="lineNum">     163 </span>            : 
+<span class="lineNum">     164 </span>            :     //! Number of transactions in this block.
+<span class="lineNum">     165 </span>            :     //! Note: in a potential headers-first mode, this number cannot be relied upon
+<span class="lineNum">     166 </span><span class="lineCov">      10430 :     unsigned int nTx{0};</span>
+<span class="lineNum">     167 </span>            : 
+<span class="lineNum">     168 </span>            :     //! (memory only) Number of transactions in the chain up to and including this block.
+<span class="lineNum">     169 </span>            :     //! This value will be non-zero only if and only if transactions for this block and all its parents are available.
+<span class="lineNum">     170 </span>            :     //! Change to 64-bit type when necessary; won't happen before 2030
+<span class="lineNum">     171 </span><span class="lineCov">      10430 :     unsigned int nChainTx{0};</span>
+<span class="lineNum">     172 </span>            : 
+<span class="lineNum">     173 </span>            :     //! Verification status of this block. See enum BlockStatus
+<span class="lineNum">     174 </span><span class="lineCov">      10430 :     uint32_t nStatus{0};</span>
+<span class="lineNum">     175 </span>            : 
+<span class="lineNum">     176 </span>            :     //! block header
+<span class="lineNum">     177 </span><span class="lineCov">          4 :     int32_t nVersion{0};</span>
+<span class="lineNum">     178 </span><span class="lineCov">          4 :     uint256 hashMerkleRoot{};</span>
+<span class="lineNum">     179 </span><span class="lineCov">          4 :     uint32_t nTime{0};</span>
+<span class="lineNum">     180 </span><span class="lineCov">          4 :     uint32_t nBits{0};</span>
+<span class="lineNum">     181 </span><span class="lineCov">          4 :     uint32_t nNonce{0};</span>
+<span class="lineNum">     182 </span>            : 
+<span class="lineNum">     183 </span>            :     //! (memory only) Sequential id assigned to distinguish order in which blocks are received.
+<span class="lineNum">     184 </span><span class="lineCov">      10430 :     int32_t nSequenceId{0};</span>
+<span class="lineNum">     185 </span>            : 
+<span class="lineNum">     186 </span>            :     //! (memory only) Maximum nTime in the chain up to and including this block.
+<a name="187"><span class="lineNum">     187 </span><span class="lineCov">      10430 :     unsigned int nTimeMax{0};</span></a>
+<span class="lineNum">     188 </span>            : 
+<span class="lineNum">     189 </span><span class="lineCov">          4 :     CBlockIndex()</span>
+<span class="lineNum">     190 </span>            :     {
+<a name="191"><span class="lineNum">     191 </span><span class="lineCov">          4 :     }</span></a>
+<span class="lineNum">     192 </span>            : 
+<span class="lineNum">     193 </span><span class="lineCov">      10426 :     explicit CBlockIndex(const CBlockHeader&amp; block)</span>
+<span class="lineNum">     194 </span><span class="lineCov">      10426 :         : nVersion{block.nVersion},</span>
+<span class="lineNum">     195 </span><span class="lineCov">      10426 :           hashMerkleRoot{block.hashMerkleRoot},</span>
+<span class="lineNum">     196 </span><span class="lineCov">      10426 :           nTime{block.nTime},</span>
+<span class="lineNum">     197 </span><span class="lineCov">      10426 :           nBits{block.nBits},</span>
+<span class="lineNum">     198 </span><span class="lineCov">      10426 :           nNonce{block.nNonce}</span>
+<span class="lineNum">     199 </span>            :     {
+<a name="200"><span class="lineNum">     200 </span><span class="lineCov">      10426 :     }</span></a>
+<span class="lineNum">     201 </span>            : 
+<span class="lineNum">     202 </span><span class="lineCov">         26 :     FlatFilePos GetBlockPos() const {</span>
+<span class="lineNum">     203 </span><span class="lineCov">         26 :         FlatFilePos ret;</span>
+<span class="lineNum">     204 </span><span class="lineCov">         26 :         if (nStatus &amp; BLOCK_HAVE_DATA) {</span>
+<span class="lineNum">     205 </span><span class="lineCov">         26 :             ret.nFile = nFile;</span>
+<span class="lineNum">     206 </span><span class="lineCov">         26 :             ret.nPos  = nDataPos;</span>
+<span class="lineNum">     207 </span><span class="lineCov">         26 :         }</span>
+<span class="lineNum">     208 </span><span class="lineCov">         26 :         return ret;</span>
+<a name="209"><span class="lineNum">     209 </span>            :     }</a>
+<span class="lineNum">     210 </span>            : 
+<span class="lineNum">     211 </span><span class="lineCov">       5200 :     FlatFilePos GetUndoPos() const {</span>
+<span class="lineNum">     212 </span><span class="lineCov">       5200 :         FlatFilePos ret;</span>
+<span class="lineNum">     213 </span><span class="lineCov">       5200 :         if (nStatus &amp; BLOCK_HAVE_UNDO) {</span>
+<span class="lineNum">     214 </span><span class="lineNoCov">          0 :             ret.nFile = nFile;</span>
+<span class="lineNum">     215 </span><span class="lineNoCov">          0 :             ret.nPos  = nUndoPos;</span>
+<span class="lineNum">     216 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     217 </span><span class="lineCov">       5200 :         return ret;</span>
+<a name="218"><span class="lineNum">     218 </span>            :     }</a>
+<span class="lineNum">     219 </span>            : 
+<span class="lineNum">     220 </span><span class="lineNoCov">          0 :     CBlockHeader GetBlockHeader() const</span>
+<span class="lineNum">     221 </span>            :     {
+<span class="lineNum">     222 </span><span class="lineNoCov">          0 :         CBlockHeader block;</span>
+<span class="lineNum">     223 </span><span class="lineNoCov">          0 :         block.nVersion       = nVersion;</span>
+<span class="lineNum">     224 </span><span class="lineNoCov">          0 :         if (pprev)</span>
+<span class="lineNum">     225 </span><span class="lineNoCov">          0 :             block.hashPrevBlock = pprev-&gt;GetBlockHash();</span>
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 :         block.hashMerkleRoot = hashMerkleRoot;</span>
+<span class="lineNum">     227 </span><span class="lineNoCov">          0 :         block.nTime          = nTime;</span>
+<span class="lineNum">     228 </span><span class="lineNoCov">          0 :         block.nBits          = nBits;</span>
+<span class="lineNum">     229 </span><span class="lineNoCov">          0 :         block.nNonce         = nNonce;</span>
+<span class="lineNum">     230 </span><span class="lineNoCov">          0 :         return block;</span>
+<a name="231"><span class="lineNum">     231 </span>            :     }</a>
+<span class="lineNum">     232 </span>            : 
+<span class="lineNum">     233 </span><span class="lineCov">      78182 :     uint256 GetBlockHash() const</span>
+<span class="lineNum">     234 </span>            :     {
+<span class="lineNum">     235 </span><span class="lineCov">      78182 :         return *phashBlock;</span>
+<span class="lineNum">     236 </span>            :     }
+<span class="lineNum">     237 </span>            : 
+<span class="lineNum">     238 </span>            :     /**
+<span class="lineNum">     239 </span>            :      * Check whether this block's and all previous blocks' transactions have been
+<span class="lineNum">     240 </span>            :      * downloaded (and stored to disk) at some point.
+<span class="lineNum">     241 </span>            :      *
+<span class="lineNum">     242 </span>            :      * Does not imply the transactions are consensus-valid (ConnectTip might fail)
+<a name="243"><span class="lineNum">     243 </span>            :      * Does not imply the transactions are still stored on disk. (IsBlockPruned might return true)</a>
+<span class="lineNum">     244 </span>            :      */
+<a name="245"><span class="lineNum">     245 </span><span class="lineCov">    4760704 :     bool HaveTxsDownloaded() const { return nChainTx != 0; }</span></a>
+<span class="lineNum">     246 </span>            : 
+<span class="lineNum">     247 </span><span class="lineCov">     337038 :     int64_t GetBlockTime() const</span>
+<span class="lineNum">     248 </span>            :     {
+<span class="lineNum">     249 </span><span class="lineCov">     337038 :         return (int64_t)nTime;</span>
+<a name="250"><span class="lineNum">     250 </span>            :     }</a>
+<span class="lineNum">     251 </span>            : 
+<span class="lineNum">     252 </span><span class="lineNoCov">          0 :     int64_t GetBlockTimeMax() const</span>
+<span class="lineNum">     253 </span>            :     {
+<span class="lineNum">     254 </span><span class="lineNoCov">          0 :         return (int64_t)nTimeMax;</span>
+<span class="lineNum">     255 </span>            :     }
+<span class="lineNum">     256 </span>            : 
+<a name="257"><span class="lineNum">     257 </span>            :     static constexpr int nMedianTimeSpan = 11;</a>
+<span class="lineNum">     258 </span>            : 
+<span class="lineNum">     259 </span><span class="lineCov">      26078 :     int64_t GetMedianTimePast() const</span>
+<span class="lineNum">     260 </span>            :     {
+<span class="lineNum">     261 </span><span class="lineCov">      26078 :         int64_t pmedian[nMedianTimeSpan];</span>
+<span class="lineNum">     262 </span><span class="lineCov">      26078 :         int64_t* pbegin = &amp;pmedian[nMedianTimeSpan];</span>
+<span class="lineNum">     263 </span>            :         int64_t* pend = &amp;pmedian[nMedianTimeSpan];
+<span class="lineNum">     264 </span>            : 
+<span class="lineNum">     265 </span>            :         const CBlockIndex* pindex = this;
+<span class="lineNum">     266 </span><span class="lineCov">     305786 :         for (int i = 0; i &lt; nMedianTimeSpan &amp;&amp; pindex; i++, pindex = pindex-&gt;pprev)</span>
+<span class="lineNum">     267 </span><span class="lineCov">     279708 :             *(--pbegin) = pindex-&gt;GetBlockTime();</span>
+<span class="lineNum">     268 </span>            : 
+<span class="lineNum">     269 </span><span class="lineCov">      26078 :         std::sort(pbegin, pend);</span>
+<span class="lineNum">     270 </span><span class="lineCov">      52156 :         return pbegin[(pend - pbegin)/2];</span>
+<a name="271"><span class="lineNum">     271 </span><span class="lineCov">      26078 :     }</span></a>
+<span class="lineNum">     272 </span>            : 
+<span class="lineNum">     273 </span><span class="lineNoCov">          0 :     std::string ToString() const</span>
+<span class="lineNum">     274 </span>            :     {
+<span class="lineNum">     275 </span><span class="lineNoCov">          0 :         return strprintf(&quot;CBlockIndex(pprev=%p, nHeight=%d, merkle=%s, hashBlock=%s)&quot;,</span>
+<span class="lineNum">     276 </span><span class="lineNoCov">          0 :             pprev, nHeight,</span>
+<span class="lineNum">     277 </span><span class="lineNoCov">          0 :             hashMerkleRoot.ToString(),</span>
+<span class="lineNum">     278 </span><span class="lineNoCov">          0 :             GetBlockHash().ToString());</span>
+<span class="lineNum">     279 </span><span class="lineNoCov">          0 :     }</span>
+<a name="280"><span class="lineNum">     280 </span>            : </a>
+<span class="lineNum">     281 </span>            :     //! Check whether this block index entry is valid up to the passed validity level.
+<span class="lineNum">     282 </span><span class="lineCov">      10400 :     bool IsValid(enum BlockStatus nUpTo = BLOCK_VALID_TRANSACTIONS) const</span>
+<span class="lineNum">     283 </span>            :     {
+<span class="lineNum">     284 </span><span class="lineCov">      10400 :         assert(!(nUpTo &amp; ~BLOCK_VALID_MASK)); // Only validity flags allowed.</span>
+<span class="lineNum">     285 </span><span class="lineCov">      10400 :         if (nStatus &amp; BLOCK_FAILED_MASK)</span>
+<span class="lineNum">     286 </span><span class="lineNoCov">          0 :             return false;</span>
+<span class="lineNum">     287 </span><span class="lineCov">      10400 :         return ((nStatus &amp; BLOCK_VALID_MASK) &gt;= nUpTo);</span>
+<span class="lineNum">     288 </span><span class="lineCov">      10400 :     }</span>
+<span class="lineNum">     289 </span>            : 
+<a name="290"><span class="lineNum">     290 </span>            :     //! Raise the validity level of this block index entry.</a>
+<span class="lineNum">     291 </span>            :     //! Returns true if the validity was changed.
+<span class="lineNum">     292 </span><span class="lineCov">      15652 :     bool RaiseValidity(enum BlockStatus nUpTo)</span>
+<span class="lineNum">     293 </span>            :     {
+<span class="lineNum">     294 </span><span class="lineCov">      15652 :         assert(!(nUpTo &amp; ~BLOCK_VALID_MASK)); // Only validity flags allowed.</span>
+<span class="lineNum">     295 </span><span class="lineCov">      15652 :         if (nStatus &amp; BLOCK_FAILED_MASK)</span>
+<span class="lineNum">     296 </span><span class="lineNoCov">          0 :             return false;</span>
+<span class="lineNum">     297 </span><span class="lineCov">      15652 :         if ((nStatus &amp; BLOCK_VALID_MASK) &lt; nUpTo) {</span>
+<span class="lineNum">     298 </span><span class="lineCov">      15652 :             nStatus = (nStatus &amp; ~BLOCK_VALID_MASK) | nUpTo;</span>
+<span class="lineNum">     299 </span><span class="lineCov">      15652 :             return true;</span>
+<span class="lineNum">     300 </span>            :         }
+<span class="lineNum">     301 </span><span class="lineNoCov">          0 :         return false;</span>
+<span class="lineNum">     302 </span><span class="lineCov">      15652 :     }</span>
+<span class="lineNum">     303 </span>            : 
+<span class="lineNum">     304 </span>            :     //! Build the skiplist pointer for this entry.
+<span class="lineNum">     305 </span>            :     void BuildSkip();
+<span class="lineNum">     306 </span>            : 
+<span class="lineNum">     307 </span>            :     //! Efficiently find an ancestor of this block.
+<span class="lineNum">     308 </span>            :     CBlockIndex* GetAncestor(int height);
+<span class="lineNum">     309 </span>            :     const CBlockIndex* GetAncestor(int height) const;
+<span class="lineNum">     310 </span>            : };
+<span class="lineNum">     311 </span>            : 
+<span class="lineNum">     312 </span>            : arith_uint256 GetBlockProof(const CBlockIndex&amp; block);
+<span class="lineNum">     313 </span>            : /** Return the time it would take to redo the work difference between from and to, assuming the current hashrate corresponds to the difficulty at tip, in seconds. */
+<span class="lineNum">     314 </span>            : int64_t GetBlockProofEquivalentTime(const CBlockIndex&amp; to, const CBlockIndex&amp; from, const CBlockIndex&amp; tip, const Consensus::Params&amp;);
+<span class="lineNum">     315 </span>            : /** Find the forking point between two chain tips. */
+<span class="lineNum">     316 </span>            : const CBlockIndex* LastCommonAncestor(const CBlockIndex* pa, const CBlockIndex* pb);
+<span class="lineNum">     317 </span>            : 
+<a name="318"><span class="lineNum">     318 </span>            : </a>
+<span class="lineNum">     319 </span>            : /** Used to marshal pointers into hashes for db storage. */
+<span class="lineNum">     320 </span><span class="lineNoCov">          0 : class CDiskBlockIndex : public CBlockIndex</span>
+<span class="lineNum">     321 </span>            : {
+<span class="lineNum">     322 </span>            : public:
+<a name="323"><span class="lineNum">     323 </span>            :     uint256 hashPrev;</a>
+<span class="lineNum">     324 </span>            : 
+<span class="lineNum">     325 </span><span class="lineCov">          4 :     CDiskBlockIndex() {</span>
+<span class="lineNum">     326 </span><span class="lineCov">          4 :         hashPrev = uint256();</span>
+<a name="327"><span class="lineNum">     327 </span><span class="lineCov">          4 :     }</span></a>
+<span class="lineNum">     328 </span>            : 
+<span class="lineNum">     329 </span><span class="lineNoCov">          0 :     explicit CDiskBlockIndex(const CBlockIndex* pindex) : CBlockIndex(*pindex) {</span>
+<span class="lineNum">     330 </span><span class="lineNoCov">          0 :         hashPrev = (pprev ? pprev-&gt;GetBlockHash() : uint256());</span>
+<a name="331"><span class="lineNum">     331 </span><span class="lineNoCov">          0 :     }</span></a>
+<span class="lineNum">     332 </span>            : 
+<span class="lineNum">     333 </span><span class="lineCov">          6 :     SERIALIZE_METHODS(CDiskBlockIndex, obj)</span>
+<span class="lineNum">     334 </span>            :     {
+<span class="lineNum">     335 </span><span class="lineCov">          2 :         int _nVersion = s.GetVersion();</span>
+<span class="lineNum">     336 </span><span class="lineCov">          2 :         if (!(s.GetType() &amp; SER_GETHASH)) READWRITE(VARINT_MODE(_nVersion, VarIntMode::NONNEGATIVE_SIGNED));</span>
+<span class="lineNum">     337 </span>            : 
+<span class="lineNum">     338 </span><span class="lineCov">          1 :         READWRITE(VARINT_MODE(obj.nHeight, VarIntMode::NONNEGATIVE_SIGNED));</span>
+<span class="lineNum">     339 </span><span class="lineCov">          1 :         READWRITE(VARINT(obj.nStatus));</span>
+<span class="lineNum">     340 </span><span class="lineCov">          1 :         READWRITE(VARINT(obj.nTx));</span>
+<span class="lineNum">     341 </span><span class="lineCov">          1 :         if (obj.nStatus &amp; (BLOCK_HAVE_DATA | BLOCK_HAVE_UNDO)) READWRITE(VARINT_MODE(obj.nFile, VarIntMode::NONNEGATIVE_SIGNED));</span>
+<span class="lineNum">     342 </span><span class="lineNoCov">          0 :         if (obj.nStatus &amp; BLOCK_HAVE_DATA) READWRITE(VARINT(obj.nDataPos));</span>
+<span class="lineNum">     343 </span><span class="lineNoCov">          0 :         if (obj.nStatus &amp; BLOCK_HAVE_UNDO) READWRITE(VARINT(obj.nUndoPos));</span>
+<span class="lineNum">     344 </span>            : 
+<span class="lineNum">     345 </span>            :         // block header
+<span class="lineNum">     346 </span><span class="lineNoCov">          0 :         READWRITE(obj.nVersion);</span>
+<span class="lineNum">     347 </span><span class="lineNoCov">          0 :         READWRITE(obj.hashPrev);</span>
+<span class="lineNum">     348 </span><span class="lineNoCov">          0 :         READWRITE(obj.hashMerkleRoot);</span>
+<span class="lineNum">     349 </span><span class="lineNoCov">          0 :         READWRITE(obj.nTime);</span>
+<span class="lineNum">     350 </span><span class="lineNoCov">          0 :         READWRITE(obj.nBits);</span>
+<span class="lineNum">     351 </span><span class="lineNoCov">          0 :         READWRITE(obj.nNonce);</span>
+<a name="352"><span class="lineNum">     352 </span><span class="lineNoCov">          0 :     }</span></a>
+<span class="lineNum">     353 </span>            : 
+<span class="lineNum">     354 </span><span class="lineNoCov">          0 :     uint256 GetBlockHash() const</span>
+<span class="lineNum">     355 </span>            :     {
+<span class="lineNum">     356 </span><span class="lineNoCov">          0 :         CBlockHeader block;</span>
+<span class="lineNum">     357 </span><span class="lineNoCov">          0 :         block.nVersion        = nVersion;</span>
+<span class="lineNum">     358 </span><span class="lineNoCov">          0 :         block.hashPrevBlock   = hashPrev;</span>
+<span class="lineNum">     359 </span><span class="lineNoCov">          0 :         block.hashMerkleRoot  = hashMerkleRoot;</span>
+<span class="lineNum">     360 </span><span class="lineNoCov">          0 :         block.nTime           = nTime;</span>
+<span class="lineNum">     361 </span><span class="lineNoCov">          0 :         block.nBits           = nBits;</span>
+<span class="lineNum">     362 </span><span class="lineNoCov">          0 :         block.nNonce          = nNonce;</span>
+<span class="lineNum">     363 </span><span class="lineNoCov">          0 :         return block.GetHash();</span>
+<span class="lineNum">     364 </span><span class="lineNoCov">          0 :     }</span>
+<a name="365"><span class="lineNum">     365 </span>            : </a>
+<span class="lineNum">     366 </span>            : 
+<span class="lineNum">     367 </span><span class="lineNoCov">          0 :     std::string ToString() const</span>
+<span class="lineNum">     368 </span>            :     {
+<span class="lineNum">     369 </span><span class="lineNoCov">          0 :         std::string str = &quot;CDiskBlockIndex(&quot;;</span>
+<span class="lineNum">     370 </span><span class="lineNoCov">          0 :         str += CBlockIndex::ToString();</span>
+<span class="lineNum">     371 </span><span class="lineNoCov">          0 :         str += strprintf(&quot;\n                hashBlock=%s, hashPrev=%s)&quot;,</span>
+<span class="lineNum">     372 </span><span class="lineNoCov">          0 :             GetBlockHash().ToString(),</span>
+<span class="lineNum">     373 </span><span class="lineNoCov">          0 :             hashPrev.ToString());</span>
+<span class="lineNum">     374 </span>            :         return str;
+<span class="lineNum">     375 </span><span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     376 </span>            : };
+<a name="377"><span class="lineNum">     377 </span>            : </a>
+<span class="lineNum">     378 </span>            : /** An in-memory indexed chain of blocks. */
+<span class="lineNum">     379 </span><span class="lineCov">         52 : class CChain {</span>
+<span class="lineNum">     380 </span>            : private:
+<span class="lineNum">     381 </span>            :     std::vector&lt;CBlockIndex*&gt; vChain;
+<span class="lineNum">     382 </span>            : 
+<a name="383"><span class="lineNum">     383 </span>            : public:</a>
+<span class="lineNum">     384 </span>            :     /** Returns the index entry for the genesis block of this chain, or nullptr if none. */
+<span class="lineNum">     385 </span><span class="lineCov">      15626 :     CBlockIndex *Genesis() const {</span>
+<span class="lineNum">     386 </span><span class="lineCov">      15626 :         return vChain.size() &gt; 0 ? vChain[0] : nullptr;</span>
+<span class="lineNum">     387 </span>            :     }
+<a name="388"><span class="lineNum">     388 </span>            : </a>
+<span class="lineNum">     389 </span>            :     /** Returns the index entry for the tip of this chain, or nullptr if none. */
+<span class="lineNum">     390 </span><span class="lineCov">    1760720 :     CBlockIndex *Tip() const {</span>
+<span class="lineNum">     391 </span><span class="lineCov">    1760720 :         return vChain.size() &gt; 0 ? vChain[vChain.size() - 1] : nullptr;</span>
+<span class="lineNum">     392 </span>            :     }
+<a name="393"><span class="lineNum">     393 </span>            : </a>
+<span class="lineNum">     394 </span>            :     /** Returns the index entry at a particular height in this chain, or nullptr if no such height exists. */
+<span class="lineNum">     395 </span><span class="lineCov">      20826 :     CBlockIndex *operator[](int nHeight) const {</span>
+<span class="lineNum">     396 </span><span class="lineCov">      20826 :         if (nHeight &lt; 0 || nHeight &gt;= (int)vChain.size())</span>
+<span class="lineNum">     397 </span><span class="lineCov">       5226 :             return nullptr;</span>
+<span class="lineNum">     398 </span><span class="lineCov">      15600 :         return vChain[nHeight];</span>
+<span class="lineNum">     399 </span><span class="lineCov">      20826 :     }</span>
+<a name="400"><span class="lineNum">     400 </span>            : </a>
+<span class="lineNum">     401 </span>            :     /** Efficiently check whether a block is present in this chain. */
+<span class="lineNum">     402 </span><span class="lineCov">      20826 :     bool Contains(const CBlockIndex *pindex) const {</span>
+<span class="lineNum">     403 </span><span class="lineCov">      20826 :         return (*this)[pindex-&gt;nHeight] == pindex;</span>
+<span class="lineNum">     404 </span>            :     }
+<a name="405"><span class="lineNum">     405 </span>            : </a>
+<span class="lineNum">     406 </span>            :     /** Find the successor of a block in this chain, or nullptr if the given index is not found or is the tip. */
+<span class="lineNum">     407 </span><span class="lineNoCov">          0 :     CBlockIndex *Next(const CBlockIndex *pindex) const {</span>
+<span class="lineNum">     408 </span><span class="lineNoCov">          0 :         if (Contains(pindex))</span>
+<span class="lineNum">     409 </span><span class="lineNoCov">          0 :             return (*this)[pindex-&gt;nHeight + 1];</span>
+<span class="lineNum">     410 </span>            :         else
+<span class="lineNum">     411 </span><span class="lineNoCov">          0 :             return nullptr;</span>
+<span class="lineNum">     412 </span><span class="lineNoCov">          0 :     }</span>
+<a name="413"><span class="lineNum">     413 </span>            : </a>
+<span class="lineNum">     414 </span>            :     /** Return the maximal height in the chain. Is equal to chain.Tip() ? chain.Tip()-&gt;nHeight : -1. */
+<span class="lineNum">     415 </span><span class="lineCov">      36478 :     int Height() const {</span>
+<span class="lineNum">     416 </span><span class="lineCov">      36478 :         return vChain.size() - 1;</span>
+<span class="lineNum">     417 </span>            :     }
+<span class="lineNum">     418 </span>            : 
+<span class="lineNum">     419 </span>            :     /** Set/initialize a chain with a given tip. */
+<span class="lineNum">     420 </span>            :     void SetTip(CBlockIndex *pindex);
+<span class="lineNum">     421 </span>            : 
+<span class="lineNum">     422 </span>            :     /** Return a CBlockLocator that refers to a block in this chain (by default the tip). */
+<span class="lineNum">     423 </span>            :     CBlockLocator GetLocator(const CBlockIndex *pindex = nullptr) const;
+<span class="lineNum">     424 </span>            : 
+<span class="lineNum">     425 </span>            :     /** Find the last common block between this chain and a block index entry. */
+<span class="lineNum">     426 </span>            :     const CBlockIndex *FindFork(const CBlockIndex *pindex) const;
+<span class="lineNum">     427 </span>            : 
+<span class="lineNum">     428 </span>            :     /** Find the earliest block with timestamp equal or greater than the given time and height equal or greater than the given height. */
+<span class="lineNum">     429 </span>            :     CBlockIndex* FindEarliestAtLeast(int64_t nTime, int height) const;
+<span class="lineNum">     430 </span>            : };
+<span class="lineNum">     431 </span>            : 
+<span class="lineNum">     432 </span>            : #endif // BITCOIN_CHAIN_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
