@@ -1,0 +1,396 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - fuzz_coverage.info - src/test/fuzz/integer.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">src/test/fuzz</a> - integer.cpp<span style="font-size: 80%;"> (source / <a href="integer.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">fuzz_coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">200</td>
+            <td class="headerCovTableEntryLo">2.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-09-13 08:22:10</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">358</td>
+            <td class="headerCovTableEntryLo">0.3 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : // Copyright (c) 2019-2020 The Bitcoin Core developers</a>
+<span class="lineNum">       2 </span>                :            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       3 </span>                :            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       4 </span>                :            : 
+<span class="lineNum">       5 </span>                :            : #include &lt;amount.h&gt;
+<span class="lineNum">       6 </span>                :            : #include &lt;arith_uint256.h&gt;
+<span class="lineNum">       7 </span>                :            : #include &lt;compressor.h&gt;
+<span class="lineNum">       8 </span>                :            : #include &lt;consensus/merkle.h&gt;
+<span class="lineNum">       9 </span>                :            : #include &lt;core_io.h&gt;
+<span class="lineNum">      10 </span>                :            : #include &lt;crypto/common.h&gt;
+<span class="lineNum">      11 </span>                :            : #include &lt;crypto/siphash.h&gt;
+<span class="lineNum">      12 </span>                :            : #include &lt;key_io.h&gt;
+<span class="lineNum">      13 </span>                :            : #include &lt;memusage.h&gt;
+<span class="lineNum">      14 </span>                :            : #include &lt;netbase.h&gt;
+<span class="lineNum">      15 </span>                :            : #include &lt;policy/settings.h&gt;
+<span class="lineNum">      16 </span>                :            : #include &lt;pow.h&gt;
+<span class="lineNum">      17 </span>                :            : #include &lt;protocol.h&gt;
+<span class="lineNum">      18 </span>                :            : #include &lt;pubkey.h&gt;
+<span class="lineNum">      19 </span>                :            : #include &lt;rpc/util.h&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;script/signingprovider.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;script/standard.h&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;serialize.h&gt;
+<span class="lineNum">      23 </span>                :            : #include &lt;streams.h&gt;
+<span class="lineNum">      24 </span>                :            : #include &lt;test/fuzz/FuzzedDataProvider.h&gt;
+<span class="lineNum">      25 </span>                :            : #include &lt;test/fuzz/fuzz.h&gt;
+<span class="lineNum">      26 </span>                :            : #include &lt;test/fuzz/util.h&gt;
+<span class="lineNum">      27 </span>                :            : #include &lt;uint256.h&gt;
+<span class="lineNum">      28 </span>                :            : #include &lt;util/check.h&gt;
+<span class="lineNum">      29 </span>                :            : #include &lt;util/moneystr.h&gt;
+<span class="lineNum">      30 </span>                :            : #include &lt;util/strencodings.h&gt;
+<span class="lineNum">      31 </span>                :            : #include &lt;util/string.h&gt;
+<span class="lineNum">      32 </span>                :            : #include &lt;util/system.h&gt;
+<span class="lineNum">      33 </span>                :            : #include &lt;util/time.h&gt;
+<span class="lineNum">      34 </span>                :            : #include &lt;version.h&gt;
+<span class="lineNum">      35 </span>                :            : 
+<span class="lineNum">      36 </span>                :            : #include &lt;cassert&gt;
+<span class="lineNum">      37 </span>                :            : #include &lt;chrono&gt;
+<span class="lineNum">      38 </span>                :            : #include &lt;ctime&gt;
+<span class="lineNum">      39 </span>                :            : #include &lt;limits&gt;
+<span class="lineNum">      40 </span>                :            : #include &lt;set&gt;
+<a name="41"><span class="lineNum">      41 </span>                :            : #include &lt;vector&gt;</a>
+<span class="lineNum">      42 </span>                :            : 
+<span class="lineNum">      43 </span>                :<span class="lineNoCov">          0 : void initialize()</span>
+<span class="lineNum">      44 </span>                :            : {
+<span class="lineNum">      45 </span>                :<span class="lineCov">          1 :     SelectParams(CBaseChainParams::REGTEST);</span>
+<a name="46"><span class="lineNum">      46 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">      47 </span>                :            : 
+<span class="lineNum">      48 </span>                :<span class="lineNoCov">          0 : void test_one_input(const std::vector&lt;uint8_t&gt;&amp; buffer)</span>
+<span class="lineNum">      49 </span>                :            : {
+<span class="lineNum">      50 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :     if (buffer.size() &lt; sizeof(uint256) + sizeof(uint160)) {</span>
+<span class="lineNum">      51 </span>                :            :         return;
+<span class="lineNum">      52 </span>                :            :     }
+<span class="lineNum">      53 </span>                :<span class="lineNoCov">          0 :     FuzzedDataProvider fuzzed_data_provider(buffer.data(), buffer.size());</span>
+<span class="lineNum">      54 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     const uint256 u256(fuzzed_data_provider.ConsumeBytes&lt;unsigned char&gt;(sizeof(uint256)));</span>
+<span class="lineNum">      55 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     const uint160 u160(fuzzed_data_provider.ConsumeBytes&lt;unsigned char&gt;(sizeof(uint160)));</span>
+<span class="lineNum">      56 </span>                :<span class="lineNoCov">          0 :     const uint64_t u64 = fuzzed_data_provider.ConsumeIntegral&lt;uint64_t&gt;();</span>
+<span class="lineNum">      57 </span>                :<span class="lineNoCov">          0 :     const int64_t i64 = fuzzed_data_provider.ConsumeIntegral&lt;int64_t&gt;();</span>
+<span class="lineNum">      58 </span>                :<span class="lineNoCov">          0 :     const uint32_t u32 = fuzzed_data_provider.ConsumeIntegral&lt;uint32_t&gt;();</span>
+<span class="lineNum">      59 </span>                :<span class="lineNoCov">          0 :     const int32_t i32 = fuzzed_data_provider.ConsumeIntegral&lt;int32_t&gt;();</span>
+<span class="lineNum">      60 </span>                :<span class="lineNoCov">          0 :     const uint16_t u16 = fuzzed_data_provider.ConsumeIntegral&lt;uint16_t&gt;();</span>
+<span class="lineNum">      61 </span>                :<span class="lineNoCov">          0 :     const int16_t i16 = fuzzed_data_provider.ConsumeIntegral&lt;int16_t&gt;();</span>
+<span class="lineNum">      62 </span>                :<span class="lineNoCov">          0 :     const uint8_t u8 = fuzzed_data_provider.ConsumeIntegral&lt;uint8_t&gt;();</span>
+<span class="lineNum">      63 </span>                :<span class="lineNoCov">          0 :     const int8_t i8 = fuzzed_data_provider.ConsumeIntegral&lt;int8_t&gt;();</span>
+<span class="lineNum">      64 </span>                :            :     // We cannot assume a specific value of std::is_signed&lt;char&gt;::value:
+<span class="lineNum">      65 </span>                :            :     // ConsumeIntegral&lt;char&gt;() instead of casting from {u,}int8_t.
+<span class="lineNum">      66 </span>                :<span class="lineNoCov">          0 :     const char ch = fuzzed_data_provider.ConsumeIntegral&lt;char&gt;();</span>
+<span class="lineNum">      67 </span>                :<span class="lineNoCov">          0 :     const bool b = fuzzed_data_provider.ConsumeBool();</span>
+<span class="lineNum">      68 </span>                :            : 
+<span class="lineNum">      69 </span>                :<span class="lineNoCov">          0 :     const Consensus::Params&amp; consensus_params = Params().GetConsensus();</span>
+<span class="lineNum">      70 </span>                :<span class="lineNoCov">          0 :     (void)CheckProofOfWork(u256, u32, consensus_params);</span>
+<span class="lineNum">      71 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (u64 &lt;= MAX_MONEY) {</span>
+<span class="lineNum">      72 </span>                :<span class="lineNoCov">          0 :         const uint64_t compressed_money_amount = CompressAmount(u64);</span>
+<span class="lineNum">      73 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         assert(u64 == DecompressAmount(compressed_money_amount));</span>
+<span class="lineNum">      74 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         static const uint64_t compressed_money_amount_max = CompressAmount(MAX_MONEY - 1);</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
+<span class="lineNum">      75 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         assert(compressed_money_amount &lt;= compressed_money_amount_max);</span>
+<span class="lineNum">      76 </span>                :<span class="lineNoCov">          0 :     } else {</span>
+<span class="lineNum">      77 </span>                :<span class="lineNoCov">          0 :         (void)CompressAmount(u64);</span>
+<span class="lineNum">      78 </span>                :            :     }
+<span class="lineNum">      79 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     static const uint256 u256_min(uint256S(&quot;0000000000000000000000000000000000000000000000000000000000000000&quot;));</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
+<span class="lineNum">      80 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     static const uint256 u256_max(uint256S(&quot;ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff&quot;));</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
+<span class="lineNum">      81 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     const std::vector&lt;uint256&gt; v256{u256, u256_min, u256_max};</span>
+<span class="lineNum">      82 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     (void)ComputeMerkleRoot(v256);</span>
+<span class="lineNum">      83 </span>                :<span class="lineNoCov">          0 :     (void)CountBits(u64);</span>
+<span class="lineNum">      84 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     (void)DecompressAmount(u64);</span>
+<span class="lineNum">      85 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     (void)FormatISO8601Date(i64);</span>
+<span class="lineNum">      86 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     (void)FormatISO8601DateTime(i64);</span>
+<span class="lineNum">      87 </span>                :            :     // FormatMoney(i) not defined when i == std::numeric_limits&lt;int64_t&gt;::min()
+<span class="lineNum">      88 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (i64 != std::numeric_limits&lt;int64_t&gt;::min()) {</span>
+<span class="lineNum">      89 </span>                :<span class="lineNoCov">          0 :         int64_t parsed_money;</span>
+<span class="lineNum">      90 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (ParseMoney(FormatMoney(i64), parsed_money)) {</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
+<span class="lineNum">      91 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :             assert(parsed_money == i64);</span>
+<span class="lineNum">      92 </span>                :            :         }
+<span class="lineNum">      93 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">      94 </span>                :<span class="lineNoCov">          0 :     (void)GetSizeOfCompactSize(u64);</span>
+<span class="lineNum">      95 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     (void)GetSpecialScriptSize(u32);</span>
+<span class="lineNum">      96 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (!MultiplicationOverflow(i64, static_cast&lt;int64_t&gt;(::nBytesPerSigOp)) &amp;&amp; !AdditionOverflow(i64 * ::nBytesPerSigOp, static_cast&lt;int64_t&gt;(4))) {</span>
+<span class="lineNum">      97 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         (void)GetVirtualTransactionSize(i64, i64);</span>
+<span class="lineNum">      98 </span>                :            :     }
+<span class="lineNum">      99 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (!MultiplicationOverflow(i64, static_cast&lt;int64_t&gt;(u32)) &amp;&amp; !AdditionOverflow(i64, static_cast&lt;int64_t&gt;(4)) &amp;&amp; !AdditionOverflow(i64 * u32, static_cast&lt;int64_t&gt;(4))) {</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
+<span class="lineNum">     100 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         (void)GetVirtualTransactionSize(i64, i64, u32);</span>
+<span class="lineNum">     101 </span>                :            :     }
+<span class="lineNum">     102 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     (void)HexDigit(ch);</span>
+<span class="lineNum">     103 </span>                :<span class="lineNoCov">          0 :     (void)MoneyRange(i64);</span>
+<span class="lineNum">     104 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     (void)ToString(i64);</span>
+<span class="lineNum">     105 </span>                :<span class="lineNoCov">          0 :     (void)IsDigit(ch);</span>
+<span class="lineNum">     106 </span>                :<span class="lineNoCov">          0 :     (void)IsSpace(ch);</span>
+<span class="lineNum">     107 </span>                :<span class="lineNoCov">          0 :     (void)IsSwitchChar(ch);</span>
+<span class="lineNum">     108 </span>                :<span class="lineNoCov">          0 :     (void)memusage::DynamicUsage(ch);</span>
+<span class="lineNum">     109 </span>                :<span class="lineNoCov">          0 :     (void)memusage::DynamicUsage(i16);</span>
+<span class="lineNum">     110 </span>                :<span class="lineNoCov">          0 :     (void)memusage::DynamicUsage(i32);</span>
+<span class="lineNum">     111 </span>                :<span class="lineNoCov">          0 :     (void)memusage::DynamicUsage(i64);</span>
+<span class="lineNum">     112 </span>                :<span class="lineNoCov">          0 :     (void)memusage::DynamicUsage(i8);</span>
+<span class="lineNum">     113 </span>                :<span class="lineNoCov">          0 :     (void)memusage::DynamicUsage(u16);</span>
+<span class="lineNum">     114 </span>                :<span class="lineNoCov">          0 :     (void)memusage::DynamicUsage(u32);</span>
+<span class="lineNum">     115 </span>                :<span class="lineNoCov">          0 :     (void)memusage::DynamicUsage(u64);</span>
+<span class="lineNum">     116 </span>                :<span class="lineNoCov">          0 :     (void)memusage::DynamicUsage(u8);</span>
+<span class="lineNum">     117 </span>                :<span class="lineNoCov">          0 :     const unsigned char uch = static_cast&lt;unsigned char&gt;(u8);</span>
+<span class="lineNum">     118 </span>                :<span class="lineNoCov">          0 :     (void)memusage::DynamicUsage(uch);</span>
+<span class="lineNum">     119 </span>                :            :     {
+<span class="lineNum">     120 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         const std::set&lt;int64_t&gt; i64s{i64, static_cast&lt;int64_t&gt;(u64)};</span>
+<span class="lineNum">     121 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         const size_t dynamic_usage = memusage::DynamicUsage(i64s);</span>
+<span class="lineNum">     122 </span>                :<span class="lineNoCov">          0 :         const size_t incremental_dynamic_usage = memusage::IncrementalDynamicUsage(i64s);</span>
+<span class="lineNum">     123 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         assert(dynamic_usage == incremental_dynamic_usage * i64s.size());</span>
+<span class="lineNum">     124 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     125 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     (void)MillisToTimeval(i64);</span>
+<span class="lineNum">     126 </span>                :<span class="lineNoCov">          0 :     const double d = ser_uint64_to_double(u64);</span>
+<span class="lineNum">     127 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     assert(ser_double_to_uint64(d) == u64);</span>
+<span class="lineNum">     128 </span>                :<span class="lineNoCov">          0 :     const float f = ser_uint32_to_float(u32);</span>
+<span class="lineNum">     129 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     assert(ser_float_to_uint32(f) == u32);</span>
+<span class="lineNum">     130 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     (void)SighashToStr(uch);</span>
+<span class="lineNum">     131 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     (void)SipHashUint256(u64, u64, u256);</span>
+<span class="lineNum">     132 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     (void)SipHashUint256Extra(u64, u64, u256, u32);</span>
+<span class="lineNum">     133 </span>                :<span class="lineNoCov">          0 :     (void)ToLower(ch);</span>
+<span class="lineNum">     134 </span>                :<span class="lineNoCov">          0 :     (void)ToUpper(ch);</span>
+<span class="lineNum">     135 </span>                :            :     // ValueFromAmount(i) not defined when i == std::numeric_limits&lt;int64_t&gt;::min()
+<span class="lineNum">     136 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (i64 != std::numeric_limits&lt;int64_t&gt;::min()) {</span>
+<span class="lineNum">     137 </span>                :<span class="lineNoCov">          0 :         int64_t parsed_money;</span>
+<span class="lineNum">     138 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (ParseMoney(ValueFromAmount(i64).getValStr(), parsed_money)) {</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
+<span class="lineNum">     139 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :             assert(parsed_money == i64);</span>
+<span class="lineNum">     140 </span>                :            :         }
+<span class="lineNum">     141 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     142 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (i32 &gt;= 0 &amp;&amp; i32 &lt;= 16) {</span>
+<span class="lineNum">     143 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         assert(i32 == CScript::DecodeOP_N(CScript::EncodeOP_N(i32)));</span>
+<span class="lineNum">     144 </span>                :            :     }
+<span class="lineNum">     145 </span>                :            : 
+<span class="lineNum">     146 </span>                :<span class="lineNoCov">          0 :     const std::chrono::seconds seconds{i64};</span>
+<span class="lineNum">     147 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     assert(count_seconds(seconds) == i64);</span>
+<span class="lineNum">     148 </span>                :            : 
+<span class="lineNum">     149 </span>                :<span class="lineNoCov">          0 :     const CScriptNum script_num{i64};</span>
+<span class="lineNum">     150 </span>                :<span class="lineNoCov">          0 :     (void)script_num.getint();</span>
+<span class="lineNum">     151 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     (void)script_num.getvch();</span>
+<span class="lineNum">     152 </span>                :            : 
+<span class="lineNum">     153 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     const arith_uint256 au256 = UintToArith256(u256);</span>
+<span class="lineNum">     154 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     assert(ArithToUint256(au256) == u256);</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
+<span class="lineNum">     155 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     assert(uint256S(au256.GetHex()) == u256);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">     156 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     (void)au256.bits();</span>
+<span class="lineNum">     157 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     (void)au256.GetCompact(/* fNegative= */ false);</span>
+<span class="lineNum">     158 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     (void)au256.GetCompact(/* fNegative= */ true);</span>
+<span class="lineNum">     159 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     (void)au256.getdouble();</span>
+<span class="lineNum">     160 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     (void)au256.GetHex();</span>
+<span class="lineNum">     161 </span>                :<span class="lineNoCov">          0 :     (void)au256.GetLow64();</span>
+<span class="lineNum">     162 </span>                :<span class="lineNoCov">          0 :     (void)au256.size();</span>
+<span class="lineNum">     163 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     (void)au256.ToString();</span>
+<span class="lineNum">     164 </span>                :            : 
+<span class="lineNum">     165 </span>                :<span class="lineNoCov">          0 :     const CKeyID key_id{u160};</span>
+<span class="lineNum">     166 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     const CScriptID script_id{u160};</span>
+<span class="lineNum">     167 </span>                :            :     // CTxDestination = CNoDestination ∪ PKHash ∪ ScriptHash ∪ WitnessV0ScriptHash ∪ WitnessV0KeyHash ∪ WitnessUnknown
+<span class="lineNum">     168 </span>                :<span class="lineNoCov">          0 :     const PKHash pk_hash{u160};</span>
+<span class="lineNum">     169 </span>                :<span class="lineNoCov">          0 :     const ScriptHash script_hash{u160};</span>
+<span class="lineNum">     170 </span>                :<span class="lineNoCov">          0 :     const WitnessV0KeyHash witness_v0_key_hash{u160};</span>
+<span class="lineNum">     171 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     const WitnessV0ScriptHash witness_v0_script_hash{u256};</span>
+<span class="lineNum">     172 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     const std::vector&lt;CTxDestination&gt; destinations{pk_hash, script_hash, witness_v0_key_hash, witness_v0_script_hash};</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>][<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">     173 </span>                :<span class="lineNoCov">          0 :     const SigningProvider store;</span>
+<span class="lineNum">     174 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for (const CTxDestination&amp; destination : destinations) {</span>
+<span class="lineNum">     175 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         (void)DescribeAddress(destination);</span>
+<span class="lineNum">     176 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         (void)EncodeDestination(destination);</span>
+<span class="lineNum">     177 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         (void)GetKeyForDestination(store, destination);</span>
+<span class="lineNum">     178 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         (void)GetScriptForDestination(destination);</span>
+<span class="lineNum">     179 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         (void)IsValidDestination(destination);</span>
+<span class="lineNum">     180 </span>                :            :     }
+<span class="lineNum">     181 </span>                :            : 
+<span class="lineNum">     182 </span>                :            :     {
+<span class="lineNum">     183 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         CDataStream stream(SER_NETWORK, INIT_PROTO_VERSION);</span>
+<span class="lineNum">     184 </span>                :            : 
+<span class="lineNum">     185 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         uint256 deserialized_u256;</span>
+<span class="lineNum">     186 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         stream &lt;&lt; u256;</span>
+<span class="lineNum">     187 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         stream &gt;&gt; deserialized_u256;</span>
+<span class="lineNum">     188 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         assert(u256 == deserialized_u256 &amp;&amp; stream.empty());</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
+<span class="lineNum">     189 </span>                :            : 
+<span class="lineNum">     190 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         uint160 deserialized_u160;</span>
+<span class="lineNum">     191 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         stream &lt;&lt; u160;</span>
+<span class="lineNum">     192 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         stream &gt;&gt; deserialized_u160;</span>
+<span class="lineNum">     193 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         assert(u160 == deserialized_u160 &amp;&amp; stream.empty());</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
+<span class="lineNum">     194 </span>                :            : 
+<span class="lineNum">     195 </span>                :<span class="lineNoCov">          0 :         uint64_t deserialized_u64;</span>
+<span class="lineNum">     196 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         stream &lt;&lt; u64;</span>
+<span class="lineNum">     197 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         stream &gt;&gt; deserialized_u64;</span>
+<span class="lineNum">     198 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         assert(u64 == deserialized_u64 &amp;&amp; stream.empty());</span>
+<span class="lineNum">     199 </span>                :            : 
+<span class="lineNum">     200 </span>                :<span class="lineNoCov">          0 :         int64_t deserialized_i64;</span>
+<span class="lineNum">     201 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         stream &lt;&lt; i64;</span>
+<span class="lineNum">     202 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         stream &gt;&gt; deserialized_i64;</span>
+<span class="lineNum">     203 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         assert(i64 == deserialized_i64 &amp;&amp; stream.empty());</span>
+<span class="lineNum">     204 </span>                :            : 
+<span class="lineNum">     205 </span>                :<span class="lineNoCov">          0 :         uint32_t deserialized_u32;</span>
+<span class="lineNum">     206 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         stream &lt;&lt; u32;</span>
+<span class="lineNum">     207 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         stream &gt;&gt; deserialized_u32;</span>
+<span class="lineNum">     208 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         assert(u32 == deserialized_u32 &amp;&amp; stream.empty());</span>
+<span class="lineNum">     209 </span>                :            : 
+<span class="lineNum">     210 </span>                :<span class="lineNoCov">          0 :         int32_t deserialized_i32;</span>
+<span class="lineNum">     211 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         stream &lt;&lt; i32;</span>
+<span class="lineNum">     212 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         stream &gt;&gt; deserialized_i32;</span>
+<span class="lineNum">     213 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         assert(i32 == deserialized_i32 &amp;&amp; stream.empty());</span>
+<span class="lineNum">     214 </span>                :            : 
+<span class="lineNum">     215 </span>                :<span class="lineNoCov">          0 :         uint16_t deserialized_u16;</span>
+<span class="lineNum">     216 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         stream &lt;&lt; u16;</span>
+<span class="lineNum">     217 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         stream &gt;&gt; deserialized_u16;</span>
+<span class="lineNum">     218 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         assert(u16 == deserialized_u16 &amp;&amp; stream.empty());</span>
+<span class="lineNum">     219 </span>                :            : 
+<span class="lineNum">     220 </span>                :<span class="lineNoCov">          0 :         int16_t deserialized_i16;</span>
+<span class="lineNum">     221 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         stream &lt;&lt; i16;</span>
+<span class="lineNum">     222 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         stream &gt;&gt; deserialized_i16;</span>
+<span class="lineNum">     223 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         assert(i16 == deserialized_i16 &amp;&amp; stream.empty());</span>
+<span class="lineNum">     224 </span>                :            : 
+<span class="lineNum">     225 </span>                :<span class="lineNoCov">          0 :         uint8_t deserialized_u8;</span>
+<span class="lineNum">     226 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         stream &lt;&lt; u8;</span>
+<span class="lineNum">     227 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         stream &gt;&gt; deserialized_u8;</span>
+<span class="lineNum">     228 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         assert(u8 == deserialized_u8 &amp;&amp; stream.empty());</span>
+<span class="lineNum">     229 </span>                :            : 
+<span class="lineNum">     230 </span>                :<span class="lineNoCov">          0 :         int8_t deserialized_i8;</span>
+<span class="lineNum">     231 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         stream &lt;&lt; i8;</span>
+<span class="lineNum">     232 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         stream &gt;&gt; deserialized_i8;</span>
+<span class="lineNum">     233 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         assert(i8 == deserialized_i8 &amp;&amp; stream.empty());</span>
+<span class="lineNum">     234 </span>                :            : 
+<span class="lineNum">     235 </span>                :<span class="lineNoCov">          0 :         char deserialized_ch;</span>
+<span class="lineNum">     236 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         stream &lt;&lt; ch;</span>
+<span class="lineNum">     237 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         stream &gt;&gt; deserialized_ch;</span>
+<span class="lineNum">     238 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         assert(ch == deserialized_ch &amp;&amp; stream.empty());</span>
+<span class="lineNum">     239 </span>                :            : 
+<span class="lineNum">     240 </span>                :<span class="lineNoCov">          0 :         bool deserialized_b;</span>
+<span class="lineNum">     241 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         stream &lt;&lt; b;</span>
+<span class="lineNum">     242 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         stream &gt;&gt; deserialized_b;</span>
+<span class="lineNum">     243 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         assert(b == deserialized_b &amp;&amp; stream.empty());</span>
+<span class="lineNum">     244 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     245 </span>                :            : 
+<span class="lineNum">     246 </span>                :            :     {
+<span class="lineNum">     247 </span>                :<span class="lineNoCov">          0 :         const ServiceFlags service_flags = (ServiceFlags)u64;</span>
+<span class="lineNum">     248 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         (void)HasAllDesirableServiceFlags(service_flags);</span>
+<span class="lineNum">     249 </span>                :<span class="lineNoCov">          0 :         (void)MayHaveUsefulAddressDB(service_flags);</span>
+<span class="lineNum">     250 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     251 </span>                :            : 
+<span class="lineNum">     252 </span>                :            :     {
+<span class="lineNum">     253 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         CDataStream stream(SER_NETWORK, INIT_PROTO_VERSION);</span>
+<span class="lineNum">     254 </span>                :            : 
+<span class="lineNum">     255 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         ser_writedata64(stream, u64);</span>
+<span class="lineNum">     256 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         const uint64_t deserialized_u64 = ser_readdata64(stream);</span>
+<span class="lineNum">     257 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         assert(u64 == deserialized_u64 &amp;&amp; stream.empty());</span>
+<span class="lineNum">     258 </span>                :            : 
+<span class="lineNum">     259 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         ser_writedata32(stream, u32);</span>
+<span class="lineNum">     260 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         const uint32_t deserialized_u32 = ser_readdata32(stream);</span>
+<span class="lineNum">     261 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         assert(u32 == deserialized_u32 &amp;&amp; stream.empty());</span>
+<span class="lineNum">     262 </span>                :            : 
+<span class="lineNum">     263 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         ser_writedata32be(stream, u32);</span>
+<span class="lineNum">     264 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         const uint32_t deserialized_u32be = ser_readdata32be(stream);</span>
+<span class="lineNum">     265 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         assert(u32 == deserialized_u32be &amp;&amp; stream.empty());</span>
+<span class="lineNum">     266 </span>                :            : 
+<span class="lineNum">     267 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         ser_writedata16(stream, u16);</span>
+<span class="lineNum">     268 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         const uint16_t deserialized_u16 = ser_readdata16(stream);</span>
+<span class="lineNum">     269 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         assert(u16 == deserialized_u16 &amp;&amp; stream.empty());</span>
+<span class="lineNum">     270 </span>                :            : 
+<span class="lineNum">     271 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         ser_writedata16be(stream, u16);</span>
+<span class="lineNum">     272 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         const uint16_t deserialized_u16be = ser_readdata16be(stream);</span>
+<span class="lineNum">     273 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         assert(u16 == deserialized_u16be &amp;&amp; stream.empty());</span>
+<span class="lineNum">     274 </span>                :            : 
+<span class="lineNum">     275 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         ser_writedata8(stream, u8);</span>
+<span class="lineNum">     276 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         const uint8_t deserialized_u8 = ser_readdata8(stream);</span>
+<span class="lineNum">     277 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         assert(u8 == deserialized_u8 &amp;&amp; stream.empty());</span>
+<span class="lineNum">     278 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     279 </span>                :            : 
+<span class="lineNum">     280 </span>                :            :     {
+<span class="lineNum">     281 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         CDataStream stream(SER_NETWORK, INIT_PROTO_VERSION);</span>
+<span class="lineNum">     282 </span>                :            : 
+<span class="lineNum">     283 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         WriteCompactSize(stream, u64);</span>
+<span class="lineNum">     284 </span>                :            :         try {
+<span class="lineNum">     285 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :             const uint64_t deserialized_u64 = ReadCompactSize(stream);</span>
+<span class="lineNum">     286 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :             assert(u64 == deserialized_u64 &amp;&amp; stream.empty());</span>
+<span class="lineNum">     287 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         } catch (const std::ios_base::failure&amp;) {</span>
+<span class="lineNum">     288 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     289 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     290 </span>                :            : 
+<span class="lineNum">     291 </span>                :            :     try {
+<span class="lineNum">     292 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         CHECK_NONFATAL(b);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>]
+<span class="lineNum">     293 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     } catch (const NonFatalCheckError&amp;) {</span>
+<span class="lineNum">     294 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     295 </span>                :<span class="lineCov">          2 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

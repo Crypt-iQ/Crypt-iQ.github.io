@@ -1,0 +1,2533 @@
+/usr/bin/lcov --gcov-tool /root/bitcoin/cov_tool_wrapper.sh -c -i -d /root/bitcoin/src -o baseline.info
+Capturing coverage data from /root/bitcoin/src
+Found LLVM gcov version 10.0.0, which emulates gcov version 4.2.0
+Scanning /root/bitcoin/src for .gcno files ...
+Found 337 graph files in /root/bitcoin/src
+Processing src/libbitcoin_common_a-versionbitsinfo.gcno
+Processing src/libbitcoin_common_a-bech32.gcno
+Processing src/index/libbitcoin_server_a-blockfilterindex.gcno
+Processing src/index/libbitcoin_server_a-base.gcno
+Processing src/index/libbitcoin_server_a-txindex.gcno
+Processing src/libbitcoin_server_a-dbwrapper.gcno
+Processing src/libbitcoin_util_a-logging.gcno
+Processing src/libbitcoin_common_a-net_permissions.gcno
+Processing src/libbitcoin_server_a-torcontrol.gcno
+Processing src/libbitcoin_common_a-netaddress.gcno
+Processing src/libbitcoin_server_a-txdb.gcno
+Processing src/support/libbitcoin_util_a-lockedpool.gcno
+Processing src/support/libbitcoin_util_a-cleanse.gcno
+Processing src/libbitcoin_server_a-timedata.gcno
+Processing src/libbitcoin_common_a-chainparams.gcno
+Processing src/libbitcoin_server_a-dummywallet.gcno
+Processing src/libbitcoin_util_a-threadinterrupt.gcno
+Processing src/util/libbitcoin_util_a-asmap.gcno
+Processing src/util/libbitcoin_util_a-string.gcno
+Processing src/util/libbitcoin_util_a-fees.gcno
+Processing src/util/libbitcoin_util_a-strencodings.gcno
+Processing src/util/libbitcoin_util_a-system.gcno
+Processing src/util/libbitcoin_util_a-time.gcno
+Processing src/util/libbitcoin_util_a-url.gcno
+Processing src/util/libbitcoin_util_a-error.gcno
+Processing src/util/libbitcoin_util_a-message.gcno
+Processing src/util/libbitcoin_consensus_a-strencodings.gcno
+Processing src/util/libbitcoin_util_a-bip32.gcno
+Processing src/util/libbitcoin_util_a-rbf.gcno
+Processing src/util/libbitcoin_util_a-threadnames.gcno
+Processing src/util/libbitcoin_util_a-spanparsing.gcno
+Processing src/util/libbitcoin_util_a-settings.gcno
+Processing src/util/libbitcoin_util_a-moneystr.gcno
+Processing src/util/libbitcoin_util_a-bytevectorhash.gcno
+Processing src/libbitcoin_util_a-random.gcno
+Processing src/rpc/libbitcoin_server_a-mining.gcno
+Processing src/rpc/libbitcoin_server_a-blockchain.gcno
+Processing src/rpc/libbitcoin_server_a-rawtransaction.gcno
+Processing src/rpc/libbitcoin_server_a-misc.gcno
+Processing src/rpc/libbitcoin_common_a-rawtransaction_util.gcno
+Processing src/rpc/libbitcoin_server_a-server.gcno
+Processing src/rpc/libbitcoin_util_a-request.gcno
+Processing src/rpc/libbitcoin_cli_a-client.gcno
+Processing src/rpc/libbitcoin_common_a-util.gcno
+Processing src/rpc/libbitcoin_server_a-net.gcno
+Processing src/leveldb/util/leveldb_libleveldb_a-hash.gcno
+Processing src/leveldb/util/leveldb_libleveldb_a-crc32c.gcno
+Processing src/leveldb/util/leveldb_libleveldb_a-env.gcno
+Processing src/leveldb/util/leveldb_libleveldb_a-logging.gcno
+Processing src/leveldb/util/leveldb_libleveldb_a-bloom.gcno
+Processing src/leveldb/util/leveldb_libleveldb_a-coding.gcno
+Processing src/leveldb/util/leveldb_libleveldb_a-filter_policy.gcno
+Processing src/leveldb/util/leveldb_libleveldb_a-histogram.gcno
+Processing src/leveldb/util/leveldb_libleveldb_a-env_posix.gcno
+Processing src/leveldb/util/leveldb_libleveldb_a-arena.gcno
+Processing src/leveldb/util/leveldb_libleveldb_a-status.gcno
+Processing src/leveldb/util/leveldb_libleveldb_a-cache.gcno
+Processing src/leveldb/util/leveldb_libleveldb_a-options.gcno
+Processing src/leveldb/util/leveldb_libleveldb_a-comparator.gcno
+Processing src/leveldb/db/leveldb_libleveldb_a-memtable.gcno
+Processing src/leveldb/db/leveldb_libleveldb_a-table_cache.gcno
+Processing src/leveldb/db/leveldb_libleveldb_a-db_iter.gcno
+Processing src/leveldb/db/leveldb_libleveldb_a-repair.gcno
+Processing src/leveldb/db/leveldb_libleveldb_a-log_writer.gcno
+Processing src/leveldb/db/leveldb_libleveldb_a-dumpfile.gcno
+Processing src/leveldb/db/leveldb_libleveldb_a-filename.gcno
+Processing src/leveldb/db/leveldb_libleveldb_a-write_batch.gcno
+Processing src/leveldb/db/leveldb_libleveldb_a-db_impl.gcno
+Processing src/leveldb/db/leveldb_libleveldb_a-version_edit.gcno
+Processing src/leveldb/db/leveldb_libleveldb_a-dbformat.gcno
+Processing src/leveldb/db/leveldb_libleveldb_a-version_set.gcno
+Processing src/leveldb/db/leveldb_libleveldb_a-builder.gcno
+Processing src/leveldb/db/leveldb_libleveldb_a-log_reader.gcno
+Processing src/leveldb/db/leveldb_libleveldb_a-c.gcno
+Processing src/leveldb/table/leveldb_libleveldb_a-merger.gcno
+Processing src/leveldb/table/leveldb_libleveldb_a-two_level_iterator.gcno
+Processing src/leveldb/table/leveldb_libleveldb_a-iterator.gcno
+Processing src/leveldb/table/leveldb_libleveldb_a-table_builder.gcno
+Processing src/leveldb/table/leveldb_libleveldb_a-block_builder.gcno
+Processing src/leveldb/table/leveldb_libleveldb_a-format.gcno
+Processing src/leveldb/table/leveldb_libleveldb_a-table.gcno
+Processing src/leveldb/table/leveldb_libleveldb_a-filter_block.gcno
+Processing src/leveldb/table/leveldb_libleveldb_a-block.gcno
+Processing src/leveldb/helpers/memenv/leveldb_libmemenv_a-memenv.gcno
+Processing src/node/libbitcoin_server_a-coinstats.gcno
+Processing src/node/libbitcoin_server_a-coin.gcno
+Processing src/node/libbitcoin_server_a-context.gcno
+Processing src/node/libbitcoin_server_a-ui_interface.gcno
+Processing src/node/libbitcoin_server_a-psbt.gcno
+Processing src/node/libbitcoin_server_a-transaction.gcno
+Processing src/compat/libbitcoin_cli_a-stdin.gcno
+Processing src/compat/libbitcoin_util_a-glibcxx_sanity.gcno
+Processing src/compat/libbitcoin_util_a-strnlen.gcno
+Processing src/compat/libbitcoin_util_a-glibc_sanity.gcno
+Processing src/libbitcoin_common_a-merkleblock.gcno
+Processing src/libbitcoin_common_a-psbt.gcno
+Processing src/libbitcoin_common_a-protocol.gcno
+Processing src/libbitcoin_server_a-pow.gcno
+Processing src/libbitcoin_util_a-randomenv.gcno
+Processing src/libbitcoin_server_a-flatfile.gcno
+Processing src/crc32c/src/crc32c_libcrc32c_a-crc32c_portable.gcno
+Processing src/crc32c/src/crc32c_libcrc32c_a-crc32c.gcno
+Processing src/crc32c/src/crc32c_libcrc32c_sse42_a-crc32c_sse42.gcno
+Processing src/libbitcoin_consensus_a-uint256.gcno
+Processing src/libbitcoin_server_a-miner.gcno
+Processing src/libbitcoin_server_a-httpserver.gcno
+Processing src/libbitcoin_util_a-sync.gcno
+Processing src/libbitcoin_util_a-chainparamsbase.gcno
+Processing src/libbitcoin_common_a-coins.gcno
+Processing src/libbitcoin_server_a-chain.gcno
+Processing src/libbitcoin_server_a-validation.gcno
+Processing src/libbitcoin_common_a-warnings.gcno
+Processing src/libbitcoin_server_a-noui.gcno
+Processing src/libbitcoin_common_a-base58.gcno
+Processing src/libbitcoin_server_a-init.gcno
+Processing src/libbitcoin_consensus_a-pubkey.gcno
+Processing src/libbitcoin_consensus_a-hash.gcno
+Processing src/libbitcoin_server_a-net_processing.gcno
+Processing src/libbitcoin_util_a-fs.gcno
+Processing src/libbitcoin_common_a-bloom.gcno
+Processing src/libbitcoin_server_a-rest.gcno
+Processing src/libbitcoin_server_a-banman.gcno
+Processing src/libbitcoin_common_a-core_write.gcno
+Processing src/libbitcoin_server_a-addrdb.gcno
+Processing src/libbitcoin_server_a-versionbits.gcno
+Processing src/libbitcoin_server_a-blockfilter.gcno
+Processing src/libbitcoin_common_a-core_read.gcno
+Processing src/libbitcoin_common_a-key.gcno
+Processing src/libbitcoin_common_a-scheduler.gcno
+Processing src/libbitcoin_server_a-blockencodings.gcno
+Processing src/libbitcoin_server_a-txmempool.gcno
+Processing src/libbitcoin_common_a-outputtype.gcno
+Processing src/script/libbitcoin_common_a-descriptor.gcno
+Processing src/script/libbitcoin_consensus_a-interpreter.gcno
+Processing src/script/libbitcoin_common_a-standard.gcno
+Processing src/script/libbitcoin_consensus_a-script.gcno
+Processing src/script/libbitcoin_common_a-sign.gcno
+Processing src/script/libbitcoin_consensus_a-script_error.gcno
+Processing src/script/libbitcoin_server_a-sigcache.gcno
+Processing src/script/libbitcoin_common_a-signingprovider.gcno
+Processing src/script/libbitcoin_consensus_a-bitcoinconsensus.gcno
+Processing src/crypto/crypto_libbitcoin_crypto_base_a-sha512.gcno
+Processing src/crypto/crypto_libbitcoin_crypto_base_a-aes.gcno
+Processing src/crypto/crypto_libbitcoin_crypto_base_a-hmac_sha512.gcno
+Processing src/crypto/crypto_libbitcoin_crypto_base_a-chacha_poly_aead.gcno
+Processing src/crypto/crypto_libbitcoin_crypto_shani_a-sha256_shani.gcno
+Processing src/crypto/crypto_libbitcoin_crypto_sse41_a-sha256_sse41.gcno
+Processing src/crypto/crypto_libbitcoin_crypto_base_a-chacha20.gcno
+Processing src/crypto/crypto_libbitcoin_crypto_base_a-hkdf_sha256_32.gcno
+Processing src/crypto/crypto_libbitcoin_crypto_base_a-siphash.gcno
+Processing src/crypto/crypto_libbitcoin_crypto_base_a-ripemd160.gcno
+Processing src/crypto/crypto_libbitcoin_crypto_base_a-sha256.gcno
+Processing src/crypto/crypto_libbitcoin_crypto_base_a-poly1305.gcno
+Processing src/crypto/crypto_libbitcoin_crypto_base_a-hmac_sha256.gcno
+Processing src/crypto/crypto_libbitcoin_crypto_base_a-sha1.gcno
+Processing src/crypto/crypto_libbitcoin_crypto_base_a-sha256_sse4.gcno
+Processing src/crypto/crypto_libbitcoin_crypto_avx2_a-sha256_avx2.gcno
+Processing src/libbitcoin_server_a-shutdown.gcno
+Processing src/interfaces/libbitcoin_util_a-handler.gcno
+Processing src/interfaces/libbitcoin_server_a-chain.gcno
+Processing src/interfaces/libbitcoin_server_a-node.gcno
+Processing src/libbitcoin_consensus_a-arith_uint256.gcno
+Processing src/primitives/libbitcoin_consensus_a-block.gcno
+Processing src/primitives/libbitcoin_consensus_a-transaction.gcno
+Processing src/test/util/libtest_util_a-wallet.gcno
+Processing src/test/util/libtest_util_a-transaction_utils.gcno
+Processing src/test/util/libtest_util_a-mining.gcno
+Processing src/test/util/libtest_util_a-blockfilter.gcno
+Processing src/test/util/libtest_util_a-str.gcno
+Processing src/test/util/libtest_util_a-net.gcno
+Processing src/test/util/libtest_util_a-setup_common.gcno
+Processing src/test/util/libtest_util_a-logging.gcno
+Processing src/test/fuzz/test_fuzz_addr_info_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_psbt_input_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_bloom_filter-bloom_filter.gcno
+Processing src/test/fuzz/test_fuzz_script_sigcache-script_sigcache.gcno
+Processing src/test/fuzz/test_fuzz_crypto_poly1305-crypto_poly1305.gcno
+Processing src/test/fuzz/test_fuzz_string-string.gcno
+Processing src/test/fuzz/test_fuzz_autofile-autofile.gcno
+Processing src/test/fuzz/test_fuzz_pow-pow.gcno
+Processing src/test/fuzz/test_fuzz_process_message_filterclear-process_message.gcno
+Processing src/test/fuzz/test_fuzz_span-span.gcno
+Processing src/test/fuzz/test_fuzz_spanparsing-spanparsing.gcno
+Processing src/test/fuzz/test_fuzz_crypto_aes256-crypto_aes256.gcno
+Processing src/test/fuzz/test_fuzz_crypto_common-crypto_common.gcno
+Processing src/test/fuzz/test_fuzz_sub_net_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_blockheader_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_inv_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_flatfile-flatfile.gcno
+Processing src/test/fuzz/test_fuzz_process_message_cmpctblock-process_message.gcno
+Processing src/test/fuzz/test_fuzz_random-random.gcno
+Processing src/test/fuzz/test_fuzz_banman-banman.gcno
+Processing src/test/fuzz/test_fuzz_netaddr_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_coins_view-coins_view.gcno
+Processing src/test/fuzz/test_fuzz_coins_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_net_permissions-net_permissions.gcno
+Processing src/test/fuzz/test_fuzz_addrdb-addrdb.gcno
+Processing src/test/fuzz/test_fuzz_http_request-http_request.gcno
+Processing src/test/fuzz/test_fuzz_flat_file_pos_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_chain-chain.gcno
+Processing src/test/fuzz/test_fuzz_bech32-bech32.gcno
+Processing src/test/fuzz/libtest_fuzz_a-fuzz.gcno
+Processing src/test/fuzz/test_fuzz_addition_overflow-addition_overflow.gcno
+Processing src/test/fuzz/test_fuzz_script_ops-script_ops.gcno
+Processing src/test/fuzz/test_fuzz_parse_numbers-parse_numbers.gcno
+Processing src/test/fuzz/test_fuzz_float-float.gcno
+Processing src/test/fuzz/test_fuzz_crypto_hkdf_hmac_sha256_l32-crypto_hkdf_hmac_sha256_l32.gcno
+Processing src/test/fuzz/test_fuzz_process_message_getblocks-process_message.gcno
+Processing src/test/fuzz/test_fuzz_process_message_version-process_message.gcno
+Processing src/test/fuzz/test_fuzz_key_io-key_io.gcno
+Processing src/test/fuzz/test_fuzz_validation_load_mempool-validation_load_mempool.gcno
+Processing src/test/fuzz/test_fuzz_service_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_block_header-block_header.gcno
+Processing src/test/fuzz/test_fuzz_partial_merkle_tree_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_block_file_info_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_block-block.gcno
+Processing src/test/fuzz/test_fuzz_prevector-prevector.gcno
+Processing src/test/fuzz/test_fuzz_process_message_filteradd-process_message.gcno
+Processing src/test/fuzz/test_fuzz_crypto_aes256cbc-crypto_aes256cbc.gcno
+Processing src/test/fuzz/test_fuzz_hex-hex.gcno
+Processing src/test/fuzz/test_fuzz_signature_checker-signature_checker.gcno
+Processing src/test/fuzz/test_fuzz_parse_hd_keypath-parse_hd_keypath.gcno
+Processing src/test/fuzz/test_fuzz_fee_rate-fee_rate.gcno
+Processing src/test/fuzz/test_fuzz_crypto_chacha20_poly1305_aead-crypto_chacha20_poly1305_aead.gcno
+Processing src/test/fuzz/test_fuzz_snapshotmetadata_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_process_message-process_message.gcno
+Processing src/test/fuzz/test_fuzz_cuckoocache-cuckoocache.gcno
+Processing src/test/fuzz/test_fuzz_process_message_inv-process_message.gcno
+Processing src/test/fuzz/test_fuzz_out_point_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_parse_univalue-parse_univalue.gcno
+Processing src/test/fuzz/test_fuzz_buffered_file-buffered_file.gcno
+Processing src/test/fuzz/test_fuzz_process_message_getheaders-process_message.gcno
+Processing src/test/fuzz/test_fuzz_fee_rate_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_rbf-rbf.gcno
+Processing src/test/fuzz/test_fuzz_scriptnum_ops-scriptnum_ops.gcno
+Processing src/test/fuzz/test_fuzz_partially_signed_transaction_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_diskblockindex_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_bloomfilter_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_policy_estimator_io-policy_estimator_io.gcno
+Processing src/test/fuzz/test_fuzz_protocol-protocol.gcno
+Processing src/test/fuzz/test_fuzz_process_message_getblocktxn-process_message.gcno
+Processing src/test/fuzz/test_fuzz_psbt_output_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_load_external_block_file-load_external_block_file.gcno
+Processing src/test/fuzz/test_fuzz_descriptor_parse-descriptor_parse.gcno
+Processing src/test/fuzz/test_fuzz_parse_iso8601-parse_iso8601.gcno
+Processing src/test/fuzz/test_fuzz_txundo_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_address_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_crypto_chacha20-crypto_chacha20.gcno
+Processing src/test/fuzz/test_fuzz_integer-integer.gcno
+Processing src/test/fuzz/test_fuzz_blockmerkleroot-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_addrman_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_p2p_transport_deserializer-p2p_transport_deserializer.gcno
+Processing src/test/fuzz/test_fuzz_script_interpreter-script_interpreter.gcno
+Processing src/test/fuzz/test_fuzz_pub_key_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_process_message_pong-process_message.gcno
+Processing src/test/fuzz/test_fuzz_locale-locale.gcno
+Processing src/test/fuzz/test_fuzz_timedata-timedata.gcno
+Processing src/test/fuzz/test_fuzz_eval_script-eval_script.gcno
+Processing src/test/fuzz/test_fuzz_process_message_ping-process_message.gcno
+Processing src/test/fuzz/test_fuzz_script_bitcoin_consensus-script_bitcoin_consensus.gcno
+Processing src/test/fuzz/test_fuzz_process_message_verack-process_message.gcno
+Processing src/test/fuzz/test_fuzz_tx_in-tx_in.gcno
+Processing src/test/fuzz/test_fuzz_banentry_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_rolling_bloom_filter-rolling_bloom_filter.gcno
+Processing src/test/fuzz/test_fuzz_process_message_sendcmpct-process_message.gcno
+Processing src/test/fuzz/test_fuzz_blocklocator_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_process_message_filterload-process_message.gcno
+Processing src/test/fuzz/test_fuzz_psbt-psbt.gcno
+Processing src/test/fuzz/test_fuzz_checkqueue-checkqueue.gcno
+Processing src/test/fuzz/test_fuzz_process_message_notfound-process_message.gcno
+Processing src/test/fuzz/test_fuzz_blockundo_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_tx_out-tx_out.gcno
+Processing src/test/fuzz/test_fuzz_system-system.gcno
+Processing src/test/fuzz/test_fuzz_process_message_block-process_message.gcno
+Processing src/test/fuzz/test_fuzz_multiplication_overflow-multiplication_overflow.gcno
+Processing src/test/fuzz/test_fuzz_blocktransactions_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_process_message_mempool-process_message.gcno
+Processing src/test/fuzz/test_fuzz_block_filter_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_prefilled_transaction_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_merkle_block_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_process_message_blocktxn-process_message.gcno
+Processing src/test/fuzz/test_fuzz_asmap-asmap.gcno
+Processing src/test/fuzz/test_fuzz_fees-fees.gcno
+Processing src/test/fuzz/test_fuzz_block_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_primitives_transaction-primitives_transaction.gcno
+Processing src/test/fuzz/test_fuzz_uint256_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_golomb_rice-golomb_rice.gcno
+Processing src/test/fuzz/test_fuzz_blocktransactionsrequest_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_process_message_headers-process_message.gcno
+Processing src/test/fuzz/test_fuzz_crypto-crypto.gcno
+Processing src/test/fuzz/test_fuzz_messageheader_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_message-message.gcno
+Processing src/test/fuzz/test_fuzz_asmap_direct-asmap_direct.gcno
+Processing src/test/fuzz/test_fuzz_base_encode_decode-base_encode_decode.gcno
+Processing src/test/fuzz/test_fuzz_process_message_getaddr-process_message.gcno
+Processing src/test/fuzz/test_fuzz_strprintf-strprintf.gcno
+Processing src/test/fuzz/test_fuzz_process_messages-process_messages.gcno
+Processing src/test/fuzz/test_fuzz_script_descriptor_cache-script_descriptor_cache.gcno
+Processing src/test/fuzz/test_fuzz_policy_estimator-policy_estimator.gcno
+Processing src/test/fuzz/test_fuzz_process_message_addr-process_message.gcno
+Processing src/test/fuzz/test_fuzz_script_flags-script_flags.gcno
+Processing src/test/fuzz/test_fuzz_process_message_tx-process_message.gcno
+Processing src/test/fuzz/test_fuzz_tx_in_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_kitchen_sink-kitchen_sink.gcno
+Processing src/test/fuzz/test_fuzz_uint160_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_process_message_feefilter-process_message.gcno
+Processing src/test/fuzz/test_fuzz_block_header_and_short_txids_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_blockfilter-blockfilter.gcno
+Processing src/test/fuzz/test_fuzz_script_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_process_message_getdata-process_message.gcno
+Processing src/test/fuzz/test_fuzz_merkleblock-merkleblock.gcno
+Processing src/test/fuzz/test_fuzz_key-key.gcno
+Processing src/test/fuzz/test_fuzz_netaddress-netaddress.gcno
+Processing src/test/fuzz/test_fuzz_txoutcompressor_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_script-script.gcno
+Processing src/test/fuzz/test_fuzz_script_sign-script_sign.gcno
+Processing src/test/fuzz/test_fuzz_decode_tx-decode_tx.gcno
+Processing src/test/fuzz/test_fuzz_key_origin_info_deserialize-deserialize.gcno
+Processing src/test/fuzz/test_fuzz_parse_script-parse_script.gcno
+Processing src/test/fuzz/test_fuzz_process_message_sendheaders-process_message.gcno
+Processing src/test/fuzz/test_fuzz_transaction-transaction.gcno
+Processing src/libbitcoin_common_a-key_io.gcno
+Processing src/libbitcoin_util_a-clientversion.gcno
+Processing src/libbitcoin_common_a-compressor.gcno
+Processing src/libbitcoin_server_a-validationinterface.gcno
+Processing src/libbitcoin_server_a-httprpc.gcno
+Processing src/policy/libbitcoin_server_a-settings.gcno
+Processing src/policy/libbitcoin_common_a-feerate.gcno
+Processing src/policy/libbitcoin_server_a-fees.gcno
+Processing src/policy/libbitcoin_common_a-policy.gcno
+Processing src/policy/libbitcoin_server_a-rbf.gcno
+Processing src/libbitcoin_server_a-net.gcno
+Processing src/libbitcoin_server_a-addrman.gcno
+Processing src/libbitcoin_common_a-netbase.gcno
+Processing src/consensus/libbitcoin_consensus_a-tx_check.gcno
+Processing src/consensus/libbitcoin_consensus_a-merkle.gcno
+Processing src/consensus/libbitcoin_server_a-tx_verify.gcno
+Finished .info-file creation
+/root/bitcoin/contrib/filter-lcov.py -p "/usr/include/" -p "/usr/lib/" -p "/usr/lib64/" -p "src/leveldb/" -p "src/crc32c/" -p "src/bench/" -p "src/univalue" -p "src/crypto/ctaes" -p "src/secp256k1" -p "depends" baseline.info baseline_filtered.info
+/usr/bin/lcov --gcov-tool /root/bitcoin/cov_tool_wrapper.sh -a baseline_filtered.info --rc lcov_branch_coverage=1 -o baseline_filtered.info
+Combining tracefiles.
+Reading tracefile baseline_filtered.info
+Writing data to baseline_filtered.info
+Summary coverage rate:
+  lines......: 0.0% (0 of 39613 lines)
+  functions..: 0.0% (0 of 9593 functions)
+  branches...: no data found
+148 fuzz target(s) found: addition_overflow addr_info_deserialize addrdb address_deserialize addrman_deserialize asmap asmap_direct autofile banentry_deserialize banman base_encode_decode bech32 block block_deserialize block_file_info_deserialize block_filter_deserialize block_header block_header_and_short_txids_deserialize blockfilter blockheader_deserialize blocklocator_deserialize blockmerkleroot blocktransactions_deserialize blocktransactionsrequest_deserialize blockundo_deserialize bloom_filter bloomfilter_deserialize buffered_file chain checkqueue coins_deserialize coins_view crypto crypto_aes256 crypto_aes256cbc crypto_chacha20 crypto_chacha20_poly1305_aead crypto_common crypto_hkdf_hmac_sha256_l32 crypto_poly1305 cuckoocache decode_tx descriptor_parse diskblockindex_deserialize eval_script fee_rate fee_rate_deserialize fees flat_file_pos_deserialize flatfile float golomb_rice hex http_request integer inv_deserialize key key_io key_origin_info_deserialize kitchen_sink load_external_block_file locale merkle_block_deserialize merkleblock message messageheader_deserialize multiplication_overflow net_permissions netaddr_deserialize netaddress out_point_deserialize p2p_transport_deserializer parse_hd_keypath parse_iso8601 parse_numbers parse_script parse_univalue partial_merkle_tree_deserialize partially_signed_transaction_deserialize policy_estimator policy_estimator_io pow prefilled_transaction_deserialize prevector primitives_transaction process_message process_message_addr process_message_block process_message_blocktxn process_message_cmpctblock process_message_feefilter process_message_filteradd process_message_filterclear process_message_filterload process_message_getaddr process_message_getblocks process_message_getblocktxn process_message_getdata process_message_getheaders process_message_headers process_message_inv process_message_mempool process_message_notfound process_message_ping process_message_pong process_message_sendcmpct process_message_sendheaders process_message_tx process_message_verack process_message_version process_messages protocol psbt psbt_input_deserialize psbt_output_deserialize pub_key_deserialize random rbf rolling_bloom_filter script script_bitcoin_consensus script_descriptor_cache script_deserialize script_flags script_interpreter script_ops script_sigcache script_sign scriptnum_ops service_deserialize signature_checker snapshotmetadata_deserialize span spanparsing string strprintf sub_net_deserialize system timedata transaction tx_in tx_in_deserialize tx_out txoutcompressor_deserialize txundo_deserialize uint160_deserialize uint256_deserialize validation_load_mempool
+148 of 148 detected fuzz target(s) selected: addition_overflow addr_info_deserialize addrdb address_deserialize addrman_deserialize asmap asmap_direct autofile banentry_deserialize banman base_encode_decode bech32 block block_deserialize block_file_info_deserialize block_filter_deserialize block_header block_header_and_short_txids_deserialize blockfilter blockheader_deserialize blocklocator_deserialize blockmerkleroot blocktransactions_deserialize blocktransactionsrequest_deserialize blockundo_deserialize bloom_filter bloomfilter_deserialize buffered_file chain checkqueue coins_deserialize coins_view crypto crypto_aes256 crypto_aes256cbc crypto_chacha20 crypto_chacha20_poly1305_aead crypto_common crypto_hkdf_hmac_sha256_l32 crypto_poly1305 cuckoocache decode_tx descriptor_parse diskblockindex_deserialize eval_script fee_rate fee_rate_deserialize fees flat_file_pos_deserialize flatfile float golomb_rice hex http_request integer inv_deserialize key key_io key_origin_info_deserialize kitchen_sink load_external_block_file locale merkle_block_deserialize merkleblock message messageheader_deserialize multiplication_overflow net_permissions netaddr_deserialize netaddress out_point_deserialize p2p_transport_deserializer parse_hd_keypath parse_iso8601 parse_numbers parse_script parse_univalue partial_merkle_tree_deserialize partially_signed_transaction_deserialize policy_estimator policy_estimator_io pow prefilled_transaction_deserialize prevector primitives_transaction process_message process_message_addr process_message_block process_message_blocktxn process_message_cmpctblock process_message_feefilter process_message_filteradd process_message_filterclear process_message_filterload process_message_getaddr process_message_getblocks process_message_getblocktxn process_message_getdata process_message_getheaders process_message_headers process_message_inv process_message_mempool process_message_notfound process_message_ping process_message_pong process_message_sendcmpct process_message_sendheaders process_message_tx process_message_verack process_message_version process_messages protocol psbt psbt_input_deserialize psbt_output_deserialize pub_key_deserialize random rbf rolling_bloom_filter script script_bitcoin_consensus script_descriptor_cache script_deserialize script_flags script_interpreter script_ops script_sigcache script_sign scriptnum_ops service_deserialize signature_checker snapshotmetadata_deserialize span spanparsing string strprintf sub_net_deserialize system timedata transaction tx_in tx_in_deserialize tx_out txoutcompressor_deserialize txundo_deserialize uint160_deserialize uint256_deserialize validation_load_mempool
+Fuzzing harnesses lacking a seed corpus: addition_overflow addr_info_deserialize addrdb address_deserialize addrman_deserialize asmap asmap_direct autofile banentry_deserialize banman base_encode_decode bech32 block block_deserialize block_file_info_deserialize block_filter_deserialize block_header block_header_and_short_txids_deserialize blockfilter blockheader_deserialize blocklocator_deserialize blockmerkleroot blocktransactions_deserialize blocktransactionsrequest_deserialize blockundo_deserialize bloom_filter bloomfilter_deserialize buffered_file chain checkqueue coins_deserialize coins_view crypto crypto_aes256 crypto_aes256cbc crypto_chacha20 crypto_chacha20_poly1305_aead crypto_common crypto_hkdf_hmac_sha256_l32 crypto_poly1305 cuckoocache decode_tx descriptor_parse diskblockindex_deserialize eval_script fee_rate fee_rate_deserialize fees flat_file_pos_deserialize flatfile float golomb_rice hex http_request integer inv_deserialize key key_io key_origin_info_deserialize kitchen_sink load_external_block_file locale merkle_block_deserialize merkleblock message messageheader_deserialize multiplication_overflow net_permissions netaddr_deserialize netaddress out_point_deserialize p2p_transport_deserializer parse_hd_keypath parse_iso8601 parse_numbers parse_script parse_univalue partial_merkle_tree_deserialize partially_signed_transaction_deserialize policy_estimator policy_estimator_io pow prefilled_transaction_deserialize prevector primitives_transaction process_message process_message_addr process_message_block process_message_blocktxn process_message_cmpctblock process_message_feefilter process_message_filteradd process_message_filterclear process_message_filterload process_message_getaddr process_message_getblocks process_message_getblocktxn process_message_getdata process_message_getheaders process_message_headers process_message_inv process_message_mempool process_message_notfound process_message_ping process_message_pong process_message_sendcmpct process_message_sendheaders process_message_tx process_message_verack process_message_version process_messages protocol psbt psbt_input_deserialize psbt_output_deserialize pub_key_deserialize random rbf rolling_bloom_filter script script_bitcoin_consensus script_descriptor_cache script_deserialize script_flags script_interpreter script_ops script_sigcache script_sign scriptnum_ops service_deserialize signature_checker snapshotmetadata_deserialize span spanparsing string strprintf sub_net_deserialize system timedata transaction tx_in tx_in_deserialize tx_out txoutcompressor_deserialize txundo_deserialize uint160_deserialize uint256_deserialize
+Please consider adding a fuzz seed corpus at https://github.com/bitcoin-core/qa-assets
+Run addr_info_deserialize with args ['/root/bitcoin/src/test/fuzz/addr_info_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/addr_info_deserialize']INFO: Seed: 4225095288
+INFO: Loaded 1 modules   (2614 inline 8-bit counters): 2614 [0x55c1feb660b4, 0x55c1feb66aea), 
+INFO: Loaded 1 PC tables (2614 PCs): 2614 [0x55c1feb66af0,0x55c1feb70e50), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/addr_info_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 172 ft: 173 corp: 1/1b exec/s: 0 rss: 34Mb
+#2	DONE   cov: 172 ft: 173 corp: 1/1b exec/s: 0 rss: 34Mb
+Done 2 runs in 0 second(s)
+
+Run address_deserialize with args ['/root/bitcoin/src/test/fuzz/address_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/address_deserialize']INFO: Seed: 4245893062
+INFO: Loaded 1 modules   (2589 inline 8-bit counters): 2589 [0x55b8322bd0b4, 0x55b8322bdad1), 
+INFO: Loaded 1 PC tables (2589 PCs): 2589 [0x55b8322bdad8,0x55b8322c7ca8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/address_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 171 ft: 172 corp: 1/1b exec/s: 0 rss: 34Mb
+#2	DONE   cov: 171 ft: 172 corp: 1/1b exec/s: 0 rss: 34Mb
+Done 2 runs in 0 second(s)
+
+Run asmap with args ['/root/bitcoin/src/test/fuzz/asmap', '-runs=1', 'qa-assets/fuzz_seed_corpus/asmap']INFO: Seed: 4291539761
+INFO: Loaded 1 modules   (2170 inline 8-bit counters): 2170 [0x558982e5703c, 0x558982e578b6), 
+INFO: Loaded 1 PC tables (2170 PCs): 2170 [0x558982e578b8,0x558982e60058), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/asmap
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 52 ft: 53 corp: 1/1b exec/s: 0 rss: 33Mb
+#2	DONE   cov: 52 ft: 53 corp: 1/1b exec/s: 0 rss: 33Mb
+Done 2 runs in 0 second(s)
+
+Run asmap_direct with args ['/root/bitcoin/src/test/fuzz/asmap_direct', '-runs=1', 'qa-assets/fuzz_seed_corpus/asmap_direct']INFO: Seed: 43751769
+INFO: Loaded 1 modules   (649 inline 8-bit counters): 649 [0x555b56821c08, 0x555b56821e91), 
+INFO: Loaded 1 PC tables (649 PCs): 649 [0x555b56821e98,0x555b56824728), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/asmap_direct
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 60 ft: 61 corp: 1/1b exec/s: 0 rss: 32Mb
+#2	DONE   cov: 60 ft: 61 corp: 1/1b exec/s: 0 rss: 32Mb
+Done 2 runs in 0 second(s)
+
+Run addition_overflow with args ['/root/bitcoin/src/test/fuzz/addition_overflow', '-runs=1', 'qa-assets/fuzz_seed_corpus/addition_overflow']INFO: Seed: 82652713
+INFO: Loaded 1 modules   (108987 inline 8-bit counters): 108987 [0x555daf3e31fc, 0x555daf3fdbb7), 
+INFO: Loaded 1 PC tables (108987 PCs): 108987 [0x555daf3fdbb8,0x555daf5a7768), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/addition_overflow
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 148 ft: 149 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 148 ft: 149 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run addrdb with args ['/root/bitcoin/src/test/fuzz/addrdb', '-runs=1', 'qa-assets/fuzz_seed_corpus/addrdb']INFO: Seed: 62921413
+INFO: Loaded 1 modules   (108936 inline 8-bit counters): 108936 [0x5567d668a26c, 0x5567d66a4bf4), 
+INFO: Loaded 1 PC tables (108936 PCs): 108936 [0x5567d66a4bf8,0x5567d684e478), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/addrdb
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 217 ft: 218 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 217 ft: 218 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run addrman_deserialize with args ['/root/bitcoin/src/test/fuzz/addrman_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/addrman_deserialize']INFO: Seed: 132941108
+INFO: Loaded 1 modules   (109038 inline 8-bit counters): 109038 [0x5647e7b8a3dc, 0x5647e7ba4dca), 
+INFO: Loaded 1 PC tables (109038 PCs): 109038 [0x5647e7ba4dd0,0x5647e7d4ecb0), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/addrman_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 390 ft: 391 corp: 1/1b exec/s: 0 rss: 82Mb
+#2	DONE   cov: 390 ft: 391 corp: 1/1b exec/s: 0 rss: 82Mb
+Done 2 runs in 0 second(s)
+
+Run banentry_deserialize with args ['/root/bitcoin/src/test/fuzz/banentry_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/banentry_deserialize']INFO: Seed: 375393312
+INFO: Loaded 1 modules   (949 inline 8-bit counters): 949 [0x562b08b33c4c, 0x562b08b34001), 
+INFO: Loaded 1 PC tables (949 PCs): 949 [0x562b08b34008,0x562b08b37b58), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/banentry_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 170 ft: 171 corp: 1/1b exec/s: 0 rss: 33Mb
+#2	DONE   cov: 170 ft: 171 corp: 1/1b exec/s: 0 rss: 33Mb
+Done 2 runs in 0 second(s)
+
+Run base_encode_decode with args ['/root/bitcoin/src/test/fuzz/base_encode_decode', '-runs=1', 'qa-assets/fuzz_seed_corpus/base_encode_decode']INFO: Seed: 374668523
+INFO: Loaded 1 modules   (14350 inline 8-bit counters): 14350 [0x55d482982ac4, 0x55d4829862d2), 
+INFO: Loaded 1 PC tables (14350 PCs): 14350 [0x55d4829862d8,0x55d4829be3b8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/base_encode_decode
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 349 ft: 350 corp: 1/1b exec/s: 0 rss: 36Mb
+#2	DONE   cov: 349 ft: 350 corp: 1/1b exec/s: 0 rss: 36Mb
+Done 2 runs in 0 second(s)
+
+Run bech32 with args ['/root/bitcoin/src/test/fuzz/bech32', '-runs=1', 'qa-assets/fuzz_seed_corpus/bech32']INFO: Seed: 416071214
+INFO: Loaded 1 modules   (606 inline 8-bit counters): 606 [0x55a9d4617c10, 0x55a9d4617e6e), 
+INFO: Loaded 1 PC tables (606 PCs): 606 [0x55a9d4617e70,0x55a9d461a450), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/bech32
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 347 ft: 348 corp: 1/1b exec/s: 0 rss: 33Mb
+#2	DONE   cov: 347 ft: 348 corp: 1/1b exec/s: 0 rss: 33Mb
+Done 2 runs in 0 second(s)
+
+Run autofile with args ['/root/bitcoin/src/test/fuzz/autofile', '-runs=1', 'qa-assets/fuzz_seed_corpus/autofile']INFO: Seed: 261660750
+INFO: Loaded 1 modules   (109322 inline 8-bit counters): 109322 [0x564af7fc845c, 0x564af7fe2f66), 
+INFO: Loaded 1 PC tables (109322 PCs): 109322 [0x564af7fe2f68,0x564af818e008), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/autofile
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 134 ft: 135 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 134 ft: 135 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run block_deserialize with args ['/root/bitcoin/src/test/fuzz/block_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/block_deserialize']INFO: Seed: 462820184
+INFO: Loaded 1 modules   (3674 inline 8-bit counters): 3674 [0x55d928fc03ec, 0x55d928fc1246), 
+INFO: Loaded 1 PC tables (3674 PCs): 3674 [0x55d928fc1248,0x55d928fcf7e8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/block_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 198 ft: 199 corp: 1/1b exec/s: 0 rss: 34Mb
+#2	DONE   cov: 198 ft: 199 corp: 1/1b exec/s: 0 rss: 34Mb
+Done 2 runs in 0 second(s)
+
+Run block_file_info_deserialize with args ['/root/bitcoin/src/test/fuzz/block_file_info_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/block_file_info_deserialize']INFO: Seed: 477069381
+INFO: Loaded 1 modules   (996 inline 8-bit counters): 996 [0x55cb35a00c4c, 0x55cb35a01030), 
+INFO: Loaded 1 PC tables (996 PCs): 996 [0x55cb35a01030,0x55cb35a04e70), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/block_file_info_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 170 ft: 171 corp: 1/1b exec/s: 0 rss: 34Mb
+#2	DONE   cov: 170 ft: 171 corp: 1/1b exec/s: 0 rss: 34Mb
+Done 2 runs in 0 second(s)
+
+Run block_filter_deserialize with args ['/root/bitcoin/src/test/fuzz/block_filter_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/block_filter_deserialize']INFO: Seed: 516284980
+INFO: Loaded 1 modules   (7625 inline 8-bit counters): 7625 [0x55f6d73fc0b4, 0x55f6d73fde7d), 
+INFO: Loaded 1 PC tables (7625 PCs): 7625 [0x55f6d73fde80,0x55f6d741bb10), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/block_filter_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 181 ft: 182 corp: 1/1b exec/s: 0 rss: 35Mb
+#2	DONE   cov: 181 ft: 182 corp: 1/1b exec/s: 0 rss: 35Mb
+Done 2 runs in 0 second(s)
+
+Run block with args ['/root/bitcoin/src/test/fuzz/block', '-runs=1', 'qa-assets/fuzz_seed_corpus/block']INFO: Seed: 587969735
+INFO: Loaded 1 modules   (108896 inline 8-bit counters): 108896 [0x560e60ce731c, 0x560e60d01c7c), 
+INFO: Loaded 1 PC tables (108896 PCs): 108896 [0x560e60d01c80,0x560e60eab280), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/block
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 191 ft: 192 corp: 1/1b exec/s: 0 rss: 82Mb
+#2	DONE   cov: 191 ft: 192 corp: 1/1b exec/s: 0 rss: 82Mb
+Done 2 runs in 0 second(s)
+
+Run banman with args ['/root/bitcoin/src/test/fuzz/banman', '-runs=1', 'qa-assets/fuzz_seed_corpus/banman']INFO: Seed: 617428170
+INFO: Loaded 1 modules   (108922 inline 8-bit counters): 108922 [0x560a475bf2ac, 0x560a475d9c26), 
+INFO: Loaded 1 PC tables (108922 PCs): 108922 [0x560a475d9c28,0x560a477833c8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/banman
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 790 ft: 791 corp: 1/1b exec/s: 0 rss: 117Mb
+#2	DONE   cov: 790 ft: 791 corp: 1/1b exec/s: 0 rss: 117Mb
+Done 2 runs in 0 second(s)
+
+Run block_header with args ['/root/bitcoin/src/test/fuzz/block_header', '-runs=1', 'qa-assets/fuzz_seed_corpus/block_header']INFO: Seed: 657952019
+INFO: Loaded 1 modules   (108965 inline 8-bit counters): 108965 [0x55908fd3527c, 0x55908fd4fc21), 
+INFO: Loaded 1 PC tables (108965 PCs): 108965 [0x55908fd4fc28,0x55908fef9678), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/block_header
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 237 ft: 238 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 237 ft: 238 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run blockheader_deserialize with args ['/root/bitcoin/src/test/fuzz/blockheader_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/blockheader_deserialize']INFO: Seed: 836072240
+INFO: Loaded 1 modules   (953 inline 8-bit counters): 953 [0x55e0f67eec4c, 0x55e0f67ef005), 
+INFO: Loaded 1 PC tables (953 PCs): 953 [0x55e0f67ef008,0x55e0f67f2b98), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/blockheader_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 173 ft: 174 corp: 1/1b exec/s: 0 rss: 34Mb
+#2	DONE   cov: 173 ft: 174 corp: 1/1b exec/s: 0 rss: 34Mb
+Done 2 runs in 0 second(s)
+
+Run blocklocator_deserialize with args ['/root/bitcoin/src/test/fuzz/blocklocator_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/blocklocator_deserialize']INFO: Seed: 874659968
+INFO: Loaded 1 modules   (1110 inline 8-bit counters): 1110 [0x555f94fd5c6c, 0x555f94fd60c2), 
+INFO: Loaded 1 PC tables (1110 PCs): 1110 [0x555f94fd60c8,0x555f94fda628), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/blocklocator_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 186 ft: 187 corp: 1/1b exec/s: 0 rss: 34Mb
+#2	DONE   cov: 186 ft: 187 corp: 1/1b exec/s: 0 rss: 34Mb
+Done 2 runs in 0 second(s)
+
+Run block_header_and_short_txids_deserialize with args ['/root/bitcoin/src/test/fuzz/block_header_and_short_txids_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/block_header_and_short_txids_deserialize']INFO: Seed: 719309365
+INFO: Loaded 1 modules   (108868 inline 8-bit counters): 108868 [0x55879f56233c, 0x55879f57cc80), 
+INFO: Loaded 1 PC tables (108868 PCs): 108868 [0x55879f57cc80,0x55879f7260c0), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/block_header_and_short_txids_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 213 ft: 214 corp: 1/1b exec/s: 0 rss: 82Mb
+#2	DONE   cov: 213 ft: 214 corp: 1/1b exec/s: 0 rss: 82Mb
+Done 2 runs in 0 second(s)
+
+Run blockmerkleroot with args ['/root/bitcoin/src/test/fuzz/blockmerkleroot', '-runs=1', 'qa-assets/fuzz_seed_corpus/blockmerkleroot']INFO: Seed: 884816759
+INFO: Loaded 1 modules   (3832 inline 8-bit counters): 3832 [0x55c8819ac40c, 0x55c8819ad304), 
+INFO: Loaded 1 PC tables (3832 PCs): 3832 [0x55c8819ad308,0x55c8819bc288), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/blockmerkleroot
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 198 ft: 199 corp: 1/1b exec/s: 0 rss: 34Mb
+#2	DONE   cov: 198 ft: 199 corp: 1/1b exec/s: 0 rss: 34Mb
+Done 2 runs in 0 second(s)
+
+Run blocktransactions_deserialize with args ['/root/bitcoin/src/test/fuzz/blocktransactions_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/blocktransactions_deserialize']INFO: Seed: 919033597
+INFO: Loaded 1 modules   (3636 inline 8-bit counters): 3636 [0x55b5f088f3dc, 0x55b5f0890210), 
+INFO: Loaded 1 PC tables (3636 PCs): 3636 [0x55b5f0890210,0x55b5f089e550), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/blocktransactions_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 190 ft: 191 corp: 1/1b exec/s: 0 rss: 34Mb
+#2	DONE   cov: 190 ft: 191 corp: 1/1b exec/s: 0 rss: 34Mb
+Done 2 runs in 0 second(s)
+
+Run blocktransactionsrequest_deserialize with args ['/root/bitcoin/src/test/fuzz/blocktransactionsrequest_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/blocktransactionsrequest_deserialize']INFO: Seed: 939257389
+INFO: Loaded 1 modules   (1114 inline 8-bit counters): 1114 [0x55e2f83acc6c, 0x55e2f83ad0c6), 
+INFO: Loaded 1 PC tables (1114 PCs): 1114 [0x55e2f83ad0c8,0x55e2f83b1668), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/blocktransactionsrequest_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 189 ft: 190 corp: 1/1b exec/s: 0 rss: 33Mb
+#2	DONE   cov: 189 ft: 190 corp: 1/1b exec/s: 0 rss: 33Mb
+Done 2 runs in 0 second(s)
+
+Run blockundo_deserialize with args ['/root/bitcoin/src/test/fuzz/blockundo_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/blockundo_deserialize']INFO: Seed: 941445592
+INFO: Loaded 1 modules   (1568 inline 8-bit counters): 1568 [0x55b14412ed1c, 0x55b14412f33c), 
+INFO: Loaded 1 PC tables (1568 PCs): 1568 [0x55b14412f340,0x55b144135540), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/blockundo_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 187 ft: 188 corp: 1/1b exec/s: 0 rss: 34Mb
+#2	DONE   cov: 187 ft: 188 corp: 1/1b exec/s: 0 rss: 34Mb
+Done 2 runs in 0 second(s)
+
+Run bloomfilter_deserialize with args ['/root/bitcoin/src/test/fuzz/bloomfilter_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/bloomfilter_deserialize']INFO: Seed: 980541400
+INFO: Loaded 1 modules   (1017 inline 8-bit counters): 1017 [0x560322e27c5c, 0x560322e28055), 
+INFO: Loaded 1 PC tables (1017 PCs): 1017 [0x560322e28058,0x560322e2bfe8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/bloomfilter_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 174 ft: 175 corp: 1/1b exec/s: 0 rss: 33Mb
+#2	DONE   cov: 174 ft: 175 corp: 1/1b exec/s: 0 rss: 33Mb
+Done 2 runs in 0 second(s)
+
+Run blockfilter with args ['/root/bitcoin/src/test/fuzz/blockfilter', '-runs=1', 'qa-assets/fuzz_seed_corpus/blockfilter']INFO: Seed: 944769471
+INFO: Loaded 1 modules   (108983 inline 8-bit counters): 108983 [0x55a49b1e829c, 0x55a49b202c53), 
+INFO: Loaded 1 PC tables (108983 PCs): 108983 [0x55a49b202c58,0x55a49b3ac7c8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/blockfilter
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 263 ft: 264 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 263 ft: 264 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run bloom_filter with args ['/root/bitcoin/src/test/fuzz/bloom_filter', '-runs=1', 'qa-assets/fuzz_seed_corpus/bloom_filter']INFO: Seed: 1114006646
+INFO: Loaded 1 modules   (108984 inline 8-bit counters): 108984 [0x55cd8c6eb2fc, 0x55cd8c705cb4), 
+INFO: Loaded 1 PC tables (108984 PCs): 108984 [0x55cd8c705cb8,0x55cd8c8af838), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/bloom_filter
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 93 ft: 94 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 93 ft: 94 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run buffered_file with args ['/root/bitcoin/src/test/fuzz/buffered_file', '-runs=1', 'qa-assets/fuzz_seed_corpus/buffered_file']INFO: Seed: 1133879678
+INFO: Loaded 1 modules   (109112 inline 8-bit counters): 109112 [0x560b73e0035c, 0x560b73e1ad94), 
+INFO: Loaded 1 PC tables (109112 PCs): 109112 [0x560b73e1ad98,0x560b73fc5118), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/buffered_file
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 199 ft: 200 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 199 ft: 200 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run chain with args ['/root/bitcoin/src/test/fuzz/chain', '-runs=1', 'qa-assets/fuzz_seed_corpus/chain']INFO: Seed: 1150944007
+INFO: Loaded 1 modules   (108952 inline 8-bit counters): 108952 [0x56183a59136c, 0x56183a5abd04), 
+INFO: Loaded 1 PC tables (108952 PCs): 108952 [0x56183a5abd08,0x56183a755688), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/chain
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 258 ft: 259 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 258 ft: 259 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run coins_deserialize with args ['/root/bitcoin/src/test/fuzz/coins_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/coins_deserialize']INFO: Seed: 1322359727
+INFO: Loaded 1 modules   (1239 inline 8-bit counters): 1239 [0x5644723c0cdc, 0x5644723c11b3), 
+INFO: Loaded 1 PC tables (1239 PCs): 1239 [0x5644723c11b8,0x5644723c5f28), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/coins_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 187 ft: 188 corp: 1/1b exec/s: 0 rss: 33Mb
+#2	DONE   cov: 187 ft: 188 corp: 1/1b exec/s: 0 rss: 33Mb
+Done 2 runs in 0 second(s)
+
+Run checkqueue with args ['/root/bitcoin/src/test/fuzz/checkqueue', '-runs=1', 'qa-assets/fuzz_seed_corpus/checkqueue']INFO: Seed: 1274171154
+INFO: Loaded 1 modules   (109075 inline 8-bit counters): 109075 [0x5616c11d32dc, 0x5616c11edcef), 
+INFO: Loaded 1 PC tables (109075 PCs): 109075 [0x5616c11edcf0,0x5616c1397e20), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/checkqueue
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 160 ft: 161 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 160 ft: 161 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run coins_view with args ['/root/bitcoin/src/test/fuzz/coins_view', '-runs=1', 'qa-assets/fuzz_seed_corpus/coins_view']INFO: Seed: 1481509181
+INFO: Loaded 1 modules   (109178 inline 8-bit counters): 109178 [0x5593234e242c, 0x5593234fcea6), 
+INFO: Loaded 1 PC tables (109178 PCs): 109178 [0x5593234fcea8,0x5593236a7648), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/coins_view
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 523 ft: 524 corp: 1/1b exec/s: 0 rss: 82Mb
+#2	DONE   cov: 523 ft: 524 corp: 1/1b exec/s: 0 rss: 82Mb
+Done 2 runs in 0 second(s)
+
+Run crypto with args ['/root/bitcoin/src/test/fuzz/crypto', '-runs=1', 'qa-assets/fuzz_seed_corpus/crypto']INFO: Seed: 1465291236
+INFO: Loaded 1 modules   (109005 inline 8-bit counters): 109005 [0x5594b1bc42bc, 0x5594b1bdec89), 
+INFO: Loaded 1 PC tables (109005 PCs): 109005 [0x5594b1bdec90,0x5594b1d88960), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/crypto
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 195 ft: 196 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 195 ft: 196 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run crypto_aes256 with args ['/root/bitcoin/src/test/fuzz/crypto_aes256', '-runs=1', 'qa-assets/fuzz_seed_corpus/crypto_aes256']INFO: Seed: 1508015702
+INFO: Loaded 1 modules   (109022 inline 8-bit counters): 109022 [0x55e52b2a620c, 0x55e52b2c0bea), 
+INFO: Loaded 1 PC tables (109022 PCs): 109022 [0x55e52b2c0bf0,0x55e52b46a9d0), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/crypto_aes256
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 131 ft: 132 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 131 ft: 132 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run crypto_aes256cbc with args ['/root/bitcoin/src/test/fuzz/crypto_aes256cbc', '-runs=1', 'qa-assets/fuzz_seed_corpus/crypto_aes256cbc']INFO: Seed: 1632666630
+INFO: Loaded 1 modules   (109051 inline 8-bit counters): 109051 [0x55ce71fe422c, 0x55ce71ffec27), 
+INFO: Loaded 1 PC tables (109051 PCs): 109051 [0x55ce71ffec28,0x55ce721a8bd8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/crypto_aes256cbc
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 140 ft: 141 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 140 ft: 141 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run crypto_chacha20_poly1305_aead with args ['/root/bitcoin/src/test/fuzz/crypto_chacha20_poly1305_aead', '-runs=1', 'qa-assets/fuzz_seed_corpus/crypto_chacha20_poly1305_aead']INFO: Seed: 1884102955
+INFO: Loaded 1 modules   (108947 inline 8-bit counters): 108947 [0x5608d7df025c, 0x5608d7e0abef), 
+INFO: Loaded 1 PC tables (108947 PCs): 108947 [0x5608d7e0abf0,0x5608d7fb4520), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/crypto_chacha20_poly1305_aead
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 119 ft: 120 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 119 ft: 120 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run crypto_chacha20 with args ['/root/bitcoin/src/test/fuzz/crypto_chacha20', '-runs=1', 'qa-assets/fuzz_seed_corpus/crypto_chacha20']INFO: Seed: 1880589335
+INFO: Loaded 1 modules   (108904 inline 8-bit counters): 108904 [0x55b6eaf7323c, 0x55b6eaf8dba4), 
+INFO: Loaded 1 PC tables (108904 PCs): 108904 [0x55b6eaf8dba8,0x55b6eb137228), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/crypto_chacha20
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 68 ft: 69 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 68 ft: 69 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run crypto_common with args ['/root/bitcoin/src/test/fuzz/crypto_common', '-runs=1', 'qa-assets/fuzz_seed_corpus/crypto_common']INFO: Seed: 1888871173
+INFO: Loaded 1 modules   (108907 inline 8-bit counters): 108907 [0x55f241f4320c, 0x55f241f5db77), 
+INFO: Loaded 1 PC tables (108907 PCs): 108907 [0x55f241f5db78,0x55f242107228), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/crypto_common
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 124 ft: 125 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 124 ft: 125 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run decode_tx with args ['/root/bitcoin/src/test/fuzz/decode_tx', '-runs=1', 'qa-assets/fuzz_seed_corpus/decode_tx']INFO: Seed: 2113872561
+INFO: Loaded 1 modules   (4382 inline 8-bit counters): 4382 [0x55d9789fe504, 0x55d9789ff622), 
+INFO: Loaded 1 PC tables (4382 PCs): 4382 [0x55d9789ff628,0x55d978a10808), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/decode_tx
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 295 ft: 296 corp: 1/1b exec/s: 0 rss: 34Mb
+#2	DONE   cov: 295 ft: 296 corp: 1/1b exec/s: 0 rss: 34Mb
+Done 2 runs in 0 second(s)
+
+Run crypto_hkdf_hmac_sha256_l32 with args ['/root/bitcoin/src/test/fuzz/crypto_hkdf_hmac_sha256_l32', '-runs=1', 'qa-assets/fuzz_seed_corpus/crypto_hkdf_hmac_sha256_l32']INFO: Seed: 1966647931
+INFO: Loaded 1 modules   (108919 inline 8-bit counters): 108919 [0x55996cb4821c, 0x55996cb62b93), 
+INFO: Loaded 1 PC tables (108919 PCs): 108919 [0x55996cb62b98,0x55996cd0c308), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/crypto_hkdf_hmac_sha256_l32
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 161 ft: 162 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 161 ft: 162 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run diskblockindex_deserialize with args ['/root/bitcoin/src/test/fuzz/diskblockindex_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/diskblockindex_deserialize']INFO: Seed: 2175454955
+INFO: Loaded 1 modules   (1046 inline 8-bit counters): 1046 [0x55f4afd39c4c, 0x55f4afd3a062), 
+INFO: Loaded 1 PC tables (1046 PCs): 1046 [0x55f4afd3a068,0x55f4afd3e1c8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/diskblockindex_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 176 ft: 177 corp: 1/1b exec/s: 0 rss: 33Mb
+#2	DONE   cov: 176 ft: 177 corp: 1/1b exec/s: 0 rss: 33Mb
+Done 2 runs in 0 second(s)
+
+Run eval_script with args ['/root/bitcoin/src/test/fuzz/eval_script', '-runs=1', 'qa-assets/fuzz_seed_corpus/eval_script']INFO: Seed: 2226095713
+INFO: Loaded 1 modules   (3474 inline 8-bit counters): 3474 [0x562efbe765ac, 0x562efbe7733e), 
+INFO: Loaded 1 PC tables (3474 PCs): 3474 [0x562efbe77340,0x562efbe84c60), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/eval_script
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 136 ft: 137 corp: 1/1b exec/s: 0 rss: 35Mb
+#2	DONE   cov: 136 ft: 137 corp: 1/1b exec/s: 0 rss: 35Mb
+Done 2 runs in 0 second(s)
+
+Run cuckoocache with args ['/root/bitcoin/src/test/fuzz/cuckoocache', '-runs=1', 'qa-assets/fuzz_seed_corpus/cuckoocache']INFO: Seed: 2251575492
+INFO: Loaded 1 modules   (108950 inline 8-bit counters): 108950 [0x5620bab7725c, 0x5620bab91bf2), 
+INFO: Loaded 1 PC tables (108950 PCs): 108950 [0x5620bab91bf8,0x5620bad3b558), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/cuckoocache
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 230 ft: 231 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 230 ft: 231 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run crypto_poly1305 with args ['/root/bitcoin/src/test/fuzz/crypto_poly1305', '-runs=1', 'qa-assets/fuzz_seed_corpus/crypto_poly1305']INFO: Seed: 2254333298
+INFO: Loaded 1 modules   (108919 inline 8-bit counters): 108919 [0x55716fa7221c, 0x55716fa8cb93), 
+INFO: Loaded 1 PC tables (108919 PCs): 108919 [0x55716fa8cb98,0x55716fc36308), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/crypto_poly1305
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 154 ft: 155 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 154 ft: 155 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run descriptor_parse with args ['/root/bitcoin/src/test/fuzz/descriptor_parse', '-runs=1', 'qa-assets/fuzz_seed_corpus/descriptor_parse']INFO: Seed: 2306934788
+INFO: Loaded 1 modules   (108804 inline 8-bit counters): 108804 [0x561fc2ea920c, 0x561fc2ec3b10), 
+INFO: Loaded 1 PC tables (108804 PCs): 108804 [0x561fc2ec3b10,0x561fc306cb50), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/descriptor_parse
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 331 ft: 332 corp: 1/1b exec/s: 0 rss: 82Mb
+#2	DONE   cov: 331 ft: 332 corp: 1/1b exec/s: 0 rss: 82Mb
+Done 2 runs in 0 second(s)
+
+Run fee_rate_deserialize with args ['/root/bitcoin/src/test/fuzz/fee_rate_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/fee_rate_deserialize']INFO: Seed: 2454258195
+INFO: Loaded 1 modules   (941 inline 8-bit counters): 941 [0x55d90292dc4c, 0x55d90292dff9), 
+INFO: Loaded 1 PC tables (941 PCs): 941 [0x55d90292e000,0x55d902931ad0), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/fee_rate_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 168 ft: 169 corp: 1/1b exec/s: 0 rss: 33Mb
+#2	DONE   cov: 168 ft: 169 corp: 1/1b exec/s: 0 rss: 33Mb
+Done 2 runs in 0 second(s)
+
+Run flat_file_pos_deserialize with args ['/root/bitcoin/src/test/fuzz/flat_file_pos_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/flat_file_pos_deserialize']INFO: Seed: 2484309576
+INFO: Loaded 1 modules   (1002 inline 8-bit counters): 1002 [0x559b48caac4c, 0x559b48cab036), 
+INFO: Loaded 1 PC tables (1002 PCs): 1002 [0x559b48cab038,0x559b48caeed8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/flat_file_pos_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 168 ft: 169 corp: 1/1b exec/s: 0 rss: 34Mb
+#2	DONE   cov: 168 ft: 169 corp: 1/1b exec/s: 0 rss: 34Mb
+Done 2 runs in 0 second(s)
+
+Run float with args ['/root/bitcoin/src/test/fuzz/float', '-runs=1', 'qa-assets/fuzz_seed_corpus/float']INFO: Seed: 2521075674
+INFO: Loaded 1 modules   (449 inline 8-bit counters): 449 [0x55dd94a90bac, 0x55dd94a90d6d), 
+INFO: Loaded 1 PC tables (449 PCs): 449 [0x55dd94a90d70,0x55dd94a92980), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/float
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 192 ft: 193 corp: 1/1b exec/s: 0 rss: 33Mb
+#2	DONE   cov: 192 ft: 193 corp: 1/1b exec/s: 0 rss: 33Mb
+Done 2 runs in 0 second(s)
+
+Run fee_rate with args ['/root/bitcoin/src/test/fuzz/fee_rate', '-runs=1', 'qa-assets/fuzz_seed_corpus/fee_rate']INFO: Seed: 2416904883
+INFO: Loaded 1 modules   (108895 inline 8-bit counters): 108895 [0x55f1525951fc, 0x55f1525afb5b), 
+INFO: Loaded 1 PC tables (108895 PCs): 108895 [0x55f1525afb60,0x55f152759150), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/fee_rate
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 209 ft: 210 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 209 ft: 210 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run fees with args ['/root/bitcoin/src/test/fuzz/fees', '-runs=1', 'qa-assets/fuzz_seed_corpus/fees']INFO: Seed: 2602771253
+INFO: Loaded 1 modules   (108895 inline 8-bit counters): 108895 [0x558d5a20221c, 0x558d5a21cb7b), 
+INFO: Loaded 1 PC tables (108895 PCs): 108895 [0x558d5a21cb80,0x558d5a3c6170), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/fees
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 257 ft: 258 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 257 ft: 258 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run flatfile with args ['/root/bitcoin/src/test/fuzz/flatfile', '-runs=1', 'qa-assets/fuzz_seed_corpus/flatfile']INFO: Seed: 2640482323
+INFO: Loaded 1 modules   (108925 inline 8-bit counters): 108925 [0x5609d0ea725c, 0x5609d0ec1bd9), 
+INFO: Loaded 1 PC tables (108925 PCs): 108925 [0x5609d0ec1be0,0x5609d106b3b0), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/flatfile
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 255 ft: 256 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 255 ft: 256 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run golomb_rice with args ['/root/bitcoin/src/test/fuzz/golomb_rice', '-runs=1', 'qa-assets/fuzz_seed_corpus/golomb_rice']INFO: Seed: 2686542706
+INFO: Loaded 1 modules   (108966 inline 8-bit counters): 108966 [0x564e56ba129c, 0x564e56bbbc42), 
+INFO: Loaded 1 PC tables (108966 PCs): 108966 [0x564e56bbbc48,0x564e56d656a8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/golomb_rice
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 614 ft: 615 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 614 ft: 615 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run inv_deserialize with args ['/root/bitcoin/src/test/fuzz/inv_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/inv_deserialize']INFO: Seed: 2920349866
+INFO: Loaded 1 modules   (4418 inline 8-bit counters): 4418 [0x560c1e12188c, 0x560c1e1229ce), 
+INFO: Loaded 1 PC tables (4418 PCs): 4418 [0x560c1e1229d0,0x560c1e133df0), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/inv_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 172 ft: 173 corp: 1/1b exec/s: 0 rss: 34Mb
+#2	DONE   cov: 172 ft: 173 corp: 1/1b exec/s: 0 rss: 34Mb
+Done 2 runs in 0 second(s)
+
+Run hex with args ['/root/bitcoin/src/test/fuzz/hex', '-runs=1', 'qa-assets/fuzz_seed_corpus/hex']INFO: Seed: 2766319378
+INFO: Loaded 1 modules   (108812 inline 8-bit counters): 108812 [0x55f77f6d420c, 0x55f77f6eeb18), 
+INFO: Loaded 1 PC tables (108812 PCs): 108812 [0x55f77f6eeb18,0x55f77f897bd8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/hex
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 509 ft: 510 corp: 1/1b exec/s: 0 rss: 82Mb
+#2	DONE   cov: 509 ft: 510 corp: 1/1b exec/s: 0 rss: 82Mb
+Done 2 runs in 0 second(s)
+
+Run http_request with args ['/root/bitcoin/src/test/fuzz/http_request', '-runs=1', 'qa-assets/fuzz_seed_corpus/http_request']INFO: Seed: 2986441444
+INFO: Loaded 1 modules   (108943 inline 8-bit counters): 108943 [0x55e608c4323c, 0x55e608c5dbcb), 
+INFO: Loaded 1 PC tables (108943 PCs): 108943 [0x55e608c5dbd0,0x55e608e074c0), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/http_request
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 166 ft: 167 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 166 ft: 167 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run integer with args ['/root/bitcoin/src/test/fuzz/integer', '-runs=1', 'qa-assets/fuzz_seed_corpus/integer']INFO: Seed: 3023113468
+INFO: Loaded 1 modules   (109276 inline 8-bit counters): 109276 [0x55f87019e54c, 0x55f8701b9028), 
+INFO: Loaded 1 PC tables (109276 PCs): 109276 [0x55f8701b9028,0x55f870363de8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/integer
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 54 ft: 55 corp: 1/1b exec/s: 0 rss: 82Mb
+#2	DONE   cov: 54 ft: 55 corp: 1/1b exec/s: 0 rss: 82Mb
+Done 2 runs in 0 second(s)
+
+Run key_origin_info_deserialize with args ['/root/bitcoin/src/test/fuzz/key_origin_info_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/key_origin_info_deserialize']INFO: Seed: 3183515448
+INFO: Loaded 1 modules   (1119 inline 8-bit counters): 1119 [0x55aae1ba9c6c, 0x55aae1baa0cb), 
+INFO: Loaded 1 PC tables (1119 PCs): 1119 [0x55aae1baa0d0,0x55aae1bae6c0), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/key_origin_info_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 186 ft: 187 corp: 1/1b exec/s: 0 rss: 34Mb
+#2	DONE   cov: 186 ft: 187 corp: 1/1b exec/s: 0 rss: 34Mb
+Done 2 runs in 0 second(s)
+
+Run key with args ['/root/bitcoin/src/test/fuzz/key', '-runs=1', 'qa-assets/fuzz_seed_corpus/key']INFO: Seed: 3131983803
+INFO: Loaded 1 modules   (108967 inline 8-bit counters): 108967 [0x55e1f83fd85c, 0x55e1f8418203), 
+INFO: Loaded 1 PC tables (108967 PCs): 108967 [0x55e1f8418208,0x55e1f85c1c78), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/key
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 488 ft: 489 corp: 1/1b exec/s: 0 rss: 82Mb
+#2	DONE   cov: 488 ft: 489 corp: 1/1b exec/s: 0 rss: 82Mb
+Done 2 runs in 0 second(s)
+
+Run key_io with args ['/root/bitcoin/src/test/fuzz/key_io', '-runs=1', 'qa-assets/fuzz_seed_corpus/key_io']INFO: Seed: 3156671458
+INFO: Loaded 1 modules   (108841 inline 8-bit counters): 108841 [0x55f942a852bc, 0x55f942a9fbe5), 
+INFO: Loaded 1 PC tables (108841 PCs): 108841 [0x55f942a9fbe8,0x55f942c48e78), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/key_io
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 819 ft: 820 corp: 1/1b exec/s: 0 rss: 82Mb
+#2	DONE   cov: 819 ft: 820 corp: 1/1b exec/s: 0 rss: 82Mb
+Done 2 runs in 0 second(s)
+
+Run locale with args ['/root/bitcoin/src/test/fuzz/locale', '-runs=1', 'qa-assets/fuzz_seed_corpus/locale']INFO: Seed: 3340841177
+INFO: Loaded 1 modules   (1936 inline 8-bit counters): 1936 [0x559ed3e62d90, 0x559ed3e63520), 
+INFO: Loaded 1 PC tables (1936 PCs): 1936 [0x559ed3e63520,0x559ed3e6ae20), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/locale
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 123 ft: 124 corp: 1/1b exec/s: 0 rss: 39Mb
+#2	DONE   cov: 123 ft: 124 corp: 1/1b exec/s: 0 rss: 39Mb
+Done 2 runs in 0 second(s)
+
+Run merkle_block_deserialize with args ['/root/bitcoin/src/test/fuzz/merkle_block_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/merkle_block_deserialize']INFO: Seed: 3353417227
+INFO: Loaded 1 modules   (8040 inline 8-bit counters): 8040 [0x55e354cb56d4, 0x55e354cb763c), 
+INFO: Loaded 1 PC tables (8040 PCs): 8040 [0x55e354cb7640,0x55e354cd6cc0), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/merkle_block_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 230 ft: 231 corp: 1/1b exec/s: 0 rss: 35Mb
+#2	DONE   cov: 230 ft: 231 corp: 1/1b exec/s: 0 rss: 35Mb
+Done 2 runs in 0 second(s)
+
+Run kitchen_sink with args ['/root/bitcoin/src/test/fuzz/kitchen_sink', '-runs=1', 'qa-assets/fuzz_seed_corpus/kitchen_sink']INFO: Seed: 3357691578
+INFO: Loaded 1 modules   (108877 inline 8-bit counters): 108877 [0x55f7363f223c, 0x55f73640cb89), 
+INFO: Loaded 1 PC tables (108877 PCs): 108877 [0x55f73640cb90,0x55f7365b6060), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/kitchen_sink
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 384 ft: 385 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 384 ft: 385 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run messageheader_deserialize with args ['/root/bitcoin/src/test/fuzz/messageheader_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/messageheader_deserialize']INFO: Seed: 3561830484
+INFO: Loaded 1 modules   (4428 inline 8-bit counters): 4428 [0x56192706788c, 0x5619270689d8), 
+INFO: Loaded 1 PC tables (4428 PCs): 4428 [0x5619270689d8,0x561927079e98), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/messageheader_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 169 ft: 170 corp: 1/1b exec/s: 0 rss: 34Mb
+#2	DONE   cov: 169 ft: 170 corp: 1/1b exec/s: 0 rss: 34Mb
+Done 2 runs in 0 second(s)
+
+Run load_external_block_file with args ['/root/bitcoin/src/test/fuzz/load_external_block_file', '-runs=1', 'qa-assets/fuzz_seed_corpus/load_external_block_file']INFO: Seed: 3450797055
+INFO: Loaded 1 modules   (108932 inline 8-bit counters): 108932 [0x5643b823627c, 0x5643b8250c00), 
+INFO: Loaded 1 PC tables (108932 PCs): 108932 [0x5643b8250c00,0x5643b83fa440), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/load_external_block_file
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 359 ft: 360 corp: 1/1b exec/s: 0 rss: 124Mb
+#2	DONE   cov: 359 ft: 360 corp: 1/1b exec/s: 0 rss: 124Mb
+Done 2 runs in 0 second(s)
+
+Run merkleblock with args ['/root/bitcoin/src/test/fuzz/merkleblock', '-runs=1', 'qa-assets/fuzz_seed_corpus/merkleblock']INFO: Seed: 3529023773
+INFO: Loaded 1 modules   (108929 inline 8-bit counters): 108929 [0x559eca1da28c, 0x559eca1f4c0d), 
+INFO: Loaded 1 PC tables (108929 PCs): 108929 [0x559eca1f4c10,0x559eca39e420), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/merkleblock
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 271 ft: 272 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 271 ft: 272 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run message with args ['/root/bitcoin/src/test/fuzz/message', '-runs=1', 'qa-assets/fuzz_seed_corpus/message']INFO: Seed: 3565839774
+INFO: Loaded 1 modules   (108940 inline 8-bit counters): 108940 [0x55b379a9a31c, 0x55b379ab4ca8), 
+INFO: Loaded 1 PC tables (108940 PCs): 108940 [0x55b379ab4ca8,0x55b379c5e568), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/message
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 765 ft: 766 corp: 1/1b exec/s: 0 rss: 82Mb
+#2	DONE   cov: 765 ft: 766 corp: 1/1b exec/s: 0 rss: 82Mb
+Done 2 runs in 0 second(s)
+
+Run netaddr_deserialize with args ['/root/bitcoin/src/test/fuzz/netaddr_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/netaddr_deserialize']INFO: Seed: 3747786925
+INFO: Loaded 1 modules   (2505 inline 8-bit counters): 2505 [0x563cea9e30b4, 0x563cea9e3a7d), 
+INFO: Loaded 1 PC tables (2505 PCs): 2505 [0x563cea9e3a80,0x563cea9ed710), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/netaddr_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 169 ft: 170 corp: 1/1b exec/s: 0 rss: 34Mb
+#2	DONE   cov: 169 ft: 170 corp: 1/1b exec/s: 0 rss: 34Mb
+Done 2 runs in 0 second(s)
+
+Run out_point_deserialize with args ['/root/bitcoin/src/test/fuzz/out_point_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/out_point_deserialize']INFO: Seed: 3798929678
+INFO: Loaded 1 modules   (953 inline 8-bit counters): 953 [0x5650c84acc4c, 0x5650c84ad005), 
+INFO: Loaded 1 PC tables (953 PCs): 953 [0x5650c84ad008,0x5650c84b0b98), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/out_point_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 171 ft: 172 corp: 1/1b exec/s: 0 rss: 33Mb
+#2	DONE   cov: 171 ft: 172 corp: 1/1b exec/s: 0 rss: 33Mb
+Done 2 runs in 0 second(s)
+
+Run multiplication_overflow with args ['/root/bitcoin/src/test/fuzz/multiplication_overflow', '-runs=1', 'qa-assets/fuzz_seed_corpus/multiplication_overflow']INFO: Seed: 3743643363
+INFO: Loaded 1 modules   (108995 inline 8-bit counters): 108995 [0x56078aa191fc, 0x56078aa33bbf), 
+INFO: Loaded 1 PC tables (108995 PCs): 108995 [0x56078aa33bc0,0x56078abdd7f0), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/multiplication_overflow
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 147 ft: 148 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 147 ft: 148 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run net_permissions with args ['/root/bitcoin/src/test/fuzz/net_permissions', '-runs=1', 'qa-assets/fuzz_seed_corpus/net_permissions']INFO: Seed: 3813176434
+INFO: Loaded 1 modules   (108925 inline 8-bit counters): 108925 [0x55600c20423c, 0x55600c21ebb9), 
+INFO: Loaded 1 PC tables (108925 PCs): 108925 [0x55600c21ebc0,0x55600c3c8390), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/net_permissions
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 383 ft: 384 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 383 ft: 384 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run parse_iso8601 with args ['/root/bitcoin/src/test/fuzz/parse_iso8601', '-runs=1', 'qa-assets/fuzz_seed_corpus/parse_iso8601']INFO: Seed: 4004669186
+INFO: Loaded 1 modules   (2429 inline 8-bit counters): 2429 [0x562a3eb8f15c, 0x562a3eb8fad9), 
+INFO: Loaded 1 PC tables (2429 PCs): 2429 [0x562a3eb8fae0,0x562a3eb992b0), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/parse_iso8601
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 173 ft: 174 corp: 1/1b exec/s: 0 rss: 33Mb
+#2	DONE   cov: 173 ft: 174 corp: 1/1b exec/s: 0 rss: 33Mb
+Done 2 runs in 0 second(s)
+
+Run parse_numbers with args ['/root/bitcoin/src/test/fuzz/parse_numbers', '-runs=1', 'qa-assets/fuzz_seed_corpus/parse_numbers']INFO: Seed: 4044745905
+INFO: Loaded 1 modules   (1153 inline 8-bit counters): 1153 [0x55ac95a9ed80, 0x55ac95a9f201), 
+INFO: Loaded 1 PC tables (1153 PCs): 1153 [0x55ac95a9f208,0x55ac95aa3a18), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/parse_numbers
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 155 ft: 156 corp: 1/1b exec/s: 0 rss: 33Mb
+#2	DONE   cov: 155 ft: 156 corp: 1/1b exec/s: 0 rss: 33Mb
+Done 2 runs in 0 second(s)
+
+Run netaddress with args ['/root/bitcoin/src/test/fuzz/netaddress', '-runs=1', 'qa-assets/fuzz_seed_corpus/netaddress']INFO: Seed: 3917349082
+INFO: Loaded 1 modules   (108926 inline 8-bit counters): 108926 [0x55cf4fac61fc, 0x55cf4fae0b7a), 
+INFO: Loaded 1 PC tables (108926 PCs): 108926 [0x55cf4fae0b80,0x55cf4fc8a360), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/netaddress
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 454 ft: 455 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 454 ft: 455 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run parse_script with args ['/root/bitcoin/src/test/fuzz/parse_script', '-runs=1', 'qa-assets/fuzz_seed_corpus/parse_script']INFO: Seed: 4083642145
+INFO: Loaded 1 modules   (4393 inline 8-bit counters): 4393 [0x56486d38d4e4, 0x56486d38e60d), 
+INFO: Loaded 1 PC tables (4393 PCs): 4393 [0x56486d38e610,0x56486d39f8a0), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/parse_script
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 463 ft: 464 corp: 1/1b exec/s: 0 rss: 34Mb
+#2	DONE   cov: 463 ft: 464 corp: 1/1b exec/s: 0 rss: 34Mb
+Done 2 runs in 0 second(s)
+
+Run partial_merkle_tree_deserialize with args ['/root/bitcoin/src/test/fuzz/partial_merkle_tree_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/partial_merkle_tree_deserialize']INFO: Seed: 4123700951
+INFO: Loaded 1 modules   (8002 inline 8-bit counters): 8002 [0x5641de2206c4, 0x5641de222606), 
+INFO: Loaded 1 PC tables (8002 PCs): 8002 [0x5641de222608,0x5641de241a28), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/partial_merkle_tree_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 206 ft: 207 corp: 1/1b exec/s: 0 rss: 35Mb
+#2	DONE   cov: 206 ft: 207 corp: 1/1b exec/s: 0 rss: 35Mb
+Done 2 runs in 0 second(s)
+
+Run p2p_transport_deserializer with args ['/root/bitcoin/src/test/fuzz/p2p_transport_deserializer', '-runs=1', 'qa-assets/fuzz_seed_corpus/p2p_transport_deserializer']INFO: Seed: 3983057160
+INFO: Loaded 1 modules   (108796 inline 8-bit counters): 108796 [0x5606ade5120c, 0x5606ade6bb08), 
+INFO: Loaded 1 PC tables (108796 PCs): 108796 [0x5606ade6bb08,0x5606ae014ac8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/p2p_transport_deserializer
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 174 ft: 175 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 174 ft: 175 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run partially_signed_transaction_deserialize with args ['/root/bitcoin/src/test/fuzz/partially_signed_transaction_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/partially_signed_transaction_deserialize']INFO: Seed: 4174450195
+INFO: Loaded 1 modules   (5033 inline 8-bit counters): 5033 [0x562b44d80574, 0x562b44d8191d), 
+INFO: Loaded 1 PC tables (5033 PCs): 5033 [0x562b44d81920,0x562b44d953b0), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/partially_signed_transaction_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 226 ft: 227 corp: 1/1b exec/s: 0 rss: 35Mb
+#2	DONE   cov: 226 ft: 227 corp: 1/1b exec/s: 0 rss: 35Mb
+Done 2 runs in 0 second(s)
+
+Run parse_hd_keypath with args ['/root/bitcoin/src/test/fuzz/parse_hd_keypath', '-runs=1', 'qa-assets/fuzz_seed_corpus/parse_hd_keypath']INFO: Seed: 4087149482
+INFO: Loaded 1 modules   (108897 inline 8-bit counters): 108897 [0x55babc8df22c, 0x55babc8f9b8d), 
+INFO: Loaded 1 PC tables (108897 PCs): 108897 [0x55babc8f9b90,0x55babcaa31a0), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/parse_hd_keypath
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 343 ft: 344 corp: 1/1b exec/s: 0 rss: 82Mb
+#2	DONE   cov: 343 ft: 344 corp: 1/1b exec/s: 0 rss: 82Mb
+Done 2 runs in 0 second(s)
+
+Run parse_univalue with args ['/root/bitcoin/src/test/fuzz/parse_univalue', '-runs=1', 'qa-assets/fuzz_seed_corpus/parse_univalue']INFO: Seed: 4258440633
+INFO: Loaded 1 modules   (109517 inline 8-bit counters): 109517 [0x556a260ed31c, 0x556a26107ee9), 
+INFO: Loaded 1 PC tables (109517 PCs): 109517 [0x556a26107ef0,0x556a262b3bc0), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/parse_univalue
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 284 ft: 285 corp: 1/1b exec/s: 0 rss: 84Mb
+#2	DONE   cov: 284 ft: 285 corp: 1/1b exec/s: 0 rss: 84Mb
+Done 2 runs in 0 second(s)
+
+Run prefilled_transaction_deserialize with args ['/root/bitcoin/src/test/fuzz/prefilled_transaction_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/prefilled_transaction_deserialize']INFO: Seed: 148980479
+INFO: Loaded 1 modules   (3539 inline 8-bit counters): 3539 [0x5595032823bc, 0x55950328318f), 
+INFO: Loaded 1 PC tables (3539 PCs): 3539 [0x559503283190,0x559503290ec0), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/prefilled_transaction_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 175 ft: 176 corp: 1/1b exec/s: 0 rss: 34Mb
+#2	DONE   cov: 175 ft: 176 corp: 1/1b exec/s: 0 rss: 34Mb
+Done 2 runs in 0 second(s)
+
+Run prevector with args ['/root/bitcoin/src/test/fuzz/prevector', '-runs=1', 'qa-assets/fuzz_seed_corpus/prevector']INFO: Seed: 185626271
+INFO: Loaded 1 modules   (959 inline 8-bit counters): 959 [0x557457b66c8c, 0x557457b6704b), 
+INFO: Loaded 1 PC tables (959 PCs): 959 [0x557457b67050,0x557457b6ac40), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/prevector
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 267 ft: 268 corp: 1/1b exec/s: 0 rss: 33Mb
+#2	DONE   cov: 267 ft: 268 corp: 1/1b exec/s: 0 rss: 33Mb
+Done 2 runs in 0 second(s)
+
+Run policy_estimator with args ['/root/bitcoin/src/test/fuzz/policy_estimator', '-runs=1', 'qa-assets/fuzz_seed_corpus/policy_estimator']INFO: Seed: 116681335
+INFO: Loaded 1 modules   (109170 inline 8-bit counters): 109170 [0x5615c84a33cc, 0x5615c84bde3e), 
+INFO: Loaded 1 PC tables (109170 PCs): 109170 [0x5615c84bde40,0x5615c8668560), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/policy_estimator
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 676 ft: 677 corp: 1/1b exec/s: 0 rss: 117Mb
+#2	DONE   cov: 676 ft: 677 corp: 1/1b exec/s: 0 rss: 117Mb
+Done 2 runs in 0 second(s)
+
+Run pow with args ['/root/bitcoin/src/test/fuzz/pow', '-runs=1', 'qa-assets/fuzz_seed_corpus/pow']INFO: Seed: 142245540
+INFO: Loaded 1 modules   (109085 inline 8-bit counters): 109085 [0x55cc8800327c, 0x55cc8801dc99), 
+INFO: Loaded 1 PC tables (109085 PCs): 109085 [0x55cc8801dca0,0x55cc881c7e70), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/pow
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 94 ft: 95 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 94 ft: 95 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run policy_estimator_io with args ['/root/bitcoin/src/test/fuzz/policy_estimator_io', '-runs=1', 'qa-assets/fuzz_seed_corpus/policy_estimator_io']INFO: Seed: 168388738
+INFO: Loaded 1 modules   (108940 inline 8-bit counters): 108940 [0x55cdec01228c, 0x55cdec02cc18), 
+INFO: Loaded 1 PC tables (108940 PCs): 108940 [0x55cdec02cc18,0x55cdec1d64d8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/policy_estimator_io
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 239 ft: 240 corp: 1/1b exec/s: 0 rss: 117Mb
+#2	DONE   cov: 239 ft: 240 corp: 1/1b exec/s: 0 rss: 117Mb
+Done 2 runs in 0 second(s)
+
+Run primitives_transaction with args ['/root/bitcoin/src/test/fuzz/primitives_transaction', '-runs=1', 'qa-assets/fuzz_seed_corpus/primitives_transaction']INFO: Seed: 360279396
+INFO: Loaded 1 modules   (108970 inline 8-bit counters): 108970 [0x564c2d3052cc, 0x564c2d31fc76), 
+INFO: Loaded 1 PC tables (108970 PCs): 108970 [0x564c2d31fc78,0x564c2d4c9718), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/primitives_transaction
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 344 ft: 345 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 344 ft: 345 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run process_message_block with args ['/root/bitcoin/src/test/fuzz/process_message_block', '-runs=1', 'qa-assets/fuzz_seed_corpus/process_message_block']INFO: Seed: 1589107988
+INFO: Loaded 1 modules   (109014 inline 8-bit counters): 109014 [0x55aa09f3138c, 0x55aa09f4bd62), 
+INFO: Loaded 1 PC tables (109014 PCs): 109014 [0x55aa09f4bd68,0x55aa0a0f5ac8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/process_message_block
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 122Mb
+#2	DONE   cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 122Mb
+Done 2 runs in 0 second(s)
+
+Run process_message_addr with args ['/root/bitcoin/src/test/fuzz/process_message_addr', '-runs=1', 'qa-assets/fuzz_seed_corpus/process_message_addr']INFO: Seed: 1633299867
+INFO: Loaded 1 modules   (109014 inline 8-bit counters): 109014 [0x555f83b8138c, 0x555f83b9bd62), 
+INFO: Loaded 1 PC tables (109014 PCs): 109014 [0x555f83b9bd68,0x555f83d45ac8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/process_message_addr
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 122Mb
+#2	DONE   cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 122Mb
+Done 2 runs in 0 second(s)
+
+Run process_message with args ['/root/bitcoin/src/test/fuzz/process_message', '-runs=1', 'qa-assets/fuzz_seed_corpus/process_message']INFO: Seed: 1657348741
+INFO: Loaded 1 modules   (109012 inline 8-bit counters): 109012 [0x56307871c38c, 0x563078736d60), 
+INFO: Loaded 1 PC tables (109012 PCs): 109012 [0x563078736d60,0x5630788e0aa0), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/process_message
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 2638 ft: 2639 corp: 1/1b exec/s: 0 rss: 123Mb
+#2	DONE   cov: 2638 ft: 2639 corp: 1/1b exec/s: 0 rss: 123Mb
+Done 2 runs in 0 second(s)
+
+Run process_message_blocktxn with args ['/root/bitcoin/src/test/fuzz/process_message_blocktxn', '-runs=1', 'qa-assets/fuzz_seed_corpus/process_message_blocktxn']INFO: Seed: 1774557663
+INFO: Loaded 1 modules   (109014 inline 8-bit counters): 109014 [0x56346480f38c, 0x563464829d62), 
+INFO: Loaded 1 PC tables (109014 PCs): 109014 [0x563464829d68,0x5634649d3ac8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/process_message_blocktxn
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 122Mb
+#2	DONE   cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 122Mb
+Done 2 runs in 0 second(s)
+
+Run process_message_cmpctblock with args ['/root/bitcoin/src/test/fuzz/process_message_cmpctblock', '-runs=1', 'qa-assets/fuzz_seed_corpus/process_message_cmpctblock']INFO: Seed: 3057595306
+INFO: Loaded 1 modules   (109014 inline 8-bit counters): 109014 [0x55a192c1b38c, 0x55a192c35d62), 
+INFO: Loaded 1 PC tables (109014 PCs): 109014 [0x55a192c35d68,0x55a192ddfac8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/process_message_cmpctblock
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 122Mb
+#2	DONE   cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 122Mb
+Done 2 runs in 0 second(s)
+
+Run process_message_feefilter with args ['/root/bitcoin/src/test/fuzz/process_message_feefilter', '-runs=1', 'qa-assets/fuzz_seed_corpus/process_message_feefilter']INFO: Seed: 3105803158
+INFO: Loaded 1 modules   (109014 inline 8-bit counters): 109014 [0x55cb1b16238c, 0x55cb1b17cd62), 
+INFO: Loaded 1 PC tables (109014 PCs): 109014 [0x55cb1b17cd68,0x55cb1b326ac8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/process_message_feefilter
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 121Mb
+#2	DONE   cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 121Mb
+Done 2 runs in 0 second(s)
+
+Run process_message_filteradd with args ['/root/bitcoin/src/test/fuzz/process_message_filteradd', '-runs=1', 'qa-assets/fuzz_seed_corpus/process_message_filteradd']INFO: Seed: 3166667215
+INFO: Loaded 1 modules   (109014 inline 8-bit counters): 109014 [0x555cbb01f38c, 0x555cbb039d62), 
+INFO: Loaded 1 PC tables (109014 PCs): 109014 [0x555cbb039d68,0x555cbb1e3ac8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/process_message_filteradd
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 122Mb
+#2	DONE   cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 122Mb
+Done 2 runs in 0 second(s)
+
+Run process_message_filterclear with args ['/root/bitcoin/src/test/fuzz/process_message_filterclear', '-runs=1', 'qa-assets/fuzz_seed_corpus/process_message_filterclear']INFO: Seed: 3267080225
+INFO: Loaded 1 modules   (109014 inline 8-bit counters): 109014 [0x55d38c27038c, 0x55d38c28ad62), 
+INFO: Loaded 1 PC tables (109014 PCs): 109014 [0x55d38c28ad68,0x55d38c434ac8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/process_message_filterclear
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 122Mb
+#2	DONE   cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 122Mb
+Done 2 runs in 0 second(s)
+
+Run process_message_getblocktxn with args ['/root/bitcoin/src/test/fuzz/process_message_getblocktxn', '-runs=1', 'qa-assets/fuzz_seed_corpus/process_message_getblocktxn']INFO: Seed: 75083541
+INFO: Loaded 1 modules   (109014 inline 8-bit counters): 109014 [0x55dbe01e638c, 0x55dbe0200d62), 
+INFO: Loaded 1 PC tables (109014 PCs): 109014 [0x55dbe0200d68,0x55dbe03aaac8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/process_message_getblocktxn
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 121Mb
+#2	DONE   cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 121Mb
+Done 2 runs in 0 second(s)
+
+Run process_message_filterload with args ['/root/bitcoin/src/test/fuzz/process_message_filterload', '-runs=1', 'qa-assets/fuzz_seed_corpus/process_message_filterload']INFO: Seed: 227593664
+INFO: Loaded 1 modules   (109014 inline 8-bit counters): 109014 [0x55aa7ef6e38c, 0x55aa7ef88d62), 
+INFO: Loaded 1 PC tables (109014 PCs): 109014 [0x55aa7ef88d68,0x55aa7f132ac8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/process_message_filterload
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 122Mb
+#2	DONE   cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 122Mb
+Done 2 runs in 0 second(s)
+
+Run process_message_getaddr with args ['/root/bitcoin/src/test/fuzz/process_message_getaddr', '-runs=1', 'qa-assets/fuzz_seed_corpus/process_message_getaddr']INFO: Seed: 243417657
+INFO: Loaded 1 modules   (109014 inline 8-bit counters): 109014 [0x5600134ff38c, 0x560013519d62), 
+INFO: Loaded 1 PC tables (109014 PCs): 109014 [0x560013519d68,0x5600136c3ac8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/process_message_getaddr
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 121Mb
+#2	DONE   cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 121Mb
+Done 2 runs in 0 second(s)
+
+Run process_message_getblocks with args ['/root/bitcoin/src/test/fuzz/process_message_getblocks', '-runs=1', 'qa-assets/fuzz_seed_corpus/process_message_getblocks']INFO: Seed: 379422818
+INFO: Loaded 1 modules   (109014 inline 8-bit counters): 109014 [0x55a811a1c38c, 0x55a811a36d62), 
+INFO: Loaded 1 PC tables (109014 PCs): 109014 [0x55a811a36d68,0x55a811be0ac8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/process_message_getblocks
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 122Mb
+#2	DONE   cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 122Mb
+Done 2 runs in 0 second(s)
+
+Run process_message_getdata with args ['/root/bitcoin/src/test/fuzz/process_message_getdata', '-runs=1', 'qa-assets/fuzz_seed_corpus/process_message_getdata']INFO: Seed: 1462834739
+INFO: Loaded 1 modules   (109014 inline 8-bit counters): 109014 [0x5590d89ed38c, 0x5590d8a07d62), 
+INFO: Loaded 1 PC tables (109014 PCs): 109014 [0x5590d8a07d68,0x5590d8bb1ac8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/process_message_getdata
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 122Mb
+#2	DONE   cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 122Mb
+Done 2 runs in 0 second(s)
+
+Run process_message_getheaders with args ['/root/bitcoin/src/test/fuzz/process_message_getheaders', '-runs=1', 'qa-assets/fuzz_seed_corpus/process_message_getheaders']INFO: Seed: 1604711076
+INFO: Loaded 1 modules   (109014 inline 8-bit counters): 109014 [0x55f03fdad38c, 0x55f03fdc7d62), 
+INFO: Loaded 1 PC tables (109014 PCs): 109014 [0x55f03fdc7d68,0x55f03ff71ac8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/process_message_getheaders
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 121Mb
+#2	DONE   cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 121Mb
+Done 2 runs in 0 second(s)
+
+Run process_message_headers with args ['/root/bitcoin/src/test/fuzz/process_message_headers', '-runs=1', 'qa-assets/fuzz_seed_corpus/process_message_headers']INFO: Seed: 1714741440
+INFO: Loaded 1 modules   (109014 inline 8-bit counters): 109014 [0x5597b660e38c, 0x5597b6628d62), 
+INFO: Loaded 1 PC tables (109014 PCs): 109014 [0x5597b6628d68,0x5597b67d2ac8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/process_message_headers
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 122Mb
+#2	DONE   cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 122Mb
+Done 2 runs in 0 second(s)
+
+Run process_message_inv with args ['/root/bitcoin/src/test/fuzz/process_message_inv', '-runs=1', 'qa-assets/fuzz_seed_corpus/process_message_inv']INFO: Seed: 1875648128
+INFO: Loaded 1 modules   (109014 inline 8-bit counters): 109014 [0x55830e5c538c, 0x55830e5dfd62), 
+INFO: Loaded 1 PC tables (109014 PCs): 109014 [0x55830e5dfd68,0x55830e789ac8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/process_message_inv
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 121Mb
+#2	DONE   cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 121Mb
+Done 2 runs in 0 second(s)
+
+Run process_message_mempool with args ['/root/bitcoin/src/test/fuzz/process_message_mempool', '-runs=1', 'qa-assets/fuzz_seed_corpus/process_message_mempool']INFO: Seed: 2743397105
+INFO: Loaded 1 modules   (109014 inline 8-bit counters): 109014 [0x55a973d2138c, 0x55a973d3bd62), 
+INFO: Loaded 1 PC tables (109014 PCs): 109014 [0x55a973d3bd68,0x55a973ee5ac8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/process_message_mempool
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 122Mb
+#2	DONE   cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 122Mb
+Done 2 runs in 0 second(s)
+
+Run process_message_notfound with args ['/root/bitcoin/src/test/fuzz/process_message_notfound', '-runs=1', 'qa-assets/fuzz_seed_corpus/process_message_notfound']INFO: Seed: 2961982542
+INFO: Loaded 1 modules   (109014 inline 8-bit counters): 109014 [0x5604bcd3138c, 0x5604bcd4bd62), 
+INFO: Loaded 1 PC tables (109014 PCs): 109014 [0x5604bcd4bd68,0x5604bcef5ac8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/process_message_notfound
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 122Mb
+#2	DONE   cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 122Mb
+Done 2 runs in 0 second(s)
+
+Run process_message_ping with args ['/root/bitcoin/src/test/fuzz/process_message_ping', '-runs=1', 'qa-assets/fuzz_seed_corpus/process_message_ping']INFO: Seed: 3126163702
+INFO: Loaded 1 modules   (109014 inline 8-bit counters): 109014 [0x55bdf6c3638c, 0x55bdf6c50d62), 
+INFO: Loaded 1 PC tables (109014 PCs): 109014 [0x55bdf6c50d68,0x55bdf6dfaac8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/process_message_ping
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 121Mb
+#2	DONE   cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 121Mb
+Done 2 runs in 0 second(s)
+
+Run process_message_pong with args ['/root/bitcoin/src/test/fuzz/process_message_pong', '-runs=1', 'qa-assets/fuzz_seed_corpus/process_message_pong']INFO: Seed: 3389410521
+INFO: Loaded 1 modules   (109014 inline 8-bit counters): 109014 [0x55fa2445b38c, 0x55fa24475d62), 
+INFO: Loaded 1 PC tables (109014 PCs): 109014 [0x55fa24475d68,0x55fa2461fac8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/process_message_pong
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 122Mb
+#2	DONE   cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 122Mb
+Done 2 runs in 0 second(s)
+
+Run process_message_sendcmpct with args ['/root/bitcoin/src/test/fuzz/process_message_sendcmpct', '-runs=1', 'qa-assets/fuzz_seed_corpus/process_message_sendcmpct']INFO: Seed: 3991324562
+INFO: Loaded 1 modules   (109014 inline 8-bit counters): 109014 [0x55949c1ec38c, 0x55949c206d62), 
+INFO: Loaded 1 PC tables (109014 PCs): 109014 [0x55949c206d68,0x55949c3b0ac8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/process_message_sendcmpct
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 122Mb
+#2	DONE   cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 122Mb
+Done 2 runs in 0 second(s)
+
+Run process_message_sendheaders with args ['/root/bitcoin/src/test/fuzz/process_message_sendheaders', '-runs=1', 'qa-assets/fuzz_seed_corpus/process_message_sendheaders']INFO: Seed: 187402891
+INFO: Loaded 1 modules   (109014 inline 8-bit counters): 109014 [0x562cb2cea38c, 0x562cb2d04d62), 
+INFO: Loaded 1 PC tables (109014 PCs): 109014 [0x562cb2d04d68,0x562cb2eaeac8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/process_message_sendheaders
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 122Mb
+#2	DONE   cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 122Mb
+Done 2 runs in 0 second(s)
+
+Run process_message_tx with args ['/root/bitcoin/src/test/fuzz/process_message_tx', '-runs=1', 'qa-assets/fuzz_seed_corpus/process_message_tx']INFO: Seed: 202354603
+INFO: Loaded 1 modules   (109014 inline 8-bit counters): 109014 [0x5644e314038c, 0x5644e315ad62), 
+INFO: Loaded 1 PC tables (109014 PCs): 109014 [0x5644e315ad68,0x5644e3304ac8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/process_message_tx
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 121Mb
+#2	DONE   cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 121Mb
+Done 2 runs in 0 second(s)
+
+Run protocol with args ['/root/bitcoin/src/test/fuzz/protocol', '-runs=1', 'qa-assets/fuzz_seed_corpus/protocol']INFO: Seed: 541393226
+INFO: Loaded 1 modules   (108924 inline 8-bit counters): 108924 [0x55ae94f2924c, 0x55ae94f43bc8), 
+INFO: Loaded 1 PC tables (108924 PCs): 108924 [0x55ae94f43bc8,0x55ae950ed388), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/protocol
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 236 ft: 237 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 236 ft: 237 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run process_message_verack with args ['/root/bitcoin/src/test/fuzz/process_message_verack', '-runs=1', 'qa-assets/fuzz_seed_corpus/process_message_verack']INFO: Seed: 617586333
+INFO: Loaded 1 modules   (109014 inline 8-bit counters): 109014 [0x5559a8d0b38c, 0x5559a8d25d62), 
+INFO: Loaded 1 PC tables (109014 PCs): 109014 [0x5559a8d25d68,0x5559a8ecfac8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/process_message_verack
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 122Mb
+#2	DONE   cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 122Mb
+Done 2 runs in 0 second(s)
+
+Run psbt with args ['/root/bitcoin/src/test/fuzz/psbt', '-runs=1', 'qa-assets/fuzz_seed_corpus/psbt']INFO: Seed: 778953066
+INFO: Loaded 1 modules   (15976 inline 8-bit counters): 15976 [0x560ac0e2d3d4, 0x560ac0e3123c), 
+INFO: Loaded 1 PC tables (15976 PCs): 15976 [0x560ac0e31240,0x560ac0e6f8c0), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/psbt
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 259 ft: 260 corp: 1/1b exec/s: 0 rss: 38Mb
+#2	DONE   cov: 259 ft: 260 corp: 1/1b exec/s: 0 rss: 38Mb
+Done 2 runs in 0 second(s)
+
+Run psbt_input_deserialize with args ['/root/bitcoin/src/test/fuzz/psbt_input_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/psbt_input_deserialize']INFO: Seed: 828263341
+INFO: Loaded 1 modules   (4451 inline 8-bit counters): 4451 [0x55fe16cd24c4, 0x55fe16cd3627), 
+INFO: Loaded 1 PC tables (4451 PCs): 4451 [0x55fe16cd3628,0x55fe16ce4c58), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/psbt_input_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 255 ft: 256 corp: 1/1b exec/s: 0 rss: 34Mb
+#2	DONE   cov: 255 ft: 256 corp: 1/1b exec/s: 0 rss: 34Mb
+Done 2 runs in 0 second(s)
+
+Run psbt_output_deserialize with args ['/root/bitcoin/src/test/fuzz/psbt_output_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/psbt_output_deserialize']INFO: Seed: 847549962
+INFO: Loaded 1 modules   (1668 inline 8-bit counters): 1668 [0x5577b2b7ecfc, 0x5577b2b7f380), 
+INFO: Loaded 1 PC tables (1668 PCs): 1668 [0x5577b2b7f380,0x5577b2b85bc0), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/psbt_output_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 204 ft: 205 corp: 1/1b exec/s: 0 rss: 34Mb
+#2	DONE   cov: 204 ft: 205 corp: 1/1b exec/s: 0 rss: 34Mb
+Done 2 runs in 0 second(s)
+
+Run pub_key_deserialize with args ['/root/bitcoin/src/test/fuzz/pub_key_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/pub_key_deserialize']INFO: Seed: 887306178
+INFO: Loaded 1 modules   (963 inline 8-bit counters): 963 [0x557044d56c4c, 0x557044d5700f), 
+INFO: Loaded 1 PC tables (963 PCs): 963 [0x557044d57010,0x557044d5ac40), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/pub_key_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 170 ft: 171 corp: 1/1b exec/s: 0 rss: 34Mb
+#2	DONE   cov: 170 ft: 171 corp: 1/1b exec/s: 0 rss: 34Mb
+Done 2 runs in 0 second(s)
+
+Run random with args ['/root/bitcoin/src/test/fuzz/random', '-runs=1', 'qa-assets/fuzz_seed_corpus/random']INFO: Seed: 1031784577
+INFO: Loaded 1 modules   (108933 inline 8-bit counters): 108933 [0x561fdf63c22c, 0x561fdf656bb1), 
+INFO: Loaded 1 PC tables (108933 PCs): 108933 [0x561fdf656bb8,0x561fdf800408), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/random
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 174 ft: 175 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 174 ft: 175 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run rbf with args ['/root/bitcoin/src/test/fuzz/rbf', '-runs=1', 'qa-assets/fuzz_seed_corpus/rbf']INFO: Seed: 1082162335
+INFO: Loaded 1 modules   (109003 inline 8-bit counters): 109003 [0x55c8402e337c, 0x55c8402fdd47), 
+INFO: Loaded 1 PC tables (109003 PCs): 109003 [0x55c8402fdd48,0x55c8404a79f8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/rbf
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 276 ft: 277 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 276 ft: 277 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run process_message_version with args ['/root/bitcoin/src/test/fuzz/process_message_version', '-runs=1', 'qa-assets/fuzz_seed_corpus/process_message_version']INFO: Seed: 1130370397
+INFO: Loaded 1 modules   (109014 inline 8-bit counters): 109014 [0x55c8766d338c, 0x55c8766edd62), 
+INFO: Loaded 1 PC tables (109014 PCs): 109014 [0x55c8766edd68,0x55c876897ac8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/process_message_version
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 121Mb
+#2	DONE   cov: 113 ft: 114 corp: 1/1b exec/s: 0 rss: 121Mb
+Done 2 runs in 0 second(s)
+
+Run process_messages with args ['/root/bitcoin/src/test/fuzz/process_messages', '-runs=1', 'qa-assets/fuzz_seed_corpus/process_messages']INFO: Seed: 1213054535
+INFO: Loaded 1 modules   (109154 inline 8-bit counters): 109154 [0x560e76d173ec, 0x560e76d31e4e), 
+INFO: Loaded 1 PC tables (109154 PCs): 109154 [0x560e76d31e50,0x560e76edc470), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/process_messages
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 2169 ft: 2170 corp: 1/1b exec/s: 0 rss: 123Mb
+#2	DONE   cov: 2169 ft: 2170 corp: 1/1b exec/s: 0 rss: 123Mb
+Done 2 runs in 0 second(s)
+
+Run rolling_bloom_filter with args ['/root/bitcoin/src/test/fuzz/rolling_bloom_filter', '-runs=1', 'qa-assets/fuzz_seed_corpus/rolling_bloom_filter']INFO: Seed: 1365174605
+INFO: Loaded 1 modules   (108925 inline 8-bit counters): 108925 [0x560d6871927c, 0x560d68733bf9), 
+INFO: Loaded 1 PC tables (108925 PCs): 108925 [0x560d68733c00,0x560d688dd3d0), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/rolling_bloom_filter
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 253 ft: 254 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 253 ft: 254 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run script_deserialize with args ['/root/bitcoin/src/test/fuzz/script_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/script_deserialize']INFO: Seed: 1584284974
+INFO: Loaded 1 modules   (1032 inline 8-bit counters): 1032 [0x5570de551c4c, 0x5570de552054), 
+INFO: Loaded 1 PC tables (1032 PCs): 1032 [0x5570de552058,0x5570de5560d8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/script_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 173 ft: 174 corp: 1/1b exec/s: 0 rss: 34Mb
+#2	DONE   cov: 173 ft: 174 corp: 1/1b exec/s: 0 rss: 34Mb
+Done 2 runs in 0 second(s)
+
+Run script with args ['/root/bitcoin/src/test/fuzz/script', '-runs=1', 'qa-assets/fuzz_seed_corpus/script']INFO: Seed: 1435669248
+INFO: Loaded 1 modules   (109240 inline 8-bit counters): 109240 [0x5646b2a4cfcc, 0x5646b2a67a84), 
+INFO: Loaded 1 PC tables (109240 PCs): 109240 [0x5646b2a67a88,0x5646b2c12608), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/script
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 264 ft: 265 corp: 1/1b exec/s: 0 rss: 83Mb
+#2	DONE   cov: 264 ft: 265 corp: 1/1b exec/s: 0 rss: 83Mb
+Done 2 runs in 0 second(s)
+
+Run script_bitcoin_consensus with args ['/root/bitcoin/src/test/fuzz/script_bitcoin_consensus', '-runs=1', 'qa-assets/fuzz_seed_corpus/script_bitcoin_consensus']INFO: Seed: 1450723229
+INFO: Loaded 1 modules   (109139 inline 8-bit counters): 109139 [0x564fd23ef2fc, 0x564fd2409d4f), 
+INFO: Loaded 1 PC tables (109139 PCs): 109139 [0x564fd2409d50,0x564fd25b4280), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/script_bitcoin_consensus
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 284 ft: 285 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 284 ft: 285 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run script_flags with args ['/root/bitcoin/src/test/fuzz/script_flags', '-runs=1', 'qa-assets/fuzz_seed_corpus/script_flags']INFO: Seed: 1637283445
+INFO: Loaded 1 modules   (4603 inline 8-bit counters): 4603 [0x558aff2ec84c, 0x558aff2eda47), 
+INFO: Loaded 1 PC tables (4603 PCs): 4603 [0x558aff2eda48,0x558aff2ff9f8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/script_flags
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 162 ft: 163 corp: 1/1b exec/s: 0 rss: 35Mb
+#2	DONE   cov: 162 ft: 163 corp: 1/1b exec/s: 0 rss: 35Mb
+Done 2 runs in 0 second(s)
+
+Run script_descriptor_cache with args ['/root/bitcoin/src/test/fuzz/script_descriptor_cache', '-runs=1', 'qa-assets/fuzz_seed_corpus/script_descriptor_cache']INFO: Seed: 1551503096
+INFO: Loaded 1 modules   (108922 inline 8-bit counters): 108922 [0x55a29c89e24c, 0x55a29c8b8bc6), 
+INFO: Loaded 1 PC tables (108922 PCs): 108922 [0x55a29c8b8bc8,0x55a29ca62368), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/script_descriptor_cache
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 107 ft: 108 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 107 ft: 108 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run script_interpreter with args ['/root/bitcoin/src/test/fuzz/script_interpreter', '-runs=1', 'qa-assets/fuzz_seed_corpus/script_interpreter']INFO: Seed: 1778740476
+INFO: Loaded 1 modules   (108951 inline 8-bit counters): 108951 [0x5631044962cc, 0x5631044b0c63), 
+INFO: Loaded 1 PC tables (108951 PCs): 108951 [0x5631044b0c68,0x56310465a5d8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/script_interpreter
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 282 ft: 283 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 282 ft: 283 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run script_ops with args ['/root/bitcoin/src/test/fuzz/script_ops', '-runs=1', 'qa-assets/fuzz_seed_corpus/script_ops']INFO: Seed: 1798721956
+INFO: Loaded 1 modules   (108943 inline 8-bit counters): 108943 [0x560406fb029c, 0x560406fcac2b), 
+INFO: Loaded 1 PC tables (108943 PCs): 108943 [0x560406fcac30,0x560407174520), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/script_ops
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 149 ft: 150 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 149 ft: 150 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run service_deserialize with args ['/root/bitcoin/src/test/fuzz/service_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/service_deserialize']INFO: Seed: 2012939775
+INFO: Loaded 1 modules   (2535 inline 8-bit counters): 2535 [0x5579d253c0b4, 0x5579d253ca9b), 
+INFO: Loaded 1 PC tables (2535 PCs): 2535 [0x5579d253caa0,0x5579d2546910), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/service_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 170 ft: 171 corp: 1/1b exec/s: 0 rss: 34Mb
+#2	DONE   cov: 170 ft: 171 corp: 1/1b exec/s: 0 rss: 34Mb
+Done 2 runs in 0 second(s)
+
+Run script_sigcache with args ['/root/bitcoin/src/test/fuzz/script_sigcache', '-runs=1', 'qa-assets/fuzz_seed_corpus/script_sigcache']INFO: Seed: 1880643356
+INFO: Loaded 1 modules   (108990 inline 8-bit counters): 108990 [0x563b2262e2fc, 0x563b22648cba), 
+INFO: Loaded 1 PC tables (108990 PCs): 108990 [0x563b22648cc0,0x563b227f28a0), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/script_sigcache
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 328 ft: 329 corp: 1/1b exec/s: 0 rss: 98Mb
+#2	DONE   cov: 328 ft: 329 corp: 1/1b exec/s: 0 rss: 98Mb
+Done 2 runs in 0 second(s)
+
+Run script_sign with args ['/root/bitcoin/src/test/fuzz/script_sign', '-runs=1', 'qa-assets/fuzz_seed_corpus/script_sign']INFO: Seed: 1909192791
+INFO: Loaded 1 modules   (109311 inline 8-bit counters): 109311 [0x5564dd65f45c, 0x5564dd679f5b), 
+INFO: Loaded 1 PC tables (109311 PCs): 109311 [0x5564dd679f60,0x5564dd824f50), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/script_sign
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 1045 ft: 1046 corp: 1/1b exec/s: 0 rss: 83Mb
+#2	DONE   cov: 1045 ft: 1046 corp: 1/1b exec/s: 0 rss: 83Mb
+Done 2 runs in 0 second(s)
+
+Run signature_checker with args ['/root/bitcoin/src/test/fuzz/signature_checker', '-runs=1', 'qa-assets/fuzz_seed_corpus/signature_checker']INFO: Seed: 2065510664
+INFO: Loaded 1 modules   (3536 inline 8-bit counters): 3536 [0x5566e2c165ac, 0x5566e2c1737c), 
+INFO: Loaded 1 PC tables (3536 PCs): 3536 [0x5566e2c17380,0x5566e2c25080), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/signature_checker
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 209 ft: 210 corp: 1/1b exec/s: 0 rss: 34Mb
+#2	DONE   cov: 209 ft: 210 corp: 1/1b exec/s: 0 rss: 34Mb
+Done 2 runs in 0 second(s)
+
+Run snapshotmetadata_deserialize with args ['/root/bitcoin/src/test/fuzz/snapshotmetadata_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/snapshotmetadata_deserialize']INFO: Seed: 2099933571
+INFO: Loaded 1 modules   (949 inline 8-bit counters): 949 [0x555bdc57fc4c, 0x555bdc580001), 
+INFO: Loaded 1 PC tables (949 PCs): 949 [0x555bdc580008,0x555bdc583b58), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/snapshotmetadata_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 171 ft: 172 corp: 1/1b exec/s: 0 rss: 34Mb
+#2	DONE   cov: 171 ft: 172 corp: 1/1b exec/s: 0 rss: 34Mb
+Done 2 runs in 0 second(s)
+
+Run spanparsing with args ['/root/bitcoin/src/test/fuzz/spanparsing', '-runs=1', 'qa-assets/fuzz_seed_corpus/spanparsing']INFO: Seed: 2112553215
+INFO: Loaded 1 modules   (417 inline 8-bit counters): 417 [0x55ceadbc3bbc, 0x55ceadbc3d5d), 
+INFO: Loaded 1 PC tables (417 PCs): 417 [0x55ceadbc3d60,0x55ceadbc5770), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/spanparsing
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 133 ft: 134 corp: 1/1b exec/s: 0 rss: 33Mb
+#2	DONE   cov: 133 ft: 134 corp: 1/1b exec/s: 0 rss: 33Mb
+Done 2 runs in 0 second(s)
+
+Run strprintf with args ['/root/bitcoin/src/test/fuzz/strprintf', '-runs=1', 'qa-assets/fuzz_seed_corpus/strprintf']INFO: Seed: 2150993975
+INFO: Loaded 1 modules   (1515 inline 8-bit counters): 1515 [0x55acab0a4f7c, 0x55acab0a5567), 
+INFO: Loaded 1 PC tables (1515 PCs): 1515 [0x55acab0a5568,0x55acab0ab418), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/strprintf
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 329 ft: 330 corp: 1/1b exec/s: 0 rss: 33Mb
+#2	DONE   cov: 329 ft: 330 corp: 1/1b exec/s: 0 rss: 33Mb
+Done 2 runs in 0 second(s)
+
+Run sub_net_deserialize with args ['/root/bitcoin/src/test/fuzz/sub_net_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/sub_net_deserialize']INFO: Seed: 2200567112
+INFO: Loaded 1 modules   (2527 inline 8-bit counters): 2527 [0x5613cb6d50b4, 0x5613cb6d5a93), 
+INFO: Loaded 1 PC tables (2527 PCs): 2527 [0x5613cb6d5a98,0x5613cb6df888), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/sub_net_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 170 ft: 171 corp: 1/1b exec/s: 0 rss: 34Mb
+#2	DONE   cov: 170 ft: 171 corp: 1/1b exec/s: 0 rss: 34Mb
+Done 2 runs in 0 second(s)
+
+Run scriptnum_ops with args ['/root/bitcoin/src/test/fuzz/scriptnum_ops', '-runs=1', 'qa-assets/fuzz_seed_corpus/scriptnum_ops']INFO: Seed: 2144354597
+INFO: Loaded 1 modules   (108941 inline 8-bit counters): 108941 [0x55d8e942a28c, 0x55d8e9444c19), 
+INFO: Loaded 1 PC tables (108941 PCs): 108941 [0x55d8e9444c20,0x55d8e95ee4f0), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/scriptnum_ops
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 69 ft: 70 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 69 ft: 70 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run span with args ['/root/bitcoin/src/test/fuzz/span', '-runs=1', 'qa-assets/fuzz_seed_corpus/span']INFO: Seed: 2254260402
+INFO: Loaded 1 modules   (108906 inline 8-bit counters): 108906 [0x55fc2db8b20c, 0x55fc2dba5b76), 
+INFO: Loaded 1 PC tables (108906 PCs): 108906 [0x55fc2dba5b78,0x55fc2dd4f218), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/span
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 134 ft: 135 corp: 1/1b exec/s: 0 rss: 80Mb
+#2	DONE   cov: 134 ft: 135 corp: 1/1b exec/s: 0 rss: 80Mb
+Done 2 runs in 0 second(s)
+
+Run string with args ['/root/bitcoin/src/test/fuzz/string', '-runs=1', 'qa-assets/fuzz_seed_corpus/string']INFO: Seed: 2287081158
+INFO: Loaded 1 modules   (109618 inline 8-bit counters): 109618 [0x557a808f139c, 0x557a8090bfce), 
+INFO: Loaded 1 PC tables (109618 PCs): 109618 [0x557a8090bfd0,0x557a80ab82f0), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/string
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 1189 ft: 1190 corp: 1/1b exec/s: 0 rss: 83Mb
+#2	DONE   cov: 1189 ft: 1190 corp: 1/1b exec/s: 0 rss: 83Mb
+Done 2 runs in 0 second(s)
+
+Run tx_in with args ['/root/bitcoin/src/test/fuzz/tx_in', '-runs=1', 'qa-assets/fuzz_seed_corpus/tx_in']INFO: Seed: 2491028982
+INFO: Loaded 1 modules   (9667 inline 8-bit counters): 9667 [0x559a35285fa4, 0x559a35288567), 
+INFO: Loaded 1 PC tables (9667 PCs): 9667 [0x559a35288568,0x559a352ae198), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/tx_in
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 193 ft: 194 corp: 1/1b exec/s: 0 rss: 35Mb
+#2	DONE   cov: 193 ft: 194 corp: 1/1b exec/s: 0 rss: 35Mb
+Done 2 runs in 0 second(s)
+
+Run system with args ['/root/bitcoin/src/test/fuzz/system', '-runs=1', 'qa-assets/fuzz_seed_corpus/system']INFO: Seed: 2375322300
+INFO: Loaded 1 modules   (109046 inline 8-bit counters): 109046 [0x556d735a733c, 0x556d735c1d32), 
+INFO: Loaded 1 PC tables (109046 PCs): 109046 [0x556d735c1d38,0x556d7376bc98), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/system
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 474 ft: 475 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 474 ft: 475 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run tx_in_deserialize with args ['/root/bitcoin/src/test/fuzz/tx_in_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/tx_in_deserialize']INFO: Seed: 2540672693
+INFO: Loaded 1 modules   (1127 inline 8-bit counters): 1127 [0x55f8234adc6c, 0x55f8234ae0d3), 
+INFO: Loaded 1 PC tables (1127 PCs): 1127 [0x55f8234ae0d8,0x55f8234b2748), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/tx_in_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 198 ft: 199 corp: 1/1b exec/s: 0 rss: 34Mb
+#2	DONE   cov: 198 ft: 199 corp: 1/1b exec/s: 0 rss: 34Mb
+Done 2 runs in 0 second(s)
+
+Run txoutcompressor_deserialize with args ['/root/bitcoin/src/test/fuzz/txoutcompressor_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/txoutcompressor_deserialize']INFO: Seed: 2585751863
+INFO: Loaded 1 modules   (1227 inline 8-bit counters): 1227 [0x559545796cdc, 0x5595457971a7), 
+INFO: Loaded 1 PC tables (1227 PCs): 1227 [0x5595457971a8,0x55954579be58), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/txoutcompressor_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 187 ft: 188 corp: 1/1b exec/s: 0 rss: 34Mb
+#2	DONE   cov: 187 ft: 188 corp: 1/1b exec/s: 0 rss: 34Mb
+Done 2 runs in 0 second(s)
+
+Run tx_out with args ['/root/bitcoin/src/test/fuzz/tx_out', '-runs=1', 'qa-assets/fuzz_seed_corpus/tx_out']INFO: Seed: 2573520381
+INFO: Loaded 1 modules   (9650 inline 8-bit counters): 9650 [0x56514532ef94, 0x565145331546), 
+INFO: Loaded 1 PC tables (9650 PCs): 9650 [0x565145331548,0x565145357068), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/tx_out
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 180 ft: 181 corp: 1/1b exec/s: 0 rss: 35Mb
+#2	DONE   cov: 180 ft: 181 corp: 1/1b exec/s: 0 rss: 35Mb
+Done 2 runs in 0 second(s)
+
+Run uint160_deserialize with args ['/root/bitcoin/src/test/fuzz/uint160_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/uint160_deserialize']INFO: Seed: 2632389353
+INFO: Loaded 1 modules   (928 inline 8-bit counters): 928 [0x55eece3c3c4c, 0x55eece3c3fec), 
+INFO: Loaded 1 PC tables (928 PCs): 928 [0x55eece3c3ff0,0x55eece3c79f0), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/uint160_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 170 ft: 171 corp: 1/1b exec/s: 0 rss: 34Mb
+#2	DONE   cov: 170 ft: 171 corp: 1/1b exec/s: 0 rss: 34Mb
+Done 2 runs in 0 second(s)
+
+Run txundo_deserialize with args ['/root/bitcoin/src/test/fuzz/txundo_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/txundo_deserialize']INFO: Seed: 2631837357
+INFO: Loaded 1 modules   (1414 inline 8-bit counters): 1414 [0x557dd4fbccec, 0x557dd4fbd272), 
+INFO: Loaded 1 PC tables (1414 PCs): 1414 [0x557dd4fbd278,0x557dd4fc2ad8), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/txundo_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 187 ft: 188 corp: 1/1b exec/s: 0 rss: 34Mb
+#2	DONE   cov: 187 ft: 188 corp: 1/1b exec/s: 0 rss: 34Mb
+Done 2 runs in 0 second(s)
+
+Run timedata with args ['/root/bitcoin/src/test/fuzz/timedata', '-runs=1', 'qa-assets/fuzz_seed_corpus/timedata']INFO: Seed: 2471727405
+INFO: Loaded 1 modules   (108884 inline 8-bit counters): 108884 [0x563c6535a22c, 0x563c65374b80), 
+INFO: Loaded 1 PC tables (108884 PCs): 108884 [0x563c65374b80,0x563c6551e0c0), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/timedata
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 146 ft: 147 corp: 1/1b exec/s: 0 rss: 81Mb
+#2	DONE   cov: 146 ft: 147 corp: 1/1b exec/s: 0 rss: 81Mb
+Done 2 runs in 0 second(s)
+
+Run uint256_deserialize with args ['/root/bitcoin/src/test/fuzz/uint256_deserialize', '-runs=1', 'qa-assets/fuzz_seed_corpus/uint256_deserialize']INFO: Seed: 2675347937
+INFO: Loaded 1 modules   (930 inline 8-bit counters): 930 [0x556b061c2c4c, 0x556b061c2fee), 
+INFO: Loaded 1 PC tables (930 PCs): 930 [0x556b061c2ff0,0x556b061c6a10), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/uint256_deserialize
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 170 ft: 171 corp: 1/1b exec/s: 0 rss: 33Mb
+#2	DONE   cov: 170 ft: 171 corp: 1/1b exec/s: 0 rss: 33Mb
+Done 2 runs in 0 second(s)
+
+Run transaction with args ['/root/bitcoin/src/test/fuzz/transaction', '-runs=1', 'qa-assets/fuzz_seed_corpus/transaction']INFO: Seed: 2585141112
+INFO: Loaded 1 modules   (108865 inline 8-bit counters): 108865 [0x55d23bc772ec, 0x55d23bc91c2d), 
+INFO: Loaded 1 PC tables (108865 PCs): 108865 [0x55d23bc91c30,0x55d23be3b040), 
+INFO:        0 files found in qa-assets/fuzz_seed_corpus/transaction
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 161 ft: 162 corp: 1/1b exec/s: 0 rss: 82Mb
+#2	DONE   cov: 161 ft: 162 corp: 1/1b exec/s: 0 rss: 82Mb
+Done 2 runs in 0 second(s)
+
+Run validation_load_mempool with args ['/root/bitcoin/src/test/fuzz/validation_load_mempool', '-runs=1', 'qa-assets/fuzz_seed_corpus/validation_load_mempool']INFO: Seed: 2959962188
+INFO: Loaded 1 modules   (108946 inline 8-bit counters): 108946 [0x56005118130c, 0x56005119bc9e), 
+INFO: Loaded 1 PC tables (108946 PCs): 108946 [0x56005119bca0,0x5600513455c0), 
+INFO:     1879 files found in qa-assets/fuzz_seed_corpus/validation_load_mempool
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: seed corpus: files: 1879 min: 1b max: 4096b total: 2485678b rss: 121Mb
+#1880	INITED cov: 2846 ft: 15339 corp: 705/815Kb exec/s: 940 rss: 124Mb
+#1880	DONE   cov: 2846 ft: 15339 corp: 705/815Kb exec/s: 940 rss: 124Mb
+Done 1880 runs in 2 second(s)
+
+/usr/bin/lcov --gcov-tool /root/bitcoin/cov_tool_wrapper.sh -c --rc lcov_branch_coverage=1 -d /root/bitcoin/src --t fuzz-tests -o fuzz.info
+Capturing coverage data from /root/bitcoin/src
+Found LLVM gcov version 10.0.0, which emulates gcov version 4.2.0
+geninfo: WARNING: invalid characters removed from testname!
+Scanning /root/bitcoin/src for .gcda files ...
+Found 323 data files in /root/bitcoin/src
+Processing src/libbitcoin_consensus_a-uint256.gcda
+Processing src/libbitcoin_server_a-versionbits.gcda
+Processing src/libbitcoin_server_a-timedata.gcda
+Processing src/index/libbitcoin_server_a-blockfilterindex.gcda
+Processing src/index/libbitcoin_server_a-base.gcda
+Processing src/index/libbitcoin_server_a-txindex.gcda
+Processing src/libbitcoin_server_a-httpserver.gcda
+Processing src/libbitcoin_common_a-psbt.gcda
+Processing src/libbitcoin_server_a-addrdb.gcda
+Processing src/support/libbitcoin_util_a-cleanse.gcda
+Processing src/support/libbitcoin_util_a-lockedpool.gcda
+Processing src/libbitcoin_util_a-clientversion.gcda
+Processing src/libbitcoin_server_a-validation.gcda
+Processing src/libbitcoin_server_a-blockfilter.gcda
+Processing src/libbitcoin_server_a-dbwrapper.gcda
+Processing src/util/libbitcoin_util_a-time.gcda
+Processing src/util/libbitcoin_util_a-fees.gcda
+Processing src/util/libbitcoin_util_a-moneystr.gcda
+Processing src/util/libbitcoin_util_a-asmap.gcda
+Processing src/util/libbitcoin_util_a-rbf.gcda
+Processing src/util/libbitcoin_util_a-system.gcda
+Processing src/util/libbitcoin_util_a-error.gcda
+Processing src/util/libbitcoin_util_a-threadnames.gcda
+Processing src/util/libbitcoin_util_a-settings.gcda
+Processing src/util/libbitcoin_util_a-spanparsing.gcda
+Processing src/util/libbitcoin_util_a-strencodings.gcda
+Processing src/util/libbitcoin_consensus_a-strencodings.gcda
+Processing src/util/libbitcoin_util_a-message.gcda
+Processing src/util/libbitcoin_util_a-bip32.gcda
+Processing src/util/libbitcoin_util_a-bytevectorhash.gcda
+Processing src/util/libbitcoin_util_a-url.gcda
+Processing src/libbitcoin_common_a-net_permissions.gcda
+Processing src/libbitcoin_util_a-chainparamsbase.gcda
+Processing src/libbitcoin_server_a-httprpc.gcda
+Processing src/libbitcoin_common_a-bech32.gcda
+Processing src/rpc/libbitcoin_cli_a-client.gcda
+Processing src/rpc/libbitcoin_common_a-rawtransaction_util.gcda
+Processing src/rpc/libbitcoin_server_a-misc.gcda
+Processing src/rpc/libbitcoin_server_a-net.gcda
+Processing src/rpc/libbitcoin_server_a-rawtransaction.gcda
+Processing src/rpc/libbitcoin_util_a-request.gcda
+Processing src/rpc/libbitcoin_server_a-blockchain.gcda
+Processing src/rpc/libbitcoin_common_a-util.gcda
+Processing src/rpc/libbitcoin_server_a-mining.gcda
+Processing src/rpc/libbitcoin_server_a-server.gcda
+Processing src/leveldb/util/leveldb_libleveldb_a-cache.gcda
+Processing src/leveldb/util/leveldb_libleveldb_a-filter_policy.gcda
+Processing src/leveldb/util/leveldb_libleveldb_a-coding.gcda
+Processing src/leveldb/util/leveldb_libleveldb_a-comparator.gcda
+Processing src/leveldb/util/leveldb_libleveldb_a-env.gcda
+Processing src/leveldb/util/leveldb_libleveldb_a-env_posix.gcda
+Processing src/leveldb/util/leveldb_libleveldb_a-options.gcda
+Processing src/leveldb/util/leveldb_libleveldb_a-status.gcda
+Processing src/leveldb/util/leveldb_libleveldb_a-crc32c.gcda
+Processing src/leveldb/util/leveldb_libleveldb_a-arena.gcda
+Processing src/leveldb/util/leveldb_libleveldb_a-logging.gcda
+Processing src/leveldb/util/leveldb_libleveldb_a-hash.gcda
+Processing src/leveldb/util/leveldb_libleveldb_a-bloom.gcda
+Processing src/leveldb/db/leveldb_libleveldb_a-log_reader.gcda
+Processing src/leveldb/db/leveldb_libleveldb_a-version_set.gcda
+Processing src/leveldb/db/leveldb_libleveldb_a-db_impl.gcda
+Processing src/leveldb/db/leveldb_libleveldb_a-filename.gcda
+Processing src/leveldb/db/leveldb_libleveldb_a-write_batch.gcda
+Processing src/leveldb/db/leveldb_libleveldb_a-builder.gcda
+Processing src/leveldb/db/leveldb_libleveldb_a-log_writer.gcda
+Processing src/leveldb/db/leveldb_libleveldb_a-memtable.gcda
+Processing src/leveldb/db/leveldb_libleveldb_a-db_iter.gcda
+Processing src/leveldb/db/leveldb_libleveldb_a-dbformat.gcda
+Processing src/leveldb/db/leveldb_libleveldb_a-version_edit.gcda
+Processing src/leveldb/db/leveldb_libleveldb_a-table_cache.gcda
+Processing src/leveldb/table/leveldb_libleveldb_a-two_level_iterator.gcda
+Processing src/leveldb/table/leveldb_libleveldb_a-filter_block.gcda
+Processing src/leveldb/table/leveldb_libleveldb_a-table.gcda
+Processing src/leveldb/table/leveldb_libleveldb_a-block.gcda
+Processing src/leveldb/table/leveldb_libleveldb_a-table_builder.gcda
+Processing src/leveldb/table/leveldb_libleveldb_a-merger.gcda
+Processing src/leveldb/table/leveldb_libleveldb_a-format.gcda
+Processing src/leveldb/table/leveldb_libleveldb_a-block_builder.gcda
+Processing src/leveldb/table/leveldb_libleveldb_a-iterator.gcda
+Processing src/leveldb/helpers/memenv/leveldb_libmemenv_a-memenv.gcda
+Processing src/libbitcoin_server_a-net.gcda
+Processing src/node/libbitcoin_server_a-ui_interface.gcda
+Processing src/node/libbitcoin_server_a-transaction.gcda
+Processing src/node/libbitcoin_server_a-coinstats.gcda
+Processing src/node/libbitcoin_server_a-coin.gcda
+Processing src/node/libbitcoin_server_a-psbt.gcda
+Processing src/node/libbitcoin_server_a-context.gcda
+Processing src/libbitcoin_server_a-miner.gcda
+Processing src/compat/libbitcoin_util_a-glibc_sanity.gcda
+Processing src/compat/libbitcoin_util_a-glibcxx_sanity.gcda
+Processing src/libbitcoin_common_a-warnings.gcda
+Processing src/libbitcoin_server_a-blockencodings.gcda
+Processing src/libbitcoin_consensus_a-arith_uint256.gcda
+Processing src/crc32c/src/crc32c_libcrc32c_a-crc32c.gcda
+Processing src/crc32c/src/crc32c_libcrc32c_a-crc32c_portable.gcda
+Processing src/crc32c/src/crc32c_libcrc32c_sse42_a-crc32c_sse42.gcda
+Processing src/libbitcoin_util_a-fs.gcda
+Processing src/libbitcoin_server_a-txmempool.gcda
+Processing src/libbitcoin_server_a-validationinterface.gcda
+Processing src/libbitcoin_common_a-chainparams.gcda
+Processing src/libbitcoin_common_a-core_read.gcda
+Processing src/libbitcoin_server_a-txdb.gcda
+Processing src/libbitcoin_common_a-protocol.gcda
+Processing src/libbitcoin_consensus_a-hash.gcda
+Processing src/libbitcoin_server_a-shutdown.gcda
+Processing src/libbitcoin_util_a-logging.gcda
+Processing src/libbitcoin_common_a-compressor.gcda
+Processing src/libbitcoin_common_a-scheduler.gcda
+Processing src/libbitcoin_server_a-pow.gcda
+Processing src/libbitcoin_server_a-init.gcda
+Processing src/libbitcoin_server_a-net_processing.gcda
+Processing src/libbitcoin_server_a-torcontrol.gcda
+Processing src/libbitcoin_common_a-versionbitsinfo.gcda
+geninfo: WARNING: gcov did not create any files for /root/bitcoin/src/libbitcoin_common_a-versionbitsinfo.gcda!
+Processing src/libbitcoin_common_a-netbase.gcda
+Processing src/libbitcoin_common_a-key_io.gcda
+Processing src/libbitcoin_common_a-coins.gcda
+Processing src/libbitcoin_server_a-rest.gcda
+Processing src/libbitcoin_util_a-threadinterrupt.gcda
+Processing src/libbitcoin_server_a-chain.gcda
+Processing src/libbitcoin_util_a-random.gcda
+Processing src/libbitcoin_common_a-outputtype.gcda
+Processing src/script/libbitcoin_common_a-signingprovider.gcda
+Processing src/script/libbitcoin_consensus_a-script.gcda
+Processing src/script/libbitcoin_common_a-descriptor.gcda
+Processing src/script/libbitcoin_consensus_a-interpreter.gcda
+Processing src/script/libbitcoin_consensus_a-bitcoinconsensus.gcda
+Processing src/script/libbitcoin_common_a-sign.gcda
+Processing src/script/libbitcoin_consensus_a-script_error.gcda
+Processing src/script/libbitcoin_common_a-standard.gcda
+Processing src/script/libbitcoin_server_a-sigcache.gcda
+Processing src/crypto/crypto_libbitcoin_crypto_base_a-chacha20.gcda
+Processing src/crypto/crypto_libbitcoin_crypto_base_a-chacha_poly_aead.gcda
+Processing src/crypto/crypto_libbitcoin_crypto_base_a-hmac_sha256.gcda
+Processing src/crypto/crypto_libbitcoin_crypto_base_a-ripemd160.gcda
+Processing src/crypto/crypto_libbitcoin_crypto_sse41_a-sha256_sse41.gcda
+Processing src/crypto/crypto_libbitcoin_crypto_avx2_a-sha256_avx2.gcda
+Processing src/crypto/crypto_libbitcoin_crypto_base_a-aes.gcda
+Processing src/crypto/crypto_libbitcoin_crypto_base_a-sha256.gcda
+Processing src/crypto/crypto_libbitcoin_crypto_base_a-sha512.gcda
+Processing src/crypto/crypto_libbitcoin_crypto_shani_a-sha256_shani.gcda
+Processing src/crypto/crypto_libbitcoin_crypto_base_a-hmac_sha512.gcda
+Processing src/crypto/crypto_libbitcoin_crypto_base_a-sha1.gcda
+Processing src/crypto/crypto_libbitcoin_crypto_base_a-poly1305.gcda
+Processing src/crypto/crypto_libbitcoin_crypto_base_a-sha256_sse4.gcda
+Processing src/crypto/crypto_libbitcoin_crypto_base_a-siphash.gcda
+Processing src/crypto/crypto_libbitcoin_crypto_base_a-hkdf_sha256_32.gcda
+Processing src/libbitcoin_server_a-banman.gcda
+Processing src/libbitcoin_server_a-addrman.gcda
+Processing src/libbitcoin_common_a-netaddress.gcda
+Processing src/interfaces/libbitcoin_server_a-chain.gcda
+Processing src/libbitcoin_server_a-noui.gcda
+Processing src/primitives/libbitcoin_consensus_a-transaction.gcda
+Processing src/primitives/libbitcoin_consensus_a-block.gcda
+Processing src/test/util/libtest_util_a-str.gcda
+Processing src/test/util/libtest_util_a-setup_common.gcda
+Processing src/test/util/libtest_util_a-net.gcda
+Processing src/test/util/libtest_util_a-mining.gcda
+Processing src/test/fuzz/test_fuzz_spanparsing-spanparsing.gcda
+Processing src/test/fuzz/test_fuzz_uint160_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_block_file_info_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_process_message_ping-process_message.gcda
+Processing src/test/fuzz/test_fuzz_process_message_sendcmpct-process_message.gcda
+Processing src/test/fuzz/test_fuzz_descriptor_parse-descriptor_parse.gcda
+Processing src/test/fuzz/test_fuzz_process_message_block-process_message.gcda
+Processing src/test/fuzz/test_fuzz_pow-pow.gcda
+Processing src/test/fuzz/test_fuzz_load_external_block_file-load_external_block_file.gcda
+Processing src/test/fuzz/test_fuzz_psbt-psbt.gcda
+Processing src/test/fuzz/test_fuzz_crypto_chacha20-crypto_chacha20.gcda
+Processing src/test/fuzz/test_fuzz_block_filter_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_process_message_verack-process_message.gcda
+Processing src/test/fuzz/test_fuzz_script_flags-script_flags.gcda
+Processing src/test/fuzz/test_fuzz_out_point_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_bloomfilter_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_crypto_poly1305-crypto_poly1305.gcda
+Processing src/test/fuzz/test_fuzz_process_message_sendheaders-process_message.gcda
+Processing src/test/fuzz/test_fuzz_rbf-rbf.gcda
+Processing src/test/fuzz/test_fuzz_script-script.gcda
+Processing src/test/fuzz/test_fuzz_coins_view-coins_view.gcda
+Processing src/test/fuzz/test_fuzz_fee_rate-fee_rate.gcda
+Processing src/test/fuzz/test_fuzz_crypto_aes256cbc-crypto_aes256cbc.gcda
+Processing src/test/fuzz/test_fuzz_process_message_getdata-process_message.gcda
+Processing src/test/fuzz/test_fuzz_txundo_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_parse_univalue-parse_univalue.gcda
+Processing src/test/fuzz/test_fuzz_coins_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_address_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_system-system.gcda
+Processing src/test/fuzz/test_fuzz_snapshotmetadata_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_script_ops-script_ops.gcda
+Processing src/test/fuzz/test_fuzz_process_message_getblocks-process_message.gcda
+Processing src/test/fuzz/test_fuzz_tx_in-tx_in.gcda
+Processing src/test/fuzz/test_fuzz_merkle_block_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_addr_info_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_process_messages-process_messages.gcda
+Processing src/test/fuzz/test_fuzz_key_origin_info_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_pub_key_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_script_interpreter-script_interpreter.gcda
+Processing src/test/fuzz/test_fuzz_span-span.gcda
+Processing src/test/fuzz/test_fuzz_inv_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_transaction-transaction.gcda
+Processing src/test/fuzz/test_fuzz_crypto_chacha20_poly1305_aead-crypto_chacha20_poly1305_aead.gcda
+Processing src/test/fuzz/test_fuzz_key_io-key_io.gcda
+Processing src/test/fuzz/test_fuzz_crypto_common-crypto_common.gcda
+Processing src/test/fuzz/test_fuzz_policy_estimator_io-policy_estimator_io.gcda
+Processing src/test/fuzz/test_fuzz_float-float.gcda
+Processing src/test/fuzz/test_fuzz_random-random.gcda
+Processing src/test/fuzz/test_fuzz_addrman_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_process_message_headers-process_message.gcda
+Processing src/test/fuzz/test_fuzz_parse_script-parse_script.gcda
+Processing src/test/fuzz/test_fuzz_process_message_pong-process_message.gcda
+Processing src/test/fuzz/test_fuzz_blockundo_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_scriptnum_ops-scriptnum_ops.gcda
+Processing src/test/fuzz/test_fuzz_crypto_aes256-crypto_aes256.gcda
+Processing src/test/fuzz/test_fuzz_process_message_notfound-process_message.gcda
+Processing src/test/fuzz/test_fuzz_process_message_cmpctblock-process_message.gcda
+Processing src/test/fuzz/test_fuzz_crypto-crypto.gcda
+Processing src/test/fuzz/test_fuzz_decode_tx-decode_tx.gcda
+Processing src/test/fuzz/test_fuzz_fees-fees.gcda
+Processing src/test/fuzz/test_fuzz_parse_numbers-parse_numbers.gcda
+Processing src/test/fuzz/test_fuzz_txoutcompressor_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_psbt_output_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_process_message_feefilter-process_message.gcda
+Processing src/test/fuzz/test_fuzz_prefilled_transaction_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_fee_rate_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_blocklocator_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_banman-banman.gcda
+Processing src/test/fuzz/test_fuzz_uint256_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_process_message_filteradd-process_message.gcda
+Processing src/test/fuzz/test_fuzz_eval_script-eval_script.gcda
+Processing src/test/fuzz/test_fuzz_process_message_filterclear-process_message.gcda
+Processing src/test/fuzz/test_fuzz_process_message_mempool-process_message.gcda
+Processing src/test/fuzz/test_fuzz_script_bitcoin_consensus-script_bitcoin_consensus.gcda
+Processing src/test/fuzz/test_fuzz_diskblockindex_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_parse_iso8601-parse_iso8601.gcda
+Processing src/test/fuzz/test_fuzz_buffered_file-buffered_file.gcda
+Processing src/test/fuzz/test_fuzz_validation_load_mempool-validation_load_mempool.gcda
+Processing src/test/fuzz/test_fuzz_blockheader_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_timedata-timedata.gcda
+Processing src/test/fuzz/test_fuzz_process_message_filterload-process_message.gcda
+Processing src/test/fuzz/test_fuzz_protocol-protocol.gcda
+Processing src/test/fuzz/test_fuzz_policy_estimator-policy_estimator.gcda
+Processing src/test/fuzz/test_fuzz_addrdb-addrdb.gcda
+Processing src/test/fuzz/test_fuzz_flat_file_pos_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_banentry_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_process_message_inv-process_message.gcda
+Processing src/test/fuzz/test_fuzz_netaddress-netaddress.gcda
+Processing src/test/fuzz/test_fuzz_hex-hex.gcda
+Processing src/test/fuzz/test_fuzz_process_message_getaddr-process_message.gcda
+Processing src/test/fuzz/test_fuzz_chain-chain.gcda
+Processing src/test/fuzz/test_fuzz_block_header-block_header.gcda
+Processing src/test/fuzz/test_fuzz_partially_signed_transaction_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_psbt_input_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_signature_checker-signature_checker.gcda
+Processing src/test/fuzz/test_fuzz_sub_net_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_process_message-process_message.gcda
+Processing src/test/fuzz/test_fuzz_service_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_messageheader_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_asmap-asmap.gcda
+Processing src/test/fuzz/test_fuzz_netaddr_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_blocktransactions_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_strprintf-strprintf.gcda
+Processing src/test/fuzz/test_fuzz_base_encode_decode-base_encode_decode.gcda
+Processing src/test/fuzz/test_fuzz_block_header_and_short_txids_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_primitives_transaction-primitives_transaction.gcda
+Processing src/test/fuzz/test_fuzz_block_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_asmap_direct-asmap_direct.gcda
+Processing src/test/fuzz/test_fuzz_script_sign-script_sign.gcda
+Processing src/test/fuzz/test_fuzz_net_permissions-net_permissions.gcda
+Processing src/test/fuzz/test_fuzz_message-message.gcda
+Processing src/test/fuzz/libtest_fuzz_a-fuzz.gcda
+Processing src/test/fuzz/test_fuzz_partial_merkle_tree_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_autofile-autofile.gcda
+Processing src/test/fuzz/test_fuzz_bech32-bech32.gcda
+Processing src/test/fuzz/test_fuzz_flatfile-flatfile.gcda
+Processing src/test/fuzz/test_fuzz_golomb_rice-golomb_rice.gcda
+Processing src/test/fuzz/test_fuzz_string-string.gcda
+Processing src/test/fuzz/test_fuzz_http_request-http_request.gcda
+Processing src/test/fuzz/test_fuzz_tx_out-tx_out.gcda
+Processing src/test/fuzz/test_fuzz_cuckoocache-cuckoocache.gcda
+Processing src/test/fuzz/test_fuzz_bloom_filter-bloom_filter.gcda
+Processing src/test/fuzz/test_fuzz_script_sigcache-script_sigcache.gcda
+Processing src/test/fuzz/test_fuzz_script_descriptor_cache-script_descriptor_cache.gcda
+Processing src/test/fuzz/test_fuzz_checkqueue-checkqueue.gcda
+Processing src/test/fuzz/test_fuzz_crypto_hkdf_hmac_sha256_l32-crypto_hkdf_hmac_sha256_l32.gcda
+Processing src/test/fuzz/test_fuzz_parse_hd_keypath-parse_hd_keypath.gcda
+Processing src/test/fuzz/test_fuzz_block-block.gcda
+Processing src/test/fuzz/test_fuzz_script_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_key-key.gcda
+Processing src/test/fuzz/test_fuzz_tx_in_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_process_message_addr-process_message.gcda
+Processing src/test/fuzz/test_fuzz_p2p_transport_deserializer-p2p_transport_deserializer.gcda
+Processing src/test/fuzz/test_fuzz_multiplication_overflow-multiplication_overflow.gcda
+Processing src/test/fuzz/test_fuzz_blockmerkleroot-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_process_message_version-process_message.gcda
+Processing src/test/fuzz/test_fuzz_integer-integer.gcda
+Processing src/test/fuzz/test_fuzz_process_message_getheaders-process_message.gcda
+Processing src/test/fuzz/test_fuzz_kitchen_sink-kitchen_sink.gcda
+Processing src/test/fuzz/test_fuzz_process_message_tx-process_message.gcda
+Processing src/test/fuzz/test_fuzz_merkleblock-merkleblock.gcda
+Processing src/test/fuzz/test_fuzz_blockfilter-blockfilter.gcda
+Processing src/test/fuzz/test_fuzz_locale-locale.gcda
+Processing src/test/fuzz/test_fuzz_addition_overflow-addition_overflow.gcda
+Processing src/test/fuzz/test_fuzz_process_message_getblocktxn-process_message.gcda
+Processing src/test/fuzz/test_fuzz_blocktransactionsrequest_deserialize-deserialize.gcda
+Processing src/test/fuzz/test_fuzz_process_message_blocktxn-process_message.gcda
+Processing src/test/fuzz/test_fuzz_prevector-prevector.gcda
+Processing src/test/fuzz/test_fuzz_rolling_bloom_filter-rolling_bloom_filter.gcda
+Processing src/libbitcoin_util_a-randomenv.gcda
+Processing src/libbitcoin_common_a-base58.gcda
+Processing src/libbitcoin_server_a-flatfile.gcda
+Processing src/libbitcoin_common_a-core_write.gcda
+Processing src/libbitcoin_common_a-bloom.gcda
+Processing src/libbitcoin_common_a-key.gcda
+Processing src/policy/libbitcoin_server_a-fees.gcda
+Processing src/policy/libbitcoin_common_a-feerate.gcda
+Processing src/policy/libbitcoin_common_a-policy.gcda
+Processing src/policy/libbitcoin_server_a-settings.gcda
+Processing src/policy/libbitcoin_server_a-rbf.gcda
+Processing src/libbitcoin_server_a-dummywallet.gcda
+Processing src/libbitcoin_consensus_a-pubkey.gcda
+Processing src/libbitcoin_common_a-merkleblock.gcda
+Processing src/consensus/libbitcoin_server_a-tx_verify.gcda
+Processing src/consensus/libbitcoin_consensus_a-merkle.gcda
+Processing src/consensus/libbitcoin_consensus_a-tx_check.gcda
+Finished .info-file creation
+/usr/bin/lcov --gcov-tool /root/bitcoin/cov_tool_wrapper.sh -z --rc lcov_branch_coverage=1 -d /root/bitcoin/src
+Deleting all .da files in /root/bitcoin/src and subdirectories
+Done.
+/root/bitcoin/contrib/filter-lcov.py -p "/usr/include/" -p "/usr/lib/" -p "/usr/lib64/" -p "src/leveldb/" -p "src/crc32c/" -p "src/bench/" -p "src/univalue" -p "src/crypto/ctaes" -p "src/secp256k1" -p "depends" fuzz.info fuzz_filtered.info
+/usr/bin/lcov --gcov-tool /root/bitcoin/cov_tool_wrapper.sh -a fuzz_filtered.info --rc lcov_branch_coverage=1 -o fuzz_filtered.info
+Combining tracefiles.
+Reading tracefile fuzz_filtered.info
+Writing data to fuzz_filtered.info
+Summary coverage rate:
+  lines......: 28.6% (10430 of 36501 lines)
+  functions..: 32.9% (3115 of 9474 functions)
+  branches...: 11.7% (8350 of 71194 branches)
+/usr/bin/lcov --gcov-tool /root/bitcoin/cov_tool_wrapper.sh -a --rc lcov_branch_coverage=1 baseline_filtered.info -a fuzz_filtered.info -o fuzz_coverage.info | /bin/grep "\%" | gawk '{ print substr($3,2,50) "/" $5 }' > coverage_percent.txt
+/usr/bin/genhtml -s --rc lcov_branch_coverage=1 fuzz_coverage.info -o fuzz.coverage
+Reading data file fuzz_coverage.info
+Found 341 entries.
+Found common filename prefix "/root/bitcoin"
+Writing .css and .png files.
+Generating output.
+Processing file src/core_memusage.h
+Processing file src/chainparamsbase.cpp
+Processing file src/net.h
+Processing file src/reverse_iterator.h
+Processing file src/net_permissions.cpp
+Processing file src/compressor.h
+Processing file src/logging.h
+Processing file src/merkleblock.cpp
+Processing file src/versionbits.cpp
+Processing file src/fs.cpp
+Processing file src/blockencodings.h
+Processing file src/uint256.h
+Processing file src/addrdb.cpp
+Processing file src/netaddress.cpp
+Processing file src/net_processing.h
+Processing file src/randomenv.cpp
+Processing file src/flatfile.h
+Processing file src/txmempool.h
+Processing file src/dbwrapper.cpp
+Processing file src/serialize.h
+Processing file src/net_permissions.h
+Processing file src/flatfile.cpp
+Processing file src/threadsafety.h
+Processing file src/bech32.cpp
+Processing file src/chainparams.h
+Processing file src/validation.cpp
+Processing file src/threadinterrupt.cpp
+Processing file src/cuckoocache.h
+Processing file src/scheduler.cpp
+Processing file src/torcontrol.cpp
+Processing file src/tinyformat.h
+Processing file src/hash.h
+Processing file src/addrman.h
+Processing file src/core_read.cpp
+Processing file src/timedata.h
+Processing file src/compat.h
+Processing file src/net_processing.cpp
+Processing file src/blockencodings.cpp
+Processing file src/blockfilter.cpp
+Processing file src/memusage.h
+Processing file src/threadinterrupt.h
+Processing file src/chainparamsbase.h
+Processing file src/addrman.cpp
+Processing file src/chain.h
+Processing file src/scheduler.h
+Processing file src/arith_uint256.h
+Processing file src/versionbits.h
+Processing file src/walletinitinterface.h
+Processing file src/httpserver.h
+Processing file src/random.h
+Processing file src/compressor.cpp
+Processing file src/rest.cpp
+Processing file src/txdb.cpp
+Processing file src/undo.h
+Processing file src/bloom.h
+Processing file src/amount.h
+Processing file src/dbwrapper.h
+Processing file src/warnings.cpp
+Processing file src/pow.cpp
+Processing file src/checkqueue.h
+Processing file src/coins.cpp
+Processing file src/validation.h
+Processing file src/blockfilter.h
+Processing file src/coins.h
+Processing file src/netmessagemaker.h
+Processing file src/base58.cpp
+Processing file src/fs.h
+Processing file src/merkleblock.h
+Processing file src/limitedmap.h
+Processing file src/indirectmap.h
+Processing file src/key.h
+Processing file src/pubkey.h
+Processing file src/validationinterface.cpp
+Processing file src/netbase.h
+Processing file src/netaddress.h
+Processing file src/init.cpp
+Processing file src/uint256.cpp
+Processing file src/arith_uint256.cpp
+Processing file src/bloom.cpp
+Processing file src/validationinterface.h
+Processing file src/miner.cpp
+Processing file src/protocol.cpp
+Processing file src/chainparams.cpp
+Processing file src/sync.h
+Processing file src/logging.cpp
+Processing file src/hash.cpp
+Processing file src/key.cpp
+Processing file src/prevector.h
+Processing file src/banman.cpp
+Processing file src/miner.h
+Processing file src/outputtype.cpp
+Processing file src/txdb.h
+Processing file src/psbt.cpp
+Processing file src/timedata.cpp
+Processing file src/protocol.h
+Processing file src/chain.cpp
+Processing file src/dummywallet.cpp
+Processing file src/random.cpp
+Processing file src/netbase.cpp
+Processing file src/shutdown.cpp
+Processing file src/txmempool.cpp
+Processing file src/streams.h
+Processing file src/pubkey.cpp
+Processing file src/psbt.h
+Processing file src/httpserver.cpp
+Processing file src/net.cpp
+Processing file src/key_io.cpp
+Processing file src/noui.cpp
+Processing file src/span.h
+Processing file src/core_write.cpp
+Processing file src/clientversion.cpp
+Processing file src/addrdb.h
+Processing file src/httprpc.cpp
+Processing file src/compat/cpuid.h
+Processing file src/compat/glibcxx_sanity.cpp
+Processing file src/compat/stdin.cpp
+Processing file src/compat/glibc_sanity.cpp
+Processing file src/consensus/validation.h
+Processing file src/consensus/tx_check.cpp
+Processing file src/consensus/params.h
+Processing file src/consensus/tx_verify.cpp
+Processing file src/consensus/merkle.cpp
+Processing file src/crypto/ripemd160.cpp
+Processing file src/crypto/common.h
+Processing file src/crypto/sha256_avx2.cpp
+Processing file src/crypto/sha256_sse41.cpp
+Processing file src/crypto/aes.cpp
+Processing file src/crypto/sha512.h
+Processing file src/crypto/sha512.cpp
+Processing file src/crypto/poly1305.cpp
+Processing file src/crypto/siphash.cpp
+Processing file src/crypto/sha256_shani.cpp
+Processing file src/crypto/hmac_sha256.cpp
+Processing file src/crypto/hmac_sha512.cpp
+Processing file src/crypto/chacha_poly_aead.cpp
+Processing file src/crypto/hkdf_sha256_32.cpp
+Processing file src/crypto/sha256_sse4.cpp
+Processing file src/crypto/hmac_sha512.h
+Processing file src/crypto/sha256.cpp
+Processing file src/crypto/hmac_sha256.h
+Processing file src/crypto/chacha20.cpp
+Processing file src/crypto/sha1.cpp
+Processing file src/index/disktxpos.h
+Processing file src/index/blockfilterindex.h
+Processing file src/index/base.h
+Processing file src/index/blockfilterindex.cpp
+Processing file src/index/txindex.h
+Processing file src/index/base.cpp
+Processing file src/index/txindex.cpp
+Processing file src/interfaces/handler.cpp
+Processing file src/interfaces/node.cpp
+Processing file src/interfaces/chain.h
+Processing file src/interfaces/node.h
+Processing file src/interfaces/handler.h
+Processing file src/interfaces/chain.cpp
+Processing file src/logging/timer.h
+Processing file src/node/coin.cpp
+Processing file src/node/coinstats.h
+Processing file src/node/psbt.cpp
+Processing file src/node/utxo_snapshot.h
+Processing file src/node/coinstats.cpp
+Processing file src/node/transaction.cpp
+Processing file src/node/ui_interface.cpp
+Processing file src/node/transaction.h
+Processing file src/node/context.h
+Processing file src/node/context.cpp
+Processing file src/node/psbt.h
+Processing file src/policy/fees.cpp
+Processing file src/policy/policy.h
+Processing file src/policy/feerate.h
+Processing file src/policy/fees.h
+Processing file src/policy/rbf.cpp
+Processing file src/policy/settings.h
+Processing file src/policy/settings.cpp
+Processing file src/policy/policy.cpp
+Processing file src/policy/feerate.cpp
+Processing file src/primitives/transaction.cpp
+Processing file src/primitives/block.h
+Processing file src/primitives/transaction.h
+Processing file src/primitives/block.cpp
+Processing file src/rpc/request.cpp
+Processing file src/rpc/mining.cpp
+Processing file src/rpc/blockchain.cpp
+Processing file src/rpc/register.h
+Processing file src/rpc/misc.cpp
+Processing file src/rpc/rawtransaction.cpp
+Processing file src/rpc/server.cpp
+Processing file src/rpc/client.cpp
+Processing file src/rpc/request.h
+Processing file src/rpc/util.h
+Processing file src/rpc/util.cpp
+Processing file src/rpc/rawtransaction_util.cpp
+Processing file src/rpc/server.h
+Processing file src/rpc/net.cpp
+Processing file src/script/bitcoinconsensus.cpp
+Processing file src/script/script_error.cpp
+Processing file src/script/descriptor.cpp
+Processing file src/script/descriptor.h
+Processing file src/script/sigcache.cpp
+Processing file src/script/script.cpp
+Processing file src/script/interpreter.h
+Processing file src/script/keyorigin.h
+Processing file src/script/signingprovider.cpp
+Processing file src/script/sign.cpp
+Processing file src/script/signingprovider.h
+Processing file src/script/script.h
+Processing file src/script/standard.cpp
+Processing file src/script/sigcache.h
+Processing file src/script/interpreter.cpp
+Processing file src/script/standard.h
+Processing file src/script/sign.h
+Processing file src/support/lockedpool.cpp
+Processing file src/support/cleanse.cpp
+Processing file src/support/lockedpool.h
+Processing file src/support/events.h
+Processing file src/support/allocators/secure.h
+Processing file src/support/allocators/zeroafterfree.h
+Processing file src/test/fuzz/crypto_chacha20_poly1305_aead.cpp
+Processing file src/test/fuzz/descriptor_parse.cpp
+Processing file src/test/fuzz/eval_script.cpp
+Processing file src/test/fuzz/script_descriptor_cache.cpp
+Processing file src/test/fuzz/process_messages.cpp
+Processing file src/test/fuzz/decode_tx.cpp
+Processing file src/test/fuzz/rolling_bloom_filter.cpp
+Processing file src/test/fuzz/crypto_hkdf_hmac_sha256_l32.cpp
+Processing file src/test/fuzz/tx_out.cpp
+Processing file src/test/fuzz/script_ops.cpp
+Processing file src/test/fuzz/locale.cpp
+Processing file src/test/fuzz/policy_estimator_io.cpp
+Processing file src/test/fuzz/crypto.cpp
+Processing file src/test/fuzz/chain.cpp
+Processing file src/test/fuzz/script_sign.cpp
+Processing file src/test/fuzz/golomb_rice.cpp
+Processing file src/test/fuzz/fee_rate.cpp
+Processing file src/test/fuzz/coins_view.cpp
+Processing file src/test/fuzz/parse_iso8601.cpp
+Processing file src/test/fuzz/scriptnum_ops.cpp
+Processing file src/test/fuzz/cuckoocache.cpp
+Processing file src/test/fuzz/deserialize.cpp
+Processing file src/test/fuzz/merkleblock.cpp
+Processing file src/test/fuzz/parse_numbers.cpp
+Processing file src/test/fuzz/net_permissions.cpp
+Processing file src/test/fuzz/parse_hd_keypath.cpp
+Processing file src/test/fuzz/process_message.cpp
+Processing file src/test/fuzz/primitives_transaction.cpp
+Processing file src/test/fuzz/spanparsing.cpp
+Processing file src/test/fuzz/timedata.cpp
+Processing file src/test/fuzz/base_encode_decode.cpp
+Processing file src/test/fuzz/script.cpp
+Processing file src/test/fuzz/script_interpreter.cpp
+Processing file src/test/fuzz/script_bitcoin_consensus.cpp
+Processing file src/test/fuzz/script_flags.cpp
+Processing file src/test/fuzz/crypto_chacha20.cpp
+Processing file src/test/fuzz/addrdb.cpp
+Processing file src/test/fuzz/crypto_aes256.cpp
+Processing file src/test/fuzz/key.cpp
+Processing file src/test/fuzz/signature_checker.cpp
+Processing file src/test/fuzz/crypto_poly1305.cpp
+Processing file src/test/fuzz/fuzz.cpp
+Processing file src/test/fuzz/block_header.cpp
+Processing file src/test/fuzz/system.cpp
+Processing file src/test/fuzz/netaddress.cpp
+Processing file src/test/fuzz/addition_overflow.cpp
+Processing file src/test/fuzz/asmap.cpp
+Processing file src/test/fuzz/string.cpp
+Processing file src/test/fuzz/FuzzedDataProvider.h
+Processing file src/test/fuzz/asmap_direct.cpp
+Processing file src/test/fuzz/strprintf.cpp
+Processing file src/test/fuzz/block.cpp
+Processing file src/test/fuzz/banman.cpp
+Processing file src/test/fuzz/psbt.cpp
+Processing file src/test/fuzz/p2p_transport_deserializer.cpp
+Processing file src/test/fuzz/prevector.cpp
+Processing file src/test/fuzz/float.cpp
+Processing file src/test/fuzz/tx_in.cpp
+Processing file src/test/fuzz/integer.cpp
+Processing file src/test/fuzz/key_io.cpp
+Processing file src/test/fuzz/pow.cpp
+Processing file src/test/fuzz/parse_univalue.cpp
+Processing file src/test/fuzz/random.cpp
+Processing file src/test/fuzz/span.cpp
+Processing file src/test/fuzz/crypto_aes256cbc.cpp
+Processing file src/test/fuzz/util.h
+Processing file src/test/fuzz/policy_estimator.cpp
+Processing file src/test/fuzz/parse_script.cpp
+Processing file src/test/fuzz/script_sigcache.cpp
+Processing file src/test/fuzz/bloom_filter.cpp
+Processing file src/test/fuzz/transaction.cpp
+Processing file src/test/fuzz/bech32.cpp
+Processing file src/test/fuzz/fees.cpp
+Processing file src/test/fuzz/load_external_block_file.cpp
+Processing file src/test/fuzz/autofile.cpp
+Processing file src/test/fuzz/http_request.cpp
+Processing file src/test/fuzz/blockfilter.cpp
+Processing file src/test/fuzz/crypto_common.cpp
+Processing file src/test/fuzz/flatfile.cpp
+Processing file src/test/fuzz/rbf.cpp
+Processing file src/test/fuzz/checkqueue.cpp
+Processing file src/test/fuzz/protocol.cpp
+Processing file src/test/fuzz/kitchen_sink.cpp
+Processing file src/test/fuzz/message.cpp
+Processing file src/test/fuzz/multiplication_overflow.cpp
+Processing file src/test/fuzz/hex.cpp
+Processing file src/test/fuzz/validation_load_mempool.cpp
+Processing file src/test/fuzz/buffered_file.cpp
+Processing file src/test/util/mining.cpp
+Processing file src/test/util/logging.cpp
+Processing file src/test/util/transaction_utils.cpp
+Processing file src/test/util/net.cpp
+Processing file src/test/util/net.h
+Processing file src/test/util/str.cpp
+Processing file src/test/util/wallet.cpp
+Processing file src/test/util/blockfilter.cpp
+Processing file src/test/util/setup_common.cpp
+Processing file src/test/util/setup_common.h
+Processing file src/util/threadnames.cpp
+Processing file src/util/settings.cpp
+Processing file src/util/system.h
+Processing file src/util/string.h
+Processing file src/util/error.cpp
+Processing file src/util/message.cpp
+Processing file src/util/moneystr.cpp
+Processing file src/util/golombrice.h
+Processing file src/util/check.h
+Processing file src/util/asmap.cpp
+Processing file src/util/url.cpp
+Processing file src/util/fees.cpp
+Processing file src/util/translation.h
+Processing file src/util/time.h
+Processing file src/util/bytevectorhash.cpp
+Processing file src/util/strencodings.cpp
+Processing file src/util/memory.h
+Processing file src/util/strencodings.h
+Processing file src/util/settings.h
+Processing file src/util/ref.h
+Processing file src/util/spanparsing.cpp
+Processing file src/util/system.cpp
+Processing file src/util/bip32.cpp
+Processing file src/util/rbf.cpp
+Processing file src/util/time.cpp
+Processing file src/util/vector.h
+Writing directory view page.
+Overall coverage rate:
+  lines......: 26.3% (10430 of 39613 lines)
+  functions..: 32.5% (3115 of 9593 functions)
+  branches...: 11.7% (8350 of 71194 branches)
+rm cov_tool_wrapper.sh fuzz_coverage.info baseline_filtered.info fuzz_filtered.info fuzz.info baseline.info
