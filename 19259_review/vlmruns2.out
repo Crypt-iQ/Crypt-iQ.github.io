@@ -1,0 +1,154 @@
+/usr/bin/../lib/gcc/x86_64-linux-gnu/7.5.0/../../../../include/c++/7.5.0/bits/basic_string.tcc:1271:25: runtime error: unsigned integer overflow: 0 - 1 cannot be represented in type 'std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::size_type' (aka 'unsigned long')
+    #0 0x5583ec73529f in std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::rfind(char, unsigned long) const /usr/bin/../lib/gcc/x86_64-linux-gnu/7.5.0/../../../../include/c++/7.5.0/bits/basic_string.tcc:1271:25
+    #1 0x7f5582f742e3 in boost::filesystem::path::stem() const (/usr/lib/x86_64-linux-gnu/libboost_filesystem.so.1.65.1+0x122e3)
+    #2 0x5583ec3af05d in CDBWrapper::CDBWrapper(boost::filesystem::path const&, unsigned long, bool, bool, bool) /root/bitcoin/src/dbwrapper.cpp:118:19
+    #3 0x5583ec5d8d56 in CBlockTreeDB::CBlockTreeDB(unsigned long, bool, bool) /root/bitcoin/src/txdb.cpp:146:75
+    #4 0x5583ec805bb9 in TestingSetup::TestingSetup(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::vector<char const*, std::allocator<char const*> > const&) /root/bitcoin/src/test/util/setup_common.cpp:142:26
+    #5 0x5583ec04f7e3 in initialize() /root/bitcoin/src/test/fuzz/validation_load_mempool.cpp:27:25
+    #6 0x5583ed219d29 in LLVMFuzzerInitialize /root/bitcoin/src/test/fuzz/fuzz.cpp:52:5
+    #7 0x5583ebf44727 in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a3f727)
+    #8 0x5583ebf6f212 in main (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a6a212)
+    #9 0x7f5581938b96 in __libc_start_main /build/glibc-2ORdQG/glibc-2.27/csu/../csu/libc-start.c:310
+    #10 0x5583ebf1b149 in _start (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a16149)
+
+SUMMARY: UndefinedBehaviorSanitizer: unsigned-integer-overflow /usr/bin/../lib/gcc/x86_64-linux-gnu/7.5.0/../../../../include/c++/7.5.0/bits/basic_string.tcc:1271:25 in 
+INFO: Seed: 4293788578
+INFO: Loaded 1 modules   (425002 inline 8-bit counters): 425002 [0x5583eec8e618, 0x5583eecf6242), 
+INFO: Loaded 1 PC tables (425002 PCs): 425002 [0x5583eecf6248,0x5583ef3724e8), 
+INFO:     3745 files found in /root/qa-assets/fuzz_seed_corpus/validation_load_mempool/
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+test/fuzz/FuzzedDataProvider.h:87:51: runtime error: implicit conversion from type 'int' of value -1 (32-bit, signed) to type 'unsigned long' changed the value to 18446744073709551615 (64-bit, unsigned)
+    #0 0x5583ec052b15 in int FuzzedDataProvider::ConsumeIntegralInRange<int>(int, int) /root/bitcoin/src/./test/fuzz/FuzzedDataProvider.h:87:51
+    #1 0x5583ec0545f4 in FuzzedFileProvider::close(void*) /root/bitcoin/src/./test/fuzz/util.h:398:52
+    #2 0x5583ebff2e63 in wrapped_close(void*) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1aede63)
+    #3 0x7f55819a3267 in _IO_file_close_it /build/glibc-2ORdQG/glibc-2.27/libio/fileops.c:143
+    #4 0x7f55819953f6 in fclose /build/glibc-2ORdQG/glibc-2.27/libio/iofclose.c:53
+    #5 0x5583ebff2204 in fclose (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1aed204)
+    #6 0x5583ec1eeb55 in CAutoFile::fclose() /root/bitcoin/src/./streams.h:627:13
+    #7 0x5583ec1e646a in CAutoFile::~CAutoFile() /root/bitcoin/src/./streams.h:617:9
+    #8 0x5583ec1e646a in LoadMempool(CTxMemPool&, std::function<_IO_FILE* (boost::filesystem::path const&, char const*)>) /root/bitcoin/src/validation.cpp:5132:1
+    #9 0x5583ec04faf4 in test_one_input(std::vector<unsigned char, std::allocator<unsigned char> > const&) /root/bitcoin/src/test/fuzz/validation_load_mempool.cpp:37:11
+    #10 0x5583ed219bd1 in LLVMFuzzerTestOneInput /root/bitcoin/src/test/fuzz/fuzz.cpp:45:5
+    #11 0x5583ebf55331 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a50331)
+    #12 0x5583ebf5706a in fuzzer::Fuzzer::ReadAndExecuteSeedCorpora(std::__Fuzzer::vector<fuzzer::SizedFile, fuzzer::fuzzer_allocator<fuzzer::SizedFile> >&) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a5206a)
+    #13 0x5583ebf576f9 in fuzzer::Fuzzer::Loop(std::__Fuzzer::vector<fuzzer::SizedFile, fuzzer::fuzzer_allocator<fuzzer::SizedFile> >&) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a526f9)
+    #14 0x5583ebf463ce in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a413ce)
+    #15 0x5583ebf6f212 in main (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a6a212)
+    #16 0x7f5581938b96 in __libc_start_main /build/glibc-2ORdQG/glibc-2.27/csu/../csu/libc-start.c:310
+    #17 0x5583ebf1b149 in _start (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a16149)
+
+SUMMARY: UndefinedBehaviorSanitizer: implicit-integer-sign-change test/fuzz/FuzzedDataProvider.h:87:51 in 
+test/fuzz/FuzzedDataProvider.h:87:49: runtime error: unsigned integer overflow: 0 - 18446744073709551615 cannot be represented in type 'unsigned long'
+    #0 0x5583ec052b34 in int FuzzedDataProvider::ConsumeIntegralInRange<int>(int, int) /root/bitcoin/src/./test/fuzz/FuzzedDataProvider.h:87:49
+    #1 0x5583ec0545f4 in FuzzedFileProvider::close(void*) /root/bitcoin/src/./test/fuzz/util.h:398:52
+    #2 0x5583ebff2e63 in wrapped_close(void*) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1aede63)
+    #3 0x7f55819a3267 in _IO_file_close_it /build/glibc-2ORdQG/glibc-2.27/libio/fileops.c:143
+    #4 0x7f55819953f6 in fclose /build/glibc-2ORdQG/glibc-2.27/libio/iofclose.c:53
+    #5 0x5583ebff2204 in fclose (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1aed204)
+    #6 0x5583ec1eeb55 in CAutoFile::fclose() /root/bitcoin/src/./streams.h:627:13
+    #7 0x5583ec1e646a in CAutoFile::~CAutoFile() /root/bitcoin/src/./streams.h:617:9
+    #8 0x5583ec1e646a in LoadMempool(CTxMemPool&, std::function<_IO_FILE* (boost::filesystem::path const&, char const*)>) /root/bitcoin/src/validation.cpp:5132:1
+    #9 0x5583ec04faf4 in test_one_input(std::vector<unsigned char, std::allocator<unsigned char> > const&) /root/bitcoin/src/test/fuzz/validation_load_mempool.cpp:37:11
+    #10 0x5583ed219bd1 in LLVMFuzzerTestOneInput /root/bitcoin/src/test/fuzz/fuzz.cpp:45:5
+    #11 0x5583ebf55331 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a50331)
+    #12 0x5583ebf5706a in fuzzer::Fuzzer::ReadAndExecuteSeedCorpora(std::__Fuzzer::vector<fuzzer::SizedFile, fuzzer::fuzzer_allocator<fuzzer::SizedFile> >&) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a5206a)
+    #13 0x5583ebf576f9 in fuzzer::Fuzzer::Loop(std::__Fuzzer::vector<fuzzer::SizedFile, fuzzer::fuzzer_allocator<fuzzer::SizedFile> >&) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a526f9)
+    #14 0x5583ebf463ce in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a413ce)
+    #15 0x5583ebf6f212 in main (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a6a212)
+    #16 0x7f5581938b96 in __libc_start_main /build/glibc-2ORdQG/glibc-2.27/csu/../csu/libc-start.c:310
+    #17 0x5583ebf1b149 in _start (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a16149)
+
+SUMMARY: UndefinedBehaviorSanitizer: unsigned-integer-overflow test/fuzz/FuzzedDataProvider.h:87:49 in 
+test/fuzz/FuzzedDataProvider.h:108:27: runtime error: implicit conversion from type 'int' of value -1 (32-bit, signed) to type 'unsigned long' changed the value to 18446744073709551615 (64-bit, unsigned)
+    #0 0x5583ec052b6d in int FuzzedDataProvider::ConsumeIntegralInRange<int>(int, int) /root/bitcoin/src/./test/fuzz/FuzzedDataProvider.h:108:27
+    #1 0x5583ec0545f4 in FuzzedFileProvider::close(void*) /root/bitcoin/src/./test/fuzz/util.h:398:52
+    #2 0x5583ebff2e63 in wrapped_close(void*) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1aede63)
+    #3 0x7f55819a3267 in _IO_file_close_it /build/glibc-2ORdQG/glibc-2.27/libio/fileops.c:143
+    #4 0x7f55819953f6 in fclose /build/glibc-2ORdQG/glibc-2.27/libio/iofclose.c:53
+    #5 0x5583ebff2204 in fclose (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1aed204)
+    #6 0x5583ec1eeb55 in CAutoFile::fclose() /root/bitcoin/src/./streams.h:627:13
+    #7 0x5583ec1e646a in CAutoFile::~CAutoFile() /root/bitcoin/src/./streams.h:617:9
+    #8 0x5583ec1e646a in LoadMempool(CTxMemPool&, std::function<_IO_FILE* (boost::filesystem::path const&, char const*)>) /root/bitcoin/src/validation.cpp:5132:1
+    #9 0x5583ec04faf4 in test_one_input(std::vector<unsigned char, std::allocator<unsigned char> > const&) /root/bitcoin/src/test/fuzz/validation_load_mempool.cpp:37:11
+    #10 0x5583ed219bd1 in LLVMFuzzerTestOneInput /root/bitcoin/src/test/fuzz/fuzz.cpp:45:5
+    #11 0x5583ebf55331 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a50331)
+    #12 0x5583ebf5706a in fuzzer::Fuzzer::ReadAndExecuteSeedCorpora(std::__Fuzzer::vector<fuzzer::SizedFile, fuzzer::fuzzer_allocator<fuzzer::SizedFile> >&) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a5206a)
+    #13 0x5583ebf576f9 in fuzzer::Fuzzer::Loop(std::__Fuzzer::vector<fuzzer::SizedFile, fuzzer::fuzzer_allocator<fuzzer::SizedFile> >&) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a526f9)
+    #14 0x5583ebf463ce in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a413ce)
+    #15 0x5583ebf6f212 in main (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a6a212)
+    #16 0x7f5581938b96 in __libc_start_main /build/glibc-2ORdQG/glibc-2.27/csu/../csu/libc-start.c:310
+    #17 0x5583ebf1b149 in _start (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a16149)
+
+SUMMARY: UndefinedBehaviorSanitizer: implicit-integer-sign-change test/fuzz/FuzzedDataProvider.h:108:27 in 
+INFO: seed corpus: files: 3745 min: 1b max: 4096b total: 4804721b rss: 146Mb
+test/fuzz/FuzzedDataProvider.h:108:31: runtime error: unsigned integer overflow: 18446744073709551615 + 1 cannot be represented in type 'unsigned long'
+    #0 0x5583ec052b8c in int FuzzedDataProvider::ConsumeIntegralInRange<int>(int, int) /root/bitcoin/src/./test/fuzz/FuzzedDataProvider.h:108:31
+    #1 0x5583ec0545f4 in FuzzedFileProvider::close(void*) /root/bitcoin/src/./test/fuzz/util.h:398:52
+    #2 0x5583ebff2e63 in wrapped_close(void*) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1aede63)
+    #3 0x7f55819a3267 in _IO_file_close_it /build/glibc-2ORdQG/glibc-2.27/libio/fileops.c:143
+    #4 0x7f55819953f6 in fclose /build/glibc-2ORdQG/glibc-2.27/libio/iofclose.c:53
+    #5 0x5583ebff2204 in fclose (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1aed204)
+    #6 0x5583ec1eeb55 in CAutoFile::fclose() /root/bitcoin/src/./streams.h:627:13
+    #7 0x5583ec1e646a in CAutoFile::~CAutoFile() /root/bitcoin/src/./streams.h:617:9
+    #8 0x5583ec1e646a in LoadMempool(CTxMemPool&, std::function<_IO_FILE* (boost::filesystem::path const&, char const*)>) /root/bitcoin/src/validation.cpp:5132:1
+    #9 0x5583ec04faf4 in test_one_input(std::vector<unsigned char, std::allocator<unsigned char> > const&) /root/bitcoin/src/test/fuzz/validation_load_mempool.cpp:37:11
+    #10 0x5583ed219bd1 in LLVMFuzzerTestOneInput /root/bitcoin/src/test/fuzz/fuzz.cpp:45:5
+    #11 0x5583ebf55331 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a50331)
+    #12 0x5583ebf54a75 in fuzzer::Fuzzer::RunOne(unsigned char const*, unsigned long, bool, fuzzer::InputInfo*, bool*) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a4fa75)
+    #13 0x5583ebf57397 in fuzzer::Fuzzer::ReadAndExecuteSeedCorpora(std::__Fuzzer::vector<fuzzer::SizedFile, fuzzer::fuzzer_allocator<fuzzer::SizedFile> >&) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a52397)
+    #14 0x5583ebf576f9 in fuzzer::Fuzzer::Loop(std::__Fuzzer::vector<fuzzer::SizedFile, fuzzer::fuzzer_allocator<fuzzer::SizedFile> >&) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a526f9)
+    #15 0x5583ebf463ce in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a413ce)
+    #16 0x5583ebf6f212 in main (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a6a212)
+    #17 0x7f5581938b96 in __libc_start_main /build/glibc-2ORdQG/glibc-2.27/csu/../csu/libc-start.c:310
+    #18 0x5583ebf1b149 in _start (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a16149)
+
+SUMMARY: UndefinedBehaviorSanitizer: unsigned-integer-overflow test/fuzz/FuzzedDataProvider.h:108:31 in 
+validation.cpp:5077:23: runtime error: signed integer overflow: 9223372036854775792 + 1209600 cannot be represented in type 'long'
+    #0 0x5583ec1e625d in LoadMempool(CTxMemPool&, std::function<_IO_FILE* (boost::filesystem::path const&, char const*)>) /root/bitcoin/src/validation.cpp:5077:23
+    #1 0x5583ec04faf4 in test_one_input(std::vector<unsigned char, std::allocator<unsigned char> > const&) /root/bitcoin/src/test/fuzz/validation_load_mempool.cpp:37:11
+    #2 0x5583ed219bd1 in LLVMFuzzerTestOneInput /root/bitcoin/src/test/fuzz/fuzz.cpp:45:5
+    #3 0x5583ebf55331 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a50331)
+    #4 0x5583ebf54a75 in fuzzer::Fuzzer::RunOne(unsigned char const*, unsigned long, bool, fuzzer::InputInfo*, bool*) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a4fa75)
+    #5 0x5583ebf57397 in fuzzer::Fuzzer::ReadAndExecuteSeedCorpora(std::__Fuzzer::vector<fuzzer::SizedFile, fuzzer::fuzzer_allocator<fuzzer::SizedFile> >&) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a52397)
+    #6 0x5583ebf576f9 in fuzzer::Fuzzer::Loop(std::__Fuzzer::vector<fuzzer::SizedFile, fuzzer::fuzzer_allocator<fuzzer::SizedFile> >&) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a526f9)
+    #7 0x5583ebf463ce in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a413ce)
+    #8 0x5583ebf6f212 in main (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a6a212)
+    #9 0x7f5581938b96 in __libc_start_main /build/glibc-2ORdQG/glibc-2.27/csu/../csu/libc-start.c:310
+    #10 0x5583ebf1b149 in _start (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a16149)
+
+SUMMARY: UndefinedBehaviorSanitizer: signed-integer-overflow validation.cpp:5077:23 in 
+txmempool.cpp:830:15: runtime error: signed integer overflow: -504403158265495552 + -9223372036854251520 cannot be represented in type 'long'
+    #0 0x5583ec08bfbb in CTxMemPool::PrioritiseTransaction(uint256 const&, long const&) /root/bitcoin/src/txmempool.cpp:830:15
+    #1 0x5583ec1e5db5 in LoadMempool(CTxMemPool&, std::function<_IO_FILE* (boost::filesystem::path const&, char const*)>) /root/bitcoin/src/validation.cpp:5074:22
+    #2 0x5583ec04faf4 in test_one_input(std::vector<unsigned char, std::allocator<unsigned char> > const&) /root/bitcoin/src/test/fuzz/validation_load_mempool.cpp:37:11
+    #3 0x5583ed219bd1 in LLVMFuzzerTestOneInput /root/bitcoin/src/test/fuzz/fuzz.cpp:45:5
+    #4 0x5583ebf55331 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a50331)
+    #5 0x5583ebf54a75 in fuzzer::Fuzzer::RunOne(unsigned char const*, unsigned long, bool, fuzzer::InputInfo*, bool*) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a4fa75)
+    #6 0x5583ebf57397 in fuzzer::Fuzzer::ReadAndExecuteSeedCorpora(std::__Fuzzer::vector<fuzzer::SizedFile, fuzzer::fuzzer_allocator<fuzzer::SizedFile> >&) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a52397)
+    #7 0x5583ebf576f9 in fuzzer::Fuzzer::Loop(std::__Fuzzer::vector<fuzzer::SizedFile, fuzzer::fuzzer_allocator<fuzzer::SizedFile> >&) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a526f9)
+    #8 0x5583ebf463ce in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a413ce)
+    #9 0x5583ebf6f212 in main (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a6a212)
+    #10 0x7f5581938b96 in __libc_start_main /build/glibc-2ORdQG/glibc-2.27/csu/../csu/libc-start.c:310
+    #11 0x5583ebf1b149 in _start (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a16149)
+
+SUMMARY: UndefinedBehaviorSanitizer: signed-integer-overflow txmempool.cpp:830:15 in 
+util/moneystr.cpp:16:34: runtime error: negation of -9223372036854775808 cannot be represented in type 'CAmount' (aka 'long'); cast to an unsigned type to negate this value to itself
+    #0 0x5583ec770c3d in FormatMoney[abi:cxx11](long const&) /root/bitcoin/src/util/moneystr.cpp:16:34
+    #1 0x5583ec08be67 in CTxMemPool::PrioritiseTransaction(uint256 const&, long const&) /root/bitcoin/src/txmempool.cpp:852:77
+    #2 0x5583ec1e5db5 in LoadMempool(CTxMemPool&, std::function<_IO_FILE* (boost::filesystem::path const&, char const*)>) /root/bitcoin/src/validation.cpp:5074:22
+    #3 0x5583ec04faf4 in test_one_input(std::vector<unsigned char, std::allocator<unsigned char> > const&) /root/bitcoin/src/test/fuzz/validation_load_mempool.cpp:37:11
+    #4 0x5583ed219bd1 in LLVMFuzzerTestOneInput /root/bitcoin/src/test/fuzz/fuzz.cpp:45:5
+    #5 0x5583ebf55331 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a50331)
+    #6 0x5583ebf54a75 in fuzzer::Fuzzer::RunOne(unsigned char const*, unsigned long, bool, fuzzer::InputInfo*, bool*) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a4fa75)
+    #7 0x5583ebf57397 in fuzzer::Fuzzer::ReadAndExecuteSeedCorpora(std::__Fuzzer::vector<fuzzer::SizedFile, fuzzer::fuzzer_allocator<fuzzer::SizedFile> >&) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a52397)
+    #8 0x5583ebf576f9 in fuzzer::Fuzzer::Loop(std::__Fuzzer::vector<fuzzer::SizedFile, fuzzer::fuzzer_allocator<fuzzer::SizedFile> >&) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a526f9)
+    #9 0x5583ebf463ce in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a413ce)
+    #10 0x5583ebf6f212 in main (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a6a212)
+    #11 0x7f5581938b96 in __libc_start_main /build/glibc-2ORdQG/glibc-2.27/csu/../csu/libc-start.c:310
+    #12 0x5583ebf1b149 in _start (/root/bitcoin/src/test/fuzz/validation_load_mempool+0x1a16149)
+
+SUMMARY: UndefinedBehaviorSanitizer: signed-integer-overflow util/moneystr.cpp:16:34 in 
+#2048	pulse  cov: 8020 ft: 38447 corp: 783/263Kb exec/s: 682 rss: 246Mb
+#3746	INITED cov: 8032 ft: 45326 corp: 1177/1121Kb exec/s: 416 rss: 407Mb
+#3746	DONE   cov: 8032 ft: 45326 corp: 1177/1121Kb lim: 4095 exec/s: 416 rss: 407Mb
+Done 3746 runs in 9 second(s)
