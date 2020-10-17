@@ -1,0 +1,218 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - fuzz_coverage.info - src/test/fuzz/string.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">src/test/fuzz</a> - string.cpp<span style="font-size: 80%;"> (source / <a href="string.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">fuzz_coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">85</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-10-17 19:34:02</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryHi">-</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : // Copyright (c) 2020 The Bitcoin Core developers</a>
+<span class="lineNum">       2 </span>                :            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       3 </span>                :            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       4 </span>                :            : 
+<span class="lineNum">       5 </span>                :            : #include &lt;blockfilter.h&gt;
+<span class="lineNum">       6 </span>                :            : #include &lt;clientversion.h&gt;
+<span class="lineNum">       7 </span>                :            : #include &lt;logging.h&gt;
+<span class="lineNum">       8 </span>                :            : #include &lt;netbase.h&gt;
+<span class="lineNum">       9 </span>                :            : #include &lt;outputtype.h&gt;
+<span class="lineNum">      10 </span>                :            : #include &lt;rpc/client.h&gt;
+<span class="lineNum">      11 </span>                :            : #include &lt;rpc/request.h&gt;
+<span class="lineNum">      12 </span>                :            : #include &lt;rpc/server.h&gt;
+<span class="lineNum">      13 </span>                :            : #include &lt;rpc/util.h&gt;
+<span class="lineNum">      14 </span>                :            : #include &lt;script/descriptor.h&gt;
+<span class="lineNum">      15 </span>                :            : #include &lt;script/script.h&gt;
+<span class="lineNum">      16 </span>                :            : #include &lt;serialize.h&gt;
+<span class="lineNum">      17 </span>                :            : #include &lt;streams.h&gt;
+<span class="lineNum">      18 </span>                :            : #include &lt;test/fuzz/FuzzedDataProvider.h&gt;
+<span class="lineNum">      19 </span>                :            : #include &lt;test/fuzz/fuzz.h&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;test/fuzz/util.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;util/error.h&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;util/fees.h&gt;
+<span class="lineNum">      23 </span>                :            : #include &lt;util/message.h&gt;
+<span class="lineNum">      24 </span>                :            : #include &lt;util/settings.h&gt;
+<span class="lineNum">      25 </span>                :            : #include &lt;util/strencodings.h&gt;
+<span class="lineNum">      26 </span>                :            : #include &lt;util/string.h&gt;
+<span class="lineNum">      27 </span>                :            : #include &lt;util/system.h&gt;
+<span class="lineNum">      28 </span>                :            : #include &lt;util/translation.h&gt;
+<span class="lineNum">      29 </span>                :            : #include &lt;util/url.h&gt;
+<span class="lineNum">      30 </span>                :            : #include &lt;version.h&gt;
+<span class="lineNum">      31 </span>                :            : 
+<span class="lineNum">      32 </span>                :            : #include &lt;cstdint&gt;
+<span class="lineNum">      33 </span>                :            : #include &lt;string&gt;
+<a name="34"><span class="lineNum">      34 </span>                :            : #include &lt;vector&gt;</a>
+<span class="lineNum">      35 </span>                :            : 
+<span class="lineNum">      36 </span>                :<span class="lineNoCov">          0 : void test_one_input(const std::vector&lt;uint8_t&gt;&amp; buffer)</span>
+<span class="lineNum">      37 </span>                :            : {
+<span class="lineNum">      38 </span>                :<span class="lineNoCov">          0 :     FuzzedDataProvider fuzzed_data_provider(buffer.data(), buffer.size());</span>
+<span class="lineNum">      39 </span>                :<span class="lineNoCov">          0 :     const std::string random_string_1 = fuzzed_data_provider.ConsumeRandomLengthString(32);</span>
+<span class="lineNum">      40 </span>                :<span class="lineNoCov">          0 :     const std::string random_string_2 = fuzzed_data_provider.ConsumeRandomLengthString(32);</span>
+<span class="lineNum">      41 </span>                :<span class="lineNoCov">          0 :     const std::vector&lt;std::string&gt; random_string_vector = ConsumeRandomLengthStringVector(fuzzed_data_provider);</span>
+<span class="lineNum">      42 </span>                :            : 
+<span class="lineNum">      43 </span>                :<span class="lineNoCov">          0 :     (void)AmountErrMsg(random_string_1, random_string_2);</span>
+<span class="lineNum">      44 </span>                :<span class="lineNoCov">          0 :     (void)AmountHighWarn(random_string_1);</span>
+<span class="lineNum">      45 </span>                :<span class="lineNoCov">          0 :     BlockFilterType block_filter_type;</span>
+<span class="lineNum">      46 </span>                :<span class="lineNoCov">          0 :     (void)BlockFilterTypeByName(random_string_1, block_filter_type);</span>
+<span class="lineNum">      47 </span>                :<span class="lineNoCov">          0 :     (void)Capitalize(random_string_1);</span>
+<span class="lineNum">      48 </span>                :<span class="lineNoCov">          0 :     (void)CopyrightHolders(random_string_1);</span>
+<span class="lineNum">      49 </span>                :<span class="lineNoCov">          0 :     FeeEstimateMode fee_estimate_mode;</span>
+<span class="lineNum">      50 </span>                :<span class="lineNoCov">          0 :     (void)FeeModeFromString(random_string_1, fee_estimate_mode);</span>
+<span class="lineNum">      51 </span>                :<span class="lineNoCov">          0 :     (void)FormatParagraph(random_string_1, fuzzed_data_provider.ConsumeIntegralInRange&lt;size_t&gt;(0, 1000), fuzzed_data_provider.ConsumeIntegralInRange&lt;size_t&gt;(0, 1000));</span>
+<span class="lineNum">      52 </span>                :<span class="lineNoCov">          0 :     (void)FormatSubVersion(random_string_1, fuzzed_data_provider.ConsumeIntegral&lt;int&gt;(), random_string_vector);</span>
+<span class="lineNum">      53 </span>                :<span class="lineNoCov">          0 :     (void)GetDescriptorChecksum(random_string_1);</span>
+<span class="lineNum">      54 </span>                :<span class="lineNoCov">          0 :     (void)HelpExampleCli(random_string_1, random_string_2);</span>
+<span class="lineNum">      55 </span>                :<span class="lineNoCov">          0 :     (void)HelpExampleRpc(random_string_1, random_string_2);</span>
+<span class="lineNum">      56 </span>                :<span class="lineNoCov">          0 :     (void)HelpMessageGroup(random_string_1);</span>
+<span class="lineNum">      57 </span>                :<span class="lineNoCov">          0 :     (void)HelpMessageOpt(random_string_1, random_string_2);</span>
+<span class="lineNum">      58 </span>                :<span class="lineNoCov">          0 :     (void)IsDeprecatedRPCEnabled(random_string_1);</span>
+<span class="lineNum">      59 </span>                :<span class="lineNoCov">          0 :     (void)Join(random_string_vector, random_string_1);</span>
+<span class="lineNum">      60 </span>                :<span class="lineNoCov">          0 :     (void)JSONRPCError(fuzzed_data_provider.ConsumeIntegral&lt;int&gt;(), random_string_1);</span>
+<span class="lineNum">      61 </span>                :<span class="lineNoCov">          0 :     const util::Settings settings;</span>
+<span class="lineNum">      62 </span>                :<span class="lineNoCov">          0 :     (void)OnlyHasDefaultSectionSetting(settings, random_string_1, random_string_2);</span>
+<span class="lineNum">      63 </span>                :<span class="lineNoCov">          0 :     (void)ParseNetwork(random_string_1);</span>
+<span class="lineNum">      64 </span>                :            :     try {
+<span class="lineNum">      65 </span>                :<span class="lineNoCov">          0 :         (void)ParseNonRFCJSONValue(random_string_1);</span>
+<span class="lineNum">      66 </span>                :<span class="lineNoCov">          0 :     } catch (const std::runtime_error&amp;) {</span>
+<span class="lineNum">      67 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">      68 </span>                :<span class="lineNoCov">          0 :     OutputType output_type;</span>
+<span class="lineNum">      69 </span>                :<span class="lineNoCov">          0 :     (void)ParseOutputType(random_string_1, output_type);</span>
+<span class="lineNum">      70 </span>                :<span class="lineNoCov">          0 :     (void)ResolveErrMsg(random_string_1, random_string_2);</span>
+<span class="lineNum">      71 </span>                :            :     try {
+<span class="lineNum">      72 </span>                :<span class="lineNoCov">          0 :         (void)RPCConvertNamedValues(random_string_1, random_string_vector);</span>
+<span class="lineNum">      73 </span>                :<span class="lineNoCov">          0 :     } catch (const std::runtime_error&amp;) {</span>
+<span class="lineNum">      74 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">      75 </span>                :            :     try {
+<span class="lineNum">      76 </span>                :<span class="lineNoCov">          0 :         (void)RPCConvertValues(random_string_1, random_string_vector);</span>
+<span class="lineNum">      77 </span>                :<span class="lineNoCov">          0 :     } catch (const std::runtime_error&amp;) {</span>
+<span class="lineNum">      78 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">      79 </span>                :<span class="lineNoCov">          0 :     (void)SanitizeString(random_string_1);</span>
+<span class="lineNum">      80 </span>                :<span class="lineNoCov">          0 :     (void)SanitizeString(random_string_1, fuzzed_data_provider.ConsumeIntegralInRange&lt;int&gt;(0, 3));</span>
+<span class="lineNum">      81 </span>                :<span class="lineNoCov">          0 :     (void)ShellEscape(random_string_1);</span>
+<span class="lineNum">      82 </span>                :<span class="lineNoCov">          0 :     int port_out;</span>
+<span class="lineNum">      83 </span>                :<span class="lineNoCov">          0 :     std::string host_out;</span>
+<span class="lineNum">      84 </span>                :<span class="lineNoCov">          0 :     SplitHostPort(random_string_1, port_out, host_out);</span>
+<span class="lineNum">      85 </span>                :<span class="lineNoCov">          0 :     (void)TimingResistantEqual(random_string_1, random_string_2);</span>
+<span class="lineNum">      86 </span>                :<span class="lineNoCov">          0 :     (void)ToLower(random_string_1);</span>
+<span class="lineNum">      87 </span>                :<span class="lineNoCov">          0 :     (void)ToUpper(random_string_1);</span>
+<span class="lineNum">      88 </span>                :<span class="lineNoCov">          0 :     (void)TrimString(random_string_1);</span>
+<span class="lineNum">      89 </span>                :<span class="lineNoCov">          0 :     (void)TrimString(random_string_1, random_string_2);</span>
+<span class="lineNum">      90 </span>                :<span class="lineNoCov">          0 :     (void)urlDecode(random_string_1);</span>
+<span class="lineNum">      91 </span>                :<span class="lineNoCov">          0 :     (void)ValidAsCString(random_string_1);</span>
+<span class="lineNum">      92 </span>                :<span class="lineNoCov">          0 :     (void)_(random_string_1.c_str());</span>
+<span class="lineNum">      93 </span>                :            :     try {
+<span class="lineNum">      94 </span>                :<span class="lineNoCov">          0 :         throw scriptnum_error{random_string_1};</span>
+<span class="lineNum">      95 </span>                :<span class="lineNoCov">          0 :     } catch (const std::runtime_error&amp;) {</span>
+<span class="lineNum">      96 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">      97 </span>                :            : 
+<span class="lineNum">      98 </span>                :            :     {
+<span class="lineNum">      99 </span>                :<span class="lineNoCov">          0 :         CDataStream data_stream{SER_NETWORK, INIT_PROTO_VERSION};</span>
+<span class="lineNum">     100 </span>                :<span class="lineNoCov">          0 :         std::string s;</span>
+<span class="lineNum">     101 </span>                :<span class="lineNoCov">          0 :         auto limited_string = LIMITED_STRING(s, 10);</span>
+<span class="lineNum">     102 </span>                :<span class="lineNoCov">          0 :         data_stream &lt;&lt; random_string_1;</span>
+<span class="lineNum">     103 </span>                :            :         try {
+<span class="lineNum">     104 </span>                :<span class="lineNoCov">          0 :             data_stream &gt;&gt; limited_string;</span>
+<span class="lineNum">     105 </span>                :<span class="lineNoCov">          0 :             assert(data_stream.empty());</span>
+<span class="lineNum">     106 </span>                :<span class="lineNoCov">          0 :             assert(s.size() &lt;= random_string_1.size());</span>
+<span class="lineNum">     107 </span>                :<span class="lineNoCov">          0 :             assert(s.size() &lt;= 10);</span>
+<span class="lineNum">     108 </span>                :<span class="lineNoCov">          0 :             if (!random_string_1.empty()) {</span>
+<span class="lineNum">     109 </span>                :<span class="lineNoCov">          0 :                 assert(!s.empty());</span>
+<span class="lineNum">     110 </span>                :            :             }
+<span class="lineNum">     111 </span>                :<span class="lineNoCov">          0 :         } catch (const std::ios_base::failure&amp;) {</span>
+<span class="lineNum">     112 </span>                :<span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     113 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     114 </span>                :            :     {
+<span class="lineNum">     115 </span>                :<span class="lineNoCov">          0 :         CDataStream data_stream{SER_NETWORK, INIT_PROTO_VERSION};</span>
+<span class="lineNum">     116 </span>                :<span class="lineNoCov">          0 :         const auto limited_string = LIMITED_STRING(random_string_1, 10);</span>
+<span class="lineNum">     117 </span>                :<span class="lineNoCov">          0 :         data_stream &lt;&lt; limited_string;</span>
+<span class="lineNum">     118 </span>                :<span class="lineNoCov">          0 :         std::string deserialized_string;</span>
+<span class="lineNum">     119 </span>                :<span class="lineNoCov">          0 :         data_stream &gt;&gt; deserialized_string;</span>
+<span class="lineNum">     120 </span>                :<span class="lineNoCov">          0 :         assert(data_stream.empty());</span>
+<span class="lineNum">     121 </span>                :<span class="lineNoCov">          0 :         assert(deserialized_string == random_string_1);</span>
+<span class="lineNum">     122 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     123 </span>                :            :     {
+<span class="lineNum">     124 </span>                :<span class="lineNoCov">          0 :         int64_t amount_out;</span>
+<span class="lineNum">     125 </span>                :<span class="lineNoCov">          0 :         (void)ParseFixedPoint(random_string_1, fuzzed_data_provider.ConsumeIntegralInRange&lt;int&gt;(0, 1024), &amp;amount_out);</span>
+<span class="lineNum">     126 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     127 </span>                :            :     {
+<span class="lineNum">     128 </span>                :<span class="lineNoCov">          0 :         (void)Untranslated(random_string_1);</span>
+<span class="lineNum">     129 </span>                :<span class="lineNoCov">          0 :         const bilingual_str bs1{random_string_1, random_string_2};</span>
+<span class="lineNum">     130 </span>                :<span class="lineNoCov">          0 :         const bilingual_str bs2{random_string_2, random_string_1};</span>
+<span class="lineNum">     131 </span>                :<span class="lineNoCov">          0 :         (void)(bs1 + bs2);</span>
+<span class="lineNum">     132 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     133 </span>                :<span class="lineNoCov">          0 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

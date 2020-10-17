@@ -1,0 +1,235 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - fuzz_coverage.info - src/httpserver.h</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">src</a> - httpserver.h<span style="font-size: 80%;"> (source / <a href="httpserver.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">fuzz_coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-10-17 19:34:02</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryHi">-</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : // Copyright (c) 2015-2020 The Bitcoin Core developers</a>
+<span class="lineNum">       2 </span>                :            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       3 </span>                :            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       4 </span>                :            : 
+<span class="lineNum">       5 </span>                :            : #ifndef BITCOIN_HTTPSERVER_H
+<span class="lineNum">       6 </span>                :            : #define BITCOIN_HTTPSERVER_H
+<span class="lineNum">       7 </span>                :            : 
+<span class="lineNum">       8 </span>                :            : #include &lt;string&gt;
+<span class="lineNum">       9 </span>                :            : #include &lt;functional&gt;
+<span class="lineNum">      10 </span>                :            : 
+<span class="lineNum">      11 </span>                :            : static const int DEFAULT_HTTP_THREADS=4;
+<span class="lineNum">      12 </span>                :            : static const int DEFAULT_HTTP_WORKQUEUE=16;
+<span class="lineNum">      13 </span>                :            : static const int DEFAULT_HTTP_SERVER_TIMEOUT=30;
+<span class="lineNum">      14 </span>                :            : 
+<span class="lineNum">      15 </span>                :            : struct evhttp_request;
+<span class="lineNum">      16 </span>                :            : struct event_base;
+<span class="lineNum">      17 </span>                :            : class CService;
+<span class="lineNum">      18 </span>                :            : class HTTPRequest;
+<span class="lineNum">      19 </span>                :            : 
+<span class="lineNum">      20 </span>                :            : /** Initialize HTTP server.
+<span class="lineNum">      21 </span>                :            :  * Call this before RegisterHTTPHandler or EventBase().
+<span class="lineNum">      22 </span>                :            :  */
+<span class="lineNum">      23 </span>                :            : bool InitHTTPServer();
+<span class="lineNum">      24 </span>                :            : /** Start HTTP server.
+<span class="lineNum">      25 </span>                :            :  * This is separate from InitHTTPServer to give users race-condition-free time
+<span class="lineNum">      26 </span>                :            :  * to register their handlers between InitHTTPServer and StartHTTPServer.
+<span class="lineNum">      27 </span>                :            :  */
+<span class="lineNum">      28 </span>                :            : void StartHTTPServer();
+<span class="lineNum">      29 </span>                :            : /** Interrupt HTTP server threads */
+<span class="lineNum">      30 </span>                :            : void InterruptHTTPServer();
+<span class="lineNum">      31 </span>                :            : /** Stop HTTP server */
+<span class="lineNum">      32 </span>                :            : void StopHTTPServer();
+<span class="lineNum">      33 </span>                :            : 
+<span class="lineNum">      34 </span>                :            : /** Change logging level for libevent. Removes BCLog::LIBEVENT from log categories if
+<span class="lineNum">      35 </span>                :            :  * libevent doesn't support debug logging.*/
+<span class="lineNum">      36 </span>                :            : bool UpdateHTTPServerLogging(bool enable);
+<span class="lineNum">      37 </span>                :            : 
+<span class="lineNum">      38 </span>                :            : /** Handler for requests to a certain HTTP path */
+<span class="lineNum">      39 </span>                :            : typedef std::function&lt;bool(HTTPRequest* req, const std::string &amp;)&gt; HTTPRequestHandler;
+<span class="lineNum">      40 </span>                :            : /** Register handler for prefix.
+<span class="lineNum">      41 </span>                :            :  * If multiple handlers match a prefix, the first-registered one will
+<span class="lineNum">      42 </span>                :            :  * be invoked.
+<span class="lineNum">      43 </span>                :            :  */
+<span class="lineNum">      44 </span>                :            : void RegisterHTTPHandler(const std::string &amp;prefix, bool exactMatch, const HTTPRequestHandler &amp;handler);
+<span class="lineNum">      45 </span>                :            : /** Unregister handler for prefix */
+<span class="lineNum">      46 </span>                :            : void UnregisterHTTPHandler(const std::string &amp;prefix, bool exactMatch);
+<span class="lineNum">      47 </span>                :            : 
+<span class="lineNum">      48 </span>                :            : /** Return evhttp event base. This can be used by submodules to
+<span class="lineNum">      49 </span>                :            :  * queue timers or custom events.
+<span class="lineNum">      50 </span>                :            :  */
+<span class="lineNum">      51 </span>                :            : struct event_base* EventBase();
+<span class="lineNum">      52 </span>                :            : 
+<span class="lineNum">      53 </span>                :            : /** In-flight HTTP request.
+<span class="lineNum">      54 </span>                :            :  * Thin C++ wrapper around evhttp_request.
+<span class="lineNum">      55 </span>                :            :  */
+<span class="lineNum">      56 </span>                :            : class HTTPRequest
+<span class="lineNum">      57 </span>                :            : {
+<span class="lineNum">      58 </span>                :            : private:
+<span class="lineNum">      59 </span>                :            :     struct evhttp_request* req;
+<span class="lineNum">      60 </span>                :            :     bool replySent;
+<span class="lineNum">      61 </span>                :            : 
+<span class="lineNum">      62 </span>                :            : public:
+<span class="lineNum">      63 </span>                :            :     explicit HTTPRequest(struct evhttp_request* req, bool replySent = false);
+<span class="lineNum">      64 </span>                :            :     ~HTTPRequest();
+<span class="lineNum">      65 </span>                :            : 
+<span class="lineNum">      66 </span>                :            :     enum RequestMethod {
+<span class="lineNum">      67 </span>                :            :         UNKNOWN,
+<span class="lineNum">      68 </span>                :            :         GET,
+<span class="lineNum">      69 </span>                :            :         POST,
+<span class="lineNum">      70 </span>                :            :         HEAD,
+<span class="lineNum">      71 </span>                :            :         PUT
+<span class="lineNum">      72 </span>                :            :     };
+<span class="lineNum">      73 </span>                :            : 
+<span class="lineNum">      74 </span>                :            :     /** Get requested URI.
+<span class="lineNum">      75 </span>                :            :      */
+<span class="lineNum">      76 </span>                :            :     std::string GetURI() const;
+<span class="lineNum">      77 </span>                :            : 
+<span class="lineNum">      78 </span>                :            :     /** Get CService (address:ip) for the origin of the http request.
+<span class="lineNum">      79 </span>                :            :      */
+<span class="lineNum">      80 </span>                :            :     CService GetPeer() const;
+<span class="lineNum">      81 </span>                :            : 
+<span class="lineNum">      82 </span>                :            :     /** Get request method.
+<span class="lineNum">      83 </span>                :            :      */
+<span class="lineNum">      84 </span>                :            :     RequestMethod GetRequestMethod() const;
+<span class="lineNum">      85 </span>                :            : 
+<span class="lineNum">      86 </span>                :            :     /**
+<span class="lineNum">      87 </span>                :            :      * Get the request header specified by hdr, or an empty string.
+<span class="lineNum">      88 </span>                :            :      * Return a pair (isPresent,string).
+<span class="lineNum">      89 </span>                :            :      */
+<span class="lineNum">      90 </span>                :            :     std::pair&lt;bool, std::string&gt; GetHeader(const std::string&amp; hdr) const;
+<span class="lineNum">      91 </span>                :            : 
+<span class="lineNum">      92 </span>                :            :     /**
+<span class="lineNum">      93 </span>                :            :      * Read request body.
+<span class="lineNum">      94 </span>                :            :      *
+<span class="lineNum">      95 </span>                :            :      * @note As this consumes the underlying buffer, call this only once.
+<span class="lineNum">      96 </span>                :            :      * Repeated calls will return an empty string.
+<span class="lineNum">      97 </span>                :            :      */
+<span class="lineNum">      98 </span>                :            :     std::string ReadBody();
+<span class="lineNum">      99 </span>                :            : 
+<span class="lineNum">     100 </span>                :            :     /**
+<span class="lineNum">     101 </span>                :            :      * Write output header.
+<span class="lineNum">     102 </span>                :            :      *
+<span class="lineNum">     103 </span>                :            :      * @note call this before calling WriteErrorReply or Reply.
+<span class="lineNum">     104 </span>                :            :      */
+<span class="lineNum">     105 </span>                :            :     void WriteHeader(const std::string&amp; hdr, const std::string&amp; value);
+<span class="lineNum">     106 </span>                :            : 
+<span class="lineNum">     107 </span>                :            :     /**
+<span class="lineNum">     108 </span>                :            :      * Write HTTP reply.
+<span class="lineNum">     109 </span>                :            :      * nStatus is the HTTP status code to send.
+<span class="lineNum">     110 </span>                :            :      * strReply is the body of the reply. Keep it empty to send a standard message.
+<span class="lineNum">     111 </span>                :            :      *
+<span class="lineNum">     112 </span>                :            :      * @note Can be called only once. As this will give the request back to the
+<span class="lineNum">     113 </span>                :            :      * main thread, do not call any other HTTPRequest methods after calling this.
+<span class="lineNum">     114 </span>                :            :      */
+<span class="lineNum">     115 </span>                :            :     void WriteReply(int nStatus, const std::string&amp; strReply = &quot;&quot;);
+<span class="lineNum">     116 </span>                :            : };
+<span class="lineNum">     117 </span>                :            : 
+<a name="118"><span class="lineNum">     118 </span>                :            : /** Event handler closure.</a>
+<span class="lineNum">     119 </span>                :            :  */
+<span class="lineNum">     120 </span>                :<span class="lineNoCov">          0 : class HTTPClosure</span>
+<span class="lineNum">     121 </span>                :            : {
+<a name="122"><span class="lineNum">     122 </span>                :            : public:</a>
+<span class="lineNum">     123 </span>                :            :     virtual void operator()() = 0;
+<span class="lineNum">     124 </span>                :<span class="lineNoCov">          0 :     virtual ~HTTPClosure() {}</span>
+<span class="lineNum">     125 </span>                :            : };
+<span class="lineNum">     126 </span>                :            : 
+<span class="lineNum">     127 </span>                :            : /** Event class. This can be used either as a cross-thread trigger or as a timer.
+<span class="lineNum">     128 </span>                :            :  */
+<span class="lineNum">     129 </span>                :            : class HTTPEvent
+<span class="lineNum">     130 </span>                :            : {
+<span class="lineNum">     131 </span>                :            : public:
+<span class="lineNum">     132 </span>                :            :     /** Create a new event.
+<span class="lineNum">     133 </span>                :            :      * deleteWhenTriggered deletes this event object after the event is triggered (and the handler called)
+<span class="lineNum">     134 </span>                :            :      * handler is the handler to call when the event is triggered.
+<span class="lineNum">     135 </span>                :            :      */
+<span class="lineNum">     136 </span>                :            :     HTTPEvent(struct event_base* base, bool deleteWhenTriggered, const std::function&lt;void()&gt;&amp; handler);
+<span class="lineNum">     137 </span>                :            :     ~HTTPEvent();
+<span class="lineNum">     138 </span>                :            : 
+<span class="lineNum">     139 </span>                :            :     /** Trigger the event. If tv is 0, trigger it immediately. Otherwise trigger it after
+<span class="lineNum">     140 </span>                :            :      * the given time has elapsed.
+<span class="lineNum">     141 </span>                :            :      */
+<span class="lineNum">     142 </span>                :            :     void trigger(struct timeval* tv);
+<span class="lineNum">     143 </span>                :            : 
+<span class="lineNum">     144 </span>                :            :     bool deleteWhenTriggered;
+<span class="lineNum">     145 </span>                :            :     std::function&lt;void()&gt; handler;
+<span class="lineNum">     146 </span>                :            : private:
+<span class="lineNum">     147 </span>                :            :     struct event* ev;
+<span class="lineNum">     148 </span>                :            : };
+<span class="lineNum">     149 </span>                :            : 
+<span class="lineNum">     150 </span>                :            : #endif // BITCOIN_HTTPSERVER_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
