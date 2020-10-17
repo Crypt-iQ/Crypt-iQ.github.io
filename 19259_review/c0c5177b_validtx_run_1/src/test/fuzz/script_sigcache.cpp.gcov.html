@@ -1,0 +1,130 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - fuzz_coverage.info - src/test/fuzz/script_sigcache.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">src/test/fuzz</a> - script_sigcache.cpp<span style="font-size: 80%;"> (source / <a href="script_sigcache.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">fuzz_coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">23</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-10-17 16:33:30</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryHi">-</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : // Copyright (c) 2020 The Bitcoin Core developers</a>
+<span class="lineNum">       2 </span>                :            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       3 </span>                :            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       4 </span>                :            : 
+<span class="lineNum">       5 </span>                :            : #include &lt;chainparams.h&gt;
+<span class="lineNum">       6 </span>                :            : #include &lt;chainparamsbase.h&gt;
+<span class="lineNum">       7 </span>                :            : #include &lt;key.h&gt;
+<span class="lineNum">       8 </span>                :            : #include &lt;pubkey.h&gt;
+<span class="lineNum">       9 </span>                :            : #include &lt;script/sigcache.h&gt;
+<span class="lineNum">      10 </span>                :            : #include &lt;test/fuzz/FuzzedDataProvider.h&gt;
+<span class="lineNum">      11 </span>                :            : #include &lt;test/fuzz/fuzz.h&gt;
+<span class="lineNum">      12 </span>                :            : #include &lt;test/fuzz/util.h&gt;
+<span class="lineNum">      13 </span>                :            : 
+<span class="lineNum">      14 </span>                :            : #include &lt;cstdint&gt;
+<span class="lineNum">      15 </span>                :            : #include &lt;optional&gt;
+<span class="lineNum">      16 </span>                :            : #include &lt;string&gt;
+<a name="17"><span class="lineNum">      17 </span>                :            : #include &lt;vector&gt;</a>
+<span class="lineNum">      18 </span>                :            : 
+<span class="lineNum">      19 </span>                :<span class="lineNoCov">          0 : void initialize()</span>
+<span class="lineNum">      20 </span>                :            : {
+<span class="lineNum">      21 </span>                :<span class="lineNoCov">          0 :     static const ECCVerifyHandle ecc_verify_handle;</span>
+<span class="lineNum">      22 </span>                :<span class="lineNoCov">          0 :     ECC_Start();</span>
+<span class="lineNum">      23 </span>                :<span class="lineNoCov">          0 :     SelectParams(CBaseChainParams::REGTEST);</span>
+<span class="lineNum">      24 </span>                :<span class="lineNoCov">          0 :     InitSignatureCache();</span>
+<a name="25"><span class="lineNum">      25 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      26 </span>                :            : 
+<span class="lineNum">      27 </span>                :<span class="lineNoCov">          0 : void test_one_input(const std::vector&lt;uint8_t&gt;&amp; buffer)</span>
+<span class="lineNum">      28 </span>                :            : {
+<span class="lineNum">      29 </span>                :<span class="lineNoCov">          0 :     FuzzedDataProvider fuzzed_data_provider(buffer.data(), buffer.size());</span>
+<span class="lineNum">      30 </span>                :            : 
+<span class="lineNum">      31 </span>                :<span class="lineNoCov">          0 :     const std::optional&lt;CMutableTransaction&gt; mutable_transaction = ConsumeDeserializable&lt;CMutableTransaction&gt;(fuzzed_data_provider);</span>
+<span class="lineNum">      32 </span>                :<span class="lineNoCov">          0 :     const CTransaction tx = mutable_transaction ? CTransaction{*mutable_transaction} : CTransaction{};</span>
+<span class="lineNum">      33 </span>                :<span class="lineNoCov">          0 :     const unsigned int n_in = fuzzed_data_provider.ConsumeIntegral&lt;unsigned int&gt;();</span>
+<span class="lineNum">      34 </span>                :<span class="lineNoCov">          0 :     const CAmount amount = ConsumeMoney(fuzzed_data_provider);</span>
+<span class="lineNum">      35 </span>                :<span class="lineNoCov">          0 :     const bool store = fuzzed_data_provider.ConsumeBool();</span>
+<span class="lineNum">      36 </span>                :<span class="lineNoCov">          0 :     PrecomputedTransactionData tx_data;</span>
+<span class="lineNum">      37 </span>                :<span class="lineNoCov">          0 :     CachingTransactionSignatureChecker caching_transaction_signature_checker{mutable_transaction ? &amp;tx : nullptr, n_in, amount, store, tx_data};</span>
+<span class="lineNum">      38 </span>                :<span class="lineNoCov">          0 :     const std::optional&lt;CPubKey&gt; pub_key = ConsumeDeserializable&lt;CPubKey&gt;(fuzzed_data_provider);</span>
+<span class="lineNum">      39 </span>                :<span class="lineNoCov">          0 :     if (pub_key) {</span>
+<span class="lineNum">      40 </span>                :<span class="lineNoCov">          0 :         const std::vector&lt;uint8_t&gt; random_bytes = ConsumeRandomLengthByteVector(fuzzed_data_provider);</span>
+<span class="lineNum">      41 </span>                :<span class="lineNoCov">          0 :         if (!random_bytes.empty()) {</span>
+<span class="lineNum">      42 </span>                :<span class="lineNoCov">          0 :             (void)caching_transaction_signature_checker.VerifySignature(random_bytes, *pub_key, ConsumeUInt256(fuzzed_data_provider));</span>
+<span class="lineNum">      43 </span>                :<span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">      44 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">      45 </span>                :<span class="lineNoCov">          0 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
