@@ -1,0 +1,174 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - fuzz_coverage.info - src/uint256.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">src</a> - uint256.cpp<span style="font-size: 80%;"> (source / <a href="uint256.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">fuzz_coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">26</td>
+            <td class="headerCovTableEntry">35</td>
+            <td class="headerCovTableEntryLo">74.3 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-10-17 17:40:50</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntryLo">36.4 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntry">44</td>
+            <td class="headerCovTableEntryLo">31.8 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : // Copyright (c) 2009-2010 Satoshi Nakamoto</a>
+<span class="lineNum">       2 </span>                :            : // Copyright (c) 2009-2019 The Bitcoin Core developers
+<span class="lineNum">       3 </span>                :            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       4 </span>                :            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       5 </span>                :            : 
+<span class="lineNum">       6 </span>                :            : #include &lt;uint256.h&gt;
+<span class="lineNum">       7 </span>                :            : 
+<span class="lineNum">       8 </span>                :            : #include &lt;util/strencodings.h&gt;
+<span class="lineNum">       9 </span>                :            : 
+<span class="lineNum">      10 </span>                :            : #include &lt;string.h&gt;
+<a name="11"><span class="lineNum">      11 </span>                :            : </a>
+<span class="lineNum">      12 </span>                :            : template &lt;unsigned int BITS&gt;
+<span class="lineNum">      13 </span>                :<span class="lineNoCov">          0 : base_blob&lt;BITS&gt;::base_blob(const std::vector&lt;unsigned char&gt;&amp; vch)</span>
+<span class="lineNum">      14 </span>                :            : {
+<span class="lineNum">      15 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     assert(vch.size() == sizeof(m_data));</span>
+<span class="lineNum">      16 </span>                :<span class="lineNoCov">          0 :     memcpy(m_data, vch.data(), sizeof(m_data));</span>
+<span class="lineNum">      17 </span>                :<span class="lineNoCov">          0 : }</span>
+<a name="18"><span class="lineNum">      18 </span>                :            : </a>
+<span class="lineNum">      19 </span>                :            : template &lt;unsigned int BITS&gt;
+<span class="lineNum">      20 </span>                :<span class="lineCov">         15 : std::string base_blob&lt;BITS&gt;::GetHex() const</span>
+<span class="lineNum">      21 </span>                :            : {
+<span class="lineNum">      22 </span>                :<span class="lineCov">         15 :     uint8_t m_data_rev[WIDTH];</span>
+<span class="lineNum">      23 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchCov" title="Branch 2 was taken 15 times"> + </span><span class="branchCov" title="Branch 3 was taken 480 times"> + </span>]:<span class="lineCov">        495 :     for (int i = 0; i &lt; WIDTH; ++i) {</span>
+<span class="lineNum">      24 </span>                :<span class="lineCov">        480 :         m_data_rev[i] = m_data[WIDTH - 1 - i];</span>
+<span class="lineNum">      25 </span>                :            :     }
+<span class="lineNum">      26 </span>                :<span class="lineCov">         15 :     return HexStr(m_data_rev);</span>
+<span class="lineNum">      27 </span>                :<span class="lineCov">         15 : }</span>
+<a name="28"><span class="lineNum">      28 </span>                :            : </a>
+<span class="lineNum">      29 </span>                :            : template &lt;unsigned int BITS&gt;
+<span class="lineNum">      30 </span>                :<span class="lineCov">         41 : void base_blob&lt;BITS&gt;::SetHex(const char* psz)</span>
+<span class="lineNum">      31 </span>                :            : {
+<span class="lineNum">      32 </span>                :<span class="lineCov">         41 :     memset(m_data, 0, sizeof(m_data));</span>
+<span class="lineNum">      33 </span>                :            : 
+<span class="lineNum">      34 </span>                :            :     // skip leading spaces
+<span class="lineNum">      35 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 41 times"> + </span>]:<span class="lineCov">         41 :     while (IsSpace(*psz))</span>
+<span class="lineNum">      36 </span>                :<span class="lineNoCov">          0 :         psz++;</span>
+<span class="lineNum">      37 </span>                :            : 
+<span class="lineNum">      38 </span>                :            :     // skip 0x
+<span class="lineNum">      39 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">         41 :     if (psz[0] == '0' &amp;&amp; ToLower(psz[1]) == 'x')</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken 39 times"> + </span><span class="branchCov" title="Branch 5 was taken 2 times"> + </span>][<span class="branchCov" title="Branch 6 was taken 33 times"> + </span><span class="branchCov" title="Branch 7 was taken 6 times"> + </span>]
+<span class="lineNum">      40 </span>                :<span class="lineCov">         33 :         psz += 2;</span>
+<span class="lineNum">      41 </span>                :            : 
+<span class="lineNum">      42 </span>                :            :     // hex string to uint
+<span class="lineNum">      43 </span>                :            :     size_t digits = 0;
+<span class="lineNum">      44 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchCov" title="Branch 2 was taken 2376 times"> + </span><span class="branchCov" title="Branch 3 was taken 41 times"> + </span>]:<span class="lineCov">       2417 :     while (::HexDigit(psz[digits]) != -1)</span>
+<span class="lineNum">      45 </span>                :<span class="lineCov">       2376 :         digits++;</span>
+<span class="lineNum">      46 </span>                :            :     unsigned char* p1 = (unsigned char*)m_data;
+<span class="lineNum">      47 </span>                :<span class="lineCov">         41 :     unsigned char* pend = p1 + WIDTH;</span>
+<span class="lineNum">      48 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">       1229 :     while (digits &gt; 0 &amp;&amp; p1 &lt; pend) {</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken 1188 times"> + </span><span class="branchCov" title="Branch 5 was taken 41 times"> + </span>][<span class="branchCov" title="Branch 6 was taken 1188 times"> + </span><span class="branchCov" title="Branch 7 was taken 41 times"> + </span>]
+<span class="lineNum">      49 </span>                :<span class="lineCov">       1188 :         *p1 = ::HexDigit(psz[--digits]);</span>
+<span class="lineNum">      50 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchCov" title="Branch 2 was taken 1188 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">       1188 :         if (digits &gt; 0) {</span>
+<span class="lineNum">      51 </span>                :<span class="lineCov">       1188 :             *p1 |= ((unsigned char)::HexDigit(psz[--digits]) &lt;&lt; 4);</span>
+<span class="lineNum">      52 </span>                :<span class="lineCov">       1188 :             p1++;</span>
+<span class="lineNum">      53 </span>                :<span class="lineCov">       1188 :         }</span>
+<span class="lineNum">      54 </span>                :            :     }
+<span class="lineNum">      55 </span>                :<span class="lineCov">         41 : }</span>
+<a name="56"><span class="lineNum">      56 </span>                :            : </a>
+<span class="lineNum">      57 </span>                :            : template &lt;unsigned int BITS&gt;
+<span class="lineNum">      58 </span>                :<span class="lineCov">          1 : void base_blob&lt;BITS&gt;::SetHex(const std::string&amp; str)</span>
+<span class="lineNum">      59 </span>                :            : {
+<span class="lineNum">      60 </span>                :<span class="lineCov">          1 :     SetHex(str.c_str());</span>
+<span class="lineNum">      61 </span>                :<span class="lineCov">          1 : }</span>
+<a name="62"><span class="lineNum">      62 </span>                :            : </a>
+<span class="lineNum">      63 </span>                :            : template &lt;unsigned int BITS&gt;
+<span class="lineNum">      64 </span>                :<span class="lineCov">          8 : std::string base_blob&lt;BITS&gt;::ToString() const</span>
+<span class="lineNum">      65 </span>                :            : {
+<span class="lineNum">      66 </span>                :<span class="lineCov">          8 :     return (GetHex());</span>
+<span class="lineNum">      67 </span>                :            : }
+<span class="lineNum">      68 </span>                :            : 
+<span class="lineNum">      69 </span>                :            : // Explicit instantiations for base_blob&lt;160&gt;
+<span class="lineNum">      70 </span>                :            : template base_blob&lt;160&gt;::base_blob(const std::vector&lt;unsigned char&gt;&amp;);
+<span class="lineNum">      71 </span>                :            : template std::string base_blob&lt;160&gt;::GetHex() const;
+<span class="lineNum">      72 </span>                :            : template std::string base_blob&lt;160&gt;::ToString() const;
+<span class="lineNum">      73 </span>                :            : template void base_blob&lt;160&gt;::SetHex(const char*);
+<span class="lineNum">      74 </span>                :            : template void base_blob&lt;160&gt;::SetHex(const std::string&amp;);
+<span class="lineNum">      75 </span>                :            : 
+<span class="lineNum">      76 </span>                :            : // Explicit instantiations for base_blob&lt;256&gt;
+<span class="lineNum">      77 </span>                :            : template base_blob&lt;256&gt;::base_blob(const std::vector&lt;unsigned char&gt;&amp;);
+<span class="lineNum">      78 </span>                :            : template std::string base_blob&lt;256&gt;::GetHex() const;
+<span class="lineNum">      79 </span>                :            : template std::string base_blob&lt;256&gt;::ToString() const;
+<span class="lineNum">      80 </span>                :            : template void base_blob&lt;256&gt;::SetHex(const char*);
+<a name="81"><span class="lineNum">      81 </span>                :            : template void base_blob&lt;256&gt;::SetHex(const std::string&amp;);</a>
+<span class="lineNum">      82 </span>                :            : 
+<span class="lineNum">      83 </span>                :<span class="lineNoCov">          0 : uint256&amp; UINT256_ONE() {</span>
+<span class="lineNum">      84 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     static uint256* one = new uint256(uint256S(&quot;0000000000000000000000000000000000000000000000000000000000000001&quot;));</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">      85 </span>                :<span class="lineNoCov">          0 :     return *one;</span>
+<span class="lineNum">      86 </span>                :<span class="lineNoCov">          0 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
