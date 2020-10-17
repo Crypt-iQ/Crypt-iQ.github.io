@@ -1,0 +1,356 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - fuzz_coverage.info - src/rpc/client.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">src/rpc</a> - client.cpp<span style="font-size: 80%;"> (source / <a href="client.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">fuzz_coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">198</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-10-17 17:40:50</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryHi">-</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : // Copyright (c) 2010 Satoshi Nakamoto</a>
+<span class="lineNum">       2 </span>                :            : // Copyright (c) 2009-2020 The Bitcoin Core developers
+<span class="lineNum">       3 </span>                :            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       4 </span>                :            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       5 </span>                :            : 
+<span class="lineNum">       6 </span>                :            : #include &lt;rpc/client.h&gt;
+<span class="lineNum">       7 </span>                :            : #include &lt;util/system.h&gt;
+<span class="lineNum">       8 </span>                :            : 
+<span class="lineNum">       9 </span>                :            : #include &lt;set&gt;
+<a name="10"><span class="lineNum">      10 </span>                :            : #include &lt;stdint.h&gt;</a>
+<span class="lineNum">      11 </span>                :            : 
+<span class="lineNum">      12 </span>                :<span class="lineNoCov">          0 : class CRPCConvertParam</span>
+<span class="lineNum">      13 </span>                :            : {
+<span class="lineNum">      14 </span>                :            : public:
+<span class="lineNum">      15 </span>                :            :     std::string methodName; //!&lt; method whose params want conversion
+<span class="lineNum">      16 </span>                :            :     int paramIdx;           //!&lt; 0-based idx of param to convert
+<span class="lineNum">      17 </span>                :            :     std::string paramName;  //!&lt; parameter name
+<span class="lineNum">      18 </span>                :            : };
+<span class="lineNum">      19 </span>                :            : 
+<span class="lineNum">      20 </span>                :            : // clang-format off
+<span class="lineNum">      21 </span>                :            : /**
+<span class="lineNum">      22 </span>                :            :  * Specify a (method, idx, name) here if the argument is a non-string RPC
+<span class="lineNum">      23 </span>                :            :  * argument and needs to be converted from JSON.
+<span class="lineNum">      24 </span>                :            :  *
+<a name="25"><span class="lineNum">      25 </span>                :            :  * @note Parameter indexes start from 0.</a>
+<span class="lineNum">      26 </span>                :            :  */
+<span class="lineNum">      27 </span>                :<span class="lineNoCov">          0 : static const CRPCConvertParam vRPCConvertParams[] =</span>
+<span class="lineNum">      28 </span>                :<span class="lineNoCov">          0 : {</span>
+<span class="lineNum">      29 </span>                :<span class="lineNoCov">          0 :     { &quot;setmocktime&quot;, 0, &quot;timestamp&quot; },</span>
+<span class="lineNum">      30 </span>                :<span class="lineNoCov">          0 :     { &quot;mockscheduler&quot;, 0, &quot;delta_time&quot; },</span>
+<span class="lineNum">      31 </span>                :<span class="lineNoCov">          0 :     { &quot;utxoupdatepsbt&quot;, 1, &quot;descriptors&quot; },</span>
+<span class="lineNum">      32 </span>                :<span class="lineNoCov">          0 :     { &quot;generatetoaddress&quot;, 0, &quot;nblocks&quot; },</span>
+<span class="lineNum">      33 </span>                :<span class="lineNoCov">          0 :     { &quot;generatetoaddress&quot;, 2, &quot;maxtries&quot; },</span>
+<span class="lineNum">      34 </span>                :<span class="lineNoCov">          0 :     { &quot;generatetodescriptor&quot;, 0, &quot;num_blocks&quot; },</span>
+<span class="lineNum">      35 </span>                :<span class="lineNoCov">          0 :     { &quot;generatetodescriptor&quot;, 2, &quot;maxtries&quot; },</span>
+<span class="lineNum">      36 </span>                :<span class="lineNoCov">          0 :     { &quot;generateblock&quot;, 1, &quot;transactions&quot; },</span>
+<span class="lineNum">      37 </span>                :<span class="lineNoCov">          0 :     { &quot;getnetworkhashps&quot;, 0, &quot;nblocks&quot; },</span>
+<span class="lineNum">      38 </span>                :<span class="lineNoCov">          0 :     { &quot;getnetworkhashps&quot;, 1, &quot;height&quot; },</span>
+<span class="lineNum">      39 </span>                :<span class="lineNoCov">          0 :     { &quot;sendtoaddress&quot;, 1, &quot;amount&quot; },</span>
+<span class="lineNum">      40 </span>                :<span class="lineNoCov">          0 :     { &quot;sendtoaddress&quot;, 4, &quot;subtractfeefromamount&quot; },</span>
+<span class="lineNum">      41 </span>                :<span class="lineNoCov">          0 :     { &quot;sendtoaddress&quot;, 5 , &quot;replaceable&quot; },</span>
+<span class="lineNum">      42 </span>                :<span class="lineNoCov">          0 :     { &quot;sendtoaddress&quot;, 6 , &quot;conf_target&quot; },</span>
+<span class="lineNum">      43 </span>                :<span class="lineNoCov">          0 :     { &quot;sendtoaddress&quot;, 8, &quot;avoid_reuse&quot; },</span>
+<span class="lineNum">      44 </span>                :<span class="lineNoCov">          0 :     { &quot;settxfee&quot;, 0, &quot;amount&quot; },</span>
+<span class="lineNum">      45 </span>                :<span class="lineNoCov">          0 :     { &quot;sethdseed&quot;, 0, &quot;newkeypool&quot; },</span>
+<span class="lineNum">      46 </span>                :<span class="lineNoCov">          0 :     { &quot;getreceivedbyaddress&quot;, 1, &quot;minconf&quot; },</span>
+<span class="lineNum">      47 </span>                :<span class="lineNoCov">          0 :     { &quot;getreceivedbylabel&quot;, 1, &quot;minconf&quot; },</span>
+<span class="lineNum">      48 </span>                :<span class="lineNoCov">          0 :     { &quot;listreceivedbyaddress&quot;, 0, &quot;minconf&quot; },</span>
+<span class="lineNum">      49 </span>                :<span class="lineNoCov">          0 :     { &quot;listreceivedbyaddress&quot;, 1, &quot;include_empty&quot; },</span>
+<span class="lineNum">      50 </span>                :<span class="lineNoCov">          0 :     { &quot;listreceivedbyaddress&quot;, 2, &quot;include_watchonly&quot; },</span>
+<span class="lineNum">      51 </span>                :<span class="lineNoCov">          0 :     { &quot;listreceivedbylabel&quot;, 0, &quot;minconf&quot; },</span>
+<span class="lineNum">      52 </span>                :<span class="lineNoCov">          0 :     { &quot;listreceivedbylabel&quot;, 1, &quot;include_empty&quot; },</span>
+<span class="lineNum">      53 </span>                :<span class="lineNoCov">          0 :     { &quot;listreceivedbylabel&quot;, 2, &quot;include_watchonly&quot; },</span>
+<span class="lineNum">      54 </span>                :<span class="lineNoCov">          0 :     { &quot;getbalance&quot;, 1, &quot;minconf&quot; },</span>
+<span class="lineNum">      55 </span>                :<span class="lineNoCov">          0 :     { &quot;getbalance&quot;, 2, &quot;include_watchonly&quot; },</span>
+<span class="lineNum">      56 </span>                :<span class="lineNoCov">          0 :     { &quot;getbalance&quot;, 3, &quot;avoid_reuse&quot; },</span>
+<span class="lineNum">      57 </span>                :<span class="lineNoCov">          0 :     { &quot;getblockhash&quot;, 0, &quot;height&quot; },</span>
+<span class="lineNum">      58 </span>                :<span class="lineNoCov">          0 :     { &quot;waitforblockheight&quot;, 0, &quot;height&quot; },</span>
+<span class="lineNum">      59 </span>                :<span class="lineNoCov">          0 :     { &quot;waitforblockheight&quot;, 1, &quot;timeout&quot; },</span>
+<span class="lineNum">      60 </span>                :<span class="lineNoCov">          0 :     { &quot;waitforblock&quot;, 1, &quot;timeout&quot; },</span>
+<span class="lineNum">      61 </span>                :<span class="lineNoCov">          0 :     { &quot;waitfornewblock&quot;, 0, &quot;timeout&quot; },</span>
+<span class="lineNum">      62 </span>                :<span class="lineNoCov">          0 :     { &quot;listtransactions&quot;, 1, &quot;count&quot; },</span>
+<span class="lineNum">      63 </span>                :<span class="lineNoCov">          0 :     { &quot;listtransactions&quot;, 2, &quot;skip&quot; },</span>
+<span class="lineNum">      64 </span>                :<span class="lineNoCov">          0 :     { &quot;listtransactions&quot;, 3, &quot;include_watchonly&quot; },</span>
+<span class="lineNum">      65 </span>                :<span class="lineNoCov">          0 :     { &quot;walletpassphrase&quot;, 1, &quot;timeout&quot; },</span>
+<span class="lineNum">      66 </span>                :<span class="lineNoCov">          0 :     { &quot;getblocktemplate&quot;, 0, &quot;template_request&quot; },</span>
+<span class="lineNum">      67 </span>                :<span class="lineNoCov">          0 :     { &quot;listsinceblock&quot;, 1, &quot;target_confirmations&quot; },</span>
+<span class="lineNum">      68 </span>                :<span class="lineNoCov">          0 :     { &quot;listsinceblock&quot;, 2, &quot;include_watchonly&quot; },</span>
+<span class="lineNum">      69 </span>                :<span class="lineNoCov">          0 :     { &quot;listsinceblock&quot;, 3, &quot;include_removed&quot; },</span>
+<span class="lineNum">      70 </span>                :<span class="lineNoCov">          0 :     { &quot;sendmany&quot;, 1, &quot;amounts&quot; },</span>
+<span class="lineNum">      71 </span>                :<span class="lineNoCov">          0 :     { &quot;sendmany&quot;, 2, &quot;minconf&quot; },</span>
+<span class="lineNum">      72 </span>                :<span class="lineNoCov">          0 :     { &quot;sendmany&quot;, 4, &quot;subtractfeefrom&quot; },</span>
+<span class="lineNum">      73 </span>                :<span class="lineNoCov">          0 :     { &quot;sendmany&quot;, 5 , &quot;replaceable&quot; },</span>
+<span class="lineNum">      74 </span>                :<span class="lineNoCov">          0 :     { &quot;sendmany&quot;, 6 , &quot;conf_target&quot; },</span>
+<span class="lineNum">      75 </span>                :<span class="lineNoCov">          0 :     { &quot;deriveaddresses&quot;, 1, &quot;range&quot; },</span>
+<span class="lineNum">      76 </span>                :<span class="lineNoCov">          0 :     { &quot;scantxoutset&quot;, 1, &quot;scanobjects&quot; },</span>
+<span class="lineNum">      77 </span>                :<span class="lineNoCov">          0 :     { &quot;addmultisigaddress&quot;, 0, &quot;nrequired&quot; },</span>
+<span class="lineNum">      78 </span>                :<span class="lineNoCov">          0 :     { &quot;addmultisigaddress&quot;, 1, &quot;keys&quot; },</span>
+<span class="lineNum">      79 </span>                :<span class="lineNoCov">          0 :     { &quot;createmultisig&quot;, 0, &quot;nrequired&quot; },</span>
+<span class="lineNum">      80 </span>                :<span class="lineNoCov">          0 :     { &quot;createmultisig&quot;, 1, &quot;keys&quot; },</span>
+<span class="lineNum">      81 </span>                :<span class="lineNoCov">          0 :     { &quot;listunspent&quot;, 0, &quot;minconf&quot; },</span>
+<span class="lineNum">      82 </span>                :<span class="lineNoCov">          0 :     { &quot;listunspent&quot;, 1, &quot;maxconf&quot; },</span>
+<span class="lineNum">      83 </span>                :<span class="lineNoCov">          0 :     { &quot;listunspent&quot;, 2, &quot;addresses&quot; },</span>
+<span class="lineNum">      84 </span>                :<span class="lineNoCov">          0 :     { &quot;listunspent&quot;, 3, &quot;include_unsafe&quot; },</span>
+<span class="lineNum">      85 </span>                :<span class="lineNoCov">          0 :     { &quot;listunspent&quot;, 4, &quot;query_options&quot; },</span>
+<span class="lineNum">      86 </span>                :<span class="lineNoCov">          0 :     { &quot;getblock&quot;, 1, &quot;verbosity&quot; },</span>
+<span class="lineNum">      87 </span>                :<span class="lineNoCov">          0 :     { &quot;getblock&quot;, 1, &quot;verbose&quot; },</span>
+<span class="lineNum">      88 </span>                :<span class="lineNoCov">          0 :     { &quot;getblockheader&quot;, 1, &quot;verbose&quot; },</span>
+<span class="lineNum">      89 </span>                :<span class="lineNoCov">          0 :     { &quot;getchaintxstats&quot;, 0, &quot;nblocks&quot; },</span>
+<span class="lineNum">      90 </span>                :<span class="lineNoCov">          0 :     { &quot;gettransaction&quot;, 1, &quot;include_watchonly&quot; },</span>
+<span class="lineNum">      91 </span>                :<span class="lineNoCov">          0 :     { &quot;gettransaction&quot;, 2, &quot;verbose&quot; },</span>
+<span class="lineNum">      92 </span>                :<span class="lineNoCov">          0 :     { &quot;getrawtransaction&quot;, 1, &quot;verbose&quot; },</span>
+<span class="lineNum">      93 </span>                :<span class="lineNoCov">          0 :     { &quot;createrawtransaction&quot;, 0, &quot;inputs&quot; },</span>
+<span class="lineNum">      94 </span>                :<span class="lineNoCov">          0 :     { &quot;createrawtransaction&quot;, 1, &quot;outputs&quot; },</span>
+<span class="lineNum">      95 </span>                :<span class="lineNoCov">          0 :     { &quot;createrawtransaction&quot;, 2, &quot;locktime&quot; },</span>
+<span class="lineNum">      96 </span>                :<span class="lineNoCov">          0 :     { &quot;createrawtransaction&quot;, 3, &quot;replaceable&quot; },</span>
+<span class="lineNum">      97 </span>                :<span class="lineNoCov">          0 :     { &quot;decoderawtransaction&quot;, 1, &quot;iswitness&quot; },</span>
+<span class="lineNum">      98 </span>                :<span class="lineNoCov">          0 :     { &quot;signrawtransactionwithkey&quot;, 1, &quot;privkeys&quot; },</span>
+<span class="lineNum">      99 </span>                :<span class="lineNoCov">          0 :     { &quot;signrawtransactionwithkey&quot;, 2, &quot;prevtxs&quot; },</span>
+<span class="lineNum">     100 </span>                :<span class="lineNoCov">          0 :     { &quot;signrawtransactionwithwallet&quot;, 1, &quot;prevtxs&quot; },</span>
+<span class="lineNum">     101 </span>                :<span class="lineNoCov">          0 :     { &quot;sendrawtransaction&quot;, 1, &quot;maxfeerate&quot; },</span>
+<span class="lineNum">     102 </span>                :<span class="lineNoCov">          0 :     { &quot;testmempoolaccept&quot;, 0, &quot;rawtxs&quot; },</span>
+<span class="lineNum">     103 </span>                :<span class="lineNoCov">          0 :     { &quot;testmempoolaccept&quot;, 1, &quot;maxfeerate&quot; },</span>
+<span class="lineNum">     104 </span>                :<span class="lineNoCov">          0 :     { &quot;combinerawtransaction&quot;, 0, &quot;txs&quot; },</span>
+<span class="lineNum">     105 </span>                :<span class="lineNoCov">          0 :     { &quot;fundrawtransaction&quot;, 1, &quot;options&quot; },</span>
+<span class="lineNum">     106 </span>                :<span class="lineNoCov">          0 :     { &quot;fundrawtransaction&quot;, 2, &quot;iswitness&quot; },</span>
+<span class="lineNum">     107 </span>                :<span class="lineNoCov">          0 :     { &quot;walletcreatefundedpsbt&quot;, 0, &quot;inputs&quot; },</span>
+<span class="lineNum">     108 </span>                :<span class="lineNoCov">          0 :     { &quot;walletcreatefundedpsbt&quot;, 1, &quot;outputs&quot; },</span>
+<span class="lineNum">     109 </span>                :<span class="lineNoCov">          0 :     { &quot;walletcreatefundedpsbt&quot;, 2, &quot;locktime&quot; },</span>
+<span class="lineNum">     110 </span>                :<span class="lineNoCov">          0 :     { &quot;walletcreatefundedpsbt&quot;, 3, &quot;options&quot; },</span>
+<span class="lineNum">     111 </span>                :<span class="lineNoCov">          0 :     { &quot;walletcreatefundedpsbt&quot;, 4, &quot;bip32derivs&quot; },</span>
+<span class="lineNum">     112 </span>                :<span class="lineNoCov">          0 :     { &quot;walletprocesspsbt&quot;, 1, &quot;sign&quot; },</span>
+<span class="lineNum">     113 </span>                :<span class="lineNoCov">          0 :     { &quot;walletprocesspsbt&quot;, 3, &quot;bip32derivs&quot; },</span>
+<span class="lineNum">     114 </span>                :<span class="lineNoCov">          0 :     { &quot;createpsbt&quot;, 0, &quot;inputs&quot; },</span>
+<span class="lineNum">     115 </span>                :<span class="lineNoCov">          0 :     { &quot;createpsbt&quot;, 1, &quot;outputs&quot; },</span>
+<span class="lineNum">     116 </span>                :<span class="lineNoCov">          0 :     { &quot;createpsbt&quot;, 2, &quot;locktime&quot; },</span>
+<span class="lineNum">     117 </span>                :<span class="lineNoCov">          0 :     { &quot;createpsbt&quot;, 3, &quot;replaceable&quot; },</span>
+<span class="lineNum">     118 </span>                :<span class="lineNoCov">          0 :     { &quot;combinepsbt&quot;, 0, &quot;txs&quot;},</span>
+<span class="lineNum">     119 </span>                :<span class="lineNoCov">          0 :     { &quot;joinpsbts&quot;, 0, &quot;txs&quot;},</span>
+<span class="lineNum">     120 </span>                :<span class="lineNoCov">          0 :     { &quot;finalizepsbt&quot;, 1, &quot;extract&quot;},</span>
+<span class="lineNum">     121 </span>                :<span class="lineNoCov">          0 :     { &quot;converttopsbt&quot;, 1, &quot;permitsigdata&quot;},</span>
+<span class="lineNum">     122 </span>                :<span class="lineNoCov">          0 :     { &quot;converttopsbt&quot;, 2, &quot;iswitness&quot;},</span>
+<span class="lineNum">     123 </span>                :<span class="lineNoCov">          0 :     { &quot;gettxout&quot;, 1, &quot;n&quot; },</span>
+<span class="lineNum">     124 </span>                :<span class="lineNoCov">          0 :     { &quot;gettxout&quot;, 2, &quot;include_mempool&quot; },</span>
+<span class="lineNum">     125 </span>                :<span class="lineNoCov">          0 :     { &quot;gettxoutproof&quot;, 0, &quot;txids&quot; },</span>
+<span class="lineNum">     126 </span>                :<span class="lineNoCov">          0 :     { &quot;lockunspent&quot;, 0, &quot;unlock&quot; },</span>
+<span class="lineNum">     127 </span>                :<span class="lineNoCov">          0 :     { &quot;lockunspent&quot;, 1, &quot;transactions&quot; },</span>
+<span class="lineNum">     128 </span>                :<span class="lineNoCov">          0 :     { &quot;importprivkey&quot;, 2, &quot;rescan&quot; },</span>
+<span class="lineNum">     129 </span>                :<span class="lineNoCov">          0 :     { &quot;importaddress&quot;, 2, &quot;rescan&quot; },</span>
+<span class="lineNum">     130 </span>                :<span class="lineNoCov">          0 :     { &quot;importaddress&quot;, 3, &quot;p2sh&quot; },</span>
+<span class="lineNum">     131 </span>                :<span class="lineNoCov">          0 :     { &quot;importpubkey&quot;, 2, &quot;rescan&quot; },</span>
+<span class="lineNum">     132 </span>                :<span class="lineNoCov">          0 :     { &quot;importmulti&quot;, 0, &quot;requests&quot; },</span>
+<span class="lineNum">     133 </span>                :<span class="lineNoCov">          0 :     { &quot;importmulti&quot;, 1, &quot;options&quot; },</span>
+<span class="lineNum">     134 </span>                :<span class="lineNoCov">          0 :     { &quot;importdescriptors&quot;, 0, &quot;requests&quot; },</span>
+<span class="lineNum">     135 </span>                :<span class="lineNoCov">          0 :     { &quot;verifychain&quot;, 0, &quot;checklevel&quot; },</span>
+<span class="lineNum">     136 </span>                :<span class="lineNoCov">          0 :     { &quot;verifychain&quot;, 1, &quot;nblocks&quot; },</span>
+<span class="lineNum">     137 </span>                :<span class="lineNoCov">          0 :     { &quot;getblockstats&quot;, 0, &quot;hash_or_height&quot; },</span>
+<span class="lineNum">     138 </span>                :<span class="lineNoCov">          0 :     { &quot;getblockstats&quot;, 1, &quot;stats&quot; },</span>
+<span class="lineNum">     139 </span>                :<span class="lineNoCov">          0 :     { &quot;pruneblockchain&quot;, 0, &quot;height&quot; },</span>
+<span class="lineNum">     140 </span>                :<span class="lineNoCov">          0 :     { &quot;keypoolrefill&quot;, 0, &quot;newsize&quot; },</span>
+<span class="lineNum">     141 </span>                :<span class="lineNoCov">          0 :     { &quot;getrawmempool&quot;, 0, &quot;verbose&quot; },</span>
+<span class="lineNum">     142 </span>                :<span class="lineNoCov">          0 :     { &quot;estimatesmartfee&quot;, 0, &quot;conf_target&quot; },</span>
+<span class="lineNum">     143 </span>                :<span class="lineNoCov">          0 :     { &quot;estimaterawfee&quot;, 0, &quot;conf_target&quot; },</span>
+<span class="lineNum">     144 </span>                :<span class="lineNoCov">          0 :     { &quot;estimaterawfee&quot;, 1, &quot;threshold&quot; },</span>
+<span class="lineNum">     145 </span>                :<span class="lineNoCov">          0 :     { &quot;prioritisetransaction&quot;, 1, &quot;dummy&quot; },</span>
+<span class="lineNum">     146 </span>                :<span class="lineNoCov">          0 :     { &quot;prioritisetransaction&quot;, 2, &quot;fee_delta&quot; },</span>
+<span class="lineNum">     147 </span>                :<span class="lineNoCov">          0 :     { &quot;setban&quot;, 2, &quot;bantime&quot; },</span>
+<span class="lineNum">     148 </span>                :<span class="lineNoCov">          0 :     { &quot;setban&quot;, 3, &quot;absolute&quot; },</span>
+<span class="lineNum">     149 </span>                :<span class="lineNoCov">          0 :     { &quot;setnetworkactive&quot;, 0, &quot;state&quot; },</span>
+<span class="lineNum">     150 </span>                :<span class="lineNoCov">          0 :     { &quot;setwalletflag&quot;, 1, &quot;value&quot; },</span>
+<span class="lineNum">     151 </span>                :<span class="lineNoCov">          0 :     { &quot;getmempoolancestors&quot;, 1, &quot;verbose&quot; },</span>
+<span class="lineNum">     152 </span>                :<span class="lineNoCov">          0 :     { &quot;getmempooldescendants&quot;, 1, &quot;verbose&quot; },</span>
+<span class="lineNum">     153 </span>                :<span class="lineNoCov">          0 :     { &quot;bumpfee&quot;, 1, &quot;options&quot; },</span>
+<span class="lineNum">     154 </span>                :<span class="lineNoCov">          0 :     { &quot;psbtbumpfee&quot;, 1, &quot;options&quot; },</span>
+<span class="lineNum">     155 </span>                :<span class="lineNoCov">          0 :     { &quot;logging&quot;, 0, &quot;include&quot; },</span>
+<span class="lineNum">     156 </span>                :<span class="lineNoCov">          0 :     { &quot;logging&quot;, 1, &quot;exclude&quot; },</span>
+<span class="lineNum">     157 </span>                :<span class="lineNoCov">          0 :     { &quot;disconnectnode&quot;, 1, &quot;nodeid&quot; },</span>
+<span class="lineNum">     158 </span>                :<span class="lineNoCov">          0 :     { &quot;upgradewallet&quot;, 0, &quot;version&quot; },</span>
+<span class="lineNum">     159 </span>                :            :     // Echo with conversion (For testing only)
+<span class="lineNum">     160 </span>                :<span class="lineNoCov">          0 :     { &quot;echojson&quot;, 0, &quot;arg0&quot; },</span>
+<span class="lineNum">     161 </span>                :<span class="lineNoCov">          0 :     { &quot;echojson&quot;, 1, &quot;arg1&quot; },</span>
+<span class="lineNum">     162 </span>                :<span class="lineNoCov">          0 :     { &quot;echojson&quot;, 2, &quot;arg2&quot; },</span>
+<span class="lineNum">     163 </span>                :<span class="lineNoCov">          0 :     { &quot;echojson&quot;, 3, &quot;arg3&quot; },</span>
+<span class="lineNum">     164 </span>                :<span class="lineNoCov">          0 :     { &quot;echojson&quot;, 4, &quot;arg4&quot; },</span>
+<span class="lineNum">     165 </span>                :<span class="lineNoCov">          0 :     { &quot;echojson&quot;, 5, &quot;arg5&quot; },</span>
+<span class="lineNum">     166 </span>                :<span class="lineNoCov">          0 :     { &quot;echojson&quot;, 6, &quot;arg6&quot; },</span>
+<span class="lineNum">     167 </span>                :<span class="lineNoCov">          0 :     { &quot;echojson&quot;, 7, &quot;arg7&quot; },</span>
+<span class="lineNum">     168 </span>                :<span class="lineNoCov">          0 :     { &quot;echojson&quot;, 8, &quot;arg8&quot; },</span>
+<span class="lineNum">     169 </span>                :<span class="lineNoCov">          0 :     { &quot;echojson&quot;, 9, &quot;arg9&quot; },</span>
+<span class="lineNum">     170 </span>                :<span class="lineNoCov">          0 :     { &quot;rescanblockchain&quot;, 0, &quot;start_height&quot;},</span>
+<span class="lineNum">     171 </span>                :<span class="lineNoCov">          0 :     { &quot;rescanblockchain&quot;, 1, &quot;stop_height&quot;},</span>
+<span class="lineNum">     172 </span>                :<span class="lineNoCov">          0 :     { &quot;createwallet&quot;, 1, &quot;disable_private_keys&quot;},</span>
+<span class="lineNum">     173 </span>                :<span class="lineNoCov">          0 :     { &quot;createwallet&quot;, 2, &quot;blank&quot;},</span>
+<span class="lineNum">     174 </span>                :<span class="lineNoCov">          0 :     { &quot;createwallet&quot;, 4, &quot;avoid_reuse&quot;},</span>
+<span class="lineNum">     175 </span>                :<span class="lineNoCov">          0 :     { &quot;createwallet&quot;, 5, &quot;descriptors&quot;},</span>
+<span class="lineNum">     176 </span>                :<span class="lineNoCov">          0 :     { &quot;createwallet&quot;, 6, &quot;load_on_startup&quot;},</span>
+<span class="lineNum">     177 </span>                :<span class="lineNoCov">          0 :     { &quot;loadwallet&quot;, 1, &quot;load_on_startup&quot;},</span>
+<span class="lineNum">     178 </span>                :<span class="lineNoCov">          0 :     { &quot;unloadwallet&quot;, 1, &quot;load_on_startup&quot;},</span>
+<span class="lineNum">     179 </span>                :<span class="lineNoCov">          0 :     { &quot;getnodeaddresses&quot;, 0, &quot;count&quot;},</span>
+<span class="lineNum">     180 </span>                :<span class="lineNoCov">          0 :     { &quot;addpeeraddress&quot;, 1, &quot;port&quot;},</span>
+<span class="lineNum">     181 </span>                :<span class="lineNoCov">          0 :     { &quot;stop&quot;, 0, &quot;wait&quot; },</span>
+<span class="lineNum">     182 </span>                :            : };
+<a name="183"><span class="lineNum">     183 </span>                :            : // clang-format on</a>
+<span class="lineNum">     184 </span>                :            : 
+<span class="lineNum">     185 </span>                :<span class="lineNoCov">          0 : class CRPCConvertTable</span>
+<span class="lineNum">     186 </span>                :            : {
+<span class="lineNum">     187 </span>                :            : private:
+<span class="lineNum">     188 </span>                :            :     std::set&lt;std::pair&lt;std::string, int&gt;&gt; members;
+<span class="lineNum">     189 </span>                :            :     std::set&lt;std::pair&lt;std::string, std::string&gt;&gt; membersByName;
+<span class="lineNum">     190 </span>                :            : 
+<span class="lineNum">     191 </span>                :            : public:
+<a name="192"><span class="lineNum">     192 </span>                :            :     CRPCConvertTable();</a>
+<span class="lineNum">     193 </span>                :            : 
+<span class="lineNum">     194 </span>                :<span class="lineNoCov">          0 :     bool convert(const std::string&amp; method, int idx) {</span>
+<a name="195"><span class="lineNum">     195 </span>                :<span class="lineNoCov">          0 :         return (members.count(std::make_pair(method, idx)) &gt; 0);</span></a>
+<span class="lineNum">     196 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     197 </span>                :<span class="lineNoCov">          0 :     bool convert(const std::string&amp; method, const std::string&amp; name) {</span>
+<span class="lineNum">     198 </span>                :<span class="lineNoCov">          0 :         return (membersByName.count(std::make_pair(method, name)) &gt; 0);</span>
+<span class="lineNum">     199 </span>                :<span class="lineNoCov">          0 :     }</span>
+<a name="200"><span class="lineNum">     200 </span>                :            : };</a>
+<span class="lineNum">     201 </span>                :            : 
+<span class="lineNum">     202 </span>                :<span class="lineNoCov">          0 : CRPCConvertTable::CRPCConvertTable()</span>
+<span class="lineNum">     203 </span>                :            : {
+<span class="lineNum">     204 </span>                :            :     const unsigned int n_elem =
+<span class="lineNum">     205 </span>                :            :         (sizeof(vRPCConvertParams) / sizeof(vRPCConvertParams[0]));
+<span class="lineNum">     206 </span>                :            : 
+<span class="lineNum">     207 </span>                :<span class="lineNoCov">          0 :     for (unsigned int i = 0; i &lt; n_elem; i++) {</span>
+<span class="lineNum">     208 </span>                :<span class="lineNoCov">          0 :         members.insert(std::make_pair(vRPCConvertParams[i].methodName,</span>
+<span class="lineNum">     209 </span>                :<span class="lineNoCov">          0 :                                       vRPCConvertParams[i].paramIdx));</span>
+<span class="lineNum">     210 </span>                :<span class="lineNoCov">          0 :         membersByName.insert(std::make_pair(vRPCConvertParams[i].methodName,</span>
+<span class="lineNum">     211 </span>                :<span class="lineNoCov">          0 :                                             vRPCConvertParams[i].paramName));</span>
+<span class="lineNum">     212 </span>                :            :     }
+<a name="213"><span class="lineNum">     213 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     214 </span>                :            : 
+<span class="lineNum">     215 </span>                :<span class="lineNoCov">          0 : static CRPCConvertTable rpcCvtTable;</span>
+<span class="lineNum">     216 </span>                :            : 
+<span class="lineNum">     217 </span>                :            : /** Non-RFC4627 JSON parser, accepts internal values (such as numbers, true, false, null)
+<a name="218"><span class="lineNum">     218 </span>                :            :  * as well as objects and arrays.</a>
+<span class="lineNum">     219 </span>                :            :  */
+<span class="lineNum">     220 </span>                :<span class="lineNoCov">          0 : UniValue ParseNonRFCJSONValue(const std::string&amp; strVal)</span>
+<span class="lineNum">     221 </span>                :            : {
+<span class="lineNum">     222 </span>                :<span class="lineNoCov">          0 :     UniValue jVal;</span>
+<span class="lineNum">     223 </span>                :<span class="lineNoCov">          0 :     if (!jVal.read(std::string(&quot;[&quot;)+strVal+std::string(&quot;]&quot;)) ||</span>
+<span class="lineNum">     224 </span>                :<span class="lineNoCov">          0 :         !jVal.isArray() || jVal.size()!=1)</span>
+<span class="lineNum">     225 </span>                :<span class="lineNoCov">          0 :         throw std::runtime_error(std::string(&quot;Error parsing JSON: &quot;) + strVal);</span>
+<span class="lineNum">     226 </span>                :<span class="lineNoCov">          0 :     return jVal[0];</span>
+<a name="227"><span class="lineNum">     227 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     228 </span>                :            : 
+<span class="lineNum">     229 </span>                :<span class="lineNoCov">          0 : UniValue RPCConvertValues(const std::string &amp;strMethod, const std::vector&lt;std::string&gt; &amp;strParams)</span>
+<span class="lineNum">     230 </span>                :            : {
+<span class="lineNum">     231 </span>                :<span class="lineNoCov">          0 :     UniValue params(UniValue::VARR);</span>
+<span class="lineNum">     232 </span>                :            : 
+<span class="lineNum">     233 </span>                :<span class="lineNoCov">          0 :     for (unsigned int idx = 0; idx &lt; strParams.size(); idx++) {</span>
+<span class="lineNum">     234 </span>                :<span class="lineNoCov">          0 :         const std::string&amp; strVal = strParams[idx];</span>
+<span class="lineNum">     235 </span>                :            : 
+<span class="lineNum">     236 </span>                :<span class="lineNoCov">          0 :         if (!rpcCvtTable.convert(strMethod, idx)) {</span>
+<span class="lineNum">     237 </span>                :            :             // insert string value directly
+<span class="lineNum">     238 </span>                :<span class="lineNoCov">          0 :             params.push_back(strVal);</span>
+<span class="lineNum">     239 </span>                :            :         } else {
+<span class="lineNum">     240 </span>                :            :             // parse string as JSON, insert bool/number/object/etc. value
+<span class="lineNum">     241 </span>                :<span class="lineNoCov">          0 :             params.push_back(ParseNonRFCJSONValue(strVal));</span>
+<span class="lineNum">     242 </span>                :            :         }
+<span class="lineNum">     243 </span>                :            :     }
+<span class="lineNum">     244 </span>                :            : 
+<span class="lineNum">     245 </span>                :            :     return params;
+<a name="246"><span class="lineNum">     246 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     247 </span>                :            : 
+<span class="lineNum">     248 </span>                :<span class="lineNoCov">          0 : UniValue RPCConvertNamedValues(const std::string &amp;strMethod, const std::vector&lt;std::string&gt; &amp;strParams)</span>
+<span class="lineNum">     249 </span>                :            : {
+<span class="lineNum">     250 </span>                :<span class="lineNoCov">          0 :     UniValue params(UniValue::VOBJ);</span>
+<span class="lineNum">     251 </span>                :            : 
+<span class="lineNum">     252 </span>                :<span class="lineNoCov">          0 :     for (const std::string &amp;s: strParams) {</span>
+<span class="lineNum">     253 </span>                :<span class="lineNoCov">          0 :         size_t pos = s.find('=');</span>
+<span class="lineNum">     254 </span>                :<span class="lineNoCov">          0 :         if (pos == std::string::npos) {</span>
+<span class="lineNum">     255 </span>                :<span class="lineNoCov">          0 :             throw(std::runtime_error(&quot;No '=' in named argument '&quot;+s+&quot;', this needs to be present for every argument (even if it is empty)&quot;));</span>
+<span class="lineNum">     256 </span>                :            :         }
+<span class="lineNum">     257 </span>                :            : 
+<span class="lineNum">     258 </span>                :<span class="lineNoCov">          0 :         std::string name = s.substr(0, pos);</span>
+<span class="lineNum">     259 </span>                :<span class="lineNoCov">          0 :         std::string value = s.substr(pos+1);</span>
+<span class="lineNum">     260 </span>                :            : 
+<span class="lineNum">     261 </span>                :<span class="lineNoCov">          0 :         if (!rpcCvtTable.convert(strMethod, name)) {</span>
+<span class="lineNum">     262 </span>                :            :             // insert string value directly
+<span class="lineNum">     263 </span>                :<span class="lineNoCov">          0 :             params.pushKV(name, value);</span>
+<span class="lineNum">     264 </span>                :            :         } else {
+<span class="lineNum">     265 </span>                :            :             // parse string as JSON, insert bool/number/object/etc. value
+<span class="lineNum">     266 </span>                :<span class="lineNoCov">          0 :             params.pushKV(name, ParseNonRFCJSONValue(value));</span>
+<span class="lineNum">     267 </span>                :            :         }
+<span class="lineNum">     268 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     269 </span>                :            : 
+<span class="lineNum">     270 </span>                :            :     return params;
+<span class="lineNum">     271 </span>                :<span class="lineNoCov">          0 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
