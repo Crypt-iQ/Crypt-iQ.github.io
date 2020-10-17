@@ -1,0 +1,188 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - fuzz_coverage.info - src/dummywallet.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">src</a> - dummywallet.cpp<span style="font-size: 80%;"> (source / <a href="dummywallet.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">fuzz_coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">33</td>
+            <td class="headerCovTableEntry">55</td>
+            <td class="headerCovTableEntryLo">60.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-10-17 19:34:02</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntryLo">35.7 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">30</td>
+            <td class="headerCovTableEntry">82</td>
+            <td class="headerCovTableEntryLo">36.6 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : // Copyright (c) 2018-2020 The Bitcoin Core developers</a>
+<span class="lineNum">       2 </span>                :            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       3 </span>                :            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       4 </span>                :            : 
+<span class="lineNum">       5 </span>                :            : #include &lt;util/system.h&gt;
+<span class="lineNum">       6 </span>                :            : #include &lt;walletinitinterface.h&gt;
+<span class="lineNum">       7 </span>                :            : #include &lt;support/allocators/secure.h&gt;
+<span class="lineNum">       8 </span>                :            : 
+<span class="lineNum">       9 </span>                :            : class CWallet;
+<span class="lineNum">      10 </span>                :            : enum class WalletCreationStatus;
+<span class="lineNum">      11 </span>                :            : struct bilingual_str;
+<span class="lineNum">      12 </span>                :            : 
+<span class="lineNum">      13 </span>                :            : namespace interfaces {
+<span class="lineNum">      14 </span>                :            : class Chain;
+<span class="lineNum">      15 </span>                :            : class Handler;
+<span class="lineNum">      16 </span>                :            : class Wallet;
+<a name="17"><span class="lineNum">      17 </span>                :            : }</a>
+<span class="lineNum">      18 </span>                :            : 
+<span class="lineNum">      19 </span>                :<span class="lineCov">          1 : class DummyWalletInit : public WalletInitInterface {</span>
+<a name="20"><span class="lineNum">      20 </span>                :            : public:</a>
+<span class="lineNum">      21 </span>                :            : 
+<a name="22"><span class="lineNum">      22 </span>                :<span class="lineNoCov">          0 :     bool HasWalletSupport() const override {return false;}</span></a>
+<a name="23"><span class="lineNum">      23 </span>                :            :     void AddWalletOptions(ArgsManager&amp; argsman) const override;</a>
+<span class="lineNum">      24 </span>                :<span class="lineCov">          1 :     bool ParameterInteraction() const override {return true;}</span>
+<span class="lineNum">      25 </span>                :<span class="lineCov">          1 :     void Construct(NodeContext&amp; node) const override {LogPrintf(&quot;No wallet support compiled in!\n&quot;);}</span>
+<a name="26"><span class="lineNum">      26 </span>                :            : };</a>
+<span class="lineNum">      27 </span>                :            : 
+<span class="lineNum">      28 </span>                :<span class="lineCov">          1 : void DummyWalletInit::AddWalletOptions(ArgsManager&amp; argsman) const</span>
+<span class="lineNum">      29 </span>                :            : {
+<span class="lineNum">      30 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">         26 :     argsman.AddHiddenArgs({</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken 25 times"> + </span><span class="branchCov" title="Branch 5 was taken 1 time"> + </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>][<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">      31 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         &quot;-addresstype&quot;,</span>
+<span class="lineNum">      32 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         &quot;-avoidpartialspends&quot;,</span>
+<span class="lineNum">      33 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         &quot;-changetype&quot;,</span>
+<span class="lineNum">      34 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         &quot;-disablewallet&quot;,</span>
+<span class="lineNum">      35 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         &quot;-discardfee=&lt;amt&gt;&quot;,</span>
+<span class="lineNum">      36 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         &quot;-fallbackfee=&lt;amt&gt;&quot;,</span>
+<span class="lineNum">      37 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         &quot;-keypool=&lt;n&gt;&quot;,</span>
+<span class="lineNum">      38 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         &quot;-maxapsfee=&lt;n&gt;&quot;,</span>
+<span class="lineNum">      39 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         &quot;-maxtxfee=&lt;amt&gt;&quot;,</span>
+<span class="lineNum">      40 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         &quot;-mintxfee=&lt;amt&gt;&quot;,</span>
+<span class="lineNum">      41 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         &quot;-paytxfee=&lt;amt&gt;&quot;,</span>
+<span class="lineNum">      42 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         &quot;-rescan&quot;,</span>
+<span class="lineNum">      43 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         &quot;-salvagewallet&quot;,</span>
+<span class="lineNum">      44 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         &quot;-spendzeroconfchange&quot;,</span>
+<span class="lineNum">      45 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         &quot;-txconfirmtarget=&lt;n&gt;&quot;,</span>
+<span class="lineNum">      46 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         &quot;-upgradewallet&quot;,</span>
+<span class="lineNum">      47 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         &quot;-wallet=&lt;path&gt;&quot;,</span>
+<span class="lineNum">      48 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         &quot;-walletbroadcast&quot;,</span>
+<span class="lineNum">      49 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         &quot;-walletdir=&lt;dir&gt;&quot;,</span>
+<span class="lineNum">      50 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         &quot;-walletnotify=&lt;cmd&gt;&quot;,</span>
+<span class="lineNum">      51 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         &quot;-walletrbf&quot;,</span>
+<span class="lineNum">      52 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         &quot;-zapwallettxes=&lt;mode&gt;&quot;,</span>
+<span class="lineNum">      53 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         &quot;-dblogsize=&lt;n&gt;&quot;,</span>
+<span class="lineNum">      54 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         &quot;-flushwallet&quot;,</span>
+<span class="lineNum">      55 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         &quot;-privdb&quot;,</span>
+<span class="lineNum">      56 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         &quot;-walletrejectlongchains&quot;,</span>
+<span class="lineNum">      57 </span>                :            :     });
+<a name="58"><span class="lineNum">      58 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">      59 </span>                :            : 
+<a name="60"><span class="lineNum">      60 </span>                :<span class="lineCov">          1 : const WalletInitInterface&amp; g_wallet_init_interface = DummyWalletInit();</span></a>
+<span class="lineNum">      61 </span>                :            : 
+<span class="lineNum">      62 </span>                :<span class="lineNoCov">          0 : fs::path GetWalletDir()</span>
+<span class="lineNum">      63 </span>                :            : {
+<span class="lineNum">      64 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     throw std::logic_error(&quot;Wallet function called in non-wallet build.&quot;);</span>
+<a name="65"><span class="lineNum">      65 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      66 </span>                :            : 
+<span class="lineNum">      67 </span>                :<span class="lineNoCov">          0 : std::vector&lt;fs::path&gt; ListWalletDir()</span>
+<span class="lineNum">      68 </span>                :            : {
+<span class="lineNum">      69 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     throw std::logic_error(&quot;Wallet function called in non-wallet build.&quot;);</span>
+<a name="70"><span class="lineNum">      70 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      71 </span>                :            : 
+<span class="lineNum">      72 </span>                :<span class="lineNoCov">          0 : std::vector&lt;std::shared_ptr&lt;CWallet&gt;&gt; GetWallets()</span>
+<span class="lineNum">      73 </span>                :            : {
+<span class="lineNum">      74 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     throw std::logic_error(&quot;Wallet function called in non-wallet build.&quot;);</span>
+<a name="75"><span class="lineNum">      75 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      76 </span>                :            : 
+<span class="lineNum">      77 </span>                :<span class="lineNoCov">          0 : std::shared_ptr&lt;CWallet&gt; LoadWallet(interfaces::Chain&amp; chain, const std::string&amp; name, bilingual_str&amp; error, std::vector&lt;bilingual_str&gt;&amp; warnings)</span>
+<span class="lineNum">      78 </span>                :            : {
+<span class="lineNum">      79 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     throw std::logic_error(&quot;Wallet function called in non-wallet build.&quot;);</span>
+<a name="80"><span class="lineNum">      80 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      81 </span>                :            : 
+<span class="lineNum">      82 </span>                :<span class="lineNoCov">          0 : WalletCreationStatus CreateWallet(interfaces::Chain&amp; chain, const SecureString&amp; passphrase, uint64_t wallet_creation_flags, const std::string&amp; name, bilingual_str&amp; error, std::vector&lt;bilingual_str&gt;&amp; warnings, std::shared_ptr&lt;CWallet&gt;&amp; result)</span>
+<span class="lineNum">      83 </span>                :            : {
+<span class="lineNum">      84 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     throw std::logic_error(&quot;Wallet function called in non-wallet build.&quot;);</span>
+<span class="lineNum">      85 </span>                :<span class="lineNoCov">          0 : }</span>
+<a name="86"><span class="lineNum">      86 </span>                :            : </a>
+<span class="lineNum">      87 </span>                :            : using LoadWalletFn = std::function&lt;void(std::unique_ptr&lt;interfaces::Wallet&gt; wallet)&gt;;
+<span class="lineNum">      88 </span>                :<span class="lineNoCov">          0 : std::unique_ptr&lt;interfaces::Handler&gt; HandleLoadWallet(LoadWalletFn load_wallet)</span>
+<span class="lineNum">      89 </span>                :            : {
+<span class="lineNum">      90 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     throw std::logic_error(&quot;Wallet function called in non-wallet build.&quot;);</span>
+<span class="lineNum">      91 </span>                :<span class="lineNoCov">          0 : }</span>
+<span class="lineNum">      92 </span>                :            : 
+<a name="93"><span class="lineNum">      93 </span>                :            : namespace interfaces {</a>
+<span class="lineNum">      94 </span>                :            : 
+<span class="lineNum">      95 </span>                :<span class="lineNoCov">          0 : std::unique_ptr&lt;Wallet&gt; MakeWallet(const std::shared_ptr&lt;CWallet&gt;&amp; wallet)</span>
+<span class="lineNum">      96 </span>                :            : {
+<span class="lineNum">      97 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     throw std::logic_error(&quot;Wallet function called in non-wallet build.&quot;);</span>
+<span class="lineNum">      98 </span>                :<span class="lineNoCov">          0 : }</span>
+<span class="lineNum">      99 </span>                :            : 
+<span class="lineNum">     100 </span>                :            : } // namespace interfaces
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
