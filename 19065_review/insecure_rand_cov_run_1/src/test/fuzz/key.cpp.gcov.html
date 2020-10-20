@@ -1,0 +1,394 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - fuzz_coverage.info - src/test/fuzz/key.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">src/test/fuzz</a> - key.cpp<span style="font-size: 80%;"> (source / <a href="key.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">fuzz_coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">207</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-10-20 05:39:37</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryHi">-</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : // Copyright (c) 2020 The Bitcoin Core developers</a>
+<span class="lineNum">       2 </span>                :            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       3 </span>                :            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       4 </span>                :            : 
+<span class="lineNum">       5 </span>                :            : #include &lt;chainparams.h&gt;
+<span class="lineNum">       6 </span>                :            : #include &lt;chainparamsbase.h&gt;
+<span class="lineNum">       7 </span>                :            : #include &lt;key.h&gt;
+<span class="lineNum">       8 </span>                :            : #include &lt;key_io.h&gt;
+<span class="lineNum">       9 </span>                :            : #include &lt;outputtype.h&gt;
+<span class="lineNum">      10 </span>                :            : #include &lt;policy/policy.h&gt;
+<span class="lineNum">      11 </span>                :            : #include &lt;pubkey.h&gt;
+<span class="lineNum">      12 </span>                :            : #include &lt;rpc/util.h&gt;
+<span class="lineNum">      13 </span>                :            : #include &lt;script/keyorigin.h&gt;
+<span class="lineNum">      14 </span>                :            : #include &lt;script/script.h&gt;
+<span class="lineNum">      15 </span>                :            : #include &lt;script/sign.h&gt;
+<span class="lineNum">      16 </span>                :            : #include &lt;script/signingprovider.h&gt;
+<span class="lineNum">      17 </span>                :            : #include &lt;script/standard.h&gt;
+<span class="lineNum">      18 </span>                :            : #include &lt;streams.h&gt;
+<span class="lineNum">      19 </span>                :            : #include &lt;test/fuzz/fuzz.h&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;util/memory.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;util/strencodings.h&gt;
+<span class="lineNum">      22 </span>                :            : 
+<span class="lineNum">      23 </span>                :            : #include &lt;cassert&gt;
+<span class="lineNum">      24 </span>                :            : #include &lt;cstdint&gt;
+<span class="lineNum">      25 </span>                :            : #include &lt;numeric&gt;
+<span class="lineNum">      26 </span>                :            : #include &lt;string&gt;
+<a name="27"><span class="lineNum">      27 </span>                :            : #include &lt;vector&gt;</a>
+<span class="lineNum">      28 </span>                :            : 
+<span class="lineNum">      29 </span>                :<span class="lineNoCov">          0 : void initialize()</span>
+<span class="lineNum">      30 </span>                :            : {
+<span class="lineNum">      31 </span>                :<span class="lineNoCov">          0 :     static const ECCVerifyHandle ecc_verify_handle;</span>
+<span class="lineNum">      32 </span>                :<span class="lineNoCov">          0 :     ECC_Start();</span>
+<span class="lineNum">      33 </span>                :<span class="lineNoCov">          0 :     SelectParams(CBaseChainParams::REGTEST);</span>
+<a name="34"><span class="lineNum">      34 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      35 </span>                :            : 
+<a name="36"><span class="lineNum">      36 </span>                :<span class="lineNoCov">          0 : void test_one_input(const std::vector&lt;uint8_t&gt;&amp; buffer)</span></a>
+<span class="lineNum">      37 </span>                :            : {
+<span class="lineNum">      38 </span>                :<span class="lineNoCov">          0 :     const CKey key = [&amp;] {</span>
+<span class="lineNum">      39 </span>                :<span class="lineNoCov">          0 :         CKey k;</span>
+<span class="lineNum">      40 </span>                :<span class="lineNoCov">          0 :         k.Set(buffer.begin(), buffer.end(), true);</span>
+<span class="lineNum">      41 </span>                :            :         return k;
+<span class="lineNum">      42 </span>                :<span class="lineNoCov">          0 :     }();</span>
+<span class="lineNum">      43 </span>                :<span class="lineNoCov">          0 :     if (!key.IsValid()) {</span>
+<span class="lineNum">      44 </span>                :<span class="lineNoCov">          0 :         return;</span>
+<span class="lineNum">      45 </span>                :            :     }
+<span class="lineNum">      46 </span>                :            : 
+<span class="lineNum">      47 </span>                :            :     {
+<span class="lineNum">      48 </span>                :<span class="lineNoCov">          0 :         assert(key.begin() + key.size() == key.end());</span>
+<span class="lineNum">      49 </span>                :<span class="lineNoCov">          0 :         assert(key.IsCompressed());</span>
+<span class="lineNum">      50 </span>                :<span class="lineNoCov">          0 :         assert(key.size() == 32);</span>
+<span class="lineNum">      51 </span>                :<span class="lineNoCov">          0 :         assert(DecodeSecret(EncodeSecret(key)) == key);</span>
+<span class="lineNum">      52 </span>                :            :     }
+<span class="lineNum">      53 </span>                :            : 
+<span class="lineNum">      54 </span>                :            :     {
+<span class="lineNum">      55 </span>                :<span class="lineNoCov">          0 :         CKey invalid_key;</span>
+<span class="lineNum">      56 </span>                :<span class="lineNoCov">          0 :         assert(!(invalid_key == key));</span>
+<span class="lineNum">      57 </span>                :<span class="lineNoCov">          0 :         assert(!invalid_key.IsCompressed());</span>
+<span class="lineNum">      58 </span>                :<span class="lineNoCov">          0 :         assert(!invalid_key.IsValid());</span>
+<span class="lineNum">      59 </span>                :<span class="lineNoCov">          0 :         assert(invalid_key.size() == 0);</span>
+<span class="lineNum">      60 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">      61 </span>                :            : 
+<span class="lineNum">      62 </span>                :            :     {
+<span class="lineNum">      63 </span>                :<span class="lineNoCov">          0 :         CKey uncompressed_key;</span>
+<span class="lineNum">      64 </span>                :<span class="lineNoCov">          0 :         uncompressed_key.Set(buffer.begin(), buffer.end(), false);</span>
+<span class="lineNum">      65 </span>                :<span class="lineNoCov">          0 :         assert(!(uncompressed_key == key));</span>
+<span class="lineNum">      66 </span>                :<span class="lineNoCov">          0 :         assert(!uncompressed_key.IsCompressed());</span>
+<span class="lineNum">      67 </span>                :<span class="lineNoCov">          0 :         assert(key.size() == 32);</span>
+<span class="lineNum">      68 </span>                :<span class="lineNoCov">          0 :         assert(uncompressed_key.begin() + uncompressed_key.size() == uncompressed_key.end());</span>
+<span class="lineNum">      69 </span>                :<span class="lineNoCov">          0 :         assert(uncompressed_key.IsValid());</span>
+<span class="lineNum">      70 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">      71 </span>                :            : 
+<span class="lineNum">      72 </span>                :            :     {
+<span class="lineNum">      73 </span>                :<span class="lineNoCov">          0 :         CKey copied_key;</span>
+<span class="lineNum">      74 </span>                :<span class="lineNoCov">          0 :         copied_key.Set(key.begin(), key.end(), key.IsCompressed());</span>
+<span class="lineNum">      75 </span>                :<span class="lineNoCov">          0 :         assert(copied_key == key);</span>
+<span class="lineNum">      76 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">      77 </span>                :            : 
+<span class="lineNum">      78 </span>                :            :     {
+<span class="lineNum">      79 </span>                :<span class="lineNoCov">          0 :         CKey negated_key = key;</span>
+<span class="lineNum">      80 </span>                :<span class="lineNoCov">          0 :         negated_key.Negate();</span>
+<span class="lineNum">      81 </span>                :<span class="lineNoCov">          0 :         assert(negated_key.IsValid());</span>
+<span class="lineNum">      82 </span>                :<span class="lineNoCov">          0 :         assert(!(negated_key == key));</span>
+<span class="lineNum">      83 </span>                :            : 
+<span class="lineNum">      84 </span>                :<span class="lineNoCov">          0 :         negated_key.Negate();</span>
+<span class="lineNum">      85 </span>                :<span class="lineNoCov">          0 :         assert(negated_key == key);</span>
+<span class="lineNum">      86 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">      87 </span>                :            : 
+<span class="lineNum">      88 </span>                :<span class="lineNoCov">          0 :     const uint256 random_uint256 = Hash(buffer);</span>
+<span class="lineNum">      89 </span>                :            : 
+<span class="lineNum">      90 </span>                :            :     {
+<span class="lineNum">      91 </span>                :<span class="lineNoCov">          0 :         CKey child_key;</span>
+<span class="lineNum">      92 </span>                :<span class="lineNoCov">          0 :         ChainCode child_chaincode;</span>
+<span class="lineNum">      93 </span>                :<span class="lineNoCov">          0 :         const bool ok = key.Derive(child_key, child_chaincode, 0, random_uint256);</span>
+<span class="lineNum">      94 </span>                :<span class="lineNoCov">          0 :         assert(ok);</span>
+<span class="lineNum">      95 </span>                :<span class="lineNoCov">          0 :         assert(child_key.IsValid());</span>
+<span class="lineNum">      96 </span>                :<span class="lineNoCov">          0 :         assert(!(child_key == key));</span>
+<span class="lineNum">      97 </span>                :<span class="lineNoCov">          0 :         assert(child_chaincode != random_uint256);</span>
+<span class="lineNum">      98 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">      99 </span>                :            : 
+<span class="lineNum">     100 </span>                :<span class="lineNoCov">          0 :     const CPubKey pubkey = key.GetPubKey();</span>
+<span class="lineNum">     101 </span>                :            : 
+<span class="lineNum">     102 </span>                :            :     {
+<span class="lineNum">     103 </span>                :<span class="lineNoCov">          0 :         assert(pubkey.size() == 33);</span>
+<span class="lineNum">     104 </span>                :<span class="lineNoCov">          0 :         assert(key.VerifyPubKey(pubkey));</span>
+<span class="lineNum">     105 </span>                :<span class="lineNoCov">          0 :         assert(pubkey.GetHash() != random_uint256);</span>
+<span class="lineNum">     106 </span>                :<span class="lineNoCov">          0 :         assert(pubkey.begin() + pubkey.size() == pubkey.end());</span>
+<span class="lineNum">     107 </span>                :<span class="lineNoCov">          0 :         assert(pubkey.data() == pubkey.begin());</span>
+<span class="lineNum">     108 </span>                :<span class="lineNoCov">          0 :         assert(pubkey.IsCompressed());</span>
+<span class="lineNum">     109 </span>                :<span class="lineNoCov">          0 :         assert(pubkey.IsValid());</span>
+<span class="lineNum">     110 </span>                :<span class="lineNoCov">          0 :         assert(pubkey.IsFullyValid());</span>
+<span class="lineNum">     111 </span>                :<span class="lineNoCov">          0 :         assert(HexToPubKey(HexStr(pubkey)) == pubkey);</span>
+<span class="lineNum">     112 </span>                :<span class="lineNoCov">          0 :         assert(GetAllDestinationsForKey(pubkey).size() == 3);</span>
+<span class="lineNum">     113 </span>                :            :     }
+<span class="lineNum">     114 </span>                :            : 
+<span class="lineNum">     115 </span>                :            :     {
+<span class="lineNum">     116 </span>                :<span class="lineNoCov">          0 :         CDataStream data_stream{SER_NETWORK, INIT_PROTO_VERSION};</span>
+<span class="lineNum">     117 </span>                :<span class="lineNoCov">          0 :         pubkey.Serialize(data_stream);</span>
+<span class="lineNum">     118 </span>                :            : 
+<span class="lineNum">     119 </span>                :<span class="lineNoCov">          0 :         CPubKey pubkey_deserialized;</span>
+<span class="lineNum">     120 </span>                :<span class="lineNoCov">          0 :         pubkey_deserialized.Unserialize(data_stream);</span>
+<span class="lineNum">     121 </span>                :<span class="lineNoCov">          0 :         assert(pubkey_deserialized == pubkey);</span>
+<span class="lineNum">     122 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     123 </span>                :            : 
+<span class="lineNum">     124 </span>                :            :     {
+<span class="lineNum">     125 </span>                :<span class="lineNoCov">          0 :         const CScript tx_pubkey_script = GetScriptForRawPubKey(pubkey);</span>
+<span class="lineNum">     126 </span>                :<span class="lineNoCov">          0 :         assert(!tx_pubkey_script.IsPayToScriptHash());</span>
+<span class="lineNum">     127 </span>                :<span class="lineNoCov">          0 :         assert(!tx_pubkey_script.IsPayToWitnessScriptHash());</span>
+<span class="lineNum">     128 </span>                :<span class="lineNoCov">          0 :         assert(!tx_pubkey_script.IsPushOnly());</span>
+<span class="lineNum">     129 </span>                :<span class="lineNoCov">          0 :         assert(!tx_pubkey_script.IsUnspendable());</span>
+<span class="lineNum">     130 </span>                :<span class="lineNoCov">          0 :         assert(tx_pubkey_script.HasValidOps());</span>
+<span class="lineNum">     131 </span>                :<span class="lineNoCov">          0 :         assert(tx_pubkey_script.size() == 35);</span>
+<span class="lineNum">     132 </span>                :            : 
+<span class="lineNum">     133 </span>                :<span class="lineNoCov">          0 :         const CScript tx_multisig_script = GetScriptForMultisig(1, {pubkey});</span>
+<span class="lineNum">     134 </span>                :<span class="lineNoCov">          0 :         assert(!tx_multisig_script.IsPayToScriptHash());</span>
+<span class="lineNum">     135 </span>                :<span class="lineNoCov">          0 :         assert(!tx_multisig_script.IsPayToWitnessScriptHash());</span>
+<span class="lineNum">     136 </span>                :<span class="lineNoCov">          0 :         assert(!tx_multisig_script.IsPushOnly());</span>
+<span class="lineNum">     137 </span>                :<span class="lineNoCov">          0 :         assert(!tx_multisig_script.IsUnspendable());</span>
+<span class="lineNum">     138 </span>                :<span class="lineNoCov">          0 :         assert(tx_multisig_script.HasValidOps());</span>
+<span class="lineNum">     139 </span>                :<span class="lineNoCov">          0 :         assert(tx_multisig_script.size() == 37);</span>
+<span class="lineNum">     140 </span>                :            : 
+<span class="lineNum">     141 </span>                :<span class="lineNoCov">          0 :         FillableSigningProvider fillable_signing_provider;</span>
+<span class="lineNum">     142 </span>                :<span class="lineNoCov">          0 :         assert(IsSolvable(fillable_signing_provider, tx_pubkey_script));</span>
+<span class="lineNum">     143 </span>                :<span class="lineNoCov">          0 :         assert(IsSolvable(fillable_signing_provider, tx_multisig_script));</span>
+<span class="lineNum">     144 </span>                :<span class="lineNoCov">          0 :         assert(!IsSegWitOutput(fillable_signing_provider, tx_pubkey_script));</span>
+<span class="lineNum">     145 </span>                :<span class="lineNoCov">          0 :         assert(!IsSegWitOutput(fillable_signing_provider, tx_multisig_script));</span>
+<span class="lineNum">     146 </span>                :<span class="lineNoCov">          0 :         assert(fillable_signing_provider.GetKeys().size() == 0);</span>
+<span class="lineNum">     147 </span>                :<span class="lineNoCov">          0 :         assert(!fillable_signing_provider.HaveKey(pubkey.GetID()));</span>
+<span class="lineNum">     148 </span>                :            : 
+<span class="lineNum">     149 </span>                :<span class="lineNoCov">          0 :         const bool ok_add_key = fillable_signing_provider.AddKey(key);</span>
+<span class="lineNum">     150 </span>                :<span class="lineNoCov">          0 :         assert(ok_add_key);</span>
+<span class="lineNum">     151 </span>                :<span class="lineNoCov">          0 :         assert(fillable_signing_provider.HaveKey(pubkey.GetID()));</span>
+<span class="lineNum">     152 </span>                :            : 
+<span class="lineNum">     153 </span>                :<span class="lineNoCov">          0 :         FillableSigningProvider fillable_signing_provider_pub;</span>
+<span class="lineNum">     154 </span>                :<span class="lineNoCov">          0 :         assert(!fillable_signing_provider_pub.HaveKey(pubkey.GetID()));</span>
+<span class="lineNum">     155 </span>                :            : 
+<span class="lineNum">     156 </span>                :<span class="lineNoCov">          0 :         const bool ok_add_key_pubkey = fillable_signing_provider_pub.AddKeyPubKey(key, pubkey);</span>
+<span class="lineNum">     157 </span>                :<span class="lineNoCov">          0 :         assert(ok_add_key_pubkey);</span>
+<span class="lineNum">     158 </span>                :<span class="lineNoCov">          0 :         assert(fillable_signing_provider_pub.HaveKey(pubkey.GetID()));</span>
+<span class="lineNum">     159 </span>                :            : 
+<span class="lineNum">     160 </span>                :<span class="lineNoCov">          0 :         TxoutType which_type_tx_pubkey;</span>
+<span class="lineNum">     161 </span>                :<span class="lineNoCov">          0 :         const bool is_standard_tx_pubkey = IsStandard(tx_pubkey_script, which_type_tx_pubkey);</span>
+<span class="lineNum">     162 </span>                :<span class="lineNoCov">          0 :         assert(is_standard_tx_pubkey);</span>
+<span class="lineNum">     163 </span>                :<span class="lineNoCov">          0 :         assert(which_type_tx_pubkey == TxoutType::PUBKEY);</span>
+<span class="lineNum">     164 </span>                :            : 
+<span class="lineNum">     165 </span>                :<span class="lineNoCov">          0 :         TxoutType which_type_tx_multisig;</span>
+<span class="lineNum">     166 </span>                :<span class="lineNoCov">          0 :         const bool is_standard_tx_multisig = IsStandard(tx_multisig_script, which_type_tx_multisig);</span>
+<span class="lineNum">     167 </span>                :<span class="lineNoCov">          0 :         assert(is_standard_tx_multisig);</span>
+<span class="lineNum">     168 </span>                :<span class="lineNoCov">          0 :         assert(which_type_tx_multisig == TxoutType::MULTISIG);</span>
+<span class="lineNum">     169 </span>                :            : 
+<span class="lineNum">     170 </span>                :<span class="lineNoCov">          0 :         std::vector&lt;std::vector&lt;unsigned char&gt;&gt; v_solutions_ret_tx_pubkey;</span>
+<span class="lineNum">     171 </span>                :<span class="lineNoCov">          0 :         const TxoutType outtype_tx_pubkey = Solver(tx_pubkey_script, v_solutions_ret_tx_pubkey);</span>
+<span class="lineNum">     172 </span>                :<span class="lineNoCov">          0 :         assert(outtype_tx_pubkey == TxoutType::PUBKEY);</span>
+<span class="lineNum">     173 </span>                :<span class="lineNoCov">          0 :         assert(v_solutions_ret_tx_pubkey.size() == 1);</span>
+<span class="lineNum">     174 </span>                :<span class="lineNoCov">          0 :         assert(v_solutions_ret_tx_pubkey[0].size() == 33);</span>
+<span class="lineNum">     175 </span>                :            : 
+<span class="lineNum">     176 </span>                :<span class="lineNoCov">          0 :         std::vector&lt;std::vector&lt;unsigned char&gt;&gt; v_solutions_ret_tx_multisig;</span>
+<span class="lineNum">     177 </span>                :<span class="lineNoCov">          0 :         const TxoutType outtype_tx_multisig = Solver(tx_multisig_script, v_solutions_ret_tx_multisig);</span>
+<span class="lineNum">     178 </span>                :<span class="lineNoCov">          0 :         assert(outtype_tx_multisig == TxoutType::MULTISIG);</span>
+<span class="lineNum">     179 </span>                :<span class="lineNoCov">          0 :         assert(v_solutions_ret_tx_multisig.size() == 3);</span>
+<span class="lineNum">     180 </span>                :<span class="lineNoCov">          0 :         assert(v_solutions_ret_tx_multisig[0].size() == 1);</span>
+<span class="lineNum">     181 </span>                :<span class="lineNoCov">          0 :         assert(v_solutions_ret_tx_multisig[1].size() == 33);</span>
+<span class="lineNum">     182 </span>                :<span class="lineNoCov">          0 :         assert(v_solutions_ret_tx_multisig[2].size() == 1);</span>
+<span class="lineNum">     183 </span>                :            : 
+<span class="lineNum">     184 </span>                :            :         OutputType output_type{};
+<span class="lineNum">     185 </span>                :<span class="lineNoCov">          0 :         const CTxDestination tx_destination = GetDestinationForKey(pubkey, output_type);</span>
+<span class="lineNum">     186 </span>                :<span class="lineNoCov">          0 :         assert(output_type == OutputType::LEGACY);</span>
+<span class="lineNum">     187 </span>                :<span class="lineNoCov">          0 :         assert(IsValidDestination(tx_destination));</span>
+<span class="lineNum">     188 </span>                :<span class="lineNoCov">          0 :         assert(CTxDestination{PKHash{pubkey}} == tx_destination);</span>
+<span class="lineNum">     189 </span>                :            : 
+<span class="lineNum">     190 </span>                :<span class="lineNoCov">          0 :         const CScript script_for_destination = GetScriptForDestination(tx_destination);</span>
+<span class="lineNum">     191 </span>                :<span class="lineNoCov">          0 :         assert(script_for_destination.size() == 25);</span>
+<span class="lineNum">     192 </span>                :            : 
+<span class="lineNum">     193 </span>                :<span class="lineNoCov">          0 :         const std::string destination_address = EncodeDestination(tx_destination);</span>
+<span class="lineNum">     194 </span>                :<span class="lineNoCov">          0 :         assert(DecodeDestination(destination_address) == tx_destination);</span>
+<span class="lineNum">     195 </span>                :            : 
+<span class="lineNum">     196 </span>                :<span class="lineNoCov">          0 :         const CPubKey pubkey_from_address_string = AddrToPubKey(fillable_signing_provider, destination_address);</span>
+<span class="lineNum">     197 </span>                :<span class="lineNoCov">          0 :         assert(pubkey_from_address_string == pubkey);</span>
+<span class="lineNum">     198 </span>                :            : 
+<span class="lineNum">     199 </span>                :<span class="lineNoCov">          0 :         CKeyID key_id = pubkey.GetID();</span>
+<span class="lineNum">     200 </span>                :<span class="lineNoCov">          0 :         assert(!key_id.IsNull());</span>
+<span class="lineNum">     201 </span>                :<span class="lineNoCov">          0 :         assert(key_id == CKeyID{key_id});</span>
+<span class="lineNum">     202 </span>                :<span class="lineNoCov">          0 :         assert(key_id == GetKeyForDestination(fillable_signing_provider, tx_destination));</span>
+<span class="lineNum">     203 </span>                :            : 
+<span class="lineNum">     204 </span>                :<span class="lineNoCov">          0 :         CPubKey pubkey_out;</span>
+<span class="lineNum">     205 </span>                :<span class="lineNoCov">          0 :         const bool ok_get_pubkey = fillable_signing_provider.GetPubKey(key_id, pubkey_out);</span>
+<span class="lineNum">     206 </span>                :<span class="lineNoCov">          0 :         assert(ok_get_pubkey);</span>
+<span class="lineNum">     207 </span>                :            : 
+<span class="lineNum">     208 </span>                :<span class="lineNoCov">          0 :         CKey key_out;</span>
+<span class="lineNum">     209 </span>                :<span class="lineNoCov">          0 :         const bool ok_get_key = fillable_signing_provider.GetKey(key_id, key_out);</span>
+<span class="lineNum">     210 </span>                :<span class="lineNoCov">          0 :         assert(ok_get_key);</span>
+<span class="lineNum">     211 </span>                :<span class="lineNoCov">          0 :         assert(fillable_signing_provider.GetKeys().size() == 1);</span>
+<span class="lineNum">     212 </span>                :<span class="lineNoCov">          0 :         assert(fillable_signing_provider.HaveKey(key_id));</span>
+<span class="lineNum">     213 </span>                :            : 
+<span class="lineNum">     214 </span>                :<span class="lineNoCov">          0 :         KeyOriginInfo key_origin_info;</span>
+<span class="lineNum">     215 </span>                :<span class="lineNoCov">          0 :         const bool ok_get_key_origin = fillable_signing_provider.GetKeyOrigin(key_id, key_origin_info);</span>
+<span class="lineNum">     216 </span>                :<span class="lineNoCov">          0 :         assert(!ok_get_key_origin);</span>
+<span class="lineNum">     217 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     218 </span>                :            : 
+<span class="lineNum">     219 </span>                :            :     {
+<span class="lineNum">     220 </span>                :<span class="lineNoCov">          0 :         const std::vector&lt;unsigned char&gt; vch_pubkey{pubkey.begin(), pubkey.end()};</span>
+<span class="lineNum">     221 </span>                :<span class="lineNoCov">          0 :         assert(CPubKey::ValidSize(vch_pubkey));</span>
+<span class="lineNum">     222 </span>                :<span class="lineNoCov">          0 :         assert(!CPubKey::ValidSize({pubkey.begin(), pubkey.begin() + pubkey.size() - 1}));</span>
+<span class="lineNum">     223 </span>                :            : 
+<span class="lineNum">     224 </span>                :<span class="lineNoCov">          0 :         const CPubKey pubkey_ctor_1{vch_pubkey};</span>
+<span class="lineNum">     225 </span>                :<span class="lineNoCov">          0 :         assert(pubkey == pubkey_ctor_1);</span>
+<span class="lineNum">     226 </span>                :            : 
+<span class="lineNum">     227 </span>                :<span class="lineNoCov">          0 :         const CPubKey pubkey_ctor_2{vch_pubkey.begin(), vch_pubkey.end()};</span>
+<span class="lineNum">     228 </span>                :<span class="lineNoCov">          0 :         assert(pubkey == pubkey_ctor_2);</span>
+<span class="lineNum">     229 </span>                :            : 
+<span class="lineNum">     230 </span>                :<span class="lineNoCov">          0 :         CPubKey pubkey_set;</span>
+<span class="lineNum">     231 </span>                :<span class="lineNoCov">          0 :         pubkey_set.Set(vch_pubkey.begin(), vch_pubkey.end());</span>
+<span class="lineNum">     232 </span>                :<span class="lineNoCov">          0 :         assert(pubkey == pubkey_set);</span>
+<span class="lineNum">     233 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     234 </span>                :            : 
+<span class="lineNum">     235 </span>                :            :     {
+<span class="lineNum">     236 </span>                :<span class="lineNoCov">          0 :         const CPubKey invalid_pubkey{};</span>
+<span class="lineNum">     237 </span>                :<span class="lineNoCov">          0 :         assert(!invalid_pubkey.IsValid());</span>
+<span class="lineNum">     238 </span>                :<span class="lineNoCov">          0 :         assert(!invalid_pubkey.IsFullyValid());</span>
+<span class="lineNum">     239 </span>                :<span class="lineNoCov">          0 :         assert(!(pubkey == invalid_pubkey));</span>
+<span class="lineNum">     240 </span>                :<span class="lineNoCov">          0 :         assert(pubkey != invalid_pubkey);</span>
+<span class="lineNum">     241 </span>                :<span class="lineNoCov">          0 :         assert(pubkey &lt; invalid_pubkey);</span>
+<span class="lineNum">     242 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     243 </span>                :            : 
+<span class="lineNum">     244 </span>                :            :     {
+<span class="lineNum">     245 </span>                :            :         // Cover CPubKey's operator[](unsigned int pos)
+<span class="lineNum">     246 </span>                :            :         unsigned int sum = 0;
+<span class="lineNum">     247 </span>                :<span class="lineNoCov">          0 :         for (size_t i = 0; i &lt; pubkey.size(); ++i) {</span>
+<span class="lineNum">     248 </span>                :<span class="lineNoCov">          0 :             sum += pubkey[i];</span>
+<span class="lineNum">     249 </span>                :            :         }
+<span class="lineNum">     250 </span>                :<span class="lineNoCov">          0 :         assert(std::accumulate(pubkey.begin(), pubkey.end(), 0U) == sum);</span>
+<span class="lineNum">     251 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     252 </span>                :            : 
+<span class="lineNum">     253 </span>                :            :     {
+<span class="lineNum">     254 </span>                :<span class="lineNoCov">          0 :         CPubKey decompressed_pubkey = pubkey;</span>
+<span class="lineNum">     255 </span>                :<span class="lineNoCov">          0 :         assert(decompressed_pubkey.IsCompressed());</span>
+<span class="lineNum">     256 </span>                :            : 
+<span class="lineNum">     257 </span>                :<span class="lineNoCov">          0 :         const bool ok = decompressed_pubkey.Decompress();</span>
+<span class="lineNum">     258 </span>                :<span class="lineNoCov">          0 :         assert(ok);</span>
+<span class="lineNum">     259 </span>                :<span class="lineNoCov">          0 :         assert(!decompressed_pubkey.IsCompressed());</span>
+<span class="lineNum">     260 </span>                :<span class="lineNoCov">          0 :         assert(decompressed_pubkey.size() == 65);</span>
+<span class="lineNum">     261 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     262 </span>                :            : 
+<span class="lineNum">     263 </span>                :            :     {
+<span class="lineNum">     264 </span>                :<span class="lineNoCov">          0 :         std::vector&lt;unsigned char&gt; vch_sig;</span>
+<span class="lineNum">     265 </span>                :<span class="lineNoCov">          0 :         const bool ok = key.Sign(random_uint256, vch_sig, false);</span>
+<span class="lineNum">     266 </span>                :<span class="lineNoCov">          0 :         assert(ok);</span>
+<span class="lineNum">     267 </span>                :<span class="lineNoCov">          0 :         assert(pubkey.Verify(random_uint256, vch_sig));</span>
+<span class="lineNum">     268 </span>                :<span class="lineNoCov">          0 :         assert(CPubKey::CheckLowS(vch_sig));</span>
+<span class="lineNum">     269 </span>                :            : 
+<span class="lineNum">     270 </span>                :<span class="lineNoCov">          0 :         const std::vector&lt;unsigned char&gt; vch_invalid_sig{vch_sig.begin(), vch_sig.begin() + vch_sig.size() - 1};</span>
+<span class="lineNum">     271 </span>                :<span class="lineNoCov">          0 :         assert(!pubkey.Verify(random_uint256, vch_invalid_sig));</span>
+<span class="lineNum">     272 </span>                :<span class="lineNoCov">          0 :         assert(!CPubKey::CheckLowS(vch_invalid_sig));</span>
+<span class="lineNum">     273 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     274 </span>                :            : 
+<span class="lineNum">     275 </span>                :            :     {
+<span class="lineNum">     276 </span>                :<span class="lineNoCov">          0 :         std::vector&lt;unsigned char&gt; vch_compact_sig;</span>
+<span class="lineNum">     277 </span>                :<span class="lineNoCov">          0 :         const bool ok_sign_compact = key.SignCompact(random_uint256, vch_compact_sig);</span>
+<span class="lineNum">     278 </span>                :<span class="lineNoCov">          0 :         assert(ok_sign_compact);</span>
+<span class="lineNum">     279 </span>                :            : 
+<span class="lineNum">     280 </span>                :<span class="lineNoCov">          0 :         CPubKey recover_pubkey;</span>
+<span class="lineNum">     281 </span>                :<span class="lineNoCov">          0 :         const bool ok_recover_compact = recover_pubkey.RecoverCompact(random_uint256, vch_compact_sig);</span>
+<span class="lineNum">     282 </span>                :<span class="lineNoCov">          0 :         assert(ok_recover_compact);</span>
+<span class="lineNum">     283 </span>                :<span class="lineNoCov">          0 :         assert(recover_pubkey == pubkey);</span>
+<span class="lineNum">     284 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     285 </span>                :            : 
+<span class="lineNum">     286 </span>                :            :     {
+<span class="lineNum">     287 </span>                :<span class="lineNoCov">          0 :         CPubKey child_pubkey;</span>
+<span class="lineNum">     288 </span>                :<span class="lineNoCov">          0 :         ChainCode child_chaincode;</span>
+<span class="lineNum">     289 </span>                :<span class="lineNoCov">          0 :         const bool ok = pubkey.Derive(child_pubkey, child_chaincode, 0, random_uint256);</span>
+<span class="lineNum">     290 </span>                :<span class="lineNoCov">          0 :         assert(ok);</span>
+<span class="lineNum">     291 </span>                :<span class="lineNoCov">          0 :         assert(child_pubkey != pubkey);</span>
+<span class="lineNum">     292 </span>                :<span class="lineNoCov">          0 :         assert(child_pubkey.IsCompressed());</span>
+<span class="lineNum">     293 </span>                :<span class="lineNoCov">          0 :         assert(child_pubkey.IsFullyValid());</span>
+<span class="lineNum">     294 </span>                :<span class="lineNoCov">          0 :         assert(child_pubkey.IsValid());</span>
+<span class="lineNum">     295 </span>                :<span class="lineNoCov">          0 :         assert(child_pubkey.size() == 33);</span>
+<span class="lineNum">     296 </span>                :<span class="lineNoCov">          0 :         assert(child_chaincode != random_uint256);</span>
+<span class="lineNum">     297 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     298 </span>                :            : 
+<span class="lineNum">     299 </span>                :<span class="lineNoCov">          0 :     const CPrivKey priv_key = key.GetPrivKey();</span>
+<span class="lineNum">     300 </span>                :            : 
+<span class="lineNum">     301 </span>                :            :     {
+<span class="lineNum">     302 </span>                :<span class="lineNoCov">          0 :         for (const bool skip_check : {true, false}) {</span>
+<span class="lineNum">     303 </span>                :<span class="lineNoCov">          0 :             CKey loaded_key;</span>
+<span class="lineNum">     304 </span>                :<span class="lineNoCov">          0 :             const bool ok = loaded_key.Load(priv_key, pubkey, skip_check);</span>
+<span class="lineNum">     305 </span>                :<span class="lineNoCov">          0 :             assert(ok);</span>
+<span class="lineNum">     306 </span>                :<span class="lineNoCov">          0 :             assert(key == loaded_key);</span>
+<span class="lineNum">     307 </span>                :<span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     308 </span>                :            :     }
+<span class="lineNum">     309 </span>                :<span class="lineNoCov">          0 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
