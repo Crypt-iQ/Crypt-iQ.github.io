@@ -1,0 +1,352 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - fuzz_coverage.info - src/bloom.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">src</a> - bloom.cpp<span style="font-size: 80%;"> (source / <a href="bloom.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">fuzz_coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">151</td>
+            <td class="headerCovTableEntry">151</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-11-23 00:22:05</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2012-2019 The Bitcoin Core developers</a>
+<span class="lineNum">       2 </span>            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       3 </span>            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       4 </span>            : 
+<span class="lineNum">       5 </span>            : #include &lt;bloom.h&gt;
+<span class="lineNum">       6 </span>            : 
+<span class="lineNum">       7 </span>            : #include &lt;primitives/transaction.h&gt;
+<span class="lineNum">       8 </span>            : #include &lt;hash.h&gt;
+<span class="lineNum">       9 </span>            : #include &lt;script/script.h&gt;
+<span class="lineNum">      10 </span>            : #include &lt;script/standard.h&gt;
+<span class="lineNum">      11 </span>            : #include &lt;random.h&gt;
+<span class="lineNum">      12 </span>            : #include &lt;streams.h&gt;
+<span class="lineNum">      13 </span>            : 
+<span class="lineNum">      14 </span>            : #include &lt;math.h&gt;
+<span class="lineNum">      15 </span>            : #include &lt;stdlib.h&gt;
+<span class="lineNum">      16 </span>            : 
+<span class="lineNum">      17 </span>            : #include &lt;algorithm&gt;
+<span class="lineNum">      18 </span>            : 
+<span class="lineNum">      19 </span>            : #define LN2SQUARED 0.4804530139182014246671025263266649717305529515945455
+<a name="20"><span class="lineNum">      20 </span>            : #define LN2 0.6931471805599453094172321214581765680755001343602552</a>
+<span class="lineNum">      21 </span>            : 
+<span class="lineNum">      22 </span><span class="lineCov">       1528 : CBloomFilter::CBloomFilter(const unsigned int nElements, const double nFPRate, const unsigned int nTweakIn, unsigned char nFlagsIn) :</span>
+<span class="lineNum">      23 </span>            :     /**
+<span class="lineNum">      24 </span>            :      * The ideal size for a bloom filter with a given number of elements and false positive rate is:
+<span class="lineNum">      25 </span>            :      * - nElements * log(fp rate) / ln(2)^2
+<span class="lineNum">      26 </span>            :      * We ignore filter parameters which will create a bloom filter larger than the protocol limits
+<span class="lineNum">      27 </span>            :      */
+<span class="lineNum">      28 </span><span class="lineCov">       1528 :     vData(std::min((unsigned int)(-1  / LN2SQUARED * nElements * log(nFPRate)), MAX_BLOOM_FILTER_SIZE * 8) / 8),</span>
+<span class="lineNum">      29 </span>            :     /**
+<span class="lineNum">      30 </span>            :      * The ideal number of hash functions is filter size * ln(2) / number of elements
+<span class="lineNum">      31 </span>            :      * Again, we ignore filter parameters which will create a bloom filter with more hash functions than the protocol limits
+<span class="lineNum">      32 </span>            :      * See https://en.wikipedia.org/wiki/Bloom_filter for an explanation of these formulas
+<span class="lineNum">      33 </span>            :      */
+<span class="lineNum">      34 </span><span class="lineCov">       1528 :     nHashFuncs(std::min((unsigned int)(vData.size() * 8 / nElements * LN2), MAX_HASH_FUNCS)),</span>
+<span class="lineNum">      35 </span><span class="lineCov">       1528 :     nTweak(nTweakIn),</span>
+<span class="lineNum">      36 </span><span class="lineCov">       1528 :     nFlags(nFlagsIn)</span>
+<span class="lineNum">      37 </span>            : {
+<a name="38"><span class="lineNum">      38 </span><span class="lineCov">       1528 : }</span></a>
+<span class="lineNum">      39 </span>            : 
+<span class="lineNum">      40 </span><span class="lineCov">    2759248 : inline unsigned int CBloomFilter::Hash(unsigned int nHashNum, const std::vector&lt;unsigned char&gt;&amp; vDataToHash) const</span>
+<span class="lineNum">      41 </span>            : {
+<span class="lineNum">      42 </span>            :     // 0xFBA4C795 chosen as it guarantees a reasonable bit difference between nHashNum values.
+<span class="lineNum">      43 </span><span class="lineCov">    2759248 :     return MurmurHash3(nHashNum * 0xFBA4C795 + nTweak, vDataToHash) % (vData.size() * 8);</span>
+<a name="44"><span class="lineNum">      44 </span>            : }</a>
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span><span class="lineCov">     352439 : void CBloomFilter::insert(const std::vector&lt;unsigned char&gt;&amp; vKey)</span>
+<span class="lineNum">      47 </span>            : {
+<span class="lineNum">      48 </span><span class="lineCov">     352439 :     if (vData.empty()) // Avoid divide-by-zero (CVE-2013-5700)</span>
+<span class="lineNum">      49 </span>            :         return;
+<span class="lineNum">      50 </span><span class="lineCov">     960016 :     for (unsigned int i = 0; i &lt; nHashFuncs; i++)</span>
+<span class="lineNum">      51 </span>            :     {
+<span class="lineNum">      52 </span><span class="lineCov">     756804 :         unsigned int nIndex = Hash(i, vKey);</span>
+<span class="lineNum">      53 </span>            :         // Sets bit nIndex of vData
+<span class="lineNum">      54 </span><span class="lineCov">     756804 :         vData[nIndex &gt;&gt; 3] |= (1 &lt;&lt; (7 &amp; nIndex));</span>
+<span class="lineNum">      55 </span>            :     }
+<a name="56"><span class="lineNum">      56 </span><span class="lineCov">     352439 : }</span></a>
+<span class="lineNum">      57 </span>            : 
+<span class="lineNum">      58 </span><span class="lineCov">      53908 : void CBloomFilter::insert(const COutPoint&amp; outpoint)</span>
+<span class="lineNum">      59 </span>            : {
+<span class="lineNum">      60 </span><span class="lineCov">      53908 :     CDataStream stream(SER_NETWORK, PROTOCOL_VERSION);</span>
+<span class="lineNum">      61 </span><span class="lineCov">      53908 :     stream &lt;&lt; outpoint;</span>
+<span class="lineNum">      62 </span><span class="lineCov">      53908 :     std::vector&lt;unsigned char&gt; data(stream.begin(), stream.end());</span>
+<span class="lineNum">      63 </span><span class="lineCov">      53908 :     insert(data);</span>
+<a name="64"><span class="lineNum">      64 </span><span class="lineCov">      53908 : }</span></a>
+<span class="lineNum">      65 </span>            : 
+<span class="lineNum">      66 </span><span class="lineCov">      29414 : void CBloomFilter::insert(const uint256&amp; hash)</span>
+<span class="lineNum">      67 </span>            : {
+<span class="lineNum">      68 </span><span class="lineCov">      29414 :     std::vector&lt;unsigned char&gt; data(hash.begin(), hash.end());</span>
+<span class="lineNum">      69 </span><span class="lineCov">      29414 :     insert(data);</span>
+<a name="70"><span class="lineNum">      70 </span><span class="lineCov">      29414 : }</span></a>
+<span class="lineNum">      71 </span>            : 
+<span class="lineNum">      72 </span><span class="lineCov">     902797 : bool CBloomFilter::contains(const std::vector&lt;unsigned char&gt;&amp; vKey) const</span>
+<span class="lineNum">      73 </span>            : {
+<span class="lineNum">      74 </span><span class="lineCov">     902797 :     if (vData.empty()) // Avoid divide-by-zero (CVE-2013-5700)</span>
+<span class="lineNum">      75 </span><span class="lineCov">     298430 :         return true;</span>
+<span class="lineNum">      76 </span><span class="lineCov">    2456771 :     for (unsigned int i = 0; i &lt; nHashFuncs; i++)</span>
+<span class="lineNum">      77 </span>            :     {
+<span class="lineNum">      78 </span><span class="lineCov">    2002444 :         unsigned int nIndex = Hash(i, vKey);</span>
+<span class="lineNum">      79 </span>            :         // Checks bit nIndex of vData
+<span class="lineNum">      80 </span><span class="lineCov">    2002444 :         if (!(vData[nIndex &gt;&gt; 3] &amp; (1 &lt;&lt; (7 &amp; nIndex))))</span>
+<span class="lineNum">      81 </span><span class="lineCov">     150040 :             return false;</span>
+<span class="lineNum">      82 </span><span class="lineCov">    1852404 :     }</span>
+<span class="lineNum">      83 </span><span class="lineCov">     454327 :     return true;</span>
+<a name="84"><span class="lineNum">      84 </span><span class="lineCov">     902797 : }</span></a>
+<span class="lineNum">      85 </span>            : 
+<span class="lineNum">      86 </span><span class="lineCov">     139595 : bool CBloomFilter::contains(const COutPoint&amp; outpoint) const</span>
+<span class="lineNum">      87 </span>            : {
+<span class="lineNum">      88 </span><span class="lineCov">     139595 :     CDataStream stream(SER_NETWORK, PROTOCOL_VERSION);</span>
+<span class="lineNum">      89 </span><span class="lineCov">     139595 :     stream &lt;&lt; outpoint;</span>
+<span class="lineNum">      90 </span><span class="lineCov">     139595 :     std::vector&lt;unsigned char&gt; data(stream.begin(), stream.end());</span>
+<span class="lineNum">      91 </span><span class="lineCov">     139595 :     return contains(data);</span>
+<a name="92"><span class="lineNum">      92 </span><span class="lineCov">     139595 : }</span></a>
+<span class="lineNum">      93 </span>            : 
+<span class="lineNum">      94 </span><span class="lineCov">     135281 : bool CBloomFilter::contains(const uint256&amp; hash) const</span>
+<span class="lineNum">      95 </span>            : {
+<span class="lineNum">      96 </span><span class="lineCov">     135281 :     std::vector&lt;unsigned char&gt; data(hash.begin(), hash.end());</span>
+<span class="lineNum">      97 </span><span class="lineCov">     135281 :     return contains(data);</span>
+<a name="98"><span class="lineNum">      98 </span><span class="lineCov">     135281 : }</span></a>
+<span class="lineNum">      99 </span>            : 
+<span class="lineNum">     100 </span><span class="lineCov">     821378 : bool CBloomFilter::IsWithinSizeConstraints() const</span>
+<span class="lineNum">     101 </span>            : {
+<span class="lineNum">     102 </span><span class="lineCov">     821378 :     return vData.size() &lt;= MAX_BLOOM_FILTER_SIZE &amp;&amp; nHashFuncs &lt;= MAX_HASH_FUNCS;</span>
+<a name="103"><span class="lineNum">     103 </span>            : }</a>
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span><span class="lineCov">      86557 : bool CBloomFilter::IsRelevantAndUpdate(const CTransaction&amp; tx)</span>
+<span class="lineNum">     106 </span>            : {
+<span class="lineNum">     107 </span>            :     bool fFound = false;
+<span class="lineNum">     108 </span>            :     // Match if the filter contains the hash of tx
+<span class="lineNum">     109 </span>            :     //  for finding tx when they appear in a block
+<span class="lineNum">     110 </span><span class="lineCov">      86557 :     if (vData.empty()) // zero-size = &quot;match-all&quot; filter</span>
+<span class="lineNum">     111 </span><span class="lineCov">      10104 :         return true;</span>
+<span class="lineNum">     112 </span><span class="lineCov">      76453 :     const uint256&amp; hash = tx.GetHash();</span>
+<span class="lineNum">     113 </span><span class="lineCov">      76453 :     if (contains(hash))</span>
+<span class="lineNum">     114 </span><span class="lineCov">      41379 :         fFound = true;</span>
+<span class="lineNum">     115 </span>            : 
+<span class="lineNum">     116 </span><span class="lineCov">     239356 :     for (unsigned int i = 0; i &lt; tx.vout.size(); i++)</span>
+<span class="lineNum">     117 </span>            :     {
+<span class="lineNum">     118 </span><span class="lineCov">     162903 :         const CTxOut&amp; txout = tx.vout[i];</span>
+<span class="lineNum">     119 </span>            :         // Match if the filter contains any arbitrary script data element in any scriptPubKey in tx
+<span class="lineNum">     120 </span>            :         // If this matches, also add the specific output that was matched.
+<span class="lineNum">     121 </span>            :         // This means clients don't have to update the filter themselves when a new relevant tx
+<span class="lineNum">     122 </span>            :         // is discovered in order to find spending transactions, which avoids round-tripping and race conditions.
+<span class="lineNum">     123 </span><span class="lineCov">     162903 :         CScript::const_iterator pc = txout.scriptPubKey.begin();</span>
+<span class="lineNum">     124 </span><span class="lineCov">     162903 :         std::vector&lt;unsigned char&gt; data;</span>
+<span class="lineNum">     125 </span><span class="lineCov">     330919 :         while (pc &lt; txout.scriptPubKey.end())</span>
+<span class="lineNum">     126 </span>            :         {
+<span class="lineNum">     127 </span><span class="lineCov">     233483 :             opcodetype opcode;</span>
+<span class="lineNum">     128 </span><span class="lineCov">     233483 :             if (!txout.scriptPubKey.GetOp(pc, opcode, data))</span>
+<span class="lineNum">     129 </span><span class="lineCov">      34247 :                 break;</span>
+<span class="lineNum">     130 </span><span class="lineCov">     199236 :             if (data.size() != 0 &amp;&amp; contains(data))</span>
+<span class="lineNum">     131 </span>            :             {
+<span class="lineNum">     132 </span>            :                 fFound = true;
+<span class="lineNum">     133 </span><span class="lineCov">      31220 :                 if ((nFlags &amp; BLOOM_UPDATE_MASK) == BLOOM_UPDATE_ALL)</span>
+<span class="lineNum">     134 </span><span class="lineCov">       2147 :                     insert(COutPoint(hash, i));</span>
+<span class="lineNum">     135 </span><span class="lineCov">      29073 :                 else if ((nFlags &amp; BLOOM_UPDATE_MASK) == BLOOM_UPDATE_P2PUBKEY_ONLY)</span>
+<span class="lineNum">     136 </span>            :                 {
+<span class="lineNum">     137 </span><span class="lineCov">      14514 :                     std::vector&lt;std::vector&lt;unsigned char&gt; &gt; vSolutions;</span>
+<span class="lineNum">     138 </span><span class="lineCov">      14514 :                     TxoutType type = Solver(txout.scriptPubKey, vSolutions);</span>
+<span class="lineNum">     139 </span><span class="lineCov">      14514 :                     if (type == TxoutType::PUBKEY || type == TxoutType::MULTISIG) {</span>
+<span class="lineNum">     140 </span><span class="lineCov">        817 :                         insert(COutPoint(hash, i));</span>
+<span class="lineNum">     141 </span><span class="lineCov">        817 :                     }</span>
+<span class="lineNum">     142 </span><span class="lineCov">      14514 :                 }</span>
+<span class="lineNum">     143 </span><span class="lineCov">      31220 :                 break;</span>
+<span class="lineNum">     144 </span>            :             }
+<span class="lineNum">     145 </span><span class="lineCov">     233483 :         }</span>
+<span class="lineNum">     146 </span><span class="lineCov">     162903 :     }</span>
+<span class="lineNum">     147 </span>            : 
+<span class="lineNum">     148 </span><span class="lineCov">      76453 :     if (fFound)</span>
+<span class="lineNum">     149 </span><span class="lineCov">      42546 :         return true;</span>
+<span class="lineNum">     150 </span>            : 
+<span class="lineNum">     151 </span><span class="lineCov">      71614 :     for (const CTxIn&amp; txin : tx.vin)</span>
+<span class="lineNum">     152 </span>            :     {
+<span class="lineNum">     153 </span>            :         // Match if the filter contains an outpoint tx spends
+<span class="lineNum">     154 </span><span class="lineCov">      37707 :         if (contains(txin.prevout))</span>
+<span class="lineNum">     155 </span><span class="lineCov">      15125 :             return true;</span>
+<span class="lineNum">     156 </span>            : 
+<span class="lineNum">     157 </span>            :         // Match if the filter contains any arbitrary script data element in any scriptSig in tx
+<span class="lineNum">     158 </span><span class="lineCov">      22582 :         CScript::const_iterator pc = txin.scriptSig.begin();</span>
+<span class="lineNum">     159 </span><span class="lineCov">      22582 :         std::vector&lt;unsigned char&gt; data;</span>
+<span class="lineNum">     160 </span><span class="lineCov">      93611 :         while (pc &lt; txin.scriptSig.end())</span>
+<span class="lineNum">     161 </span>            :         {
+<span class="lineNum">     162 </span><span class="lineCov">      78831 :             opcodetype opcode;</span>
+<span class="lineNum">     163 </span><span class="lineCov">      78831 :             if (!txin.scriptSig.GetOp(pc, opcode, data))</span>
+<span class="lineNum">     164 </span><span class="lineCov">       5292 :                 break;</span>
+<span class="lineNum">     165 </span><span class="lineCov">      73539 :             if (data.size() != 0 &amp;&amp; contains(data))</span>
+<span class="lineNum">     166 </span><span class="lineCov">      25092 :                 return true;</span>
+<span class="lineNum">     167 </span><span class="lineCov">      78831 :         }</span>
+<span class="lineNum">     168 </span><span class="lineCov">      22582 :     }</span>
+<span class="lineNum">     169 </span>            : 
+<span class="lineNum">     170 </span><span class="lineCov">      16272 :     return false;</span>
+<a name="171"><span class="lineNum">     171 </span><span class="lineCov">      86557 : }</span></a>
+<span class="lineNum">     172 </span>            : 
+<span class="lineNum">     173 </span><span class="lineCov">     104782 : CRollingBloomFilter::CRollingBloomFilter(const unsigned int nElements, const double fpRate)</span>
+<span class="lineNum">     174 </span>            : {
+<span class="lineNum">     175 </span><span class="lineCov">     104782 :     double logFpRate = log(fpRate);</span>
+<span class="lineNum">     176 </span>            :     /* The optimal number of hash functions is log(fpRate) / log(0.5), but
+<span class="lineNum">     177 </span>            :      * restrict it to the range 1-50. */
+<span class="lineNum">     178 </span><span class="lineCov">     104782 :     nHashFuncs = std::max(1, std::min((int)round(logFpRate / log(0.5)), 50));</span>
+<span class="lineNum">     179 </span>            :     /* In this rolling bloom filter, we'll store between 2 and 3 generations of nElements / 2 entries. */
+<span class="lineNum">     180 </span><span class="lineCov">     104782 :     nEntriesPerGeneration = (nElements + 1) / 2;</span>
+<span class="lineNum">     181 </span><span class="lineCov">     104782 :     uint32_t nMaxElements = nEntriesPerGeneration * 3;</span>
+<span class="lineNum">     182 </span>            :     /* The maximum fpRate = pow(1.0 - exp(-nHashFuncs * nMaxElements / nFilterBits), nHashFuncs)
+<span class="lineNum">     183 </span>            :      * =&gt;          pow(fpRate, 1.0 / nHashFuncs) = 1.0 - exp(-nHashFuncs * nMaxElements / nFilterBits)
+<span class="lineNum">     184 </span>            :      * =&gt;          1.0 - pow(fpRate, 1.0 / nHashFuncs) = exp(-nHashFuncs * nMaxElements / nFilterBits)
+<span class="lineNum">     185 </span>            :      * =&gt;          log(1.0 - pow(fpRate, 1.0 / nHashFuncs)) = -nHashFuncs * nMaxElements / nFilterBits
+<span class="lineNum">     186 </span>            :      * =&gt;          nFilterBits = -nHashFuncs * nMaxElements / log(1.0 - pow(fpRate, 1.0 / nHashFuncs))
+<span class="lineNum">     187 </span>            :      * =&gt;          nFilterBits = -nHashFuncs * nMaxElements / log(1.0 - exp(logFpRate / nHashFuncs))
+<span class="lineNum">     188 </span>            :      */
+<span class="lineNum">     189 </span><span class="lineCov">     104782 :     uint32_t nFilterBits = (uint32_t)ceil(-1.0 * nHashFuncs * nMaxElements / log(1.0 - exp(logFpRate / nHashFuncs)));</span>
+<span class="lineNum">     190 </span><span class="lineCov">     104782 :     data.clear();</span>
+<span class="lineNum">     191 </span>            :     /* For each data element we need to store 2 bits. If both bits are 0, the
+<span class="lineNum">     192 </span>            :      * bit is treated as unset. If the bits are (01), (10), or (11), the bit is
+<span class="lineNum">     193 </span>            :      * treated as set in generation 1, 2, or 3 respectively.
+<span class="lineNum">     194 </span>            :      * These bits are stored in separate integers: position P corresponds to bit
+<span class="lineNum">     195 </span>            :      * (P &amp; 63) of the integers data[(P &gt;&gt; 6) * 2] and data[(P &gt;&gt; 6) * 2 + 1]. */
+<span class="lineNum">     196 </span><span class="lineCov">     104782 :     data.resize(((nFilterBits + 63) / 64) &lt;&lt; 1);</span>
+<span class="lineNum">     197 </span><span class="lineCov">     104782 :     reset();</span>
+<span class="lineNum">     198 </span><span class="lineCov">     104782 : }</span>
+<a name="199"><span class="lineNum">     199 </span>            : </a>
+<span class="lineNum">     200 </span>            : /* Similar to CBloomFilter::Hash */
+<span class="lineNum">     201 </span><span class="lineCov">    8313977 : static inline uint32_t RollingBloomHash(unsigned int nHashNum, uint32_t nTweak, const std::vector&lt;unsigned char&gt;&amp; vDataToHash) {</span>
+<span class="lineNum">     202 </span><span class="lineCov">    8313977 :     return MurmurHash3(nHashNum * 0xFBA4C795 + nTweak, vDataToHash);</span>
+<span class="lineNum">     203 </span>            : }
+<span class="lineNum">     204 </span>            : 
+<span class="lineNum">     205 </span>            : 
+<span class="lineNum">     206 </span>            : // A replacement for x % n. This assumes that x and n are 32bit integers, and x is a uniformly random distributed 32bit value
+<a name="207"><span class="lineNum">     207 </span>            : // which should be the case for a good hash.</a>
+<span class="lineNum">     208 </span>            : // See https://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction/
+<span class="lineNum">     209 </span><span class="lineCov">    8313977 : static inline uint32_t FastMod(uint32_t x, size_t n) {</span>
+<span class="lineNum">     210 </span><span class="lineCov">    8313977 :     return ((uint64_t)x * (uint64_t)n) &gt;&gt; 32;</span>
+<a name="211"><span class="lineNum">     211 </span>            : }</a>
+<span class="lineNum">     212 </span>            : 
+<span class="lineNum">     213 </span><span class="lineCov">     631675 : void CRollingBloomFilter::insert(const std::vector&lt;unsigned char&gt;&amp; vKey)</span>
+<span class="lineNum">     214 </span>            : {
+<span class="lineNum">     215 </span><span class="lineCov">     631675 :     if (nEntriesThisGeneration == nEntriesPerGeneration) {</span>
+<span class="lineNum">     216 </span><span class="lineCov">      31397 :         nEntriesThisGeneration = 0;</span>
+<span class="lineNum">     217 </span><span class="lineCov">      31397 :         nGeneration++;</span>
+<span class="lineNum">     218 </span><span class="lineCov">      31397 :         if (nGeneration == 4) {</span>
+<span class="lineNum">     219 </span><span class="lineCov">       9788 :             nGeneration = 1;</span>
+<span class="lineNum">     220 </span><span class="lineCov">       9788 :         }</span>
+<span class="lineNum">     221 </span><span class="lineCov">      31397 :         uint64_t nGenerationMask1 = 0 - (uint64_t)(nGeneration &amp; 1);</span>
+<span class="lineNum">     222 </span><span class="lineCov">      31397 :         uint64_t nGenerationMask2 = 0 - (uint64_t)(nGeneration &gt;&gt; 1);</span>
+<span class="lineNum">     223 </span>            :         /* Wipe old entries that used this generation number. */
+<span class="lineNum">     224 </span><span class="lineCov">      71471 :         for (uint32_t p = 0; p &lt; data.size(); p += 2) {</span>
+<span class="lineNum">     225 </span><span class="lineCov">      40074 :             uint64_t p1 = data[p], p2 = data[p + 1];</span>
+<span class="lineNum">     226 </span><span class="lineCov">      40074 :             uint64_t mask = (p1 ^ nGenerationMask1) | (p2 ^ nGenerationMask2);</span>
+<span class="lineNum">     227 </span><span class="lineCov">      40074 :             data[p] = p1 &amp; mask;</span>
+<span class="lineNum">     228 </span><span class="lineCov">      40074 :             data[p + 1] = p2 &amp; mask;</span>
+<span class="lineNum">     229 </span>            :         }
+<span class="lineNum">     230 </span><span class="lineCov">      31397 :     }</span>
+<span class="lineNum">     231 </span><span class="lineCov">     631675 :     nEntriesThisGeneration++;</span>
+<span class="lineNum">     232 </span>            : 
+<span class="lineNum">     233 </span><span class="lineCov">    7436057 :     for (int n = 0; n &lt; nHashFuncs; n++) {</span>
+<span class="lineNum">     234 </span><span class="lineCov">    6804382 :         uint32_t h = RollingBloomHash(n, nTweak, vKey);</span>
+<span class="lineNum">     235 </span><span class="lineCov">    6804382 :         int bit = h &amp; 0x3F;</span>
+<span class="lineNum">     236 </span>            :         /* FastMod works with the upper bits of h, so it is safe to ignore that the lower bits of h are already used for bit. */
+<span class="lineNum">     237 </span><span class="lineCov">    6804382 :         uint32_t pos = FastMod(h, data.size());</span>
+<span class="lineNum">     238 </span>            :         /* The lowest bit of pos is ignored, and set to zero for the first bit, and to one for the second. */
+<span class="lineNum">     239 </span><span class="lineCov">    6804382 :         data[pos &amp; ~1] = (data[pos &amp; ~1] &amp; ~(((uint64_t)1) &lt;&lt; bit)) | ((uint64_t)(nGeneration &amp; 1)) &lt;&lt; bit;</span>
+<span class="lineNum">     240 </span><span class="lineCov">    6804382 :         data[pos | 1] = (data[pos | 1] &amp; ~(((uint64_t)1) &lt;&lt; bit)) | ((uint64_t)(nGeneration &gt;&gt; 1)) &lt;&lt; bit;</span>
+<span class="lineNum">     241 </span>            :     }
+<a name="242"><span class="lineNum">     242 </span><span class="lineCov">     631675 : }</span></a>
+<span class="lineNum">     243 </span>            : 
+<span class="lineNum">     244 </span><span class="lineCov">      63639 : void CRollingBloomFilter::insert(const uint256&amp; hash)</span>
+<span class="lineNum">     245 </span>            : {
+<span class="lineNum">     246 </span><span class="lineCov">      63639 :     std::vector&lt;unsigned char&gt; vData(hash.begin(), hash.end());</span>
+<span class="lineNum">     247 </span><span class="lineCov">      63639 :     insert(vData);</span>
+<a name="248"><span class="lineNum">     248 </span><span class="lineCov">      63639 : }</span></a>
+<span class="lineNum">     249 </span>            : 
+<span class="lineNum">     250 </span><span class="lineCov">     817782 : bool CRollingBloomFilter::contains(const std::vector&lt;unsigned char&gt;&amp; vKey) const</span>
+<span class="lineNum">     251 </span>            : {
+<span class="lineNum">     252 </span><span class="lineCov">    1585897 :     for (int n = 0; n &lt; nHashFuncs; n++) {</span>
+<span class="lineNum">     253 </span><span class="lineCov">    1509595 :         uint32_t h = RollingBloomHash(n, nTweak, vKey);</span>
+<span class="lineNum">     254 </span><span class="lineCov">    1509595 :         int bit = h &amp; 0x3F;</span>
+<span class="lineNum">     255 </span><span class="lineCov">    1509595 :         uint32_t pos = FastMod(h, data.size());</span>
+<span class="lineNum">     256 </span>            :         /* If the relevant bit is not set in either data[pos &amp; ~1] or data[pos | 1], the filter does not contain vKey */
+<span class="lineNum">     257 </span><span class="lineCov">    1509595 :         if (!(((data[pos &amp; ~1] | data[pos | 1]) &gt;&gt; bit) &amp; 1)) {</span>
+<span class="lineNum">     258 </span><span class="lineCov">     741480 :             return false;</span>
+<span class="lineNum">     259 </span>            :         }
+<span class="lineNum">     260 </span><span class="lineCov">     768115 :     }</span>
+<span class="lineNum">     261 </span><span class="lineCov">      76302 :     return true;</span>
+<a name="262"><span class="lineNum">     262 </span><span class="lineCov">     817782 : }</span></a>
+<span class="lineNum">     263 </span>            : 
+<span class="lineNum">     264 </span><span class="lineCov">     213006 : bool CRollingBloomFilter::contains(const uint256&amp; hash) const</span>
+<span class="lineNum">     265 </span>            : {
+<span class="lineNum">     266 </span><span class="lineCov">     213006 :     std::vector&lt;unsigned char&gt; vData(hash.begin(), hash.end());</span>
+<span class="lineNum">     267 </span><span class="lineCov">     213006 :     return contains(vData);</span>
+<a name="268"><span class="lineNum">     268 </span><span class="lineCov">     213006 : }</span></a>
+<span class="lineNum">     269 </span>            : 
+<span class="lineNum">     270 </span><span class="lineCov">     153816 : void CRollingBloomFilter::reset()</span>
+<span class="lineNum">     271 </span>            : {
+<span class="lineNum">     272 </span><span class="lineCov">     153816 :     nTweak = GetRand(std::numeric_limits&lt;unsigned int&gt;::max());</span>
+<span class="lineNum">     273 </span><span class="lineCov">     153816 :     nEntriesThisGeneration = 0;</span>
+<span class="lineNum">     274 </span><span class="lineCov">     153816 :     nGeneration = 1;</span>
+<span class="lineNum">     275 </span><span class="lineCov">     153816 :     std::fill(data.begin(), data.end(), 0);</span>
+<span class="lineNum">     276 </span><span class="lineCov">     153816 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

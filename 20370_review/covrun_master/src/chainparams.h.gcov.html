@@ -1,0 +1,212 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - fuzz_coverage.info - src/chainparams.h</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">src</a> - chainparams.h<span style="font-size: 80%;"> (source / <a href="chainparams.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">fuzz_coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">19</td>
+            <td class="headerCovTableEntry">24</td>
+            <td class="headerCovTableEntryMed">79.2 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-11-23 00:22:05</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntry">25</td>
+            <td class="headerCovTableEntryLo">72.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2009-2010 Satoshi Nakamoto</a>
+<span class="lineNum">       2 </span>            : // Copyright (c) 2009-2020 The Bitcoin Core developers
+<span class="lineNum">       3 </span>            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       4 </span>            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       5 </span>            : 
+<span class="lineNum">       6 </span>            : #ifndef BITCOIN_CHAINPARAMS_H
+<span class="lineNum">       7 </span>            : #define BITCOIN_CHAINPARAMS_H
+<span class="lineNum">       8 </span>            : 
+<span class="lineNum">       9 </span>            : #include &lt;chainparamsbase.h&gt;
+<span class="lineNum">      10 </span>            : #include &lt;consensus/params.h&gt;
+<span class="lineNum">      11 </span>            : #include &lt;primitives/block.h&gt;
+<span class="lineNum">      12 </span>            : #include &lt;protocol.h&gt;
+<span class="lineNum">      13 </span>            : 
+<span class="lineNum">      14 </span>            : #include &lt;memory&gt;
+<span class="lineNum">      15 </span>            : #include &lt;vector&gt;
+<span class="lineNum">      16 </span>            : 
+<span class="lineNum">      17 </span>            : struct SeedSpec6 {
+<span class="lineNum">      18 </span>            :     uint8_t addr[16];
+<span class="lineNum">      19 </span>            :     uint16_t port;
+<span class="lineNum">      20 </span>            : };
+<span class="lineNum">      21 </span>            : 
+<a name="22"><span class="lineNum">      22 </span>            : typedef std::map&lt;int, uint256&gt; MapCheckpoints;</a>
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span><span class="lineCov">        630 : struct CCheckpointData {</span>
+<a name="25"><span class="lineNum">      25 </span>            :     MapCheckpoints mapCheckpoints;</a>
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span><span class="lineCov">         32 :     int GetHeight() const {</span>
+<span class="lineNum">      28 </span><span class="lineCov">         32 :         const auto&amp; final_checkpoint = mapCheckpoints.rbegin();</span>
+<span class="lineNum">      29 </span><span class="lineCov">         64 :         return final_checkpoint-&gt;first /* height */;</span>
+<span class="lineNum">      30 </span><span class="lineCov">         32 :     }</span>
+<span class="lineNum">      31 </span>            : };
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            : /**
+<span class="lineNum">      34 </span>            :  * Holds various statistics on transactions within a chain. Used to estimate
+<span class="lineNum">      35 </span>            :  * verification progress during chain sync.
+<span class="lineNum">      36 </span>            :  *
+<span class="lineNum">      37 </span>            :  * See also: CChainParams::TxData, GuessVerificationProgress.
+<span class="lineNum">      38 </span>            :  */
+<span class="lineNum">      39 </span>            : struct ChainTxData {
+<span class="lineNum">      40 </span>            :     int64_t nTime;    //!&lt; UNIX timestamp of last known number of transactions
+<span class="lineNum">      41 </span>            :     int64_t nTxCount; //!&lt; total number of transactions between genesis and that timestamp
+<span class="lineNum">      42 </span>            :     double dTxRate;   //!&lt; estimated number of transactions per second after that timestamp
+<span class="lineNum">      43 </span>            : };
+<span class="lineNum">      44 </span>            : 
+<span class="lineNum">      45 </span>            : /**
+<span class="lineNum">      46 </span>            :  * CChainParams defines various tweakable parameters of a given instance of the
+<span class="lineNum">      47 </span>            :  * Bitcoin system. There are three: the main network on which people trade goods
+<span class="lineNum">      48 </span>            :  * and services, the public test network which gets reset from time to time and
+<span class="lineNum">      49 </span>            :  * a regression test mode which is intended for private networks only. It has
+<a name="50"><span class="lineNum">      50 </span>            :  * minimal difficulty to ensure that blocks can be found instantly.</a>
+<span class="lineNum">      51 </span>            :  */
+<span class="lineNum">      52 </span><span class="lineCov">        870 : class CChainParams</span>
+<span class="lineNum">      53 </span>            : {
+<span class="lineNum">      54 </span>            : public:
+<span class="lineNum">      55 </span>            :     enum Base58Type {
+<span class="lineNum">      56 </span>            :         PUBKEY_ADDRESS,
+<span class="lineNum">      57 </span>            :         SCRIPT_ADDRESS,
+<span class="lineNum">      58 </span>            :         SECRET_KEY,
+<span class="lineNum">      59 </span>            :         EXT_PUBLIC_KEY,
+<span class="lineNum">      60 </span>            :         EXT_SECRET_KEY,
+<span class="lineNum">      61 </span>            : 
+<span class="lineNum">      62 </span>            :         MAX_BASE58_TYPES
+<a name="63"><span class="lineNum">      63 </span>            :     };</a>
+<a name="64"><span class="lineNum">      64 </span>            : </a>
+<a name="65"><span class="lineNum">      65 </span><span class="lineCov">    3584312 :     const Consensus::Params&amp; GetConsensus() const { return consensus; }</span></a>
+<span class="lineNum">      66 </span><span class="lineCov">    4309711 :     const CMessageHeader::MessageStartChars&amp; MessageStart() const { return pchMessageStart; }</span>
+<a name="67"><span class="lineNum">      67 </span><span class="lineCov">        128 :     int GetDefaultPort() const { return nDefaultPort; }</span></a>
+<span class="lineNum">      68 </span>            : 
+<a name="69"><span class="lineNum">      69 </span><span class="lineCov">         52 :     const CBlock&amp; GenesisBlock() const { return genesis; }</span></a>
+<span class="lineNum">      70 </span>            :     /** Default value for -checkmempool and -checkblockindex argument */
+<a name="71"><span class="lineNum">      71 </span><span class="lineCov">        160 :     bool DefaultConsistencyChecks() const { return fDefaultConsistencyChecks; }</span></a>
+<span class="lineNum">      72 </span>            :     /** Policy: Filter transactions that do not match well-defined patterns */
+<a name="73"><span class="lineNum">      73 </span><span class="lineCov">         64 :     bool RequireStandard() const { return fRequireStandard; }</span></a>
+<span class="lineNum">      74 </span>            :     /** If this chain is exclusively used for testing */
+<a name="75"><span class="lineNum">      75 </span><span class="lineCov">         32 :     bool IsTestChain() const { return m_is_test_chain; }</span></a>
+<a name="76"><span class="lineNum">      76 </span>            :     /** If this chain allows time to be mocked */</a>
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 :     bool IsMockableChain() const { return m_is_mockable_chain; }</span>
+<span class="lineNum">      78 </span><span class="lineNoCov">          0 :     uint64_t PruneAfterHeight() const { return nPruneAfterHeight; }</span>
+<span class="lineNum">      79 </span>            :     /** Minimum free space (in GB) needed for data directory */
+<span class="lineNum">      80 </span>            :     uint64_t AssumedBlockchainSize() const { return m_assumed_blockchain_size; }
+<span class="lineNum">      81 </span>            :     /** Minimum free space (in GB) needed for data directory when pruned; Does not include prune target*/
+<a name="82"><span class="lineNum">      82 </span>            :     uint64_t AssumedChainStateSize() const { return m_assumed_chain_state_size; }</a>
+<span class="lineNum">      83 </span>            :     /** Whether it is possible to mine blocks on demand (no retargeting) */
+<a name="84"><span class="lineNum">      84 </span><span class="lineCov">       5200 :     bool MineBlocksOnDemand() const { return consensus.fPowNoRetargeting; }</span></a>
+<span class="lineNum">      85 </span>            :     /** Return the network string */
+<a name="86"><span class="lineNum">      86 </span><span class="lineNoCov">          0 :     std::string NetworkIDString() const { return strNetworkID; }</span></a>
+<a name="87"><span class="lineNum">      87 </span>            :     /** Return the list of hostnames to look up for DNS seeds */</a>
+<a name="88"><span class="lineNum">      88 </span><span class="lineNoCov">          0 :     const std::vector&lt;std::string&gt;&amp; DNSSeeds() const { return vSeeds; }</span></a>
+<a name="89"><span class="lineNum">      89 </span><span class="lineCov">      13156 :     const std::vector&lt;unsigned char&gt;&amp; Base58Prefix(Base58Type type) const { return base58Prefixes[type]; }</span></a>
+<a name="90"><span class="lineNum">      90 </span><span class="lineCov">      52236 :     const std::string&amp; Bech32HRP() const { return bech32_hrp; }</span></a>
+<a name="91"><span class="lineNum">      91 </span><span class="lineNoCov">          0 :     const std::vector&lt;SeedSpec6&gt;&amp; FixedSeeds() const { return vFixedSeeds; }</span></a>
+<span class="lineNum">      92 </span><span class="lineCov">      30676 :     const CCheckpointData&amp; Checkpoints() const { return checkpointData; }</span>
+<a name="93"><span class="lineNum">      93 </span><span class="lineCov">       5226 :     const ChainTxData&amp; TxData() const { return chainTxData; }</span></a>
+<span class="lineNum">      94 </span>            : protected:
+<span class="lineNum">      95 </span><span class="lineCov">        870 :     CChainParams() {}</span>
+<span class="lineNum">      96 </span>            : 
+<span class="lineNum">      97 </span>            :     Consensus::Params consensus;
+<span class="lineNum">      98 </span>            :     CMessageHeader::MessageStartChars pchMessageStart;
+<span class="lineNum">      99 </span>            :     int nDefaultPort;
+<span class="lineNum">     100 </span>            :     uint64_t nPruneAfterHeight;
+<span class="lineNum">     101 </span>            :     uint64_t m_assumed_blockchain_size;
+<span class="lineNum">     102 </span>            :     uint64_t m_assumed_chain_state_size;
+<span class="lineNum">     103 </span>            :     std::vector&lt;std::string&gt; vSeeds;
+<span class="lineNum">     104 </span>            :     std::vector&lt;unsigned char&gt; base58Prefixes[MAX_BASE58_TYPES];
+<span class="lineNum">     105 </span>            :     std::string bech32_hrp;
+<span class="lineNum">     106 </span>            :     std::string strNetworkID;
+<span class="lineNum">     107 </span>            :     CBlock genesis;
+<span class="lineNum">     108 </span>            :     std::vector&lt;SeedSpec6&gt; vFixedSeeds;
+<span class="lineNum">     109 </span>            :     bool fDefaultConsistencyChecks;
+<span class="lineNum">     110 </span>            :     bool fRequireStandard;
+<span class="lineNum">     111 </span>            :     bool m_is_test_chain;
+<span class="lineNum">     112 </span>            :     bool m_is_mockable_chain;
+<span class="lineNum">     113 </span>            :     CCheckpointData checkpointData;
+<span class="lineNum">     114 </span>            :     ChainTxData chainTxData;
+<span class="lineNum">     115 </span>            : };
+<span class="lineNum">     116 </span>            : 
+<span class="lineNum">     117 </span>            : /**
+<span class="lineNum">     118 </span>            :  * Creates and returns a std::unique_ptr&lt;CChainParams&gt; of the chosen chain.
+<span class="lineNum">     119 </span>            :  * @returns a CChainParams* of the chosen chain.
+<span class="lineNum">     120 </span>            :  * @throws a std::runtime_error if the chain is not supported.
+<span class="lineNum">     121 </span>            :  */
+<span class="lineNum">     122 </span>            : std::unique_ptr&lt;const CChainParams&gt; CreateChainParams(const ArgsManager&amp; args, const std::string&amp; chain);
+<span class="lineNum">     123 </span>            : 
+<span class="lineNum">     124 </span>            : /**
+<span class="lineNum">     125 </span>            :  * Return the currently selected parameters. This won't change after app
+<span class="lineNum">     126 </span>            :  * startup, except for unit tests.
+<span class="lineNum">     127 </span>            :  */
+<span class="lineNum">     128 </span>            : const CChainParams &amp;Params();
+<span class="lineNum">     129 </span>            : 
+<span class="lineNum">     130 </span>            : /**
+<span class="lineNum">     131 </span>            :  * Sets the params returned by Params() to those for the given chain name.
+<span class="lineNum">     132 </span>            :  * @throws std::runtime_error when the chain is not supported.
+<span class="lineNum">     133 </span>            :  */
+<span class="lineNum">     134 </span>            : void SelectParams(const std::string&amp; chain);
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span>            : #endif // BITCOIN_CHAINPARAMS_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

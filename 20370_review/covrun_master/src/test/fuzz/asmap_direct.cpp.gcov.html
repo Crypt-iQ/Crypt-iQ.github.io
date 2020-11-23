@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - fuzz_coverage.info - src/test/fuzz/asmap_direct.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">src/test/fuzz</a> - asmap_direct.cpp<span style="font-size: 80%;"> (source / <a href="asmap_direct.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">fuzz_coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">25</td>
+            <td class="headerCovTableEntry">25</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-11-23 00:22:05</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2020 The Bitcoin Core developers</a>
+<span class="lineNum">       2 </span>            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       3 </span>            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       4 </span>            : 
+<span class="lineNum">       5 </span>            : #include &lt;test/fuzz/fuzz.h&gt;
+<span class="lineNum">       6 </span>            : #include &lt;util/asmap.h&gt;
+<span class="lineNum">       7 </span>            : 
+<span class="lineNum">       8 </span>            : #include &lt;cstdint&gt;
+<span class="lineNum">       9 </span>            : #include &lt;optional&gt;
+<span class="lineNum">      10 </span>            : #include &lt;vector&gt;
+<span class="lineNum">      11 </span>            : 
+<a name="12"><span class="lineNum">      12 </span>            : #include &lt;assert.h&gt;</a>
+<span class="lineNum">      13 </span>            : 
+<span class="lineNum">      14 </span><span class="lineCov">        321 : void test_one_input(const std::vector&lt;uint8_t&gt;&amp; buffer)</span>
+<span class="lineNum">      15 </span>            : {
+<span class="lineNum">      16 </span>            :     // Encoding: [asmap using 1 bit / byte] 0xFF [addr using 1 bit / byte]
+<span class="lineNum">      17 </span><span class="lineCov">        321 :     std::optional&lt;size_t&gt; sep_pos_opt;</span>
+<span class="lineNum">      18 </span><span class="lineCov">      27970 :     for (size_t pos = 0; pos &lt; buffer.size(); ++pos) {</span>
+<span class="lineNum">      19 </span><span class="lineCov">      27649 :         uint8_t x = buffer[pos];</span>
+<span class="lineNum">      20 </span><span class="lineCov">      27649 :         if ((x &amp; 0xFE) == 0) continue;</span>
+<span class="lineNum">      21 </span><span class="lineCov">        314 :         if (x == 0xFF) {</span>
+<span class="lineNum">      22 </span><span class="lineCov">        310 :             if (sep_pos_opt) return;</span>
+<span class="lineNum">      23 </span><span class="lineCov">        309 :             sep_pos_opt = pos;</span>
+<span class="lineNum">      24 </span>            :         } else {
+<span class="lineNum">      25 </span><span class="lineCov">          4 :             return;</span>
+<span class="lineNum">      26 </span>            :         }
+<span class="lineNum">      27 </span><span class="lineCov">        309 :     }</span>
+<span class="lineNum">      28 </span><span class="lineCov">        316 :     if (!sep_pos_opt) return; // Needs exactly 1 separator</span>
+<span class="lineNum">      29 </span><span class="lineCov">        307 :     const size_t sep_pos{sep_pos_opt.value()};</span>
+<span class="lineNum">      30 </span><span class="lineCov">        307 :     if (buffer.size() - sep_pos - 1 &gt; 128) return; // At most 128 bits in IP address</span>
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            :     // Checks on asmap
+<span class="lineNum">      33 </span><span class="lineCov">        306 :     std::vector&lt;bool&gt; asmap(buffer.begin(), buffer.begin() + sep_pos);</span>
+<span class="lineNum">      34 </span><span class="lineCov">        306 :     if (SanityCheckASMap(asmap, buffer.size() - 1 - sep_pos)) {</span>
+<span class="lineNum">      35 </span>            :         // Verify that for valid asmaps, no prefix (except up to 7 zero padding bits) is valid.
+<span class="lineNum">      36 </span><span class="lineCov">        154 :         std::vector&lt;bool&gt; asmap_prefix = asmap;</span>
+<span class="lineNum">      37 </span><span class="lineCov">        709 :         while (!asmap_prefix.empty() &amp;&amp; asmap_prefix.size() + 7 &gt; asmap.size() &amp;&amp; asmap_prefix.back() == false) {</span>
+<span class="lineNum">      38 </span><span class="lineCov">        555 :             asmap_prefix.pop_back();</span>
+<span class="lineNum">      39 </span>            :         }
+<span class="lineNum">      40 </span><span class="lineCov">      15017 :         while (!asmap_prefix.empty()) {</span>
+<span class="lineNum">      41 </span><span class="lineCov">      14863 :             asmap_prefix.pop_back();</span>
+<span class="lineNum">      42 </span><span class="lineCov">      14863 :             assert(!SanityCheckASMap(asmap_prefix, buffer.size() - 1 - sep_pos));</span>
+<span class="lineNum">      43 </span>            :         }
+<span class="lineNum">      44 </span>            :         // No address input should trigger assertions in interpreter
+<span class="lineNum">      45 </span><span class="lineCov">        154 :         std::vector&lt;bool&gt; addr(buffer.begin() + sep_pos + 1, buffer.end());</span>
+<span class="lineNum">      46 </span><span class="lineCov">        154 :         (void)Interpret(asmap, addr);</span>
+<span class="lineNum">      47 </span><span class="lineCov">        154 :     }</span>
+<span class="lineNum">      48 </span><span class="lineCov">        627 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,381 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - fuzz_coverage.info - src/test/fuzz/FuzzedDataProvider.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">src/test/fuzz</a> - FuzzedDataProvider.h<span style="font-size: 80%;"> (source / <a href="FuzzedDataProvider.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">fuzz_coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">86</td>
+            <td class="headerCovTableEntry">92</td>
+            <td class="headerCovTableEntryHi">93.5 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-11-23 00:22:05</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">47</td>
+            <td class="headerCovTableEntry">49</td>
+            <td class="headerCovTableEntryHi">95.9 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : //===- FuzzedDataProvider.h - Utility header for fuzz targets ---*- C++ -* ===//</a>
+<span class="lineNum">       2 </span>            : //
+<span class="lineNum">       3 </span>            : // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
+<span class="lineNum">       4 </span>            : // See https://llvm.org/LICENSE.txt for license information.
+<span class="lineNum">       5 </span>            : // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+<span class="lineNum">       6 </span>            : //
+<span class="lineNum">       7 </span>            : //===----------------------------------------------------------------------===//
+<span class="lineNum">       8 </span>            : // A single header library providing an utility class to break up an array of
+<span class="lineNum">       9 </span>            : // bytes. Whenever run on the same input, provides the same output, as long as
+<span class="lineNum">      10 </span>            : // its methods are called in the same order, with the same arguments.
+<span class="lineNum">      11 </span>            : //===----------------------------------------------------------------------===//
+<span class="lineNum">      12 </span>            : 
+<span class="lineNum">      13 </span>            : #ifndef LLVM_FUZZER_FUZZED_DATA_PROVIDER_H_
+<span class="lineNum">      14 </span>            : #define LLVM_FUZZER_FUZZED_DATA_PROVIDER_H_
+<span class="lineNum">      15 </span>            : 
+<span class="lineNum">      16 </span>            : #include &lt;algorithm&gt;
+<span class="lineNum">      17 </span>            : #include &lt;climits&gt;
+<span class="lineNum">      18 </span>            : #include &lt;cstddef&gt;
+<span class="lineNum">      19 </span>            : #include &lt;cstdint&gt;
+<span class="lineNum">      20 </span>            : #include &lt;cstring&gt;
+<span class="lineNum">      21 </span>            : #include &lt;initializer_list&gt;
+<span class="lineNum">      22 </span>            : #include &lt;string&gt;
+<span class="lineNum">      23 </span>            : #include &lt;type_traits&gt;
+<span class="lineNum">      24 </span>            : #include &lt;utility&gt;
+<span class="lineNum">      25 </span>            : #include &lt;vector&gt;
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span>            : // In addition to the comments below, the API is also briefly documented at
+<span class="lineNum">      28 </span>            : // https://github.com/google/fuzzing/blob/master/docs/split-inputs.md#fuzzed-data-provider
+<span class="lineNum">      29 </span>            : class FuzzedDataProvider {
+<span class="lineNum">      30 </span>            :  public:
+<a name="31"><span class="lineNum">      31 </span>            :   // |data| is an array of length |size| that the FuzzedDataProvider wraps to</a>
+<span class="lineNum">      32 </span>            :   // provide more granular access. |data| must outlive the FuzzedDataProvider.
+<span class="lineNum">      33 </span><span class="lineCov">      66294 :   FuzzedDataProvider(const uint8_t *data, size_t size)</span>
+<span class="lineNum">      34 </span><span class="lineCov">      66294 :       : data_ptr_(data), remaining_bytes_(size) {}</span>
+<span class="lineNum">      35 </span>            :   ~FuzzedDataProvider() = default;
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span>            :   // Returns a std::vector containing |num_bytes| of input data. If fewer than
+<span class="lineNum">      38 </span>            :   // |num_bytes| of data remain, returns a shorter std::vector containing all
+<a name="39"><span class="lineNum">      39 </span>            :   // of the data that's left. Can be used with any byte sized type, such as</a>
+<span class="lineNum">      40 </span>            :   // char, unsigned char, uint8_t, etc.
+<span class="lineNum">      41 </span><span class="lineCov">     158700 :   template &lt;typename T&gt; std::vector&lt;T&gt; ConsumeBytes(size_t num_bytes) {</span>
+<span class="lineNum">      42 </span><span class="lineCov">     158700 :     num_bytes = std::min(num_bytes, remaining_bytes_);</span>
+<span class="lineNum">      43 </span><span class="lineCov">     158700 :     return ConsumeBytes&lt;T&gt;(num_bytes, num_bytes);</span>
+<span class="lineNum">      44 </span>            :   }
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span>            :   // Similar to |ConsumeBytes|, but also appends the terminator value at the end
+<span class="lineNum">      47 </span>            :   // of the resulting vector. Useful, when a mutable null-terminated C-string is
+<span class="lineNum">      48 </span>            :   // needed, for example. But that is a rare case. Better avoid it, if possible,
+<span class="lineNum">      49 </span>            :   // and prefer using |ConsumeBytes| or |ConsumeBytesAsString| methods.
+<span class="lineNum">      50 </span>            :   template &lt;typename T&gt;
+<span class="lineNum">      51 </span>            :   std::vector&lt;T&gt; ConsumeBytesWithTerminator(size_t num_bytes,
+<span class="lineNum">      52 </span>            :                                             T terminator = 0) {
+<span class="lineNum">      53 </span>            :     num_bytes = std::min(num_bytes, remaining_bytes_);
+<span class="lineNum">      54 </span>            :     std::vector&lt;T&gt; result = ConsumeBytes&lt;T&gt;(num_bytes + 1, num_bytes);
+<span class="lineNum">      55 </span>            :     result.back() = terminator;
+<span class="lineNum">      56 </span>            :     return result;
+<span class="lineNum">      57 </span>            :   }
+<span class="lineNum">      58 </span>            : 
+<span class="lineNum">      59 </span>            :   // Returns a std::string containing |num_bytes| of input data. Using this and
+<span class="lineNum">      60 </span>            :   // |.c_str()| on the resulting string is the best way to get an immutable
+<a name="61"><span class="lineNum">      61 </span>            :   // null-terminated C string. If fewer than |num_bytes| of data remain, returns</a>
+<span class="lineNum">      62 </span>            :   // a shorter std::string containing all of the data that's left.
+<span class="lineNum">      63 </span><span class="lineCov">    2020104 :   std::string ConsumeBytesAsString(size_t num_bytes) {</span>
+<span class="lineNum">      64 </span>            :     static_assert(sizeof(std::string::value_type) == sizeof(uint8_t),
+<span class="lineNum">      65 </span>            :                   &quot;ConsumeBytesAsString cannot convert the data to a string.&quot;);
+<span class="lineNum">      66 </span>            : 
+<span class="lineNum">      67 </span><span class="lineCov">    2020104 :     num_bytes = std::min(num_bytes, remaining_bytes_);</span>
+<span class="lineNum">      68 </span><span class="lineCov">    2020104 :     std::string result(</span>
+<span class="lineNum">      69 </span><span class="lineCov">    2020104 :         reinterpret_cast&lt;const std::string::value_type *&gt;(data_ptr_),</span>
+<span class="lineNum">      70 </span>            :         num_bytes);
+<span class="lineNum">      71 </span><span class="lineCov">    2020104 :     Advance(num_bytes);</span>
+<span class="lineNum">      72 </span>            :     return result;
+<span class="lineNum">      73 </span><span class="lineCov">    2020104 :   }</span>
+<span class="lineNum">      74 </span>            : 
+<span class="lineNum">      75 </span>            :   // Returns a number in the range [min, max] by consuming bytes from the
+<span class="lineNum">      76 </span>            :   // input data. The value might not be uniformly distributed in the given
+<a name="77"><span class="lineNum">      77 </span>            :   // range. If there's no input data left, always returns |min|. |min| must</a>
+<span class="lineNum">      78 </span>            :   // be less than or equal to |max|.
+<span class="lineNum">      79 </span><span class="lineCov">   24752696 :   template &lt;typename T&gt; T ConsumeIntegralInRange(T min, T max) {</span>
+<span class="lineNum">      80 </span>            :     static_assert(std::is_integral&lt;T&gt;::value, &quot;An integral type is required.&quot;);
+<span class="lineNum">      81 </span>            :     static_assert(sizeof(T) &lt;= sizeof(uint64_t), &quot;Unsupported integral type.&quot;);
+<span class="lineNum">      82 </span>            : 
+<span class="lineNum">      83 </span><span class="lineCov">   24752696 :     if (min &gt; max)</span>
+<span class="lineNum">      84 </span><span class="lineNoCov">          0 :       abort();</span>
+<span class="lineNum">      85 </span>            : 
+<span class="lineNum">      86 </span>            :     // Use the biggest type possible to hold the range and the result.
+<span class="lineNum">      87 </span><span class="lineCov">   24752696 :     uint64_t range = static_cast&lt;uint64_t&gt;(max) - min;</span>
+<span class="lineNum">      88 </span>            :     uint64_t result = 0;
+<span class="lineNum">      89 </span>            :     size_t offset = 0;
+<span class="lineNum">      90 </span>            : 
+<span class="lineNum">      91 </span><span class="lineCov">   98992258 :     while (offset &lt; sizeof(T) * CHAR_BIT &amp;&amp; (range &gt;&gt; offset) &gt; 0 &amp;&amp;</span>
+<span class="lineNum">      92 </span><span class="lineCov">   50040096 :            remaining_bytes_ != 0) {</span>
+<span class="lineNum">      93 </span>            :       // Pull bytes off the end of the seed data. Experimentally, this seems to
+<span class="lineNum">      94 </span>            :       // allow the fuzzer to more easily explore the input space. This makes
+<span class="lineNum">      95 </span>            :       // sense, since it works by modifying inputs that caused new code to run,
+<span class="lineNum">      96 </span>            :       // and this data is often used to encode length of data read by
+<span class="lineNum">      97 </span>            :       // |ConsumeBytes|. Separating out read lengths makes it easier modify the
+<span class="lineNum">      98 </span>            :       // contents of the data that is actually read.
+<span class="lineNum">      99 </span><span class="lineCov">   49915971 :       --remaining_bytes_;</span>
+<span class="lineNum">     100 </span><span class="lineCov">   49915971 :       result = (result &lt;&lt; CHAR_BIT) | data_ptr_[remaining_bytes_];</span>
+<span class="lineNum">     101 </span><span class="lineCov">   49915971 :       offset += CHAR_BIT;</span>
+<span class="lineNum">     102 </span>            :     }
+<span class="lineNum">     103 </span>            : 
+<span class="lineNum">     104 </span>            :     // Avoid division by 0, in case |range + 1| results in overflow.
+<span class="lineNum">     105 </span><span class="lineCov">   24752696 :     if (range != std::numeric_limits&lt;decltype(range)&gt;::max())</span>
+<span class="lineNum">     106 </span><span class="lineCov">   24303843 :       result = result % (range + 1);</span>
+<span class="lineNum">     107 </span>            : 
+<span class="lineNum">     108 </span><span class="lineCov">   24752696 :     return static_cast&lt;T&gt;(min + result);</span>
+<span class="lineNum">     109 </span>            :   }
+<span class="lineNum">     110 </span>            : 
+<span class="lineNum">     111 </span>            :   // Returns a std::string of length from 0 to |max_length|. When it runs out of
+<span class="lineNum">     112 </span>            :   // input data, returns what remains of the input. Designed to be more stable
+<a name="113"><span class="lineNum">     113 </span>            :   // with respect to a fuzzer inserting characters than just picking a random</a>
+<span class="lineNum">     114 </span>            :   // length and then consuming that many bytes with |ConsumeBytes|.
+<span class="lineNum">     115 </span><span class="lineCov">    4529315 :   std::string ConsumeRandomLengthString(size_t max_length) {</span>
+<span class="lineNum">     116 </span>            :     // Reads bytes from the start of |data_ptr_|. Maps &quot;\\&quot; to &quot;\&quot;, and maps &quot;\&quot;
+<span class="lineNum">     117 </span>            :     // followed by anything else to the end of the string. As a result of this
+<span class="lineNum">     118 </span>            :     // logic, a fuzzer can insert characters into the string, and the string
+<span class="lineNum">     119 </span>            :     // will be lengthened to include those new characters, resulting in a more
+<span class="lineNum">     120 </span>            :     // stable fuzzer than picking the length of a string independently from
+<span class="lineNum">     121 </span>            :     // picking its contents.
+<span class="lineNum">     122 </span><span class="lineCov">    4529315 :     std::string result;</span>
+<span class="lineNum">     123 </span>            : 
+<span class="lineNum">     124 </span>            :     // Reserve the anticipated capaticity to prevent several reallocations.
+<span class="lineNum">     125 </span><span class="lineCov">    4529315 :     result.reserve(std::min(max_length, remaining_bytes_));</span>
+<span class="lineNum">     126 </span><span class="lineCov">  858189230 :     for (size_t i = 0; i &lt; max_length &amp;&amp; remaining_bytes_ != 0; ++i) {</span>
+<span class="lineNum">     127 </span><span class="lineCov">  857896819 :       char next = ConvertUnsignedToSigned&lt;char&gt;(data_ptr_[0]);</span>
+<span class="lineNum">     128 </span><span class="lineCov">  857896819 :       Advance(1);</span>
+<span class="lineNum">     129 </span><span class="lineCov">  857896819 :       if (next == '\\' &amp;&amp; remaining_bytes_ != 0) {</span>
+<span class="lineNum">     130 </span><span class="lineCov">    4549719 :         next = ConvertUnsignedToSigned&lt;char&gt;(data_ptr_[0]);</span>
+<span class="lineNum">     131 </span><span class="lineCov">    4549719 :         Advance(1);</span>
+<span class="lineNum">     132 </span><span class="lineCov">    4549719 :         if (next != '\\')</span>
+<span class="lineNum">     133 </span><span class="lineCov">    4236904 :           break;</span>
+<span class="lineNum">     134 </span>            :       }
+<span class="lineNum">     135 </span><span class="lineCov">  853659915 :       result += next;</span>
+<span class="lineNum">     136 </span><span class="lineCov">  853659915 :     }</span>
+<span class="lineNum">     137 </span>            : 
+<span class="lineNum">     138 </span><span class="lineCov">    4529315 :     result.shrink_to_fit();</span>
+<span class="lineNum">     139 </span>            :     return result;
+<span class="lineNum">     140 </span><span class="lineCov">    4529315 :   }</span>
+<a name="141"><span class="lineNum">     141 </span>            : </a>
+<span class="lineNum">     142 </span>            :   // Returns a std::vector containing all remaining bytes of the input data.
+<span class="lineNum">     143 </span><span class="lineCov">      13968 :   template &lt;typename T&gt; std::vector&lt;T&gt; ConsumeRemainingBytes() {</span>
+<span class="lineNum">     144 </span><span class="lineCov">      13968 :     return ConsumeBytes&lt;T&gt;(remaining_bytes_);</span>
+<span class="lineNum">     145 </span>            :   }
+<span class="lineNum">     146 </span>            : 
+<span class="lineNum">     147 </span>            :   // Returns a std::string containing all remaining bytes of the input data.
+<a name="148"><span class="lineNum">     148 </span>            :   // Prefer using |ConsumeRemainingBytes| unless you actually need a std::string</a>
+<span class="lineNum">     149 </span>            :   // object.
+<span class="lineNum">     150 </span><span class="lineCov">        342 :   std::string ConsumeRemainingBytesAsString() {</span>
+<span class="lineNum">     151 </span><span class="lineCov">        342 :     return ConsumeBytesAsString(remaining_bytes_);</span>
+<span class="lineNum">     152 </span>            :   }
+<span class="lineNum">     153 </span>            : 
+<span class="lineNum">     154 </span>            :   // Returns a number in the range [Type's min, Type's max]. The value might
+<a name="155"><span class="lineNum">     155 </span>            :   // not be uniformly distributed in the given range. If there's no input data</a>
+<span class="lineNum">     156 </span>            :   // left, always returns |min|.
+<span class="lineNum">     157 </span><span class="lineCov">   10877518 :   template &lt;typename T&gt; T ConsumeIntegral() {</span>
+<span class="lineNum">     158 </span><span class="lineCov">   10877518 :     return ConsumeIntegralInRange(std::numeric_limits&lt;T&gt;::min(),</span>
+<span class="lineNum">     159 </span><span class="lineCov">   10877518 :                                   std::numeric_limits&lt;T&gt;::max());</span>
+<span class="lineNum">     160 </span>            :   }
+<a name="161"><span class="lineNum">     161 </span>            : </a>
+<span class="lineNum">     162 </span>            :   // Reads one byte and returns a bool, or false when no data remains.
+<span class="lineNum">     163 </span><span class="lineCov">    5134961 :   bool ConsumeBool() { return 1 &amp; ConsumeIntegral&lt;uint8_t&gt;(); }</span>
+<span class="lineNum">     164 </span>            : 
+<a name="165"><span class="lineNum">     165 </span>            :   // Returns a copy of the value selected from the given fixed-size |array|.</a>
+<span class="lineNum">     166 </span>            :   template &lt;typename T, size_t size&gt;
+<span class="lineNum">     167 </span><span class="lineCov">         95 :   T PickValueInArray(const T (&amp;array)[size]) {</span>
+<span class="lineNum">     168 </span>            :     static_assert(size &gt; 0, &quot;The array must be non empty.&quot;);
+<span class="lineNum">     169 </span><span class="lineCov">         95 :     return array[ConsumeIntegralInRange&lt;size_t&gt;(0, size - 1)];</span>
+<span class="lineNum">     170 </span>            :   }
+<a name="171"><span class="lineNum">     171 </span>            : </a>
+<span class="lineNum">     172 </span>            :   template &lt;typename T&gt;
+<span class="lineNum">     173 </span><span class="lineCov">      87019 :   T PickValueInArray(std::initializer_list&lt;const T&gt; list) {</span>
+<span class="lineNum">     174 </span>            :     // TODO(Dor1s): switch to static_assert once C++14 is allowed.
+<span class="lineNum">     175 </span><span class="lineCov">      87019 :     if (!list.size())</span>
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 :       abort();</span>
+<span class="lineNum">     177 </span>            : 
+<span class="lineNum">     178 </span><span class="lineCov">      87019 :     return *(list.begin() + ConsumeIntegralInRange&lt;size_t&gt;(0, list.size() - 1));</span>
+<span class="lineNum">     179 </span>            :   }
+<span class="lineNum">     180 </span>            : 
+<span class="lineNum">     181 </span>            :   // Returns an enum value. The enum must start at 0 and be contiguous. It must
+<span class="lineNum">     182 </span>            :   // also contain |kMaxValue| aliased to its largest (inclusive) value. Such as:
+<span class="lineNum">     183 </span>            :   // enum class Foo { SomeValue, OtherValue, kMaxValue = OtherValue };
+<span class="lineNum">     184 </span>            :   template &lt;typename T&gt; T ConsumeEnum() {
+<span class="lineNum">     185 </span>            :     static_assert(std::is_enum&lt;T&gt;::value, &quot;|T| must be an enum type.&quot;);
+<span class="lineNum">     186 </span>            :     return static_cast&lt;T&gt;(ConsumeIntegralInRange&lt;uint32_t&gt;(
+<span class="lineNum">     187 </span>            :         0, static_cast&lt;uint32_t&gt;(T::kMaxValue)));
+<span class="lineNum">     188 </span>            :   }
+<span class="lineNum">     189 </span>            : 
+<a name="190"><span class="lineNum">     190 </span>            :   // Returns a floating point number in the range [0.0, 1.0]. If there's no</a>
+<span class="lineNum">     191 </span>            :   // input data left, always returns 0.
+<span class="lineNum">     192 </span><span class="lineCov">      26979 :   template &lt;typename T&gt; T ConsumeProbability() {</span>
+<span class="lineNum">     193 </span>            :     static_assert(std::is_floating_point&lt;T&gt;::value,
+<span class="lineNum">     194 </span>            :                   &quot;A floating point type is required.&quot;);
+<span class="lineNum">     195 </span>            : 
+<span class="lineNum">     196 </span>            :     // Use different integral types for different floating point types in order
+<span class="lineNum">     197 </span>            :     // to provide better density of the resulting values.
+<span class="lineNum">     198 </span>            :     using IntegralType =
+<span class="lineNum">     199 </span>            :         typename std::conditional&lt;(sizeof(T) &lt;= sizeof(uint32_t)), uint32_t,
+<span class="lineNum">     200 </span>            :                                   uint64_t&gt;::type;
+<span class="lineNum">     201 </span>            : 
+<span class="lineNum">     202 </span><span class="lineCov">      26979 :     T result = static_cast&lt;T&gt;(ConsumeIntegral&lt;IntegralType&gt;());</span>
+<span class="lineNum">     203 </span><span class="lineCov">      26979 :     result /= static_cast&lt;T&gt;(std::numeric_limits&lt;IntegralType&gt;::max());</span>
+<span class="lineNum">     204 </span><span class="lineCov">      26979 :     return result;</span>
+<span class="lineNum">     205 </span>            :   }
+<span class="lineNum">     206 </span>            : 
+<span class="lineNum">     207 </span>            :   // Returns a floating point value in the range [Type's lowest, Type's max] by
+<a name="208"><span class="lineNum">     208 </span>            :   // consuming bytes from the input data. If there's no input data left, always</a>
+<span class="lineNum">     209 </span>            :   // returns approximately 0.
+<span class="lineNum">     210 </span><span class="lineCov">      26979 :   template &lt;typename T&gt; T ConsumeFloatingPoint() {</span>
+<span class="lineNum">     211 </span><span class="lineCov">      26979 :     return ConsumeFloatingPointInRange&lt;T&gt;(std::numeric_limits&lt;T&gt;::lowest(),</span>
+<span class="lineNum">     212 </span><span class="lineCov">      26979 :                                           std::numeric_limits&lt;T&gt;::max());</span>
+<span class="lineNum">     213 </span>            :   }
+<span class="lineNum">     214 </span>            : 
+<span class="lineNum">     215 </span>            :   // Returns a floating point value in the given range by consuming bytes from
+<a name="216"><span class="lineNum">     216 </span>            :   // the input data. If there's no input data left, returns |min|. Note that</a>
+<span class="lineNum">     217 </span>            :   // |min| must be less than or equal to |max|.
+<span class="lineNum">     218 </span><span class="lineCov">      26979 :   template &lt;typename T&gt; T ConsumeFloatingPointInRange(T min, T max) {</span>
+<span class="lineNum">     219 </span><span class="lineCov">      26979 :     if (min &gt; max)</span>
+<span class="lineNum">     220 </span><span class="lineNoCov">          0 :       abort();</span>
+<span class="lineNum">     221 </span>            : 
+<span class="lineNum">     222 </span>            :     T range = .0;
+<span class="lineNum">     223 </span>            :     T result = min;
+<span class="lineNum">     224 </span>            :     constexpr T zero(.0);
+<span class="lineNum">     225 </span><span class="lineCov">      26979 :     if (max &gt; zero &amp;&amp; min &lt; zero &amp;&amp; max &gt; min + std::numeric_limits&lt;T&gt;::max()) {</span>
+<span class="lineNum">     226 </span>            :       // The diff |max - min| would overflow the given floating point type. Use
+<span class="lineNum">     227 </span>            :       // the half of the diff as the range and consume a bool to decide whether
+<span class="lineNum">     228 </span>            :       // the result is in the first of the second part of the diff.
+<span class="lineNum">     229 </span><span class="lineCov">      26979 :       range = (max / 2.0) - (min / 2.0);</span>
+<span class="lineNum">     230 </span><span class="lineCov">      26979 :       if (ConsumeBool()) {</span>
+<span class="lineNum">     231 </span><span class="lineCov">      22686 :         result += range;</span>
+<span class="lineNum">     232 </span><span class="lineCov">      22686 :       }</span>
+<span class="lineNum">     233 </span>            :     } else {
+<span class="lineNum">     234 </span><span class="lineNoCov">          0 :       range = max - min;</span>
+<span class="lineNum">     235 </span>            :     }
+<span class="lineNum">     236 </span>            : 
+<span class="lineNum">     237 </span><span class="lineCov">      26979 :     return result + range * ConsumeProbability&lt;T&gt;();</span>
+<span class="lineNum">     238 </span>            :   }
+<a name="239"><span class="lineNum">     239 </span>            : </a>
+<span class="lineNum">     240 </span>            :   // Reports the remaining bytes available for fuzzed input.
+<span class="lineNum">     241 </span><span class="lineCov">    6545740 :   size_t remaining_bytes() { return remaining_bytes_; }</span>
+<span class="lineNum">     242 </span>            : 
+<span class="lineNum">     243 </span>            :  private:
+<span class="lineNum">     244 </span>            :   FuzzedDataProvider(const FuzzedDataProvider &amp;) = delete;
+<a name="245"><span class="lineNum">     245 </span>            :   FuzzedDataProvider &amp;operator=(const FuzzedDataProvider &amp;) = delete;</a>
+<span class="lineNum">     246 </span>            : 
+<span class="lineNum">     247 </span><span class="lineCov">  864618609 :   void Advance(size_t num_bytes) {</span>
+<span class="lineNum">     248 </span><span class="lineCov">  864618609 :     if (num_bytes &gt; remaining_bytes_)</span>
+<span class="lineNum">     249 </span><span class="lineNoCov">          0 :       abort();</span>
+<span class="lineNum">     250 </span>            : 
+<span class="lineNum">     251 </span><span class="lineCov">  864618609 :     data_ptr_ += num_bytes;</span>
+<span class="lineNum">     252 </span><span class="lineCov">  864618609 :     remaining_bytes_ -= num_bytes;</span>
+<span class="lineNum">     253 </span><span class="lineCov">  864618609 :   }</span>
+<a name="254"><span class="lineNum">     254 </span>            : </a>
+<span class="lineNum">     255 </span>            :   template &lt;typename T&gt;
+<span class="lineNum">     256 </span><span class="lineCov">     158700 :   std::vector&lt;T&gt; ConsumeBytes(size_t size, size_t num_bytes_to_consume) {</span>
+<span class="lineNum">     257 </span>            :     static_assert(sizeof(T) == sizeof(uint8_t), &quot;Incompatible data type.&quot;);
+<span class="lineNum">     258 </span>            : 
+<span class="lineNum">     259 </span>            :     // The point of using the size-based constructor below is to increase the
+<span class="lineNum">     260 </span>            :     // odds of having a vector object with capacity being equal to the length.
+<span class="lineNum">     261 </span>            :     // That part is always implementation specific, but at least both libc++ and
+<span class="lineNum">     262 </span>            :     // libstdc++ allocate the requested number of bytes in that constructor,
+<span class="lineNum">     263 </span>            :     // which seems to be a natural choice for other implementations as well.
+<span class="lineNum">     264 </span>            :     // To increase the odds even more, we also call |shrink_to_fit| below.
+<span class="lineNum">     265 </span><span class="lineCov">     158700 :     std::vector&lt;T&gt; result(size);</span>
+<span class="lineNum">     266 </span><span class="lineCov">     158700 :     if (size == 0) {</span>
+<span class="lineNum">     267 </span><span class="lineCov">       6733 :       if (num_bytes_to_consume != 0)</span>
+<span class="lineNum">     268 </span><span class="lineNoCov">          0 :         abort();</span>
+<span class="lineNum">     269 </span><span class="lineCov">       6733 :       return result;</span>
+<span class="lineNum">     270 </span>            :     }
+<span class="lineNum">     271 </span>            : 
+<span class="lineNum">     272 </span><span class="lineCov">     151967 :     std::memcpy(result.data(), data_ptr_, num_bytes_to_consume);</span>
+<span class="lineNum">     273 </span><span class="lineCov">     151967 :     Advance(num_bytes_to_consume);</span>
+<span class="lineNum">     274 </span>            : 
+<span class="lineNum">     275 </span>            :     // Even though |shrink_to_fit| is also implementation specific, we expect it
+<span class="lineNum">     276 </span>            :     // to provide an additional assurance in case vector's constructor allocated
+<span class="lineNum">     277 </span>            :     // a buffer which is larger than the actual amount of data we put inside it.
+<span class="lineNum">     278 </span><span class="lineCov">     151967 :     result.shrink_to_fit();</span>
+<span class="lineNum">     279 </span><span class="lineCov">     151967 :     return result;</span>
+<a name="280"><span class="lineNum">     280 </span><span class="lineCov">     158700 :   }</span></a>
+<span class="lineNum">     281 </span>            : 
+<span class="lineNum">     282 </span><span class="lineCov">  862446538 :   template &lt;typename TS, typename TU&gt; TS ConvertUnsignedToSigned(TU value) {</span>
+<span class="lineNum">     283 </span>            :     static_assert(sizeof(TS) == sizeof(TU), &quot;Incompatible data types.&quot;);
+<span class="lineNum">     284 </span>            :     static_assert(!std::numeric_limits&lt;TU&gt;::is_signed,
+<span class="lineNum">     285 </span>            :                   &quot;Source type must be unsigned.&quot;);
+<span class="lineNum">     286 </span>            : 
+<span class="lineNum">     287 </span>            :     // TODO(Dor1s): change to `if constexpr` once C++17 becomes mainstream.
+<span class="lineNum">     288 </span>            :     if (std::numeric_limits&lt;TS&gt;::is_modulo)
+<span class="lineNum">     289 </span>            :       return static_cast&lt;TS&gt;(value);
+<span class="lineNum">     290 </span>            : 
+<span class="lineNum">     291 </span>            :     // Avoid using implementation-defined unsigned to signer conversions.
+<span class="lineNum">     292 </span>            :     // To learn more, see https://stackoverflow.com/questions/13150449.
+<span class="lineNum">     293 </span><span class="lineCov">  862446538 :     if (value &lt;= std::numeric_limits&lt;TS&gt;::max()) {</span>
+<span class="lineNum">     294 </span><span class="lineCov">  695101129 :       return static_cast&lt;TS&gt;(value);</span>
+<span class="lineNum">     295 </span>            :     } else {
+<span class="lineNum">     296 </span>            :       constexpr auto TS_min = std::numeric_limits&lt;TS&gt;::min();
+<span class="lineNum">     297 </span><span class="lineCov">  167345409 :       return TS_min + static_cast&lt;char&gt;(value - TS_min);</span>
+<span class="lineNum">     298 </span>            :     }
+<span class="lineNum">     299 </span><span class="lineCov">  862446538 :   }</span>
+<span class="lineNum">     300 </span>            : 
+<span class="lineNum">     301 </span>            :   const uint8_t *data_ptr_;
+<span class="lineNum">     302 </span>            :   size_t remaining_bytes_;
+<span class="lineNum">     303 </span>            : };
+<span class="lineNum">     304 </span>            : 
+<span class="lineNum">     305 </span>            : #endif // LLVM_FUZZER_FUZZED_DATA_PROVIDER_H_
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

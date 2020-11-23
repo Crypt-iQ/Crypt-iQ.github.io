@@ -1,0 +1,276 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - fuzz_coverage.info - src/test/fuzz/script_assets_test_minimizer.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">src/test/fuzz</a> - script_assets_test_minimizer.cpp<span style="font-size: 80%;"> (source / <a href="script_assets_test_minimizer.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">fuzz_coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">29</td>
+            <td class="headerCovTableEntry">108</td>
+            <td class="headerCovTableEntryLo">26.9 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-11-23 00:22:05</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntryLo">41.7 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2020 The Bitcoin Core developers</a>
+<span class="lineNum">       2 </span>            : // Distributed under the MIT software license, see the accompanying
+<span class="lineNum">       3 </span>            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+<span class="lineNum">       4 </span>            : 
+<span class="lineNum">       5 </span>            : #include &lt;test/fuzz/fuzz.h&gt;
+<span class="lineNum">       6 </span>            : 
+<span class="lineNum">       7 </span>            : #include &lt;primitives/transaction.h&gt;
+<span class="lineNum">       8 </span>            : #include &lt;pubkey.h&gt;
+<span class="lineNum">       9 </span>            : #include &lt;script/interpreter.h&gt;
+<span class="lineNum">      10 </span>            : #include &lt;serialize.h&gt;
+<span class="lineNum">      11 </span>            : #include &lt;streams.h&gt;
+<span class="lineNum">      12 </span>            : #include &lt;univalue.h&gt;
+<span class="lineNum">      13 </span>            : #include &lt;util/strencodings.h&gt;
+<span class="lineNum">      14 </span>            : 
+<span class="lineNum">      15 </span>            : #include &lt;boost/algorithm/string.hpp&gt;
+<span class="lineNum">      16 </span>            : #include &lt;cstdint&gt;
+<span class="lineNum">      17 </span>            : #include &lt;string&gt;
+<span class="lineNum">      18 </span>            : #include &lt;vector&gt;
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : // This fuzz &quot;test&quot; can be used to minimize test cases for script_assets_test in
+<span class="lineNum">      21 </span>            : // src/test/script_tests.cpp. While it written as a fuzz test, and can be used as such,
+<span class="lineNum">      22 </span>            : // fuzzing the inputs is unlikely to construct useful test cases.
+<span class="lineNum">      23 </span>            : //
+<span class="lineNum">      24 </span>            : // Instead, it is primarily intended to be run on a test set that was generated
+<span class="lineNum">      25 </span>            : // externally, for example using test/functional/feature_taproot.py's --dumptests mode.
+<span class="lineNum">      26 </span>            : // The minimized set can then be concatenated together, surrounded by '[' and ']',
+<span class="lineNum">      27 </span>            : // and used as the script_assets_test.json input to the script_assets_test unit test:
+<span class="lineNum">      28 </span>            : //
+<span class="lineNum">      29 </span>            : // (normal build)
+<span class="lineNum">      30 </span>            : // $ mkdir dump
+<span class="lineNum">      31 </span>            : // $ for N in $(seq 1 10); do TEST_DUMP_DIR=dump test/functional/feature_taproot --dumptests; done
+<span class="lineNum">      32 </span>            : // $ ...
+<span class="lineNum">      33 </span>            : //
+<span class="lineNum">      34 </span>            : // (fuzz test build)
+<span class="lineNum">      35 </span>            : // $ mkdir dump-min
+<span class="lineNum">      36 </span>            : // $ ./src/test/fuzz/script_assets_test_minimizer -merge=1 dump-min/ dump/
+<span class="lineNum">      37 </span>            : // $ (echo -en '[\n'; cat dump-min/* | head -c -2; echo -en '\n]') &gt;script_assets_test.json
+<span class="lineNum">      38 </span>            : 
+<a name="39"><span class="lineNum">      39 </span>            : namespace {</a>
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span><span class="lineNoCov">          0 : std::vector&lt;unsigned char&gt; CheckedParseHex(const std::string&amp; str)</span>
+<span class="lineNum">      42 </span>            : {
+<span class="lineNum">      43 </span><span class="lineNoCov">          0 :     if (str.size() &amp;&amp; !IsHex(str)) throw std::runtime_error(&quot;Non-hex input '&quot; + str + &quot;'&quot;);</span>
+<span class="lineNum">      44 </span><span class="lineNoCov">          0 :     return ParseHex(str);</span>
+<a name="45"><span class="lineNum">      45 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span><span class="lineNoCov">          0 : CScript ScriptFromHex(const std::string&amp; str)</span>
+<span class="lineNum">      48 </span>            : {
+<span class="lineNum">      49 </span><span class="lineNoCov">          0 :     std::vector&lt;unsigned char&gt; data = CheckedParseHex(str);</span>
+<span class="lineNum">      50 </span><span class="lineNoCov">          0 :     return CScript(data.begin(), data.end());</span>
+<a name="51"><span class="lineNum">      51 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span><span class="lineNoCov">          0 : CMutableTransaction TxFromHex(const std::string&amp; str)</span>
+<span class="lineNum">      54 </span>            : {
+<span class="lineNum">      55 </span><span class="lineNoCov">          0 :     CMutableTransaction tx;</span>
+<span class="lineNum">      56 </span>            :     try {
+<span class="lineNum">      57 </span><span class="lineNoCov">          0 :         VectorReader(SER_DISK, SERIALIZE_TRANSACTION_NO_WITNESS, CheckedParseHex(str), 0) &gt;&gt; tx;</span>
+<span class="lineNum">      58 </span><span class="lineNoCov">          0 :     } catch (const std::ios_base::failure&amp;) {</span>
+<span class="lineNum">      59 </span><span class="lineNoCov">          0 :         throw std::runtime_error(&quot;Tx deserialization failure&quot;);</span>
+<span class="lineNum">      60 </span><span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">      61 </span>            :     return tx;
+<a name="62"><span class="lineNum">      62 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      63 </span>            : 
+<span class="lineNum">      64 </span><span class="lineNoCov">          0 : std::vector&lt;CTxOut&gt; TxOutsFromJSON(const UniValue&amp; univalue)</span>
+<span class="lineNum">      65 </span>            : {
+<span class="lineNum">      66 </span><span class="lineNoCov">          0 :     if (!univalue.isArray()) throw std::runtime_error(&quot;Prevouts must be array&quot;);</span>
+<span class="lineNum">      67 </span><span class="lineNoCov">          0 :     std::vector&lt;CTxOut&gt; prevouts;</span>
+<span class="lineNum">      68 </span><span class="lineNoCov">          0 :     for (size_t i = 0; i &lt; univalue.size(); ++i) {</span>
+<span class="lineNum">      69 </span><span class="lineNoCov">          0 :         CTxOut txout;</span>
+<span class="lineNum">      70 </span>            :         try {
+<span class="lineNum">      71 </span><span class="lineNoCov">          0 :             VectorReader(SER_DISK, 0, CheckedParseHex(univalue[i].get_str()), 0) &gt;&gt; txout;</span>
+<span class="lineNum">      72 </span><span class="lineNoCov">          0 :         } catch (const std::ios_base::failure&amp;) {</span>
+<span class="lineNum">      73 </span><span class="lineNoCov">          0 :             throw std::runtime_error(&quot;Prevout invalid format&quot;);</span>
+<span class="lineNum">      74 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 :         prevouts.push_back(std::move(txout));</span>
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">      77 </span>            :     return prevouts;
+<a name="78"><span class="lineNum">      78 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      79 </span>            : 
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 : CScriptWitness ScriptWitnessFromJSON(const UniValue&amp; univalue)</span>
+<span class="lineNum">      81 </span>            : {
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 :     if (!univalue.isArray()) throw std::runtime_error(&quot;Script witness is not array&quot;);</span>
+<span class="lineNum">      83 </span><span class="lineNoCov">          0 :     CScriptWitness scriptwitness;</span>
+<span class="lineNum">      84 </span><span class="lineNoCov">          0 :     for (size_t i = 0; i &lt; univalue.size(); ++i) {</span>
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 :         auto bytes = CheckedParseHex(univalue[i].get_str());</span>
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 :         scriptwitness.stack.push_back(std::move(bytes));</span>
+<span class="lineNum">      87 </span><span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">      88 </span>            :     return scriptwitness;
+<a name="89"><span class="lineNum">      89 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      90 </span>            : 
+<span class="lineNum">      91 </span><span class="lineCov">          7 : const std::map&lt;std::string, unsigned int&gt; FLAG_NAMES = {</span>
+<span class="lineNum">      92 </span><span class="lineCov">          1 :     {std::string(&quot;P2SH&quot;), (unsigned int)SCRIPT_VERIFY_P2SH},</span>
+<span class="lineNum">      93 </span><span class="lineCov">          1 :     {std::string(&quot;DERSIG&quot;), (unsigned int)SCRIPT_VERIFY_DERSIG},</span>
+<span class="lineNum">      94 </span><span class="lineCov">          1 :     {std::string(&quot;NULLDUMMY&quot;), (unsigned int)SCRIPT_VERIFY_NULLDUMMY},</span>
+<span class="lineNum">      95 </span><span class="lineCov">          1 :     {std::string(&quot;CHECKLOCKTIMEVERIFY&quot;), (unsigned int)SCRIPT_VERIFY_CHECKLOCKTIMEVERIFY},</span>
+<span class="lineNum">      96 </span><span class="lineCov">          1 :     {std::string(&quot;CHECKSEQUENCEVERIFY&quot;), (unsigned int)SCRIPT_VERIFY_CHECKSEQUENCEVERIFY},</span>
+<span class="lineNum">      97 </span><span class="lineCov">          1 :     {std::string(&quot;WITNESS&quot;), (unsigned int)SCRIPT_VERIFY_WITNESS},</span>
+<span class="lineNum">      98 </span><span class="lineCov">          1 :     {std::string(&quot;TAPROOT&quot;), (unsigned int)SCRIPT_VERIFY_TAPROOT},</span>
+<a name="99"><span class="lineNum">      99 </span>            : };</a>
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span><span class="lineCov">          1 : std::vector&lt;unsigned int&gt; AllFlags()</span>
+<span class="lineNum">     102 </span>            : {
+<span class="lineNum">     103 </span><span class="lineCov">          1 :     std::vector&lt;unsigned int&gt; ret;</span>
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span><span class="lineCov">        129 :     for (unsigned int i = 0; i &lt; 128; ++i) {</span>
+<span class="lineNum">     106 </span><span class="lineCov">        128 :         unsigned int flag = 0;</span>
+<span class="lineNum">     107 </span><span class="lineCov">        128 :         if (i &amp; 1) flag |= SCRIPT_VERIFY_P2SH;</span>
+<span class="lineNum">     108 </span><span class="lineCov">        128 :         if (i &amp; 2) flag |= SCRIPT_VERIFY_DERSIG;</span>
+<span class="lineNum">     109 </span><span class="lineCov">        128 :         if (i &amp; 4) flag |= SCRIPT_VERIFY_NULLDUMMY;</span>
+<span class="lineNum">     110 </span><span class="lineCov">        128 :         if (i &amp; 8) flag |= SCRIPT_VERIFY_CHECKLOCKTIMEVERIFY;</span>
+<span class="lineNum">     111 </span><span class="lineCov">        128 :         if (i &amp; 16) flag |= SCRIPT_VERIFY_CHECKSEQUENCEVERIFY;</span>
+<span class="lineNum">     112 </span><span class="lineCov">        128 :         if (i &amp; 32) flag |= SCRIPT_VERIFY_WITNESS;</span>
+<span class="lineNum">     113 </span><span class="lineCov">        128 :         if (i &amp; 64) flag |= SCRIPT_VERIFY_TAPROOT;</span>
+<span class="lineNum">     114 </span>            : 
+<span class="lineNum">     115 </span>            :         // SCRIPT_VERIFY_WITNESS requires SCRIPT_VERIFY_P2SH
+<span class="lineNum">     116 </span><span class="lineCov">        128 :         if (flag &amp; SCRIPT_VERIFY_WITNESS &amp;&amp; !(flag &amp; SCRIPT_VERIFY_P2SH)) continue;</span>
+<span class="lineNum">     117 </span>            :         // SCRIPT_VERIFY_TAPROOT requires SCRIPT_VERIFY_WITNESS
+<span class="lineNum">     118 </span><span class="lineCov">         96 :         if (flag &amp; SCRIPT_VERIFY_TAPROOT &amp;&amp; !(flag &amp; SCRIPT_VERIFY_WITNESS)) continue;</span>
+<span class="lineNum">     119 </span>            : 
+<span class="lineNum">     120 </span><span class="lineCov">         64 :         ret.push_back(flag);</span>
+<span class="lineNum">     121 </span><span class="lineCov">        128 :     }</span>
+<span class="lineNum">     122 </span>            : 
+<span class="lineNum">     123 </span>            :     return ret;
+<a name="124"><span class="lineNum">     124 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     125 </span>            : 
+<a name="126"><span class="lineNum">     126 </span><span class="lineCov">          1 : const std::vector&lt;unsigned int&gt; ALL_FLAGS = AllFlags();</span></a>
+<span class="lineNum">     127 </span>            : 
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 : unsigned int ParseScriptFlags(const std::string&amp; str)</span>
+<span class="lineNum">     129 </span>            : {
+<span class="lineNum">     130 </span><span class="lineNoCov">          0 :     if (str.empty()) return 0;</span>
+<span class="lineNum">     131 </span>            : 
+<span class="lineNum">     132 </span>            :     unsigned int flags = 0;
+<span class="lineNum">     133 </span><span class="lineNoCov">          0 :     std::vector&lt;std::string&gt; words;</span>
+<span class="lineNum">     134 </span><span class="lineNoCov">          0 :     boost::algorithm::split(words, str, boost::algorithm::is_any_of(&quot;,&quot;));</span>
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span><span class="lineNoCov">          0 :     for (const std::string&amp; word : words)</span>
+<span class="lineNum">     137 </span>            :     {
+<span class="lineNum">     138 </span><span class="lineNoCov">          0 :         auto it = FLAG_NAMES.find(word);</span>
+<span class="lineNum">     139 </span><span class="lineNoCov">          0 :         if (it == FLAG_NAMES.end()) throw std::runtime_error(&quot;Unknown verification flag &quot; + word);</span>
+<span class="lineNum">     140 </span><span class="lineNoCov">          0 :         flags |= it-&gt;second;</span>
+<span class="lineNum">     141 </span><span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     142 </span>            : 
+<span class="lineNum">     143 </span>            :     return flags;
+<a name="144"><span class="lineNum">     144 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     145 </span>            : 
+<span class="lineNum">     146 </span><span class="lineNoCov">          0 : void Test(const std::string&amp; str)</span>
+<span class="lineNum">     147 </span>            : {
+<span class="lineNum">     148 </span><span class="lineNoCov">          0 :     UniValue test;</span>
+<span class="lineNum">     149 </span><span class="lineNoCov">          0 :     if (!test.read(str) || !test.isObject()) throw std::runtime_error(&quot;Non-object test input&quot;);</span>
+<span class="lineNum">     150 </span>            : 
+<span class="lineNum">     151 </span><span class="lineNoCov">          0 :     CMutableTransaction tx = TxFromHex(test[&quot;tx&quot;].get_str());</span>
+<span class="lineNum">     152 </span><span class="lineNoCov">          0 :     const std::vector&lt;CTxOut&gt; prevouts = TxOutsFromJSON(test[&quot;prevouts&quot;]);</span>
+<span class="lineNum">     153 </span><span class="lineNoCov">          0 :     if (prevouts.size() != tx.vin.size()) throw std::runtime_error(&quot;Incorrect number of prevouts&quot;);</span>
+<span class="lineNum">     154 </span><span class="lineNoCov">          0 :     size_t idx = test[&quot;index&quot;].get_int64();</span>
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :     if (idx &gt;= tx.vin.size()) throw std::runtime_error(&quot;Invalid index&quot;);</span>
+<span class="lineNum">     156 </span><span class="lineNoCov">          0 :     unsigned int test_flags = ParseScriptFlags(test[&quot;flags&quot;].get_str());</span>
+<span class="lineNum">     157 </span><span class="lineNoCov">          0 :     bool final = test.exists(&quot;final&quot;) &amp;&amp; test[&quot;final&quot;].get_bool();</span>
+<span class="lineNum">     158 </span>            : 
+<span class="lineNum">     159 </span><span class="lineNoCov">          0 :     if (test.exists(&quot;success&quot;)) {</span>
+<span class="lineNum">     160 </span><span class="lineNoCov">          0 :         tx.vin[idx].scriptSig = ScriptFromHex(test[&quot;success&quot;][&quot;scriptSig&quot;].get_str());</span>
+<span class="lineNum">     161 </span><span class="lineNoCov">          0 :         tx.vin[idx].scriptWitness = ScriptWitnessFromJSON(test[&quot;success&quot;][&quot;witness&quot;]);</span>
+<span class="lineNum">     162 </span><span class="lineNoCov">          0 :         PrecomputedTransactionData txdata;</span>
+<span class="lineNum">     163 </span><span class="lineNoCov">          0 :         txdata.Init(tx, std::vector&lt;CTxOut&gt;(prevouts));</span>
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :         MutableTransactionSignatureChecker txcheck(&amp;tx, idx, prevouts[idx].nValue, txdata);</span>
+<span class="lineNum">     165 </span><span class="lineNoCov">          0 :         for (const auto flags : ALL_FLAGS) {</span>
+<span class="lineNum">     166 </span>            :             // &quot;final&quot;: true tests are valid for all flags. Others are only valid with flags that are
+<span class="lineNum">     167 </span>            :             // a subset of test_flags.
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 :             if (final || ((flags &amp; test_flags) == flags)) {</span>
+<span class="lineNum">     169 </span><span class="lineNoCov">          0 :                 (void)VerifyScript(tx.vin[idx].scriptSig, prevouts[idx].scriptPubKey, &amp;tx.vin[idx].scriptWitness, flags, txcheck, nullptr);</span>
+<span class="lineNum">     170 </span>            :             }
+<span class="lineNum">     171 </span>            :         }
+<span class="lineNum">     172 </span><span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     173 </span>            : 
+<span class="lineNum">     174 </span><span class="lineNoCov">          0 :     if (test.exists(&quot;failure&quot;)) {</span>
+<span class="lineNum">     175 </span><span class="lineNoCov">          0 :         tx.vin[idx].scriptSig = ScriptFromHex(test[&quot;failure&quot;][&quot;scriptSig&quot;].get_str());</span>
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 :         tx.vin[idx].scriptWitness = ScriptWitnessFromJSON(test[&quot;failure&quot;][&quot;witness&quot;]);</span>
+<span class="lineNum">     177 </span><span class="lineNoCov">          0 :         PrecomputedTransactionData txdata;</span>
+<span class="lineNum">     178 </span><span class="lineNoCov">          0 :         txdata.Init(tx, std::vector&lt;CTxOut&gt;(prevouts));</span>
+<span class="lineNum">     179 </span><span class="lineNoCov">          0 :         MutableTransactionSignatureChecker txcheck(&amp;tx, idx, prevouts[idx].nValue, txdata);</span>
+<span class="lineNum">     180 </span><span class="lineNoCov">          0 :         for (const auto flags : ALL_FLAGS) {</span>
+<span class="lineNum">     181 </span>            :             // If a test is supposed to fail with test_flags, it should also fail with any superset thereof.
+<span class="lineNum">     182 </span><span class="lineNoCov">          0 :             if ((flags &amp; test_flags) == test_flags) {</span>
+<span class="lineNum">     183 </span><span class="lineNoCov">          0 :                 (void)VerifyScript(tx.vin[idx].scriptSig, prevouts[idx].scriptPubKey, &amp;tx.vin[idx].scriptWitness, flags, txcheck, nullptr);</span>
+<span class="lineNum">     184 </span>            :             }
+<span class="lineNum">     185 </span>            :         }
+<span class="lineNum">     186 </span><span class="lineNoCov">          0 :     }</span>
+<a name="187"><span class="lineNum">     187 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     188 </span>            : 
+<span class="lineNum">     189 </span><span class="lineCov">          1 : ECCVerifyHandle handle;</span>
+<span class="lineNum">     190 </span>            : 
+<a name="191"><span class="lineNum">     191 </span>            : }</a>
+<span class="lineNum">     192 </span>            : 
+<span class="lineNum">     193 </span><span class="lineCov">          2 : void test_one_input(const std::vector&lt;uint8_t&gt;&amp; buffer)</span>
+<span class="lineNum">     194 </span>            : {
+<span class="lineNum">     195 </span><span class="lineCov">          2 :     if (buffer.size() &lt; 2 || buffer.back() != '\n' || buffer[buffer.size() - 2] != ',') return;</span>
+<span class="lineNum">     196 </span><span class="lineNoCov">          0 :     const std::string str((const char*)buffer.data(), buffer.size() - 2);</span>
+<span class="lineNum">     197 </span>            :     try {
+<span class="lineNum">     198 </span><span class="lineNoCov">          0 :         Test(str);</span>
+<span class="lineNum">     199 </span><span class="lineNoCov">          0 :     } catch (const std::runtime_error&amp;) {}</span>
+<span class="lineNum">     200 </span><span class="lineCov">          2 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
