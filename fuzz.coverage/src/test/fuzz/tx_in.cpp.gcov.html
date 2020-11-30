@@ -37,12 +37,21 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2020-08-10 06:23:20</td>
+            <td class="headerValue">2020-11-29 19:00:12</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
             <td class="headerCovTableEntry">1</td>
             <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntryLo">61.1 %</td>
           </tr>
           <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -58,41 +67,41 @@
     </tr>
     <tr>
       <td>
-<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
 <pre class="source">
-<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2019 The Bitcoin Core developers</a>
-<span class="lineNum">       2 </span>            : // Distributed under the MIT software license, see the accompanying
-<span class="lineNum">       3 </span>            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
-<span class="lineNum">       4 </span>            : 
-<span class="lineNum">       5 </span>            : #include &lt;consensus/validation.h&gt;
-<span class="lineNum">       6 </span>            : #include &lt;core_memusage.h&gt;
-<span class="lineNum">       7 </span>            : #include &lt;policy/policy.h&gt;
-<span class="lineNum">       8 </span>            : #include &lt;primitives/transaction.h&gt;
-<span class="lineNum">       9 </span>            : #include &lt;streams.h&gt;
-<span class="lineNum">      10 </span>            : #include &lt;test/fuzz/fuzz.h&gt;
-<span class="lineNum">      11 </span>            : #include &lt;version.h&gt;
-<span class="lineNum">      12 </span>            : 
-<a name="13"><span class="lineNum">      13 </span>            : #include &lt;cassert&gt;</a>
-<span class="lineNum">      14 </span>            : 
-<span class="lineNum">      15 </span><span class="lineCov">         81 : void test_one_input(const std::vector&lt;uint8_t&gt;&amp; buffer)</span>
-<span class="lineNum">      16 </span>            : {
-<span class="lineNum">      17 </span><span class="lineCov">         81 :     CDataStream ds(buffer, SER_NETWORK, INIT_PROTO_VERSION);</span>
-<span class="lineNum">      18 </span><span class="lineCov">         81 :     CTxIn tx_in;</span>
-<span class="lineNum">      19 </span>            :     try {
-<span class="lineNum">      20 </span><span class="lineCov">         81 :         int version;</span>
-<span class="lineNum">      21 </span><span class="lineCov">         81 :         ds &gt;&gt; version;</span>
-<span class="lineNum">      22 </span><span class="lineCov">         78 :         ds.SetVersion(version);</span>
-<span class="lineNum">      23 </span><span class="lineCov">         78 :         ds &gt;&gt; tx_in;</span>
-<span class="lineNum">      24 </span><span class="lineCov">         81 :     } catch (const std::ios_base::failure&amp;) {</span>
-<span class="lineNum">      25 </span>            :         return;
-<span class="lineNum">      26 </span><span class="lineCov">         28 :     }</span>
-<span class="lineNum">      27 </span>            : 
-<span class="lineNum">      28 </span><span class="lineCov">         53 :     (void)GetTransactionInputWeight(tx_in);</span>
-<span class="lineNum">      29 </span><span class="lineCov">         53 :     (void)GetVirtualTransactionInputSize(tx_in);</span>
-<span class="lineNum">      30 </span><span class="lineCov">         53 :     (void)RecursiveDynamicUsage(tx_in);</span>
-<span class="lineNum">      31 </span>            : 
-<span class="lineNum">      32 </span><span class="lineCov">         53 :     (void)tx_in.ToString();</span>
-<span class="lineNum">      33 </span><span class="lineCov">        109 : }</span>
+<a name="1"><span class="lineNum">       1 </span>                :            : // Copyright (c) 2019 The Bitcoin Core developers</a>
+<a name="2"><span class="lineNum">       2 </span>                :            : // Distributed under the MIT software license, see the accompanying</a>
+<a name="3"><span class="lineNum">       3 </span>                :            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.</a>
+<a name="4"><span class="lineNum">       4 </span>                :            : </a>
+<a name="5"><span class="lineNum">       5 </span>                :            : #include &lt;consensus/validation.h&gt;</a>
+<a name="6"><span class="lineNum">       6 </span>                :            : #include &lt;core_memusage.h&gt;</a>
+<a name="7"><span class="lineNum">       7 </span>                :            : #include &lt;policy/policy.h&gt;</a>
+<a name="8"><span class="lineNum">       8 </span>                :            : #include &lt;primitives/transaction.h&gt;</a>
+<a name="9"><span class="lineNum">       9 </span>                :            : #include &lt;streams.h&gt;</a>
+<a name="10"><span class="lineNum">      10 </span>                :            : #include &lt;test/fuzz/fuzz.h&gt;</a>
+<a name="11"><span class="lineNum">      11 </span>                :            : #include &lt;version.h&gt;</a>
+<a name="12"><span class="lineNum">      12 </span>                :            : </a>
+<a name="13"><span class="lineNum">      13 </span>                :            : #include &lt;cassert&gt;</a>
+<a name="14"><span class="lineNum">      14 </span>                :            : </a>
+<a name="15"><span class="lineNum">      15 </span>                :<span class="lineCov">        127 : void test_one_input(const std::vector&lt;uint8_t&gt;&amp; buffer)</span></a>
+<a name="16"><span class="lineNum">      16 </span>                :            : {</a>
+<a name="17"><span class="lineNum">      17 </span>                :<span class="lineCov">        127 :     CDataStream ds(buffer, SER_NETWORK, INIT_PROTO_VERSION);</span></a>
+<a name="18"><span class="lineNum">      18 </span>        [<span class="branchCov" title="Branch 0 was taken 127 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        127 :     CTxIn tx_in;</span></a>
+<a name="19"><span class="lineNum">      19 </span>                :            :     try {</a>
+<a name="20"><span class="lineNum">      20 </span>                :<span class="lineCov">        127 :         int version;</span></a>
+<a name="21"><span class="lineNum">      21 </span>        [<span class="branchCov" title="Branch 0 was taken 123 times"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">        127 :         ds &gt;&gt; version;</span></a>
+<a name="22"><span class="lineNum">      22 </span>                :<span class="lineCov">        123 :         ds.SetVersion(version);</span></a>
+<a name="23"><span class="lineNum">      23 </span>        [<span class="branchCov" title="Branch 0 was taken 89 times"> + </span><span class="branchCov" title="Branch 1 was taken 34 times"> + </span>]:<span class="lineCov">        123 :         ds &gt;&gt; tx_in;</span></a>
+<a name="24"><span class="lineNum">      24 </span>        [<span class="branchCov" title="Branch 0 was taken 38 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        127 :     } catch (const std::ios_base::failure&amp;) {</span></a>
+<a name="25"><span class="lineNum">      25 </span>                :            :         return;</a>
+<a name="26"><span class="lineNum">      26 </span>        [<span class="branchCov" title="Branch 0 was taken 38 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         38 :     }</span></a>
+<a name="27"><span class="lineNum">      27 </span>                :            : </a>
+<a name="28"><span class="lineNum">      28 </span>        [<span class="branchCov" title="Branch 0 was taken 89 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         89 :     (void)GetTransactionInputWeight(tx_in);</span></a>
+<a name="29"><span class="lineNum">      29 </span>        [<span class="branchCov" title="Branch 0 was taken 89 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         89 :     (void)GetVirtualTransactionInputSize(tx_in);</span></a>
+<a name="30"><span class="lineNum">      30 </span>        [<span class="branchCov" title="Branch 0 was taken 89 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         89 :     (void)RecursiveDynamicUsage(tx_in);</span></a>
+<a name="31"><span class="lineNum">      31 </span>                :            : </a>
+<a name="32"><span class="lineNum">      32 </span>        [<span class="branchCov" title="Branch 0 was taken 89 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         89 :     (void)tx_in.ToString();</span></a>
+<a name="33"><span class="lineNum">      33 </span>                :<span class="lineCov">        165 : }</span></a>
 </pre>
       </td>
     </tr>
@@ -101,7 +110,7 @@
 
   <table width="100%" border=0 cellspacing=0 cellpadding=0>
     <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
-    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.15</a></td></tr>
   </table>
   <br>
 

@@ -37,12 +37,21 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2020-08-10 06:23:20</td>
+            <td class="headerValue">2020-11-29 19:00:12</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
             <td class="headerCovTableEntry">1</td>
             <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryLo">66.7 %</td>
           </tr>
           <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -58,24 +67,24 @@
     </tr>
     <tr>
       <td>
-<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
 <pre class="source">
-<a name="1"><span class="lineNum">       1 </span>            : // Copyright (c) 2009-2019 The Bitcoin Core developers</a>
-<span class="lineNum">       2 </span>            : // Distributed under the MIT software license, see the accompanying
-<span class="lineNum">       3 </span>            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.
-<span class="lineNum">       4 </span>            : 
-<span class="lineNum">       5 </span>            : #include &lt;core_io.h&gt;
-<span class="lineNum">       6 </span>            : #include &lt;script/script.h&gt;
-<a name="7"><span class="lineNum">       7 </span>            : #include &lt;test/fuzz/fuzz.h&gt;</a>
-<span class="lineNum">       8 </span>            : 
-<span class="lineNum">       9 </span><span class="lineCov">        344 : void test_one_input(const std::vector&lt;uint8_t&gt;&amp; buffer)</span>
-<span class="lineNum">      10 </span>            : {
-<span class="lineNum">      11 </span><span class="lineCov">        344 :     const std::string script_string(buffer.begin(), buffer.end());</span>
-<span class="lineNum">      12 </span>            :     try {
-<span class="lineNum">      13 </span><span class="lineCov">        344 :         (void)ParseScript(script_string);</span>
-<span class="lineNum">      14 </span><span class="lineCov">        344 :     } catch (const std::runtime_error&amp;) {</span>
-<span class="lineNum">      15 </span><span class="lineCov">        262 :     }</span>
-<span class="lineNum">      16 </span><span class="lineCov">        606 : }</span>
+<a name="1"><span class="lineNum">       1 </span>                :            : // Copyright (c) 2009-2019 The Bitcoin Core developers</a>
+<a name="2"><span class="lineNum">       2 </span>                :            : // Distributed under the MIT software license, see the accompanying</a>
+<a name="3"><span class="lineNum">       3 </span>                :            : // file COPYING or http://www.opensource.org/licenses/mit-license.php.</a>
+<a name="4"><span class="lineNum">       4 </span>                :            : </a>
+<a name="5"><span class="lineNum">       5 </span>                :            : #include &lt;core_io.h&gt;</a>
+<a name="6"><span class="lineNum">       6 </span>                :            : #include &lt;script/script.h&gt;</a>
+<a name="7"><span class="lineNum">       7 </span>                :            : #include &lt;test/fuzz/fuzz.h&gt;</a>
+<a name="8"><span class="lineNum">       8 </span>                :            : </a>
+<a name="9"><span class="lineNum">       9 </span>                :<span class="lineCov">        414 : void test_one_input(const std::vector&lt;uint8_t&gt;&amp; buffer)</span></a>
+<a name="10"><span class="lineNum">      10 </span>                :            : {</a>
+<a name="11"><span class="lineNum">      11 </span>                :<span class="lineCov">        414 :     const std::string script_string(buffer.begin(), buffer.end());</span></a>
+<a name="12"><span class="lineNum">      12 </span>                :            :     try {</a>
+<a name="13"><span class="lineNum">      13 </span>        [<span class="branchCov" title="Branch 0 was taken 109 times"> + </span><span class="branchCov" title="Branch 1 was taken 305 times"> + </span>]:<span class="lineCov">        414 :         (void)ParseScript(script_string);</span></a>
+<a name="14"><span class="lineNum">      14 </span>        [<span class="branchCov" title="Branch 0 was taken 305 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        414 :     } catch (const std::runtime_error&amp;) {</span></a>
+<a name="15"><span class="lineNum">      15 </span>        [<span class="branchCov" title="Branch 0 was taken 305 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        305 :     }</span></a>
+<a name="16"><span class="lineNum">      16 </span>                :<span class="lineCov">        719 : }</span></a>
 </pre>
       </td>
     </tr>
@@ -84,7 +93,7 @@
 
   <table width="100%" border=0 cellspacing=0 cellpadding=0>
     <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
-    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.15</a></td></tr>
   </table>
   <br>
 
